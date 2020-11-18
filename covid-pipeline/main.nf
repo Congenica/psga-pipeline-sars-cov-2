@@ -8,7 +8,7 @@ nextflow.enable.dsl = 2
 /*
  * Define ncov-artic-nf pipeline parameters
  */
-params.ncov_pipeline_dir = "${HOME}/ncov2019-artic-nf"
+params.ncov_pipeline_dir = "${HOME}/ps-bahrain-covid/ncov2019-artic-nf"
 params.ncov_docker_image = "ncov2019_edited:latest"
 params.ncov_prefix = "covid_test"
 /* 1 fastq file only for testing */
