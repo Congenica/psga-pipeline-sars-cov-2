@@ -42,8 +42,6 @@ workflow {
         params.ncov_docker_image,
         params.ncov_prefix,
         params.ncov_fastq_sample_dir,
-        params.ncov_results,
         params.ncov_done
     )
-
 }
