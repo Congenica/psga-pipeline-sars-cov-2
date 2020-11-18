@@ -66,7 +66,9 @@ aws s3 cp s3://congenica-development-data-share/SAP-18211_Bahrain_COVID ~/Bahrai
 # install nextflow: https://www.nextflow.io/docs/latest/getstarted.html
 
 # set up the ncov project
-git clone https://github.com/connor-lab/ncov2019-artic-nf.git -o ncov2019-artic-nf
+git submodule init
+git submodule update
+
 cd ncov2019-artic-nf
 # this is not required for running the pipeline using dockers, but for some reason it is required for running
 # the pipeline with docker as part of our workflow. I haven't yet figured out why it works in one case and not in the other..
@@ -74,6 +76,7 @@ echo "COPY bin/qc.py /opt/conda/envs/artic-ncov2019-illumina/bin" >> environment
 
 # build the ncov docker image
 docker build -f environments/illumina/Dockerfile -t ncov2019_edited:latest .
+cd -
 
 
 mkdir ~/ncov_results
