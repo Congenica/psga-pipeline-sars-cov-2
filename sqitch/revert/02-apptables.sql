@@ -16,9 +16,11 @@ BEGIN;
 
   DROP TABLE IF EXISTS "comorbidity";
 
+  DROP TABLE IF EXISTS "governorate";
+
   DROP TYPE "gender";
 
-  DROP TYPE "governerate";
+  DROP TYPE "governorate_name";
 
   DROP TYPE "hospital_admittance";
 
