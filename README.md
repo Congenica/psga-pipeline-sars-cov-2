@@ -53,3 +53,40 @@ If authentication fails, try adding connection info to the command-line. For exa
 ```commandline
 sqitch --db-user postgres --db-host localhost --db-port 5432 deploy db:pg:bahrain_sars_cov_2
 ```
+
+
+### COVID pipeline
+
+To run this covid pipeline, the ncov illumina docker image must be edited and built first:
+
+```
+# get this s3 folder - it contains only a couple of FASTQ files for now
+aws s3 cp s3://congenica-development-data-share/SAP-18211_Bahrain_COVID ~/Bahrain_COVID_s3_data_lite --recursive
+
+# install nextflow: https://www.nextflow.io/docs/latest/getstarted.html
+
+# set up the ncov project
+git clone https://github.com/connor-lab/ncov2019-artic-nf.git -o ncov2019-artic-nf
+cd ncov2019-artic-nf
+# this is not required for running the pipeline using dockers, but for some reason it is required for running
+# the pipeline with docker as part of our workflow. I haven't yet figured out why it works in one case and not in the other..
+echo "COPY bin/qc.py /opt/conda/envs/artic-ncov2019-illumina/bin" >> environments/illumina/Dockerfile
+
+# build the ncov docker image
+docker build -f environments/illumina/Dockerfile -t ncov2019_edited:latest .
+
+
+mkdir ~/ncov_results
+
+
+# run our covid pipeline which executes ncov
+cd covid-pipeline
+nextflow run .
+
+
+
+# Not sure whether it is best calling ncov as a workflow directly or via nested nextflow pipeline..
+
+
+```
+
