@@ -125,7 +125,7 @@ docker build -f environments/illumina/Dockerfile -t ncov2019_edited:latest .
 cd -
 
 # build the python image
-docker build -t 144563655722.dkr.ecr.eu-west-1.amazonaws.com/congenica/dev/covid-pipeline:python_latest .
+docker build -t 144563655722.dkr.ecr.eu-west-1.amazonaws.com/congenica/dev/covid-pipeline:1.0.0 .
 
 
 mkdir ~/ncov_results

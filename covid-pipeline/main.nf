@@ -15,7 +15,7 @@ params.ncov_prefix = "covid_test"
 params.ncov_fastq_sample_dir = "${HOME}/Bahrain_COVID_s3_data_lite/sample_data"
 params.ncov_results    = "${HOME}/ncov_results"
 params.ncov_done = "ncov.done"
-params.python_docker_image = "144563655722.dkr.ecr.eu-west-1.amazonaws.com/congenica/dev/covid-pipeline:python_latest"
+params.python_docker_image = "144563655722.dkr.ecr.eu-west-1.amazonaws.com/congenica/dev/covid-pipeline:1.0.0"
 params.fasta_storage_dir = "${GENOME_FASTA_PATH}"
 
 
