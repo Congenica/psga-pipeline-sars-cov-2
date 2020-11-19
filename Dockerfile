@@ -10,12 +10,10 @@ RUN apt-get update && \
 
 WORKDIR /app
 
-COPY pyproject.toml poetry.lock ./
+COPY . .
 
 RUN pip install --progress-bar=off --no-cache-dir --upgrade pip==${PIP_VERSION} && \
     pip install --progress-bar=off --no-cache-dir poetry==${POETRY_VERSION} && \
     # make poetry install everything system wide, no need for a virtualenv in docker
     poetry config virtualenvs.create false && \
     poetry install --no-interaction --no-ansi --no-dev
-
-COPY . .
