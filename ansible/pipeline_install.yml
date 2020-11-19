@@ -12,6 +12,9 @@
     _s3_bucket: 's3://congenica-development-data-share/SAP-18211_Bahrain_COVID'
     _s3_sync_dir: '~/SAP-18211_Bahrain_COVID'
 
+  vars_files:
+    - vars/env_vars.yml
+
   vars_prompt:
     - name: _github_username
       prompt: 'GitHub username '

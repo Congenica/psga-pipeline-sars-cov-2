@@ -9,3 +9,11 @@
   environment:
     AWS_ACCESS_KEY_ID: '{{ aws_key_id }}'
     AWS_SECRET_ACCESS_KEY: '{{ aws_private_key }}'
+
+- name: SARS-CoV-2 pipeline - set environment variables
+  lineinfile:
+    path: ~/.bashrc
+    state: present
+    regexp: "^{{ item.key }}="
+    line: "export {{ item.key }}={{ item.value}}"
+  with_items: "{{ environment_vars }}"

@@ -16,8 +16,9 @@ Vagrant.configure("2") do |config|
           github_username: "",
           github_password_or_token: "",
           aws_key_id: "",
-          aws_private_key: ""
+          aws_private_key: "",
         }
+        ansible.extra_vars = '../../vars/env_vars.yml'
         ansible.verbose = true
       end
     end
