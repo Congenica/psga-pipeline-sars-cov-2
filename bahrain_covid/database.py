@@ -7,6 +7,8 @@ from sqlalchemy.orm import scoped_session, sessionmaker
 def connect():
     """
     Connect to the database. Connection details will be retrieved from environment variables.
+
+    :return Engine: SQLAlchemy engine
     """
     host = environ.get("DB_HOST", "localhost")
     port = environ.get("DB_PORT", 5432)
@@ -29,6 +31,11 @@ def connect():
 
 
 def session():
+    """
+    Create and return a database session for querying.
+
+    :return scoped_session: an SQLAlchemy session
+    """
     engine = connect()
     session_factory = sessionmaker(expire_on_commit=False)
     Session = scoped_session(session_factory)
