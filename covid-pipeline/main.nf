@@ -12,10 +12,10 @@ params.ncov_pipeline_dir = "${HOME}/ps-bahrain-covid/ncov2019-artic-nf"
 params.ncov_docker_image = "ncov2019_edited:latest"
 params.ncov_prefix = "covid_test"
 /* 1 fastq file only for testing */
-params.ncov_fastq_sample_dir = "${HOME}/Bahrain_COVID_s3_data_lite/sample_handful_file"
+params.ncov_fastq_sample_dir = "${HOME}/Bahrain_COVID_s3_data_lite/sample_data"
 params.ncov_results    = "${HOME}/ncov_results"
 params.ncov_done = "ncov.done"
-params.python_docker_image = "144563655722.dkr.ecr.eu-west-1.amazonaws.com/congenica/dev/covid-pipeline:sap_18540_latest"
+params.python_docker_image = "144563655722.dkr.ecr.eu-west-1.amazonaws.com/congenica/dev/covid-pipeline:python_latest"
 params.fasta_storage_dir = "${GENOME_FASTA_PATH}"
 
 
@@ -50,9 +50,9 @@ workflow {
     )
 
     // we flatten the resulting fasta, so that pipeline branches off per-fasta to its own separate processes
-    run_ncov_artic_nf.out.fasta_ncov_results \
+    run_ncov_artic_nf.out.ch_fasta_ncov_results \
         .flatten() \
         .set { fasta_to_reheader }
         
-    reheadered_fasta = reheader_genome_fasta(fasta_to_reheader, "${HOME}/ps-bahrain-covid/scripts/reheader_fasta.py")
+    reheadered_fasta = reheader_genome_fasta(fasta_to_reheader)
 }

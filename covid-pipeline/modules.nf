@@ -13,8 +13,9 @@ process run_ncov_artic_nf {
     val ncov_done
 
   output:
-    path "${ncov_out_directory}/*", emit: all_ncov_results
-    path "${ncov_out_directory}/ncovIllumina_sequenceAnalysis_makeConsensus/*.fa", emit: fasta_ncov_results
+    path ncov_done, emit: ch_ncov_done
+    path "${ncov_out_directory}/*", emit: ch_all_ncov_results
+    path "${ncov_out_directory}/ncovIllumina_sequenceAnalysis_makeConsensus/*.fa", emit: ch_fasta_ncov_results
 
   script:
     ncov_out_directory = "ncov_output"
@@ -34,15 +35,14 @@ process reheader_genome_fasta {
 
   input:
     path ncov_fasta
-    path script_file
 
   output:
     path "*.fasta"
 
   script:
-    output_directory = "./"
+    files_dir = "./"
 
   """
-  python /app/scripts/reheader_fasta.py ${ncov_fasta} ${output_directory}
+  python /app/scripts/reheader_fasta.py ${files_dir}
   """
 }
