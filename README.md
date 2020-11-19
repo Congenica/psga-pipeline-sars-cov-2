@@ -124,6 +124,9 @@ echo "COPY bin/qc.py /opt/conda/envs/artic-ncov2019-illumina/bin" >> environment
 docker build -f environments/illumina/Dockerfile -t ncov2019_edited:latest .
 cd -
 
+# build the python image
+docker build -t 144563655722.dkr.ecr.eu-west-1.amazonaws.com/congenica/dev/covid-pipeline:1.0.0 .
+
 
 mkdir ~/ncov_results
 
@@ -139,3 +142,10 @@ nextflow run .
 
 ```
 
+#### Environment variables
+
+Environment variables required to run the pipeline:
+
+| Variable | Description |
+| :---------------- | :---------------------------------------------------------------- |
+| GENOME_FASTA_PATH | Directory path, where re-headered ncov fasta files will be stored |

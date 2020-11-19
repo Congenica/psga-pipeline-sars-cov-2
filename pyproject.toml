@@ -9,6 +9,7 @@ license = "Proprietary"
 python = "^3.8"
 click = "~7.1"
 psycopg2 = "~2.8"
+biopython = "^1.78"
 
 [tool.poetry.dev-dependencies]
 pytest = "~6.1"
