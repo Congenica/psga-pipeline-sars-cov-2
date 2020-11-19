@@ -1,5 +1,51 @@
 # ps-bahrain-covid
 
+## Poetry
+
+`Poetry` manages Python dependencies. Dependencies are declared in `pyproject.toml` and exact versions of both dependencies and sub-dependencies are stored in `poetry.lock` both of which must be committed to the git repo.
+
+### Setting up your local environment
+
+Follow the [instructions](https://python-poetry.org/docs/) to install Poetry however suits your local environment. Once installed simply run
+
+```commandline
+poetry install
+```
+
+in the git checkout to create a virtual environment and install all dependencies. A [plugin](https://plugins.jetbrains.com/plugin/14307-poetry) is available to help with using the Poetry virtual environments in PyCharm.
+
+### Adding libraries
+
+To add a new library, run (for example):
+
+```commandline
+poetry add boto3
+```
+
+This will install the latest version of `boto3` and all it's dependencies and update the `poetry.lock` file. You can also add a version constraint to this if you don't want the latest version, e.g.
+
+```commandline
+poetry add "boto3>=1.14,<1.16"
+```
+
+### Upgrading libraries
+
+Run
+
+```commandline
+poetry update
+```
+
+to update all libraries to their latest versions, while still matching the constraints in `pyproject.toml`.
+
+If you want to update a package to it's latest version, run
+
+```commandline
+poetry add package@latest
+```
+
+To update to a specific version that is not the latest version, re-run the add command specifying a different version constraint.
+
 ## Sqitch
 
 `Sqitch` manages all schema migrations. Prerequisites for running the `sqitch`:
