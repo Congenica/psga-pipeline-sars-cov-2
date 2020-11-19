@@ -1,0 +1,19 @@
+FROM continuumio/miniconda3:latest AS condabuild
+
+COPY pangolin/environment.yml /environment.yml
+RUN /opt/conda/bin/conda update conda \
+  && /opt/conda/bin/conda env create -f /environment.yml -n pangolin
+
+
+FROM debian:buster-slim
+RUN apt-get update && \
+apt-get install -y git procps && \
+apt-get clean -y
+COPY --from=condabuild /opt/conda/envs/pangolin /opt/conda/envs/pangolin
+ENV PATH=/opt/conda/envs/pangolin/bin:$PATH
+COPY pangolin/ /pangolin
+RUN cd /pangolin \
+  && python setup.py install \
+  && pip install git+https://github.com/cov-lineages/pangoLEARN.git --upgrade \
+  && pip install git+https://github.com/cov-lineages/lineages.git --upgrade
+
