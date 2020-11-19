@@ -30,3 +30,13 @@ variables can also be passed through the command. These will override anything s
 ```shell
 ansible-playbook --connection=local -i 127.0.0.1, ansible/pipeline_install.yml --extra-vars "_pipeline_user=foo"
 ```
+
+Environment variables can be set for the `_pipeline_user` user by adding them to `vars/env_vars.yml`...
+
+```shell
+environment_vars:
+  - key: GENOME_FASTA_PATH
+    value : '~/foo'
+  - key: DIFFERENT_VAR
+    value : '~/bar'
+```
