@@ -17,3 +17,4 @@
     regexp: "^{{ item.key }}="
     line: "export {{ item.key }}={{ item.value}}"
   with_items: "{{ environment_vars }}"
+  
