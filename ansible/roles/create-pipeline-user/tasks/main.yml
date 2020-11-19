@@ -1,0 +1,22 @@
+---
+- name: SARS-CoV-2 pipeline - create 'docker' group
+  group:
+    name: docker
+    state: present
+      
+- name: SARS-CoV-2 pipeline - create pipeline_user, add to 'wheel' and 'docker' groups
+  user:
+    name: "{{ username }}"
+    shell: /bin/bash
+    createhome: yes
+    comment: 'created with ansible'
+    groups: ['wheel','docker']
+    state: present
+
+- name: SARS-CoV-2 pipeline - allow 'wheel' group to have passwordless sudo
+  lineinfile:
+    dest: /etc/sudoers
+    state: present
+    regexp: '^%wheel'
+    line: '%wheel ALL=(ALL) NOPASSWD: ALL'
+    validate: 'visudo -cf %s'

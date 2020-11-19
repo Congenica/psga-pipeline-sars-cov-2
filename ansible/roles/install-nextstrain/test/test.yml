@@ -1,0 +1,7 @@
+---
+- hosts: all
+  become: true
+  roles:
+    - { role: ../../install-os-packages, yum_update: false }
+    - { role: ../../create-pipeline-user, username: "{{ pipeline_user }}" }
+    - { role: ../../install-nextstrain, become_user: "{{ pipeline_user }}" }

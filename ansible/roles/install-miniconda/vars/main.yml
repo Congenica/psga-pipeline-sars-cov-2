@@ -1,0 +1,5 @@
+---
+# vars file for the miniconda installation
+
+miniconda3_installer_url: https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
+miniconda3_install_dir: '~/miniconda'
