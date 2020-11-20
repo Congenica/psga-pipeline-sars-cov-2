@@ -8,14 +8,14 @@ log.info """\
     COVID pipeline v 1.0.0
     ======================
     ncov2019-artic-nf config:
-    * fastq sample dir : $params.ncov_fastq_sample_dir
-    * project dir      : $params.ncov_pipeline_dir
     * docker image     : $params.ncov_docker_image
     * prefix           : $params.ncov_prefix
 
     env vars:
-    * COVID_PIPELINE_WORKDIR : ${COVID_PIPELINE_WORKDIR}
-    * GENOME_FASTA_PATH      : ${GENOME_FASTA_PATH}
+    * COVID_PIPELINE_ROOTDIR    : ${COVID_PIPELINE_ROOTDIR}
+    * COVID_PIPELINE_FASTQ_PATH : ${COVID_PIPELINE_FASTQ_PATH}
+    * COVID_PIPELINE_WORKDIR    : ${COVID_PIPELINE_WORKDIR}
+    * COVID_PIPELINE_FASTA_PATH : ${COVID_PIPELINE_FASTA_PATH}
     ======================
 """
 
@@ -29,10 +29,8 @@ include { pangolin_pipeline } from './modules.nf'
 workflow {
 
     ncov2019_artic_nf_pipeline(
-        params.ncov_pipeline_dir,
         params.ncov_docker_image,
-        params.ncov_prefix,
-        params.ncov_fastq_sample_dir
+        params.ncov_prefix
     )
 
     // flatten the resulting fasta, so that pipeline branches off per-fasta to its own separate processes

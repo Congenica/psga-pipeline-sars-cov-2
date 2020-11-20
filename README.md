@@ -151,5 +151,7 @@ Environment variables required to run the pipeline. These environment variables 
 
 | Variable | Description |
 | :---------------- | :---------------------------------------------------------------- |
+| COVID_PIPELINE_ROOTDIR | Directory path, where all the pipeline git code is stored |
+| COVID_PIPELINE_FASTQ_PATH | Directory path, where the input fastq files are stored |
 | COVID_PIPELINE_WORKDIR | Directory path, where all the pipeline output is stored |
-| GENOME_FASTA_PATH | Directory path, where re-headered ncov fasta files will be stored |
+| COVID_PIPELINE_FASTA_PATH | Directory path, where re-headered ncov fasta files will be stored |
