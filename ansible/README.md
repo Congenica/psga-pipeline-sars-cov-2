@@ -33,6 +33,8 @@ ansible-playbook --connection=local -i 127.0.0.1, ansible/pipeline_install.yml -
 
 Environment variables can be set for the `_pipeline_user` user by adding them to `vars/env_vars.yml`...
 
+> Ensure that correct/relevant vars and values are set here before running the playbook.
+
 ```shell
 environment_vars:
   - key: GENOME_FASTA_PATH
