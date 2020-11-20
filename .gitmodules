@@ -1,3 +1,6 @@
 [submodule "ncov2019-artic-nf"]
 	path = ncov2019-artic-nf
 	url = https://github.com/connor-lab/ncov2019-artic-nf
+[submodule "pangolin"]
+	path = pangolin
+	url = https://github.com/cov-lineages/pangolin

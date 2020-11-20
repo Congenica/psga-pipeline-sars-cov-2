@@ -52,7 +52,7 @@ To update to a specific version that is not the latest version, re-run the add c
 
 * `sqitch` is installed in the machine. See [sqitch downloads page](https://sqitch.org/download/)
 * `Postgres` with `psql` installed in the environment. Has postgres user set up
-* `Postgres` has password exported to env variable 
+* `Postgres` has password exported to env variable
 ```commandline
 export PGPASSWORD=some_secret_password
 ```
@@ -105,33 +105,36 @@ sqitch --db-user postgres --db-host localhost --db-port 5432 deploy db:pg:bahrai
 
 To run this covid pipeline, the ncov illumina docker image must be edited and built first:
 
-```
+```commandline
 # get this s3 folder - it contains only a couple of FASTQ files for now
 aws s3 cp s3://congenica-development-data-share/SAP-18211_Bahrain_COVID ~/Bahrain_COVID_s3_data_lite --recursive
 
 # install nextflow: https://www.nextflow.io/docs/latest/getstarted.html
 
-# set up the ncov project
+# set up the projects: ncov, pangolin
 git submodule init
 git submodule update
 
+# build ncov docker image
 cd ncov2019-artic-nf
 # this is not required for running the pipeline using dockers, but for some reason it is required for running
 # the pipeline with docker as part of our workflow. I haven't yet figured out why it works in one case and not in the other..
 echo "COPY bin/qc.py /opt/conda/envs/artic-ncov2019-illumina/bin" >> environments/illumina/Dockerfile
-
-# build the ncov docker image
-docker build -f environments/illumina/Dockerfile -t ncov2019_edited:latest .
+docker build -f environments/illumina/Dockerfile -t ncov2019_artic_nf:1.0.0 .
 cd -
 
-# build the python image
+# build the covid-pipeline image
 docker build -t 144563655722.dkr.ecr.eu-west-1.amazonaws.com/congenica/dev/covid-pipeline:1.0.0 .
 
+# build pangolin docker image
+docker build -f environments/Dockerfile.pangolin -t pangolin:1.0.0 .
 
+
+# make covid pipeline output dir
 mkdir ~/ncov_results
 
 
-# run our covid pipeline which executes ncov
+# run our covid pipeline
 cd covid-pipeline
 nextflow run .
 
@@ -144,8 +147,11 @@ nextflow run .
 
 #### Environment variables
 
-Environment variables required to run the pipeline:
+Environment variables required to run the pipeline. These environment variables are set in covid-pipeline/nextflow.config
 
 | Variable | Description |
 | :---------------- | :---------------------------------------------------------------- |
-| GENOME_FASTA_PATH | Directory path, where re-headered ncov fasta files will be stored |
+| COVID_PIPELINE_ROOTDIR | Directory path, where all the pipeline git code is stored |
+| COVID_PIPELINE_FASTQ_PATH | Directory path, where the input fastq files are stored |
+| COVID_PIPELINE_WORKDIR | Directory path, where all the pipeline output is stored |
+| COVID_PIPELINE_FASTA_PATH | Directory path, where re-headered ncov fasta files will be stored |
