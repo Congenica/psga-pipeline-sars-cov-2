@@ -93,6 +93,12 @@ To revert the changes:
 sqitch revert db:pg:bahrain_sars_cov_2
 ```
 
+Manage migrations, deployment via docker image. Commands following postgres: status, deploy, verify, revert:
+```commandline
+docker run -v ${HOME}/ps-bahrain-covid/sqitch:/sqitch -w /sqitch -e PGPASSWORD=very_secret_password sqitch/sqitch --db-host sap-11281-bahrain-covid-pipeline.cbutwa8dg5pz.eu-west-1.rds.amazonaws.com --db-user postgres status db:pg:bahrain_sars_cov_2
+```
+
+
 ### Sqitch troubleshoot
 
 If authentication fails, try adding connection info to the command-line. For example:
