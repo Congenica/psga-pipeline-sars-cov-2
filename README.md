@@ -113,9 +113,10 @@ To run this covid pipeline, the ncov illumina docker image must be edited and bu
 
 ```commandline
 # get this s3 folder - it contains only a couple of FASTQ files for now
-aws s3 cp s3://congenica-development-data-share/SAP-18211_Bahrain_COVID ~/Bahrain_COVID_s3_data_lite --recursive
+aws s3 cp s3://congenica-development-data-share/Bahrain_COVID_s3_data_lite ~/Bahrain_COVID_s3_data_lite --recursive
 
-# install nextflow: https://www.nextflow.io/docs/latest/getstarted.html
+# install nextflow (copy nextflow cmd to a dir in your PATH):
+wget -qO- https://get.nextflow.io | bash
 
 # set up the projects: ncov, pangolin
 git submodule init
@@ -135,19 +136,9 @@ docker build -t 144563655722.dkr.ecr.eu-west-1.amazonaws.com/congenica/dev/covid
 # build pangolin docker image
 docker build -f environments/Dockerfile.pangolin -t pangolin:1.0.0 .
 
-
-# make covid pipeline output dir
-mkdir ~/ncov_results
-
-
 # run our covid pipeline
 cd covid-pipeline
 nextflow run .
-
-
-
-# Not sure whether it is best calling ncov as a workflow directly or via nested nextflow pipeline..
-
 
 ```
 
