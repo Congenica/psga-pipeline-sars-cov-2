@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "ps-bahrain-covid"
+name = "bahrain_covid"
 version = "1.0.0"
 description = ""
 authors = ["Congenica <dev@congenica.com>"]
@@ -10,6 +10,8 @@ python = "^3.8"
 click = "~7.1"
 psycopg2 = "~2.8"
 biopython = "^1.78"
+sqlalchemy = "~1.3"
+sqlacodegen = "^2.3.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "~6.1"
