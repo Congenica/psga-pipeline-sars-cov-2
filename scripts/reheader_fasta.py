@@ -30,8 +30,7 @@ def convert_file(source_file: Path, output_dir: Path) -> None:
             SeqIO.write(new_record, output, FASTQ_FILE_HANDLE)
 
     # write gene assembly lengths to file, for use in Nextstrain
-    lengths_file = join(output_dir, ASSEMBLY_LENGTHS_FILENAME)
-    with open(lengths_file, "a") as lengths_file:
+    with open(join(output_dir, ASSEMBLY_LENGTHS_FILENAME), "a") as lengths_file:
         for sequence, length in sequence_lengths.items():
             lengths_file.write(f"{sequence}\t{length}\n")
 
@@ -40,7 +39,7 @@ def convert_file(source_file: Path, output_dir: Path) -> None:
 # source directory to search for .fa files
 @click.argument("source")
 # directory to output. If not specified, will output to source directory
-@click.argument("destination", default="")
+@click.argument("destination", default="", envvar="GENOME_FASTA_PATH")
 def reheader_fasta(source: str, destination: str) -> None:
     """Genome sequences produce by ncov have sequence identifiers that include
     QC parameters. This is to get rid of them.
@@ -53,4 +52,5 @@ def reheader_fasta(source: str, destination: str) -> None:
 
 
 if __name__ == "__main__":
+    # pylint: disable=no-value-for-parameter
     reheader_fasta()

@@ -14,6 +14,12 @@ poetry install
 
 in the git checkout to create a virtual environment and install all dependencies. A [plugin](https://plugins.jetbrains.com/plugin/14307-poetry) is available to help with using the Poetry virtual environments in PyCharm.
 
+We use git pre-commit hooks to automatically run code formatting and linting on commit. These hooks are managed using a utility called `pre-commit`. After poetry install run the following command in this directory to install the hooks:
+
+```commandline
+pre-commit install --install-hooks
+```
+
 ### Adding libraries
 
 To add a new library, run (for example):

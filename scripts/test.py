@@ -1,3 +1,4 @@
+# pylint: disable=redefined-outer-name
 import tempfile
 from pathlib import Path
 
