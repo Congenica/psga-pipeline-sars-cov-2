@@ -7,15 +7,19 @@
   # Ensure that valid credentials can be provided when requested by the playbook.
   vars:
     _pipeline_user: 'pipeline'
-    _github_repo: 'Congenica/ps-bahrain-covid'
-    _github_checkout_dir: '~/ps-bahrain-covid'
-    _s3_bucket: 's3://congenica-development-data-share/SAP-18211_Bahrain_COVID'
-    _s3_sync_dir: '~/SAP-18211_Bahrain_COVID'
 
   vars_files:
     - vars/env_vars.yml
 
   vars_prompt:
+    - name: _github_repo
+      prompt: 'GitHub repo to clone '
+      private: no
+      default: 'Congenica/ps-bahrain-covid'
+    - name: _github_checkout_dir
+      prompt: 'directory to clone the GitHub repo into '
+      private: no
+      default: '~/ps-bahrain-covid'
     - name: _github_username
       prompt: 'GitHub username '
       private: no
@@ -23,6 +27,14 @@
       prompt: 'GitHub password or token '
       private: yes
       confirm: yes
+    - name: _s3_bucket
+      prompt: 'S3 bucket to sync '
+      private: no
+      default: 's3://congenica-development-data-share/SAP-18211_Bahrain_COVID'
+    - name: _s3_sync_dir
+      prompt: 'directory to sync the S3 bucket to '
+      private: no
+      default: '~/SAP-18211_Bahrain_COVID'
     - name: _aws_key_id
       prompt: 'AWS access key '
       private: no

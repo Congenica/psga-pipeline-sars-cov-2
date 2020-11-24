@@ -29,3 +29,8 @@
   template:
     src: nextstrain_config.j2
     dest: ~/.nextstrain/config
+
+- name: SARS-CoV-2 pipeline - clone the nextstrain ncov git repo
+  git:
+    repo: 'https://github.com/nextstrain/ncov'
+    dest: ~/ncov
