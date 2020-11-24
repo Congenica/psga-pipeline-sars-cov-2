@@ -3,6 +3,7 @@ from sqlalchemy import (
     Column,
     DateTime,
     Enum,
+    FetchedValue,
     Float,
     ForeignKey,
     Integer,
@@ -10,7 +11,6 @@ from sqlalchemy import (
     String,
     Table,
     Text,
-    text,
 )
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
@@ -95,7 +95,7 @@ class Sample(Base):
     sample_id = Column(
         Integer,
         primary_key=True,
-        server_default=text("nextval('\"sars_cov_2\".sample_sample_id_seq'::regclass)"),
+        server_default=FetchedValue(),
         comment="Primary key, serial sequence generated in the database",
     )
     lab_id = Column(String, comment="Lab sample identifier")
@@ -105,7 +105,7 @@ class Sample(Base):
     gender = Column(
         Enum("M", "F", "U", name="gender"),
         nullable=False,
-        server_default=text("'U'::gender"),
+        server_default=FetchedValue(),
         comment="Gender of host person",
     )
     age = Column(Integer, comment="Age of host person in years")
@@ -146,6 +146,38 @@ class Sample(Base):
     area = relationship("Area")
     block = relationship("Block")
     governorate = relationship("Governorate")
+    comorbidities = relationship(
+        "Comorbidity", secondary="sars_cov_2.sample_comorbidity"
+    )
+    sample_qc = relationship("SampleQc", uselist=False)
+
+
+class SampleQc(Base):
+    __tablename__ = "sample_qc"
+    __table_args__ = {
+        "schema": "sars_cov_2",
+        "comment": "Sample Quality Control, QC data for a sample",
+    }
+
+    sample_id = Column(
+        Integer,
+        ForeignKey(
+            "sars_cov_2.sample.sample_id", deferrable=True, initially="DEFERRED"
+        ),
+        primary_key=True,
+        comment="Primary key, and foreign key to sample table",
+    )
+    pct_N_bases = Column(Float(53), comment="percentage of N bases in sequenced genome")
+    pct_covered_bases = Column(
+        Float(53), comment="percentage of covered bases in sequenced genome"
+    )
+    longest_no_N_run = Column(Integer, comment="longest sequence run without N base")
+    num_aligned_reads = Column(
+        Float(53), comment="Number of reads succesfully aligned and mapped"
+    )
+    qc_pass = Column(Boolean, comment="Has sample passed QC")
+    qc_plot = Column(LargeBinary, comment="QC plot image")
+    pipeline_version = Column(String, comment="mapping pipeline version")
 
 
 t_sample_comorbidity = Table(
@@ -173,36 +205,4 @@ t_sample_comorbidity = Table(
     ),
     schema="sars_cov_2",
     comment="Sample comorbitiy, a linking table between the sample an comorbidity record",
-)
-
-
-t_sample_qc = Table(
-    "sample_qc",
-    metadata,
-    Column(
-        "sample_id",
-        ForeignKey(
-            "sars_cov_2.sample.sample_id", deferrable=True, initially="DEFERRED"
-        ),
-        comment="Primary key, and foreign key to sample table",
-    ),
-    Column(
-        "pct_N_bases", Float(53), comment="percentage of N bases in sequenced genome"
-    ),
-    Column(
-        "pct_covered_bases",
-        Float(53),
-        comment="percentage of covered bases in sequenced genome",
-    ),
-    Column("longest_no_N_run", Integer, comment="longest sequence run without N base"),
-    Column(
-        "num_aligned_reads",
-        Float(53),
-        comment="Number of reads succesfully aligned and mapped",
-    ),
-    Column("qc_pass", Boolean, comment="Has sample passed QC"),
-    Column("qc_plot", LargeBinary, comment="QC plot image"),
-    Column("pipeline_version", String, comment="mapping pipeline version"),
-    schema="sars_cov_2",
-    comment="Sample Quality Control, QC data for a sample",
 )
