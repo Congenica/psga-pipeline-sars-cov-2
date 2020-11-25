@@ -17,7 +17,6 @@ log.info """\
     * COVID_PIPELINE_WORKDIR    : ${COVID_PIPELINE_WORKDIR}
     * COVID_PIPELINE_FASTA_PATH : ${COVID_PIPELINE_FASTA_PATH}
     * DB_HOST                   : ${DB_HOST}
-    * DB_PORT                   : ${DB_PORT}
     * DB_NAME                   : ${DB_NAME}
     ======================
 """
