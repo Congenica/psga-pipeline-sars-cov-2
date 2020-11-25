@@ -39,7 +39,7 @@ def convert_file(source_file: Path, output_dir: Path) -> None:
 # source directory to search for .fa files
 @click.argument("source")
 # directory to output. If not specified, will output to source directory
-@click.argument("destination", default="", envvar="GENOME_FASTA_PATH")
+@click.argument("destination", default="", envvar="COVID_PIPELINE_FASTA_PATH")
 def reheader_fasta(source: str, destination: str) -> None:
     """Genome sequences produce by ncov have sequence identifiers that include
     QC parameters. This is to get rid of them.

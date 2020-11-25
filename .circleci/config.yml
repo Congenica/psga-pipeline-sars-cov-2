@@ -1,0 +1,39 @@
+version: 2.1
+
+parameters:
+  docker_version:
+    type: string
+    default: "19.03.13"
+
+executors:
+  python:
+    docker:
+      - image: circleci/python:3.8-buster
+
+jobs:
+  pre_commit_hooks:
+    executor: python
+    steps:
+      - checkout
+      - run:
+          name: Run pre-commit checks
+          command: |
+            sudo pip install pre-commit==2.8.1
+            pre-commit run --all-files
+
+  build-and-test:
+    executor: python
+    steps:
+      - setup_remote_docker:
+          version: << pipeline.parameters.docker_version >>
+          docker_layer_caching: true
+      - checkout
+      - run: pytest tests/
+
+
+workflows:
+  version: 2
+  build_and_test_all:
+    jobs:
+    - pre_commit_hooks
+    - build-and-test
