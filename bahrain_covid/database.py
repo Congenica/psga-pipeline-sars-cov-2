@@ -25,9 +25,11 @@ def connect():
     if not db_name:
         raise ValueError("DB_NAME not set in environment")
 
-    return sqlalchemy.create_engine("postgresql://{user}:{password}@{host}:{port}/{db_name}".format(
-        user=user, password=password, host=host, port=port, db_name=db_name
-    ))
+    return sqlalchemy.create_engine(
+        "postgresql://{user}:{password}@{host}:{port}/{db_name}".format(
+            user=user, password=password, host=host, port=port, db_name=db_name
+        )
+    )
 
 
 def session():

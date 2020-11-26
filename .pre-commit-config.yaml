@@ -11,7 +11,6 @@ repos:
     rev: v0.790
     hooks:
     - id: mypy
-      exclude: 'manage.py|tests/|setup.py|backend-common/dev-scripts/|backend-common/backend_common/models/data_file.py|bioinformatics-pipelines/bioinformatics_tasks/fetch_patient_vcf.py'
       args: [--no-strict-optional, --ignore-missing-imports]
 
 -   repo: https://github.com/pre-commit/pygrep-hooks

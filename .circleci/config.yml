@@ -28,7 +28,9 @@ jobs:
           version: << pipeline.parameters.docker_version >>
           docker_layer_caching: true
       - checkout
-      - run: pytest tests/
+      - run:
+        - poetry install
+        - pytest tests/
 
 
 workflows:
