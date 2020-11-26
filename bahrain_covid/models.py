@@ -19,7 +19,7 @@ Base = declarative_base()
 metadata = Base.metadata
 
 
-class Area(Base):
+class Area(Base):  # type: ignore
     __tablename__ = "area"
     __table_args__ = {"schema": "sars_cov_2", "comment": 'Geographic "Area" location'}
 
@@ -39,7 +39,7 @@ class Area(Base):
     colour = Column(LargeBinary, comment="The colour of this block in reports")
 
 
-class Block(Base):
+class Block(Base):  # type: ignore
     __tablename__ = "block"
     __table_args__ = {"schema": "sars_cov_2", "comment": 'Geographic "Block" location'}
 
@@ -59,7 +59,7 @@ class Block(Base):
     colour = Column(LargeBinary, comment="The colour of this block in reports")
 
 
-class Comorbidity(Base):
+class Comorbidity(Base):  # type: ignore
     __tablename__ = "comorbidity"
     __table_args__ = {
         "schema": "sars_cov_2",
@@ -72,7 +72,7 @@ class Comorbidity(Base):
     samples = relationship("Sample", secondary="sars_cov_2.sample_comorbidity")
 
 
-class Governorate(Base):
+class Governorate(Base):  # type: ignore
     __tablename__ = "governorate"
     __table_args__ = {
         "schema": "sars_cov_2",
@@ -88,7 +88,7 @@ class Governorate(Base):
     colour = Column(LargeBinary)
 
 
-class Sample(Base):
+class Sample(Base):  # type: ignore
     __tablename__ = "sample"
     __table_args__ = {"schema": "sars_cov_2", "comment": "Sample data"}
 
@@ -111,9 +111,7 @@ class Sample(Base):
     age = Column(Integer, comment="Age of host person in years")
     nationality = Column(String, comment="Nationality of host person")
     governorate_name = Column(
-        ForeignKey(
-            "sars_cov_2.governorate.name", deferrable=True, initially="DEFERRED"
-        ),
+        ForeignKey("sars_cov_2.governorate.name", deferrable=True, initially="DEFERRED"),
         comment="high level geolocation from where sample was collected",
     )
     area_name = Column(
@@ -124,9 +122,7 @@ class Sample(Base):
         ForeignKey("sars_cov_2.block.number", deferrable=True, initially="DEFERRED"),
         comment="foreign key to block table, low level geolocation from where sample was collected",
     )
-    sample_number = Column(
-        Integer, comment="Lab sample identifier (may be redundant with lab_id)"
-    )
+    sample_number = Column(Integer, comment="Lab sample identifier (may be redundant with lab_id)")
     ct_value = Column(Float(53), comment="RNA quality measure")
     symptoms = Column(Text, comment="Symptoms observed")
     travel_exposure = Column(String, comment="Country host visited recently")
@@ -138,7 +134,10 @@ class Sample(Base):
     genbank_id = Column(Integer, comment="GeneBank accession of virus genome")
     gisaid_id = Column(
         String,
-        comment="GISAID identifier (GISAID is a global science initiative and primary source that provides open-access to genomic data of the novel coronavirus responsible for COVID-19)",
+        comment=(
+            "GISAID identifier (GISAID is a global science initiative and primary source that provides open-access "
+            "to genomic data of the novel coronavirus responsible for COVID-19)",
+        ),
     )
     genome_length = Column(Integer, comment="Number of base pair in the virus genome")
     mrn = Column(Integer, comment="Individual National Identity number")
@@ -146,13 +145,11 @@ class Sample(Base):
     area = relationship("Area")
     block = relationship("Block")
     governorate = relationship("Governorate")
-    comorbidities = relationship(
-        "Comorbidity", secondary="sars_cov_2.sample_comorbidity"
-    )
+    comorbidities = relationship("Comorbidity", secondary="sars_cov_2.sample_comorbidity")
     sample_qc = relationship("SampleQc", uselist=False)
 
 
-class SampleQc(Base):
+class SampleQc(Base):  # type: ignore
     __tablename__ = "sample_qc"
     __table_args__ = {
         "schema": "sars_cov_2",
@@ -161,20 +158,14 @@ class SampleQc(Base):
 
     sample_id = Column(
         Integer,
-        ForeignKey(
-            "sars_cov_2.sample.sample_id", deferrable=True, initially="DEFERRED"
-        ),
+        ForeignKey("sars_cov_2.sample.sample_id", deferrable=True, initially="DEFERRED"),
         primary_key=True,
         comment="Primary key, and foreign key to sample table",
     )
     pct_N_bases = Column(Float(53), comment="percentage of N bases in sequenced genome")
-    pct_covered_bases = Column(
-        Float(53), comment="percentage of covered bases in sequenced genome"
-    )
+    pct_covered_bases = Column(Float(53), comment="percentage of covered bases in sequenced genome")
     longest_no_N_run = Column(Integer, comment="longest sequence run without N base")
-    num_aligned_reads = Column(
-        Float(53), comment="Number of reads succesfully aligned and mapped"
-    )
+    num_aligned_reads = Column(Float(53), comment="Number of reads succesfully aligned and mapped")
     qc_pass = Column(Boolean, comment="Has sample passed QC")
     qc_plot = Column(LargeBinary, comment="QC plot image")
     pipeline_version = Column(String, comment="mapping pipeline version")
@@ -185,9 +176,7 @@ t_sample_comorbidity = Table(
     metadata,
     Column(
         "sample_id",
-        ForeignKey(
-            "sars_cov_2.sample.sample_id", deferrable=True, initially="DEFERRED"
-        ),
+        ForeignKey("sars_cov_2.sample.sample_id", deferrable=True, initially="DEFERRED"),
         primary_key=True,
         nullable=False,
         comment="Primary key with comorbidity_id, and foreign key to sample table",
