@@ -8,7 +8,7 @@ parameters:
 executors:
   python:
     docker:
-      - image: circleci/python:3.8-buster
+      - image: circleci/python:3.8
 
 jobs:
   pre_commit_hooks:
@@ -29,8 +29,10 @@ jobs:
           docker_layer_caching: true
       - checkout
       - run:
-        - poetry install
-        - pytest tests/
+          name: Install dependencies and run tests
+          command: |
+            poetry install
+            poetry run pytest tests/
 
 
 workflows:

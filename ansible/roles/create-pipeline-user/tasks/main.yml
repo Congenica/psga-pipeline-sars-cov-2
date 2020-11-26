@@ -3,7 +3,7 @@
   group:
     name: docker
     state: present
-      
+
 - name: SARS-CoV-2 pipeline - create pipeline_user, add to 'wheel' and 'docker' groups
   user:
     name: "{{ username }}"

@@ -21,7 +21,7 @@
     line: 'export PATH=$PATH:~/.local/bin/'
 
 - name: SARS-CoV-2 pipeline - create nextstrain config directory
-  file: 
+  file:
     path: ~/.nextstrain
     state: directory
 

@@ -1,6 +1,6 @@
 ---
 - name: SARS-CoV-2 pipeline - clone the covid-pipeline repo
-  git: 
+  git:
     repo: "https://{{ github_username | urlencode }}:{{ github_password_or_token | urlencode }}@github.com/{{ github_repo }}.git"
     dest: "{{ github_checkout_dir }}"
 
@@ -17,4 +17,3 @@
     regexp: "^{{ item.key }}="
     line: "export {{ item.key }}={{ item.value}}"
   with_items: "{{ environment_vars }}"
-  

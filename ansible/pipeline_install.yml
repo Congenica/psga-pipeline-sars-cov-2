@@ -3,7 +3,7 @@
   gather_facts: true
   become: true
 
-  # Change the below values to match the required GitHub repo and S3 bucket. 
+  # Change the below values to match the required GitHub repo and S3 bucket.
   # Ensure that valid credentials can be provided when requested by the playbook.
   vars:
     _pipeline_user: 'pipeline'
@@ -52,12 +52,12 @@
     - { role: install-nextstrain, become_user: "{{ _pipeline_user }}" }
     - { role: post-install-setup,
           become_user: "{{ _pipeline_user }}",
-          github_username: "{{ _github_username }}", 
+          github_username: "{{ _github_username }}",
           github_password_or_token: "{{ _github_password_or_token }}",
           github_repo: "{{ _github_repo }}",
           github_checkout_dir: "{{ _github_checkout_dir }}",
           s3_bucket: "{{ _s3_bucket }}",
           s3_sync_dir: "{{ _s3_sync_dir }}",
-          aws_key_id: "{{ _aws_key_id }}", 
-          aws_private_key: "{{ _aws_private_key }}"  
+          aws_key_id: "{{ _aws_key_id }}",
+          aws_private_key: "{{ _aws_private_key }}"
       }
