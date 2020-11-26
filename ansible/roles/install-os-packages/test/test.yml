@@ -1,0 +1,5 @@
+---
+- hosts: all
+  become: true
+  roles:
+    - { role: ../../install-os-packages, yum_update: true }

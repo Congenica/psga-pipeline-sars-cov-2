@@ -1,0 +1,15 @@
+---
+- name: SARS-CoV-2 pipeline - create install dir for nextflow
+  file:
+    path: ~/nextflow
+    state: directory
+
+- name: SARS-CoV-2 pipeline - install nextflow
+  shell: wget -qO- https://get.nextflow.io | bash
+  args:
+    chdir: ~/nextflow
+
+- name: SARS-CoV-2 pipeline - add nextflow to $PATH
+  lineinfile:
+    path: ~/.bashrc
+    line: 'export PATH=$PATH:~/nextflow/'

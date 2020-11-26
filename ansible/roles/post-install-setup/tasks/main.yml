@@ -1,0 +1,20 @@
+---
+- name: SARS-CoV-2 pipeline - clone the covid-pipeline repo
+  git: 
+    repo: "https://{{ github_username | urlencode }}:{{ github_password_or_token | urlencode }}@github.com/{{ github_repo }}.git"
+    dest: "{{ github_checkout_dir }}"
+
+- name: SARS-CoV-2 pipeline - s3 bucket sync
+  command: "aws s3 sync {{ s3_bucket }} {{ s3_sync_dir }}"
+  environment:
+    AWS_ACCESS_KEY_ID: '{{ aws_key_id }}'
+    AWS_SECRET_ACCESS_KEY: '{{ aws_private_key }}'
+
+- name: SARS-CoV-2 pipeline - set environment variables
+  lineinfile:
+    path: ~/.bashrc
+    state: present
+    regexp: "^{{ item.key }}="
+    line: "export {{ item.key }}={{ item.value}}"
+  with_items: "{{ environment_vars }}"
+  

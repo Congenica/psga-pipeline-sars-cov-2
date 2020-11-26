@@ -1,0 +1,6 @@
+---
+environment_vars:
+  - key: GENOME_FASTA_PATH
+    value : '~/foo'
+  # - key: DIFFERENT_VAR
+  #   value : '~/bar'

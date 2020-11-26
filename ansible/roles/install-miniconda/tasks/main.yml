@@ -1,0 +1,28 @@
+---
+- name: SARS-CoV-2 pipeline - check for existing installation of miniconda3
+  stat:
+    path: "{{ miniconda3_install_dir }}/bin"
+  changed_when: false
+  register: miniconda3_conda_binary
+
+- when: not miniconda3_conda_binary.stat.exists
+  block:
+    - name: SARS-CoV-2 pipeline - download miniconda3 installer
+      get_url:
+        url: "{{ miniconda3_installer_url }}"
+        dest: /tmp/miniconda3_installer.sh
+    
+    - name: SARS-CoV-2 pipeline - install miniconda3
+      command: bash /tmp/miniconda3_installer.sh -b -p '{{ miniconda3_install_dir }}'
+
+  always:
+    - name: SARS-CoV-2 pipeline - delete miniconda3 installer
+      # become: true
+      file:
+        path: /tmp/miniconda3_installer.sh
+        state: absent
+
+- name: SARS-CoV-2 pipeline - add miniconda to $PATH
+  lineinfile:
+    path: ~/.bashrc
+    line: "export PATH={{ miniconda3_install_dir }}/bin:$PATH"

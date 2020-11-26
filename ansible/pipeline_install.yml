@@ -1,0 +1,63 @@
+---
+- hosts: all
+  gather_facts: true
+  become: true
+
+  # Change the below values to match the required GitHub repo and S3 bucket. 
+  # Ensure that valid credentials can be provided when requested by the playbook.
+  vars:
+    _pipeline_user: 'pipeline'
+
+  vars_files:
+    - vars/env_vars.yml
+
+  vars_prompt:
+    - name: _github_repo
+      prompt: 'GitHub repo to clone '
+      private: no
+      default: 'Congenica/ps-bahrain-covid'
+    - name: _github_checkout_dir
+      prompt: 'directory to clone the GitHub repo into '
+      private: no
+      default: '~/ps-bahrain-covid'
+    - name: _github_username
+      prompt: 'GitHub username '
+      private: no
+    - name: _github_password_or_token
+      prompt: 'GitHub password or token '
+      private: yes
+      confirm: yes
+    - name: _s3_bucket
+      prompt: 'S3 bucket to sync '
+      private: no
+      default: 's3://congenica-development-data-share/SAP-18211_Bahrain_COVID'
+    - name: _s3_sync_dir
+      prompt: 'directory to sync the S3 bucket to '
+      private: no
+      default: '~/SAP-18211_Bahrain_COVID'
+    - name: _aws_key_id
+      prompt: 'AWS access key '
+      private: no
+    - name: _aws_private_key
+      prompt: 'AWS secret access key '
+      private: yes
+      confirm: yes
+
+  roles:
+    - { role: install-os-packages, yum_update: false }
+    - { role: create-pipeline-user, username: "{{ _pipeline_user }}" }
+    - { role: install-miniconda, become_user: "{{ _pipeline_user }}" }
+    - { role: install-pangolin, become_user: "{{ _pipeline_user }}" }
+    - { role: install-nextflow, become_user: "{{ _pipeline_user }}" }
+    - { role: install-nextstrain, become_user: "{{ _pipeline_user }}" }
+    - { role: post-install-setup,
+          become_user: "{{ _pipeline_user }}",
+          github_username: "{{ _github_username }}", 
+          github_password_or_token: "{{ _github_password_or_token }}",
+          github_repo: "{{ _github_repo }}",
+          github_checkout_dir: "{{ _github_checkout_dir }}",
+          s3_bucket: "{{ _s3_bucket }}",
+          s3_sync_dir: "{{ _s3_sync_dir }}",
+          aws_key_id: "{{ _aws_key_id }}", 
+          aws_private_key: "{{ _aws_private_key }}"  
+      }
