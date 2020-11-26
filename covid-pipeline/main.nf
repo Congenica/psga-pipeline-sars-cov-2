@@ -85,7 +85,11 @@ workflow {
         ch_ncov_qc_sample_submitted.collect(),
         ch_pangolin_sample_submitted.collect()
     )
+
+    Channel
+        .fromPath( COVID_PIPELINE_FASTA_PATH, checkIfExists: true )
+        .set{ archived_fasta }
     concatenate_fasta(
-        ch_reheadered_fasta.collect()
+        ch_reheadered_fasta.collect(), archived_fasta
     )
 }

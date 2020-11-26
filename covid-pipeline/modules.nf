@@ -114,6 +114,7 @@ process concatenate_fasta {
 
   input:
     path reheadered_fasta
+    path archived_fasta
 
   output:
     path "*.fasta"
