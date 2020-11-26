@@ -40,21 +40,10 @@ workflow {
         params.ncov_prefix
     )
 
-
-    // We read ncov result csv file. Each row will result with independent process
-    // Currently unable to assign matching depth graph image during mapping - channel is used as input once only
-    ncov2019_artic_nf_pipeline.out.ch_qc_csv_ncov_result
-        .splitCsv(header:true)
-        .map{ row-> tuple(
-            row.sample_name, 
-            row.pct_N_bases, 
-            row.pct_covered_bases, 
-            row.longest_no_N_run, 
-            row.num_aligned_reads, 
-            row.qc_pass,
-        )}
-        .set{ ch_sample_to_submit_to_db }
-    load_ncov_assembly_qc_to_db(ch_sample_to_submit_to_db, ncov2019_artic_nf_pipeline.out.ch_sample_depth_ncov_results)
+    load_ncov_assembly_qc_to_db(
+        ncov2019_artic_nf_pipeline.out.ch_qc_csv_ncov_result, 
+        ncov2019_artic_nf_pipeline.out.ch_sample_depth_ncov_results
+    )
 
     // flatten the resulting fasta, so that pipeline branches off per-fasta to its own separate processes
     ncov2019_artic_nf_pipeline.out.ch_fasta_ncov_results \
