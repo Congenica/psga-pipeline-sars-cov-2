@@ -32,9 +32,14 @@ process load_ncov_assembly_qc_to_db {
     path ch_ncov_qc_submit_done
 
   script:
+    directory_with_qc_depth_files = "./"
     ch_ncov_qc_submit_done = "load_ncov_assembly_qc_to_db.done"
 
   """
+  python /app/scripts/submit_sample_qc.py \
+    --ncov_qc_csv_file "${ch_qc_ncov_result_csv_file}" \
+    --ncov_qc_depth_directory "${directory_with_qc_depth_files}" \
+    --pipeline_version "${workflow.manifest.version}"
   touch ${ch_ncov_qc_submit_done}
   """
 }
