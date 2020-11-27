@@ -21,7 +21,7 @@ log.info """\
     ======================
 """
 
-// These do not do anything. However, if user environment is missing of these env variables, 
+// These do not do anything. However, if user environment is missing of these env variables,
 // nextflow will not allow to run the pipeline until these env variables are set
 required_variable = DB_USER
 required_variable = DB_PASSWORD
@@ -41,7 +41,7 @@ workflow {
     )
 
     load_ncov_assembly_qc_to_db(
-        ncov2019_artic_nf_pipeline.out.ch_qc_csv_ncov_result, 
+        ncov2019_artic_nf_pipeline.out.ch_qc_csv_ncov_result,
         ncov2019_artic_nf_pipeline.out.ch_sample_depth_ncov_results
     )
 

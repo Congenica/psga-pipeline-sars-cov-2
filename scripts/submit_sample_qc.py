@@ -9,14 +9,13 @@ from bahrain_covid.database import session_handler
 from bahrain_covid.models import Sample, SampleQc
 
 
-def submit_sample_qc_from_csv(session: scoped_session, sample_from_csv: Dict, ncov_qc_depth_directory: str,
-                              pipeline_version: str):
+def submit_sample_qc_from_csv(
+    session: scoped_session, sample_from_csv: Dict, ncov_qc_depth_directory: str, pipeline_version: str
+):
     sample_name = sample_from_csv["sample_name"]
     sample_qc_depth_file_path = os.path.join(ncov_qc_depth_directory, f"{sample_name}.depth.png")
     if not os.path.isfile(sample_qc_depth_file_path):
-        raise ValueError(
-            f"File {sample_qc_depth_file_path}, required to submit sample {sample_name}, does not exist"
-        )
+        raise ValueError(f"File {sample_qc_depth_file_path}, required to submit sample {sample_name}, does not exist")
 
     sample = session.query(Sample).filter_by(lab_id=sample_name).join(Sample.sample_qc).one_or_none()
     if not sample:
@@ -37,10 +36,18 @@ def submit_sample_qc_from_csv(session: scoped_session, sample_from_csv: Dict, nc
 
 
 @click.command()
-@click.option("--ncov_qc_csv_file", type=click.Path(exists=True, file_okay=True, readable=True), required=True,
-              help="ncov pipeline resulting qc csv file")
-@click.option("--ncov_qc_depth_directory", type=click.Path(exists=True, dir_okay=True, readable=True), required=True,
-              help="directory, containing qc depth files, following the pattern {sample_name}.depth.png")
+@click.option(
+    "--ncov_qc_csv_file",
+    type=click.Path(exists=True, file_okay=True, readable=True),
+    required=True,
+    help="ncov pipeline resulting qc csv file",
+)
+@click.option(
+    "--ncov_qc_depth_directory",
+    type=click.Path(exists=True, dir_okay=True, readable=True),
+    required=True,
+    help="directory, containing qc depth files, following the pattern {sample_name}.depth.png",
+)
 @click.option("--pipeline_version", type=str, required=True, help="mapping pipeline version")
 def submit_sample_qc(ncov_qc_csv_file: str, ncov_qc_depth_directory: str, pipeline_version: str) -> None:
     """
@@ -54,4 +61,5 @@ def submit_sample_qc(ncov_qc_csv_file: str, ncov_qc_depth_directory: str, pipeli
 
 
 if __name__ == "__main__":
+    # pylint: disable=no-value-for-parameter
     submit_sample_qc()
