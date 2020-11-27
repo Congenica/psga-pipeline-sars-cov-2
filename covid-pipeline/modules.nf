@@ -59,9 +59,10 @@ process reheader_genome_fasta {
 
   script:
     files_dir = "./"
+    output_dir = "./"
 
   """
-  python /app/scripts/reheader_fasta.py ${files_dir}
+  python /app/scripts/reheader_fasta.py ${files_dir} ${output_dir}
   """
 }
 
