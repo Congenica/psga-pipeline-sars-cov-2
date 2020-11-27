@@ -33,6 +33,28 @@ jobs:
           command: |
             poetry install
             poetry run pytest tests/
+      - run:
+          name: Build and Push
+          command: |
+            pip install --progress-bar off awscli
+            NORMALISED_SLASHES=${CIRCLE_BRANCH//\//_}
+            DOCKER_TAG_BRANCH=${NORMALISED_SLASHES//-/_}
+            DOCKER_TAG="${DOCKER_TAG_BRANCH}_${CIRCLE_BUILD_NUM}"
+            REGISTRY_URI="${ECREPOURI}${ECREPOPATH}"
+            FULL_TAG="${REGISTRY_URI}:${DOCKER_TAG}"
+            LATEST_IMAGE_TAG="${REGISTRY_URI}:${DOCKER_TAG_BRANCH}_latest"
+            CIRCLE_TAG="${REGISTRY_URI}:circleci_${CIRCLE_BUILD_NUM}"
+            eval $(aws ecr get-login --no-include-email --region eu-west-1)
+            docker build -t ${FULL_TAG} \
+                         -t ${CIRCLE_TAG} \
+                         -t ${LATEST_IMAGE_TAG} \
+                         .
+            docker push ${FULL_TAG}
+            docker push ${CIRCLE_TAG}
+            docker push ${LATEST_IMAGE_TAG}
+            # Log out the environment vars
+            echo "CircleCI url to access"
+            echo "${FULL_TAG}"
 
 
 workflows:
@@ -40,4 +62,5 @@ workflows:
   build_and_test_all:
     jobs:
     - pre_commit_hooks
-    - build-and-test
+    - build-and-test:
+        context: AWS_ECR_CREDENTIALS
