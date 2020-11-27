@@ -12,12 +12,35 @@ process ncov2019_artic_nf_pipeline {
   output:
     path "${ncov_out_directory}/*", emit: ch_all_ncov_results
     path "${ncov_out_directory}/ncovIllumina_sequenceAnalysis_makeConsensus/*.fa", emit: ch_fasta_ncov_results
+    path "${ncov_out_directory}/${ncov_prefix}.qc.csv", emit: ch_qc_csv_ncov_result
+    path "${ncov_out_directory}/qc_plots/*.depth.png", emit: ch_sample_depth_ncov_results
 
   script:
     ncov_out_directory = "ncov_output"
 
   """
   nextflow run ${COVID_PIPELINE_ROOTDIR}/ncov2019-artic-nf -profile docker --illumina --prefix ${ncov_prefix} --directory ${COVID_PIPELINE_FASTQ_PATH} -with-docker ${ncov_docker_image} --outdir ${ncov_out_directory}
+  """
+}
+
+process load_ncov_assembly_qc_to_db {
+  input:
+    file ch_qc_ncov_result_csv_file
+    file ch_qc_plot_files
+
+  output:
+    path ch_ncov_qc_submit_done
+
+  script:
+    directory_with_qc_depth_files = "./"
+    ch_ncov_qc_submit_done = "load_ncov_assembly_qc_to_db.done"
+
+  """
+  python /app/scripts/submit_sample_qc.py \
+    --ncov_qc_csv_file "${ch_qc_ncov_result_csv_file}" \
+    --ncov_qc_depth_directory "${directory_with_qc_depth_files}" \
+    --pipeline_version "${workflow.manifest.version}"
+  touch ${ch_ncov_qc_submit_done}
   """
 }
 
@@ -36,9 +59,10 @@ process reheader_genome_fasta {
 
   script:
     files_dir = "./"
+    output_dir = "./"
 
   """
-  python /app/scripts/reheader_fasta.py ${files_dir}
+  python /app/scripts/reheader_fasta.py ${files_dir} ${output_dir}
   """
 }
 

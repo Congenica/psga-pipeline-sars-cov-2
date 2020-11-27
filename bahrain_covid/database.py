@@ -1,4 +1,5 @@
 from os import environ
+from contextlib import contextmanager
 
 import sqlalchemy
 from sqlalchemy.orm import scoped_session, sessionmaker
@@ -32,7 +33,7 @@ def connect():
     )
 
 
-def session():
+def create_session():
     """
     Create and return a database session for querying.
 
@@ -44,3 +45,28 @@ def session():
     Session.configure(bind=engine)
 
     return Session
+
+
+@contextmanager
+def session_handler():
+    """Context manager to manage the lifecycle of the session.
+
+    We should use this context manager to perform DB queries:
+    with session_handler() as session:
+        session.query(TableName).first()
+        ....
+
+    :param kwargs: optional arg allows to pass extra parameters to the Session
+    """
+
+    session = create_session()
+    try:
+        yield session
+        session.commit()
+    except Exception:
+        # in case of exception rollback all changes and re-raise the exception
+        session.rollback()
+        raise
+    finally:
+        # Close session in any case
+        session.close()
