@@ -131,6 +131,7 @@ class Sample(Base):  # type: ignore
         comment="Hospital type host admited to",
     )
     pangolin_lineage = Column(String, comment="Viral phylogenetic lineage")
+    pangolin_probability = Column(Float, comment="Probability of the viral phylogenetic lineage")
     genbank_id = Column(Integer, comment="GeneBank accession of virus genome")
     gisaid_id = Column(
         String,
@@ -146,10 +147,10 @@ class Sample(Base):  # type: ignore
     block = relationship("Block")
     governorate = relationship("Governorate")
     comorbidities = relationship("Comorbidity", secondary="sars_cov_2.sample_comorbidity")
-    sample_qc = relationship("SampleQc", uselist=False)
+    sample_qc = relationship("SampleQC", uselist=False)
 
 
-class SampleQc(Base):  # type: ignore
+class SampleQC(Base):  # type: ignore
     __tablename__ = "sample_qc"
     __table_args__ = {
         "schema": "sars_cov_2",
@@ -169,6 +170,7 @@ class SampleQc(Base):  # type: ignore
     qc_pass = Column(Boolean, comment="Has sample passed QC")
     qc_plot = Column(LargeBinary, comment="QC plot image")
     pipeline_version = Column(String, comment="mapping pipeline version")
+    pangolearn_version = Column(String, comment="pangoLEARN version used by Pangolin")
 
 
 t_sample_comorbidity = Table(

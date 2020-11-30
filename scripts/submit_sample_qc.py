@@ -5,8 +5,8 @@ import csv
 import click
 from sqlalchemy.orm import scoped_session
 
-from bahrain_covid.database import session_handler
-from bahrain_covid.models import Sample, SampleQc
+from db.database import session_handler
+from db.models import Sample, SampleQc
 
 
 def submit_sample_qc_from_csv(
