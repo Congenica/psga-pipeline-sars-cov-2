@@ -7,7 +7,7 @@ import click
 from sqlalchemy.orm import joinedload
 
 from bahrain_covid.database import session_handler
-from bahrain_covid.models import Sample
+from bahrain_covid.models import Sample, SampleQc
 
 
 @dataclass
@@ -47,7 +47,14 @@ class NextstrainSampleMetadataInput:
 def get_data_for_nextstrain() -> List[NextstrainSampleMetadataInput]:
     res = []
     with session_handler() as session:
-        samples = session.query(Sample).options(joinedload(Sample.comorbidities)).all()
+        # We process only the samples, which were marked by ncov pipeline as qc_pass=TRUE
+        samples = (
+            session.query(Sample)
+            .options(joinedload(Sample.comorbidities))
+            .join(Sample.sample_qc)
+            .filter(SampleQc.qc_pass)
+            .all()
+        )
         for sample in samples:
             res.append(
                 NextstrainSampleMetadataInput(
