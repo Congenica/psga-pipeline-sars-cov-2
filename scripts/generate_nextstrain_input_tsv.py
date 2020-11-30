@@ -76,7 +76,7 @@ def get_data_for_nextstrain() -> List[NextstrainSampleMetadataInput]:
     "--output",
     type=click.Path(file_okay=True, writable=True),
     required=True,
-    help="ncov pipeline resulting qc csv file",
+    help="output tsv file path, where sample data will be written to",
 )
 def generate_nextstrain_input_tsv(output: str) -> None:
     """
