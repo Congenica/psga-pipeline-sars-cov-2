@@ -4,3 +4,4 @@
 
 01-appschema 2020-11-12T07:51:37Z Tautvydas Petkus <tautvydas.petkus@telesoftas.com> # Initial schema for SARS-CoV-2 sample database
 02-apptables [01-appschema] 2020-11-17T12:12:13Z Daniel Bunford-Jones <dbj@MacBook-Pro.local> # Create tables and enum types for SAR COV Bahrain application
+03-add-pangolin-probability [02-apptables] 2020-11-30T09:47:26Z Piero Dalle Pezze <piero.dallepezze@congenica.com> # Add pangolin_probability column to sample table
