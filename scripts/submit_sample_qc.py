@@ -6,7 +6,7 @@ import click
 from sqlalchemy.orm import scoped_session
 
 from db.database import session_handler
-from db.models import Sample, SampleQc
+from db.models import Sample, SampleQC
 
 
 def submit_sample_qc_from_csv(
@@ -22,7 +22,7 @@ def submit_sample_qc_from_csv(
         sample = Sample(lab_id=sample_name)
         session.add(sample)
     if not sample.sample_qc:
-        sample.sample_qc = SampleQc()
+        sample.sample_qc = SampleQC()
 
     sample_qc = sample.sample_qc
     sample_qc.pct_N_bases = sample_from_csv["pct_N_bases"]
