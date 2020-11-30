@@ -110,20 +110,20 @@ process store_reheadered_fasta_failed {
  * Concatenate reheadered fasta files for Nextstrain pipeline
  */
 process concatenate_fasta {
-  publishDir COVID_PIPELINE_FASTA_PATH, mode: 'copy', overwrite: true
-
   input:
+    val root_genome_fasta
     path reheadered_fasta
     path archived_fasta
 
   output:
-    path "*.fasta"
+    path output_file
 
   script:
     files_dir = "./"
+    output_file = "nextstrain.fasta"
 
   """
-  python /app/scripts/concatenate_fasta.py ${files_dir}
+  python /app/scripts/concatenate_fasta.py --output ${output_file} --root-genome ${root_genome_fasta} ${files_dir}
   """
 }
 

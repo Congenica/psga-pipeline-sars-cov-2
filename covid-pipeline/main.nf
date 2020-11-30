@@ -87,9 +87,11 @@ workflow {
     )
 
     Channel
-        .fromPath( COVID_PIPELINE_FASTA_PATH, checkIfExists: true )
+        .fromPath( COVID_PIPELINE_FASTA_PATH )
         .set{ archived_fasta }
     concatenate_fasta(
-        ch_reheadered_fasta.collect(), archived_fasta
+        params.root_genome_fasta,
+        ch_reheadered_fasta.collect(),
+        archived_fasta
     )
 }
