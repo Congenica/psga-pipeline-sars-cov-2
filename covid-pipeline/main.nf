@@ -29,6 +29,7 @@ required_variable = DB_PASSWORD
 // Import modules
 include { ncov2019_artic_nf_pipeline } from './modules.nf'
 include { load_ncov_assembly_qc_to_db } from './modules.nf'
+include { prepare_tsv_for_nextstrain } from './modules.nf'
 include { reheader_genome_fasta } from './modules.nf'
 include { pangolin_pipeline } from './modules.nf'
 include { load_pangolin_data_to_db } from './modules.nf'
@@ -41,7 +42,7 @@ workflow {
         params.ncov_prefix
     )
 
-    load_ncov_assembly_qc_to_db(
+    ch_ncov_qc_sample_submitted = load_ncov_assembly_qc_to_db(
         ncov2019_artic_nf_pipeline.out.ch_qc_csv_ncov_result,
         ncov2019_artic_nf_pipeline.out.ch_sample_depth_ncov_results
     )
@@ -57,4 +58,7 @@ workflow {
     load_pangolin_data_to_db(
         pangolin_pipeline.out.ch_pangolin_lineage_csv
     )
+
+    // TODO: add pangolin submit to database dependency for prepare_tsv_for_nextstrain
+    ch_nextstrain_input_tsv = prepare_tsv_for_nextstrain(ch_ncov_qc_sample_submitted.collect())
 }
