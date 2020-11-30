@@ -31,6 +31,8 @@ include { ncov2019_artic_nf_pipeline } from './modules.nf'
 include { load_ncov_assembly_qc_to_db } from './modules.nf'
 include { prepare_tsv_for_nextstrain } from './modules.nf'
 include { reheader_genome_fasta } from './modules.nf'
+include { store_reheadered_fasta_passed } from './modules.nf'
+include { store_reheadered_fasta_failed } from './modules.nf'
 include { pangolin_pipeline } from './modules.nf'
 include { load_pangolin_data_to_db } from './modules.nf'
 
@@ -52,6 +54,25 @@ workflow {
         .flatten() \
         .set { ch_fasta_to_reheader }
     ch_reheadered_fasta = reheader_genome_fasta(ch_fasta_to_reheader)
+
+    // Samples are split to QC_PASSED and QC_FAILED
+    ncov2019_artic_nf_pipeline.out.ch_qc_csv_ncov_result
+        .splitCsv(header:true)
+        .branch {
+            qc_passed: it.qc_pass =~ /TRUE/
+                return it.sample_name
+            qc_failed: true
+                return it.sample_name
+        }
+        .set{ ch_sample_row_by_qc }
+    ch_qc_passed_fasta = store_reheadered_fasta_passed(
+        ch_reheadered_fasta.collect(),
+        ch_sample_row_by_qc.qc_passed.flatten()
+    )
+    store_reheadered_fasta_failed(
+        ch_reheadered_fasta.collect(),
+        ch_sample_row_by_qc.qc_failed.flatten()
+    )
 
     pangolin_pipeline(ch_reheadered_fasta)
 
