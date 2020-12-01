@@ -107,6 +107,27 @@ process store_reheadered_fasta_failed {
 }
 
 /*
+ * Concatenate reheadered fasta files for Nextstrain pipeline
+ */
+process concatenate_fasta {
+  input:
+    val root_genome_fasta
+    path reheadered_fasta
+    path archived_fasta
+
+  output:
+    path output_file
+
+  script:
+    files_dir = "./"
+    output_file = "nextstrain.fasta"
+
+  """
+  python /app/scripts/concatenate_fasta.py --output ${output_file} --root-genome ${root_genome_fasta} ${files_dir}
+  """
+}
+
+/*
  * Run: pangolin snakemake pipeline
  * see: https://github.com/cov-lineages/pangolin
  */

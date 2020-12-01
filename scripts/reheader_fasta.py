@@ -6,15 +6,15 @@ import click
 from Bio import SeqIO
 from Bio.SeqRecord import SeqRecord
 
-FASTQ_FILE_EXTENSION = "fa"
-FASTQ_FILE_HANDLE = "fasta"
+FASTA_FILE_EXTENSION = "fa"
+FASTA_FILE_HANDLE = "fasta"
 SEQUENCE_DESCRIPTION = "SARS-CoV-2"
 ASSEMBLY_LENGTHS_FILENAME = "sequence_lengths.text"
 
 
 def convert_file(source_file: Path, output_dir: Path) -> None:
     sequence_lengths = {}
-    for record in SeqIO.parse(source_file, FASTQ_FILE_HANDLE):
+    for record in SeqIO.parse(source_file, FASTA_FILE_HANDLE):
         # >Consensus_ERR4157960.primertrimmed.consensus_threshold_0.75_quality_20
         sample_name = re.search(r"^Consensus_(\w+)", record.id)
         if not sample_name:
@@ -24,10 +24,10 @@ def convert_file(source_file: Path, output_dir: Path) -> None:
         sample_name = sample_name.group(1)
 
         sequence_lengths[sample_name] = len(record.seq)
-        output_file = join(output_dir, f"{sample_name}.{FASTQ_FILE_HANDLE}")
+        output_file = join(output_dir, f"{sample_name}.{FASTA_FILE_HANDLE}")
         with open(output_file, "w") as output:
             new_record = SeqRecord(record.seq, id=sample_name, description=SEQUENCE_DESCRIPTION)
-            SeqIO.write(new_record, output, FASTQ_FILE_HANDLE)
+            SeqIO.write(new_record, output, FASTA_FILE_HANDLE)
 
     # write gene assembly lengths to file, for use in Nextstrain
     with open(join(output_dir, ASSEMBLY_LENGTHS_FILENAME), "a") as lengths_file:
@@ -46,7 +46,7 @@ def reheader_fasta(source: str, destination: str) -> None:
     """
     destination = destination or source
 
-    for path in Path(source).rglob(f"*.{FASTQ_FILE_EXTENSION}"):
+    for path in Path(source).rglob(f"*.{FASTA_FILE_EXTENSION}"):
         click.echo(f"processing file {path}")
         convert_file(path, Path(destination))
 

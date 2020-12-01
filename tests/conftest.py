@@ -14,18 +14,23 @@ def tmp_path():
 
 
 @pytest.fixture
-def qc_fasta_files_dir(tmp_path):
-    for sample_id in range(5):
-        sample_id = f"NNN{str(sample_id).zfill(5)}"
-        fasta_file = tmp_path / f"{sample_id}.fa"
-        fasta_file.write_text(
-            f">Consensus_{sample_id}.primertrimmed.consensus_threshold_0.75_quality_20\n" f"{'N' * 29903}\n"
-        )
-    return tmp_path
+def fasta_file_generator():
+    def generator(path, extension, content):
+        for sample_id in range(5):
+            sample_id = f"NNN{str(sample_id).zfill(5)}"
+            fasta_file = path / f"{sample_id}.{extension}"
+            fasta_file.write_text(content.format(sample_id=sample_id))
+
+    return generator
 
 
-@pytest.fixture
+@pytest.fixture(autouse=True)
 def scripts_test():
     scripts_path = os.path.dirname(__file__).split("/")
     scripts_path[-1] = "scripts"
     sys.path.append("/".join(scripts_path))
+
+
+@pytest.fixture
+def root_genome():
+    return Path(__file__).parent.parent / "data" / "FASTA" / "SARS-CoV-2.fasta"

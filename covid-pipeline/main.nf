@@ -33,6 +33,7 @@ include { prepare_tsv_for_nextstrain } from './modules.nf'
 include { reheader_genome_fasta } from './modules.nf'
 include { store_reheadered_fasta_passed } from './modules.nf'
 include { store_reheadered_fasta_failed } from './modules.nf'
+include { concatenate_fasta } from './modules.nf'
 include { pangolin_pipeline } from './modules.nf'
 include { load_pangolin_data_to_db } from './modules.nf'
 
@@ -83,5 +84,14 @@ workflow {
     ch_nextstrain_input_tsv = prepare_tsv_for_nextstrain(
         ch_ncov_qc_sample_submitted.collect(),
         ch_pangolin_sample_submitted.collect()
+    )
+
+    Channel
+        .fromPath( COVID_PIPELINE_FASTA_PATH )
+        .set{ archived_fasta }
+    concatenate_fasta(
+        params.root_genome_fasta,
+        ch_reheadered_fasta.collect(),
+        archived_fasta
     )
 }
