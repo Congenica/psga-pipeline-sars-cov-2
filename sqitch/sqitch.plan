@@ -8,3 +8,4 @@
 04-add-pangolearn-version [02-apptables] 2020-11-30T12:37:52Z Piero Dalle Pezze <piero.dallepezze@congenica.com> # Add pangolearn_version column to sample_qc table
 05-governorates [02-apptables] 2020-12-01T10:31:17Z Andrew Bayliss,,, <andrewbayliss@con-xps-23> # Add governorates data
 06-areas [02-apptables] 2020-12-01T10:47:01Z Andrew Bayliss,,, <andrewbayliss@con-xps-23> # Add area data
+07-remove_block_fk [02-apptables] 2020-12-01T11:46:03Z Andrew Bayliss,,, <andrewbayliss@con-xps-23> # Remove the foreign key constraint between the sample and block tables
