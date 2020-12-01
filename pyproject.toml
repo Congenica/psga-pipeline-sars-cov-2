@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "bahrain_covid"
+name = "scripts"
 version = "1.0.0"
 description = ""
 authors = ["Congenica <dev@congenica.com>"]

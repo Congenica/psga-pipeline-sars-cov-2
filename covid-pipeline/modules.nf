@@ -23,6 +23,9 @@ process ncov2019_artic_nf_pipeline {
   """
 }
 
+/*
+ * Load ncov2019-artic-nf assembly qc data to the database
+ */
 process load_ncov_assembly_qc_to_db {
   input:
     file ch_qc_ncov_result_csv_file
@@ -77,12 +80,32 @@ process pangolin_pipeline {
     path reheadered_fasta
 
   output:
-    path "${pangolin_out_directory}/*", emit: ch_pangolin_results
+    path "${pangolin_out_directory}/${output_filename}", emit: ch_pangolin_lineage_csv
 
   script:
     pangolin_out_directory = "pangolin_output"
     output_filename = "${reheadered_fasta.getSimpleName()}_lineage_report.csv"
   """
   pangolin ${reheadered_fasta} --outdir ${pangolin_out_directory} --outfile ${output_filename}
+  """
+}
+
+/*
+ * Load pangolin data to the database
+ */
+process load_pangolin_data_to_db {
+  input:
+    file ch_pangolin_result_csv_file
+
+  output:
+    path ch_pangolin_load_data_done
+
+  script:
+    ch_pangolin_load_data_done = "load_pangolin_data_to_db.done"
+
+  """
+  python /app/scripts/load_pangolin_data_to_db.py \
+    --pangolin-lineage-report-file "${ch_pangolin_result_csv_file}"
+  touch ${ch_pangolin_load_data_done}
   """
 }

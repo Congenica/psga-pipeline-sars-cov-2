@@ -31,6 +31,7 @@ include { ncov2019_artic_nf_pipeline } from './modules.nf'
 include { load_ncov_assembly_qc_to_db } from './modules.nf'
 include { reheader_genome_fasta } from './modules.nf'
 include { pangolin_pipeline } from './modules.nf'
+include { load_pangolin_data_to_db } from './modules.nf'
 
 
 workflow {
@@ -45,13 +46,15 @@ workflow {
         ncov2019_artic_nf_pipeline.out.ch_sample_depth_ncov_results
     )
 
-    // flatten the resulting fasta, so that pipeline branches off per-fasta to its own separate processes
+    // flatten so that pipeline branches off by fasta file
     ncov2019_artic_nf_pipeline.out.ch_fasta_ncov_results \
         .flatten() \
         .set { ch_fasta_to_reheader }
     ch_reheadered_fasta = reheader_genome_fasta(ch_fasta_to_reheader)
 
-    pangolin_pipeline(
-        ch_reheadered_fasta
+    pangolin_pipeline(ch_reheadered_fasta)
+
+    load_pangolin_data_to_db(
+        pangolin_pipeline.out.ch_pangolin_lineage_csv
     )
 }

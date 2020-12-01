@@ -115,40 +115,7 @@ sqitch --db-user postgres --db-host localhost --db-port 5432 deploy db:pg:bahrai
 
 ### COVID pipeline
 
-To run this covid pipeline, the ncov illumina docker image must be edited and built first:
-
-```commandline
-# get this s3 folder - it contains only a couple of FASTQ files for now
-aws s3 cp s3://congenica-development-data-share/Bahrain_COVID_s3_data_lite ~/Bahrain_COVID_s3_data_lite --recursive
-
-# install nextflow (copy nextflow cmd to a dir in your PATH):
-wget -qO- https://get.nextflow.io | bash
-
-# set up the projects: ncov, pangolin
-git submodule init
-git submodule update
-
-# build ncov docker image
-cd ncov2019-artic-nf
-# this is not required for running the pipeline using dockers, but for some reason it is required for running
-# the pipeline with docker as part of our workflow. I haven't yet figured out why it works in one case and not in the other..
-echo "COPY bin/qc.py /opt/conda/envs/artic-ncov2019-illumina/bin" >> environments/illumina/Dockerfile
-docker build -f environments/illumina/Dockerfile -t ncov2019_artic_nf:1.0.0 .
-cd -
-
-# build the covid-pipeline image
-docker build -t 144563655722.dkr.ecr.eu-west-1.amazonaws.com/congenica/dev/covid-pipeline:1.0.0 .
-
-# build pangolin docker image
-docker build -f environments/Dockerfile.pangolin -t pangolin:1.0.0 .
-
-# run our covid pipeline
-cd covid-pipeline
-nextflow run .
-
-```
-
-#### Environment variables
+##### Environment variables
 
 Environment variables required to run the pipeline. These environment variables are set in covid-pipeline/nextflow.config
 
@@ -158,3 +125,35 @@ Environment variables required to run the pipeline. These environment variables 
 | COVID_PIPELINE_FASTQ_PATH | Directory path, where the input fastq files are stored |
 | COVID_PIPELINE_WORKDIR | Directory path, where all the pipeline output is stored |
 | COVID_PIPELINE_FASTA_PATH | Directory path, where re-headered ncov fasta files will be stored |
+
+##### Install dependencies
+
+```commandline
+# get this s3 folder - it contains only a couple of FASTQ files for now
+aws s3 cp s3://congenica-development-data-share/Bahrain_COVID_s3_data_lite ~/Bahrain_COVID_s3_data_lite --recursive
+
+# install nextflow (copy nextflow cmd to a dir in your PATH):
+wget -qO- https://get.nextflow.io | bash
+
+# build the covid-pipeline image
+docker build -t covid-pipeline:1.0.0 .
+
+# set up the projects: ncov, pangolin
+git submodule init
+git submodule update
+
+# build ncov docker image
+cd ncov2019-artic-nf; docker build -f environments/illumina/Dockerfile -t ncov2019_artic_nf_base:1.0.0 . ; cd ..
+docker build --build-arg NCOV_BASE_IMAGE_TAG=1.0.0 -f Dockerfile.ncov -t ncov2019_artic_nf:1.0.0 .
+
+# build pangolin docker image
+docker build -f Dockerfile.pangolin -t pangolin:1.0.0 .
+```
+
+##### Run covid-pipeline
+
+```commandline
+cd covid-pipeline
+nextflow run .
+```
+
