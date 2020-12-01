@@ -125,6 +125,7 @@ Environment variables required to run the pipeline. These environment variables 
 | COVID_PIPELINE_FASTQ_PATH | Directory path, where the input fastq files are stored |
 | COVID_PIPELINE_WORKDIR | Directory path, where all the pipeline output is stored |
 | COVID_PIPELINE_FASTA_PATH | Directory path, where re-headered ncov fasta files will be stored |
+| COVID_PIPELINE_FASTA_PATH_QC_FAILED | Directory path, where re-headered ncov QC_FAILED fasta files will be stored  |
 
 ##### Install dependencies
 
