@@ -149,6 +149,9 @@ docker build --build-arg NCOV_BASE_IMAGE_TAG=1.0.0 -f Dockerfile.ncov -t ncov201
 
 # build pangolin docker image
 docker build -f Dockerfile.pangolin -t pangolin:1.0.0 .
+
+# build nextstrain docker image
+docker build -f Dockerfile.nextstrain -t nextstrain:1.0.0 .
 ```
 
 ##### Run covid-pipeline
