@@ -105,7 +105,8 @@ process load_pangolin_data_to_db {
 
   """
   python /app/scripts/load_pangolin_data_to_db.py \
-    --pangolin-lineage-report-file "${ch_pangolin_result_csv_file}"
+    --pangolin-lineage-report-file "${ch_pangolin_result_csv_file}" \
+    --sample-name "${sample_name}"
   touch ${ch_pangolin_load_data_done}
   """
 }
