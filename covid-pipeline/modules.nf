@@ -109,9 +109,13 @@ process load_pangolin_data_to_db {
   """
 }
 
+/*
+ * Prepare metadata tsv file, which is used as an input for nextstrain pipeline
+ */
 process prepare_tsv_for_nextstrain {
   input:
     path ncov_qc_to_db_submit_completion_flag
+    path pangolin_to_db_submit_completion_flag
 
   output:
     path nextstrain_analysis_tsv

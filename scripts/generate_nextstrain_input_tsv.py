@@ -6,8 +6,8 @@ import csv
 import click
 from sqlalchemy.orm import joinedload
 
-from bahrain_covid.database import session_handler
-from bahrain_covid.models import Sample, SampleQc
+from db.database import session_handler
+from db.models import Sample, SampleQC
 
 
 @dataclass
@@ -17,6 +17,7 @@ class NextstrainSampleMetadataInput:
     division: str
     area: str
     country_exposure: str
+    division_exposure: str
     length: int
     age: int
     sex: str
@@ -31,7 +32,6 @@ class NextstrainSampleMetadataInput:
     gisaid_epi_isl = None
     genbank_accession = None
     region_exposure = None
-    division_exposure = None
     authors = None
     title = None
     date_submitted = None
@@ -52,17 +52,22 @@ def get_data_for_nextstrain() -> List[NextstrainSampleMetadataInput]:
             session.query(Sample)
             .options(joinedload(Sample.comorbidities))
             .join(Sample.sample_qc)
-            .filter(SampleQc.qc_pass)
+            .filter(SampleQC.qc_pass)
             .all()
         )
         for sample in samples:
+            division = sample.governorate_name
+            country_exposure = sample.travel_exposure
+            if not country_exposure:
+                country_exposure = NextstrainSampleMetadataInput.country
             res.append(
                 NextstrainSampleMetadataInput(
                     strain=sample.lab_id,
                     date=sample.date_collected,
-                    division=sample.governorate_name,
+                    division=division,
                     area=sample.area_name,
-                    country_exposure=sample.travel_exposure,
+                    country_exposure=country_exposure,
+                    division_exposure=division,
                     length=sample.genome_length,
                     age=sample.age,
                     sex=sample.gender,

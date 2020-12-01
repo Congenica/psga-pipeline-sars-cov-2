@@ -55,10 +55,12 @@ workflow {
 
     pangolin_pipeline(ch_reheadered_fasta)
 
-    load_pangolin_data_to_db(
+    ch_pangolin_sample_submitted = load_pangolin_data_to_db(
         pangolin_pipeline.out.ch_pangolin_lineage_csv
     )
 
-    // TODO: add pangolin submit to database dependency for prepare_tsv_for_nextstrain
-    ch_nextstrain_input_tsv = prepare_tsv_for_nextstrain(ch_ncov_qc_sample_submitted.collect())
+    ch_nextstrain_input_tsv = prepare_tsv_for_nextstrain(
+        ch_ncov_qc_sample_submitted.collect(),
+        ch_pangolin_sample_submitted.collect()
+    )
 }
