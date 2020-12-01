@@ -8,9 +8,7 @@ from db.database import session_handler
 from db.models import Sample, SampleQC
 
 
-def load_data_from_csv(session: scoped_session, sample_from_csv: Dict):
-    sample_name = sample_from_csv["taxon"]
-
+def load_data_from_csv(session: scoped_session, sample_name: str, sample_from_csv: Dict):
     sample = session.query(Sample).filter_by(lab_id=sample_name).join(Sample.sample_qc).one_or_none()
 
     if not sample:
@@ -31,7 +29,13 @@ def load_data_from_csv(session: scoped_session, sample_from_csv: Dict):
     required=True,
     help="Pangolin pipeline output lineage report with pattern {sample_name}_lineage_report.csv",
 )
-def load_pangolin_data(pangolin_lineage_report_file: str) -> None:
+@click.option(
+    "--sample-name",
+    type=str,
+    required=True,
+    help="Lab sample identifier",
+)
+def load_pangolin_data(pangolin_lineage_report_file: str, sample_name: str) -> None:
     """
     Load Pangolin lineage report for a certain sample to the database
     """
@@ -40,7 +44,7 @@ def load_pangolin_data(pangolin_lineage_report_file: str) -> None:
         with session_handler() as session:
             # this file only has one data row
             for sample_from_csv in sample_from_csv_reader:
-                load_data_from_csv(session, sample_from_csv)
+                load_data_from_csv(session, sample_name, sample_from_csv)
 
 
 if __name__ == "__main__":
