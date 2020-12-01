@@ -4,3 +4,6 @@
 [submodule "pangolin"]
 	path = pangolin
 	url = https://github.com/cov-lineages/pangolin
+[submodule "nextstrain"]
+	path = nextstrain
+	url = https://github.com/nextstrain/ncov
