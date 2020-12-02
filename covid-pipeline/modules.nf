@@ -1,4 +1,23 @@
 /*
+ * Load the I-SEHA metadata into the database
+ */
+process load_iseha_metadata {
+  input:
+    path ch_iseha_metadata_tsv_file
+
+  output:
+    path ch_iseha_metadata_load_done
+
+  script:
+    ch_iseha_metadata_load_done = "load_iseha_metadata.done"
+
+  """
+  python /app/scripts/load_iseha_metadata.py --file "${ch_iseha_metadata_tsv_file}" &&
+  touch ${ch_iseha_metadata_load_done}
+  """
+}
+
+/*
  * Run: ncov2019-artic-nf nextflow pipeline
  * see: https://github.com/connor-lab/ncov2019-artic-nf
  */

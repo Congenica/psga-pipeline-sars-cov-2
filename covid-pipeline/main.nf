@@ -27,6 +27,7 @@ required_variable = DB_USER
 required_variable = DB_PASSWORD
 
 // Import modules
+include { load_iseha_metadata } from './modules.nf'
 include { ncov2019_artic_nf_pipeline } from './modules.nf'
 include { load_ncov_assembly_qc_to_db } from './modules.nf'
 include { prepare_tsv_for_nextstrain } from './modules.nf'
@@ -39,6 +40,10 @@ include { load_pangolin_data_to_db } from './modules.nf'
 
 
 workflow {
+
+    load_iseha_metadata(
+        "${COVID_PIPELINE_FASTQ_PATH}/metadata.tsv"
+    )
 
     ncov2019_artic_nf_pipeline(
         params.ncov_docker_image,
