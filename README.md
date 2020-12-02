@@ -144,8 +144,7 @@ git submodule init
 git submodule update
 
 # build ncov docker image
-cd ncov2019-artic-nf; docker build -f environments/illumina/Dockerfile -t ncov2019_artic_nf_base:1.0.0 . ; cd ..
-docker build --build-arg NCOV_BASE_IMAGE_TAG=1.0.0 -f Dockerfile.ncov -t ncov2019_artic_nf:1.0.0 .
+docker build -t ncov2019_artic_nf:1.0.0 -f Dockerfile.ncov2019-artic-nf .
 
 # build pangolin docker image
 docker build -f Dockerfile.pangolin -t pangolin:1.0.0 .

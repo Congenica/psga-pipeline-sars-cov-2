@@ -1,4 +1,0 @@
-ARG NCOV_BASE_IMAGE_TAG=latest
-FROM ncov2019_artic_nf_base:${NCOV_BASE_IMAGE_TAG}
-
-COPY ncov2019-artic-nf/bin/qc.py /opt/conda/envs/artic-ncov2019-illumina/bin
