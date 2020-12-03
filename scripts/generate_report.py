@@ -68,15 +68,14 @@ def get_strain_level_and_global_context_report_data(
     total = sum(x[1] for x in lineage_count)
     global_total = 0
     for lineage in lineage_count:
-        if lineage[0] is None:
-            continue
-        global_count = sum(1 for x in meta_data if x[-1] == lineage[0])
+        name = lineage[0] or ""
+        global_count = sum(1 for x in meta_data if x[-1] == name)
         global_total += global_count
         percentage = "{:.0%}".format(lineage[1] / total)
         result.append(
             (
-                lineage[0],
-                notes[lineage[0]],
+                name,
+                notes.get(name, "None available"),
                 lineage[1],
                 percentage,
                 global_count,
@@ -111,19 +110,22 @@ reports = {
     "--report",
     type=click.Choice(["strain_level_and_global_context"]),
     required=True,
-    help="",
+    help="name of the report to be outputted",
 )
 @click.option(
     "--lineage-notes-url",
     type=click.STRING,
+    help="url to latest pangoLEARN lineage notes",
 )
 @click.option(
     "--metadata-url",
     type=click.STRING,
+    help="url to latest pangoLEARN metadata",
 )
 @click.option(
     "--pangolearn-dir",
     type=click.Path(dir_okay=True, readable=True),
+    help="fallback if latest data fetch fails, will look for latest local data by filename from url",
 )
 def generate_report(output: str, report: str, **kwargs) -> None:
     """

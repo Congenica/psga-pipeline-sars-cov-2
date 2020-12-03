@@ -37,6 +37,7 @@ include { store_reheadered_fasta_failed } from './modules.nf'
 include { concatenate_fasta } from './modules.nf'
 include { pangolin_pipeline } from './modules.nf'
 include { load_pangolin_data_to_db } from './modules.nf'
+include { generate_report_strain_level_and_global_context } from './modules.nf'
 
 
 workflow {
@@ -96,7 +97,14 @@ workflow {
         .set{ archived_fasta }
     concatenate_fasta(
         params.root_genome_fasta,
-        ch_reheadered_fasta.collect(),
+        ch_qc_passed_fasta.collect(),
         archived_fasta
+    )
+
+    generate_report_strain_level_and_global_context(
+        params.pangolearn_lineage_notes_url,
+        params.pangolearn_metadata_url,
+        params.pangolearn_dir,
+        ch_pangolin_sample_submitted.collect(),
     )
 }
