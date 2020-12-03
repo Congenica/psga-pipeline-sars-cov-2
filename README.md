@@ -161,6 +161,12 @@ cd covid-pipeline
 nextflow run .
 ```
 
+##### NextFlow  cleanup
+The following command clears the previous run's work directories and cache, but leaves the directories:
+```commandline
+nextflow clean -f
+```
+
 ##### Analyse the results via auspice web-service
 
 Build the provide auspice docker image:
