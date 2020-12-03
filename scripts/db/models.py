@@ -1,3 +1,5 @@
+from enum import Enum as PyEnum
+
 from sqlalchemy import (
     Boolean,
     Column,
@@ -17,6 +19,25 @@ from sqlalchemy.ext.declarative import declarative_base
 
 Base = declarative_base()
 metadata = Base.metadata
+
+
+class GovernorateEnum(PyEnum):
+    Capital = "Capital"
+    Northern = "Northern"
+    Southern = "Southern"
+    Muharraq = "Muharraq"
+
+
+class GenderEnum(PyEnum):
+    M = "M"
+    F = "F"
+    U = "U"
+
+
+class HospitalAdmittanceEnum(PyEnum):
+    No = "No"
+    Standard = "Standard"
+    ICU = "ICU"
 
 
 class Area(Base):  # type: ignore
@@ -80,7 +101,7 @@ class Governorate(Base):  # type: ignore
     }
 
     name = Column(
-        Enum("Capital", "Northern", "Southern", "Muharraq", name="governorate_name"),
+        Enum(GovernorateEnum, name="governorate_name"),
         primary_key=True,
     )
     latitude = Column(Float(53))
@@ -103,7 +124,7 @@ class Sample(Base):  # type: ignore
     data_sequenced = Column(DateTime, comment="timestamp of sample sequencing")
     sequencing_run = Column(String, comment="identifier of sequencing run")
     gender = Column(
-        Enum("M", "F", "U", name="gender"),
+        Enum(GenderEnum, name="gender"),
         nullable=False,
         server_default=FetchedValue(),
         comment="Gender of host person",
@@ -118,16 +139,13 @@ class Sample(Base):  # type: ignore
         ForeignKey("sars_cov_2.area.name", deferrable=True, initially="DEFERRED"),
         comment="foreign key to area table, mid level geolocation from where sample was collected",
     )
-    block_number = Column(
-        ForeignKey("sars_cov_2.block.number", deferrable=True, initially="DEFERRED"),
-        comment="foreign key to block table, low level geolocation from where sample was collected",
-    )
+    block_number = Column(String, comment="low level geolocation from where sample was collected")
     sample_number = Column(Integer, comment="Lab sample identifier (may be redundant with lab_id)")
     ct_value = Column(Float(53), comment="RNA quality measure")
     symptoms = Column(Text, comment="Symptoms observed")
     travel_exposure = Column(String, comment="Country host visited recently")
     hospital_admittance = Column(
-        Enum("No", "Standard", "ICU", name="hospital_admittance"),
+        Enum(HospitalAdmittanceEnum, name="hospital_admittance"),
         comment="Hospital type host admited to",
     )
     pangolin_lineage = Column(String, comment="Viral phylogenetic lineage")
@@ -144,7 +162,6 @@ class Sample(Base):  # type: ignore
     mrn = Column(Integer, comment="Individual National Identity number")
 
     area = relationship("Area")
-    block = relationship("Block")
     governorate = relationship("Governorate")
     comorbidities = relationship("Comorbidity", secondary="sars_cov_2.sample_comorbidity")
     sample_qc = relationship("SampleQC", uselist=False)

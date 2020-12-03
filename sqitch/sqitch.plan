@@ -6,3 +6,6 @@
 02-apptables [01-appschema] 2020-11-17T12:12:13Z Daniel Bunford-Jones <dbj@MacBook-Pro.local> # Create tables and enum types for SAR COV Bahrain application
 03-add-pangolin-probability [02-apptables] 2020-11-30T09:47:26Z Piero Dalle Pezze <piero.dallepezze@congenica.com> # Add pangolin_probability column to sample table
 04-add-pangolearn-version [02-apptables] 2020-11-30T12:37:52Z Piero Dalle Pezze <piero.dallepezze@congenica.com> # Add pangolearn_version column to sample_qc table
+05-governorates [02-apptables] 2020-12-01T10:31:17Z Andrew Bayliss,,, <andrewbayliss@con-xps-23> # Add governorates data
+06-areas [02-apptables] 2020-12-01T10:47:01Z Andrew Bayliss,,, <andrewbayliss@con-xps-23> # Add area data
+07-remove_block_fk [02-apptables] 2020-12-01T11:46:03Z Andrew Bayliss,,, <andrewbayliss@con-xps-23> # Remove the foreign key constraint between the sample and block tables
