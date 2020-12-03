@@ -8,7 +8,7 @@ from Bio.SeqRecord import SeqRecord
 
 FASTA_FILE_EXTENSION = "fa"
 FASTA_FILE_HANDLE = "fasta"
-SEQUENCE_DESCRIPTION = "SARS-CoV-2"
+SEQUENCE_DESCRIPTION = ""  # SARS-CoV-2. Don't add this as it causes Nextstrain to crash
 ASSEMBLY_LENGTHS_FILENAME = "sequence_lengths.text"
 
 

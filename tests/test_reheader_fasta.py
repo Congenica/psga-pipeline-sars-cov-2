@@ -2,12 +2,12 @@ from click.testing import CliRunner
 
 
 def test_reheader_fasta(tmp_path, fasta_file_generator):
-    from reheader_fasta import reheader_fasta, SEQUENCE_DESCRIPTION, FASTA_FILE_EXTENSION, FASTA_FILE_HANDLE
+    from reheader_fasta import reheader_fasta, FASTA_FILE_EXTENSION, FASTA_FILE_HANDLE
 
     fasta_file_generator(
         path=tmp_path,
         extension=FASTA_FILE_EXTENSION,
-        content=">Consensus_{sample_id}" + f"{SEQUENCE_DESCRIPTION}\n{'N' * 29903}\n",
+        content=">Consensus_{sample_id}" + f"\n{'N' * 29903}\n",
     )
 
     runner = CliRunner()
@@ -21,4 +21,4 @@ def test_reheader_fasta(tmp_path, fasta_file_generator):
     for reheadered_fasta in result_files:
         sample_id = reheadered_fasta.name.replace(f".{FASTA_FILE_HANDLE}", "")
         content = reheadered_fasta.read_text()
-        assert content.startswith(f">{sample_id} {SEQUENCE_DESCRIPTION}\n")
+        assert content.startswith(f">{sample_id}\n")

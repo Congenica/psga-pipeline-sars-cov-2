@@ -201,7 +201,7 @@ process prepare_tsv_for_nextstrain {
     path nextstrain_analysis_tsv
 
   script:
-    nextstrain_analysis_tsv = "nextstrain_input.tsv"
+    nextstrain_analysis_tsv = "nextstrain_metadata.tsv"
 
   """
   python /app/scripts/generate_nextstrain_input_tsv.py --output ${nextstrain_analysis_tsv}
@@ -267,5 +267,43 @@ process prepare_microreact_tsv {
 
   """
   python /app/scripts/generate_microreact_input.py --output ${params.microreact_tsv}
+  """
+}
+
+/*
+ * Run: nextstrain-ncov snakemake pipeline
+ * see: https://github.com/nextstrain/ncov
+ */
+process nextstrain_pipeline {
+  publishDir COVID_PIPELINE_WORKDIR, mode: 'copy', overwrite: true
+
+  input:
+    path metadata
+    path fasta
+
+  output:
+    path "${nextstrain_out_directory}/*", emit: ch_all_nextstrain_results
+    path "${nextstrain_out_directory}/bahrain/ncov_with_accessions.json", emit: ch_ncov_with_accessions
+
+  script:
+    nextstrain_out_directory = "nextstrain_output"
+  """
+  # The snakemake custom profile is configured so that the input data are in: /nextstrain/data/
+  # These copies must be executed as root as they alter the container, hence --user 0:0 in nextflow.config.
+  # note: ln -s does not work here
+  cp ${metadata} /nextstrain/data/nextstrain_metadata.tsv
+  cp ${fasta} /nextstrain/data/nextstrain.fasta
+
+  # create the output dir. This must be done on /
+  mkdir -p ${nextstrain_out_directory}
+  cd /nextstrain
+  # run the nextstrain Snakemake pipeline
+  snakemake --profile /custom_profile
+
+  # copy the output files to the caller and set user permissions. This must be done on /
+  # note: ln -s does not work here
+  cd -
+  cp -R /nextstrain/results/* ${nextstrain_out_directory}
+  chown -R \${UID}:\${GID} ${nextstrain_out_directory}
   """
 }
