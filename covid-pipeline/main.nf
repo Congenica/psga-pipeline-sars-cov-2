@@ -42,7 +42,7 @@ include { load_pangolin_data_to_db } from './modules.nf'
 workflow {
 
     load_iseha_metadata(
-        "${COVID_PIPELINE_FASTQ_PATH}/metadata.tsv"
+        "${COVID_PIPELINE_FASTQ_PATH}/" + params.metadata_file_name
     )
 
     ncov2019_artic_nf_pipeline(
