@@ -5,12 +5,16 @@ ENV PIP_VERSION=20.2.4 \
     POETRY_VERSION=1.1.4
 
 RUN apt-get update && \
-    apt-get install --yes --no-install-recommends build-essential libpq-dev && \
+    apt-get install --yes --no-install-recommends build-essential procps libpq-dev && \
     rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
 COPY . .
+
+RUN wget -P /app/data/pangoLEARN \
+    https://raw.githubusercontent.com/cov-lineages/pangoLEARN/master/pangoLEARN/data/lineages.metadata.csv \
+    https://raw.githubusercontent.com/cov-lineages/pangoLEARN/master/pangoLEARN/supporting_information/lineage_notes.txt
 
 RUN pip install --progress-bar=off --no-cache-dir --upgrade pip==${PIP_VERSION} && \
     pip install --progress-bar=off --no-cache-dir poetry==${POETRY_VERSION} && \
