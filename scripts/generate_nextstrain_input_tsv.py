@@ -1,5 +1,4 @@
 from typing import List
-from datetime import datetime
 from dataclasses import dataclass
 import csv
 
@@ -7,27 +6,30 @@ import click
 from sqlalchemy.orm import joinedload
 
 from db.database import session_handler
-from db.models import Sample, SampleQC
+from db.models import Sample, SampleQC, GenderEnum, HospitalAdmittanceEnum
 
 
 @dataclass
 class NextstrainSampleMetadataInput:
     strain: str
-    date: datetime
+    date: str
+    country: str
     division: str
     area: str
     country_exposure: str
     division_exposure: str
     length: int
     age: int
-    sex: str
+    sex: GenderEnum
+    originating_lab: str
+    submitting_lab: str
     pangolin_lineage: str
     nationality: str
     ct_value: float
     symptoms: str
     comorbitities: str
     travel_exposure: str
-    hospital_admittance: str
+    hospital_admittance: HospitalAdmittanceEnum
 
     gisaid_epi_isl = None
     genbank_accession = None
@@ -37,11 +39,31 @@ class NextstrainSampleMetadataInput:
     date_submitted = None
     virus: str = "SARS-CoV-2"
     region: str = "Asia"
-    country: str = "Bahrain"
     segment: str = "genome"
     host: str = "human"
-    originating_lab: str = "Bahrain Public Health Laboratory"
-    submitting_lab: str = "Bahrain Public Health Laboratory"
+
+
+root_genome = NextstrainSampleMetadataInput(
+    strain="NC_045512.2",
+    date="2019-12-20",
+    country="China",
+    division="C",
+    area="",
+    country_exposure="",
+    division_exposure="",
+    length=29903,
+    age=94,
+    sex=GenderEnum.F,
+    originating_lab="China",
+    submitting_lab="WHO",
+    pangolin_lineage="A",
+    nationality="China",
+    ct_value=0.2657696717449,
+    symptoms="",
+    comorbitities="",
+    travel_exposure="",
+    hospital_admittance=HospitalAdmittanceEnum.No,
+)
 
 
 def get_data_for_nextstrain() -> List[NextstrainSampleMetadataInput]:
@@ -57,13 +79,15 @@ def get_data_for_nextstrain() -> List[NextstrainSampleMetadataInput]:
         )
         for sample in samples:
             division = sample.governorate_name
+            country = "Bahrain"
             country_exposure = sample.travel_exposure
             if not country_exposure:
-                country_exposure = NextstrainSampleMetadataInput.country
+                country_exposure = country
             res.append(
                 NextstrainSampleMetadataInput(
                     strain=sample.lab_id,
-                    date=sample.date_collected,
+                    date=sample.date_collected.now.strftime("%Y-%m-%d") if sample.date_collected else None,
+                    country=country,
                     division=division,
                     area=sample.area_name,
                     country_exposure=country_exposure,
@@ -71,6 +95,8 @@ def get_data_for_nextstrain() -> List[NextstrainSampleMetadataInput]:
                     length=sample.genome_length,
                     age=sample.age,
                     sex=sample.gender,
+                    originating_lab="Bahrain Public Health Laboratory",
+                    submitting_lab="Bahrain Public Health Laboratory",
                     pangolin_lineage=sample.pangolin_lineage,
                     nationality=sample.nationality,
                     ct_value=sample.ct_value,
@@ -80,6 +106,7 @@ def get_data_for_nextstrain() -> List[NextstrainSampleMetadataInput]:
                     hospital_admittance=sample.hospital_admittance,
                 )
             )
+    res.append(root_genome)
     return res
 
 

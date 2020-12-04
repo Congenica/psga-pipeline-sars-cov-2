@@ -27,17 +27,26 @@ class GovernorateEnum(PyEnum):
     Southern = "Southern"
     Muharraq = "Muharraq"
 
+    def __str__(self):
+        return str(self.name)
+
 
 class GenderEnum(PyEnum):
     M = "M"
     F = "F"
     U = "U"
 
+    def __str__(self):
+        return str(self.name)
+
 
 class HospitalAdmittanceEnum(PyEnum):
     No = "No"
     Standard = "Standard"
     ICU = "ICU"
+
+    def __str__(self):
+        return str(self.name)
 
 
 class Area(Base):  # type: ignore
