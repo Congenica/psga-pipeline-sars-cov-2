@@ -128,10 +128,11 @@ def load_iseha_data(file):
     """
     reader = csv.DictReader(file, delimiter="\t")
 
-    headers = reader.fieldnames
-    if headers != EXPECTED_HEADERS:
-        err = "Unexpected TSV headers, got:\n" + ", ".join(headers) + "\nexpected\n" + ", ".join(EXPECTED_HEADERS)
-        raise ClickException(err)
+    found_headers = reader.fieldnames
+    for expected_header in EXPECTED_HEADERS:
+        if expected_header not in found_headers:
+            err = "Could not find expected header '" + expected_header + "'. Got:\n" + ", ".join(found_headers) + "\nexpected\n" + ", ".join(EXPECTED_HEADERS)
+            raise ClickException(err)
 
     inserted = set()
     updated = set()
