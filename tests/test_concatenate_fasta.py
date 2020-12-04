@@ -25,4 +25,4 @@ def test_fasta_concatenation(tmp_path, fasta_file_generator, root_genome):
     # check file headers in concatenated file
     assert all(header in concatenated_fasta for header in headers)
     # check SARS-CoV-2 prepended
-    assert concatenated_fasta.startswith(f">Wuhan-Hu-1 {SEQUENCE_DESCRIPTION}")
+    assert concatenated_fasta.startswith(f">NC_045512.2 {SEQUENCE_DESCRIPTION}")
