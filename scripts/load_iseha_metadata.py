@@ -131,7 +131,14 @@ def load_iseha_data(file):
     found_headers = reader.fieldnames
     for expected_header in EXPECTED_HEADERS:
         if expected_header not in found_headers:
-            err = "Could not find expected header '" + expected_header + "'. Got:\n" + ", ".join(found_headers) + "\nexpected\n" + ", ".join(EXPECTED_HEADERS)
+            err = (
+                "Could not find expected header '"
+                + expected_header
+                + "'. Got:\n"
+                + ", ".join(found_headers)
+                + "\nexpected\n"
+                + ", ".join(EXPECTED_HEADERS)
+            )
             raise ClickException(err)
 
     inserted = set()
