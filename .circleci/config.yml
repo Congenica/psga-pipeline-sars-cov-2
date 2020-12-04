@@ -9,8 +9,12 @@ executors:
   python:
     docker:
       - image: circleci/python:3.8
+        environment:
+          PGHOST: localhost
+          PGUSER: postgres
       - image: circleci/postgres:11-ram
         environment:
+          POSTGRES_USER: postgres
           POSTGRES_PASSWORD: somesecret
 
 jobs:
@@ -31,6 +35,14 @@ jobs:
           version: << pipeline.parameters.docker_version >>
           docker_layer_caching: true
       - checkout
+      - run:
+          name: Install sqitch and create database
+          command: |
+            sudo apt-get install -qq sqitch postgresql-client
+            createdb bahrain_sars_cov_2
+            cd sqitch
+            sqitch deploy
+            sqitch verify
       - run:
           name: Install dependencies and run tests
           command: |
