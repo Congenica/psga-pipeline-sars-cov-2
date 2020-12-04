@@ -47,15 +47,15 @@ def generate_microreact_input(output):
                 "year": sample.date_collected.year,
                 "month": sample.date_collected.month,
                 "day": sample.date_collected.day,
-                # "clade": None,
-                # "clade__color": None,
+                "clade": None,
+                "clade__color": None,
                 "lineage": sample.pangolin_lineage,
                 "location": sample.area.name,
                 "location__color": "#" + sample.area.colour.hex(),
-                # "outcome": None,
-                # "outcome__color": None,
+                "outcome": None,
+                "outcome__color": None,
                 "age": sample.age,
-                # "sex": None,
+                "sex": None,
             }
             writer.writerow(tsv_row)
 

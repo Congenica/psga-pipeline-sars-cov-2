@@ -38,6 +38,7 @@ include { concatenate_fasta } from './modules.nf'
 include { pangolin_pipeline } from './modules.nf'
 include { load_pangolin_data_to_db } from './modules.nf'
 include { generate_report_strain_level_and_global_context } from './modules.nf'
+include { prepare_microreact_tsv } from './modules.nf'
 
 
 workflow {
@@ -88,6 +89,11 @@ workflow {
     )
 
     ch_nextstrain_input_tsv = prepare_tsv_for_nextstrain(
+        ch_ncov_qc_sample_submitted.collect(),
+        ch_pangolin_sample_submitted.collect()
+    )
+
+    ch_microreact_input_tsv = prepare_microreact_tsv(
         ch_ncov_qc_sample_submitted.collect(),
         ch_pangolin_sample_submitted.collect()
     )
