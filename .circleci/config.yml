@@ -4,18 +4,34 @@ parameters:
   docker_version:
     type: string
     default: "19.03.13"
+  db_user:
+    type: string
+    default: "postgres"
+  db_password:
+    type: string
+    default: "somesecret"
+  db_name:
+    type: string
+    default: "bahrain_sars_cov_2"
 
 executors:
   python:
     docker:
       - image: circleci/python:3.8
+  python_with_db:
+    docker:
+      - image: circleci/python:3.8
         environment:
           PGHOST: localhost
-          PGUSER: postgres
+          PGUSER: << pipeline.parameters.db_user >>
+          DB_HOST: localhost
+          DB_USER: << pipeline.parameters.db_user >>
+          DB_PASSWORD: << pipeline.parameters.db_password >>
+          DB_NAME: << pipeline.parameters.db_name >>
       - image: circleci/postgres:11-ram
         environment:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: somesecret
+          POSTGRES_USER: << pipeline.parameters.db_user >>
+          POSTGRES_PASSWORD: << pipeline.parameters.db_password >>
 
 jobs:
   pre_commit_hooks:
@@ -29,7 +45,7 @@ jobs:
             pre-commit run --all-files
 
   build-and-test:
-    executor: python
+    executor: python_with_db
     steps:
       - setup_remote_docker:
           version: << pipeline.parameters.docker_version >>
