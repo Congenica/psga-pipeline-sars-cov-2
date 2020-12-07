@@ -1,6 +1,6 @@
 import csv
 from pathlib import Path
-from typing import List, Tuple, Any
+from typing import List, Tuple, Any, Dict, Callable
 
 import click
 import requests
@@ -11,6 +11,16 @@ from db.database import session_handler
 from db.models import Sample
 
 STRAIN_LEVEL_AND_GLOBAL_CONTEXT_REPORT_HEADERS = ("Lineage", "Description", "Count", "Percent", "Global Count")
+STRAIN_FIRST_SEEN_HEADERS = (
+    "Pangolin Lineage",
+    "Date First Seen",
+    "MRN",
+    "Sample ID",
+    "Area",
+    "Block",
+    "Travel History",
+    "Number of Subsequent occurrences",
+)
 
 
 def fetch_csv(url: str, delimiter: str, fallback_dir: str):
@@ -94,8 +104,55 @@ def get_strain_level_and_global_context_report_data(
     return result
 
 
-reports = {
+def get_strain_first_seen_report_data() -> List[Tuple[Any, ...]]:
+    """
+    Method to fetch report data from local database.
+    :return List[Tuple[Any, ...]]: lines for the csv report containing columns corresponding
+    to STRAIN_FIRST_SEEN_HEADERS
+    """
+
+    def cleanup_result(raw_data, counts_dict):
+        res = []
+        for line in raw_data:
+            res.append(
+                (
+                    line[0] or "",
+                    line[1].date(),
+                    line[2] or "",
+                    line[3] or "",
+                    line[4] or "",
+                    line[5] or "",
+                    line[6] or "",
+                    counts_dict[line[0]] - 1,  # reducing by 1 for column "Number of Subsequent occurrences",
+                )
+            )
+        return res
+
+    result: List[Tuple[Any, ...]] = [STRAIN_FIRST_SEEN_HEADERS]
+
+    with session_handler() as session:
+        counts = dict(session.query(Sample.pangolin_lineage, func.count("*")).group_by(Sample.pangolin_lineage).all())
+        samples = (
+            session.query(
+                Sample.pangolin_lineage,
+                Sample.date_collected,
+                Sample.mrn,
+                Sample.lab_id,
+                Sample.area_name,
+                Sample.block_number,
+                Sample.travel_exposure,
+            )
+            .distinct(Sample.pangolin_lineage)
+            .order_by(Sample.pangolin_lineage, Sample.date_collected)
+            .all()
+        )
+        result.extend(cleanup_result(samples, counts))
+    return result
+
+
+reports: Dict[str, Callable[..., List[Tuple[Any, ...]]]] = {
     "strain_level_and_global_context": get_strain_level_and_global_context_report_data,
+    "strain_first_seen": get_strain_first_seen_report_data,
 }
 
 
@@ -108,7 +165,7 @@ reports = {
 )
 @click.option(
     "--report",
-    type=click.Choice(["strain_level_and_global_context"]),
+    type=click.Choice(["strain_level_and_global_context", "strain_first_seen"]),
     required=True,
     help="name of the report to be outputted",
 )
@@ -131,6 +188,7 @@ def generate_report(output: str, report: str, **kwargs) -> None:
     """
     Generate a csv report from the database and external sources
     """
+    kwargs = {key: value for key, value in kwargs.items() if value}
     samples = reports[report](**kwargs)
 
     with open(output, "w") as out_file:
