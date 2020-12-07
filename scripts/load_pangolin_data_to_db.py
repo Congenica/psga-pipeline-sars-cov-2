@@ -2,14 +2,14 @@ from typing import Dict
 import csv
 
 import click
-from sqlalchemy.orm import scoped_session
+from sqlalchemy.orm import scoped_session, joinedload
 
 from db.database import session_handler
 from db.models import Sample, SampleQC
 
 
 def load_data_from_csv(session: scoped_session, sample_name: str, sample_from_csv: Dict):
-    sample = session.query(Sample).filter_by(lab_id=sample_name).join(Sample.sample_qc).one_or_none()
+    sample = session.query(Sample).filter_by(lab_id=sample_name).options(joinedload(Sample.sample_qc)).one_or_none()
 
     if not sample:
         sample = Sample(lab_id=sample_name)
