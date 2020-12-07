@@ -86,7 +86,7 @@ def get_data_for_nextstrain() -> List[NextstrainSampleMetadataInput]:
             res.append(
                 NextstrainSampleMetadataInput(
                     strain=sample.lab_id,
-                    date=sample.date_collected.now.strftime("%Y-%m-%d") if sample.date_collected else None,
+                    date=sample.date_collected.strftime("%Y-%m-%d") if sample.date_collected else None,
                     country=country,
                     division=division,
                     area=sample.area_name,

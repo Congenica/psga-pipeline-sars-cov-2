@@ -3,7 +3,7 @@ import os
 import csv
 
 import click
-from sqlalchemy.orm import scoped_session
+from sqlalchemy.orm import scoped_session, joinedload
 
 from db.database import session_handler
 from db.models import Sample, SampleQC
@@ -17,7 +17,7 @@ def submit_sample_qc_from_csv(
     if not os.path.isfile(sample_qc_depth_file_path):
         raise ValueError(f"File {sample_qc_depth_file_path}, required to submit sample {sample_name}, does not exist")
 
-    sample = session.query(Sample).filter_by(lab_id=sample_name).join(Sample.sample_qc).one_or_none()
+    sample = session.query(Sample).filter_by(lab_id=sample_name).options(joinedload(Sample.sample_qc)).one_or_none()
     if not sample:
         sample = Sample(lab_id=sample_name)
         session.add(sample)
