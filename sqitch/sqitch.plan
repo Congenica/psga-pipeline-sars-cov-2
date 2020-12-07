@@ -9,3 +9,4 @@
 05-governorates [02-apptables] 2020-12-01T10:31:17Z Andrew Bayliss,,, <andrewbayliss@con-xps-23> # Add governorates data
 06-areas [02-apptables] 2020-12-01T10:47:01Z Andrew Bayliss,,, <andrewbayliss@con-xps-23> # Add area data
 07-remove_block_fk [02-apptables] 2020-12-01T11:46:03Z Andrew Bayliss,,, <andrewbayliss@con-xps-23> # Remove the foreign key constraint between the sample and block tables
+08-add_area_colours [06-areas] 2020-12-03T15:48:11Z Andrew Bayliss,,, <andrewbayliss@con-xps-23> # Add colours to the area table
