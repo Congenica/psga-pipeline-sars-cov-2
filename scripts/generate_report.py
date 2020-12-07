@@ -2,6 +2,7 @@ import csv
 from pathlib import Path
 from typing import List, Tuple, Any, Dict, Callable
 
+from datetime import datetime
 import click
 import requests
 from requests.exceptions import ConnectTimeout, MissingSchema
@@ -114,10 +115,13 @@ def get_strain_first_seen_report_data() -> List[Tuple[Any, ...]]:
     def cleanup_result(raw_data, counts_dict):
         res = []
         for line in raw_data:
+            date_collected = line[1] or ""
+            if isinstance(date_collected, datetime):
+                date_collected = date_collected.date()
             res.append(
                 (
                     line[0] or "",
-                    line[1].date(),
+                    date_collected,
                     line[2] or "",
                     line[3] or "",
                     line[4] or "",
