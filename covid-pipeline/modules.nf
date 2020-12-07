@@ -231,6 +231,7 @@ process generate_report_strain_level_and_global_context {
     --metadata-url "${pangolearn_metadata_url}" \
     --pangolearn-dir "${pangolearn_dir}" \
     --output "${output_filename}"
+  """
 }
 
 /*
