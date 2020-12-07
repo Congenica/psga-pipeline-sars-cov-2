@@ -5,7 +5,7 @@ import click
 from sqlalchemy.orm import scoped_session, joinedload
 
 from db.database import session_handler
-from db.models import Sample, SampleQC
+from db.models import Sample, SampleQC, PangolinStatus
 
 
 def load_data_from_csv(session: scoped_session, sample_name: str, sample_from_csv: Dict):
@@ -17,8 +17,12 @@ def load_data_from_csv(session: scoped_session, sample_name: str, sample_from_cs
     if not sample.sample_qc:
         sample.sample_qc = SampleQC()
 
-    sample.pangolin_lineage = sample_from_csv["lineage"]
+    pangolin_status = PangolinStatus[sample_from_csv["status"]]
+
+    if pangolin_status == PangolinStatus.passed_qc:
+        sample.pangolin_lineage = sample_from_csv["lineage"]
     sample.pangolin_probability = sample_from_csv["probability"]
+    sample.pangolin_status = pangolin_status
     sample.sample_qc.pangolearn_version = sample_from_csv["pangoLEARN_version"]
 
 
