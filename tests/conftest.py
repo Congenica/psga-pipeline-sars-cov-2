@@ -5,6 +5,51 @@ import tempfile
 from pathlib import Path
 
 import pytest
+from sqlalchemy import event
+from sqlalchemy.orm import sessionmaker
+
+from scripts.db.database import connect
+
+# set this to True to keep changes made to the database while tests are running
+# you will be responsible for any cleanup needed before re-running tests in this case
+DISABLE_ROLLBACK = False
+
+Session = sessionmaker()
+
+
+@pytest.fixture
+def db_engine():
+    return connect()
+
+
+@pytest.fixture
+def db_session(monkeypatch, db_engine):
+    connection = db_engine.connect()
+    tx = connection.begin()
+
+    session = Session(bind=connection)
+
+    if not DISABLE_ROLLBACK:
+        session.begin_nested()
+
+    @event.listens_for(session, "after_transaction_end")
+    def restart_savepoint(sess, transaction):
+        if transaction.nested and not transaction._parent.nested and not DISABLE_ROLLBACK:
+            sess.expire_all()
+            sess.begin_nested()
+
+    monkeypatch.setattr("scripts.db.database.create_session", lambda: session)
+
+    yield session
+
+    if not DISABLE_ROLLBACK:
+        session.close()
+        tx.rollback()
+    else:
+        tx.commit()
+        session.commit()
+
+    connection.close()
 
 
 @pytest.fixture
