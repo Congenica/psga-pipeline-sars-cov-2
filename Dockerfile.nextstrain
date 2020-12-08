@@ -1,18 +1,18 @@
-FROM continuumio/miniconda3:4.8.2 AS condabuild-nextstrain
+FROM continuumio/miniconda3:4.8.2 AS condabuild
 COPY nextstrain/workflow/envs/nextstrain.yaml /environment.yml
 RUN /opt/conda/bin/conda update conda \
   && /opt/conda/bin/conda install mamba -c conda-forge \
-  && /opt/conda/bin/mamba env create -f /environment.yml -n nextstrain
-
-
-FROM continuumio/miniconda3:4.8.2 AS condabuild-snakemake
-RUN /opt/conda/bin/conda update conda \
-  && /opt/conda/bin/conda install mamba -c conda-forge \
-  && /opt/conda/bin/mamba create -c conda-forge -c bioconda -n snakemake snakemake
-
+  && /opt/conda/bin/mamba env create -f /environment.yml -n nextstrain \
+  && /opt/conda/bin/mamba create -c bioconda -c conda-forge -n snakemake snakemake-minimal=5.13
 
 FROM debian:buster-slim
-COPY nextstrain/ /nextstrain
-COPY --from=condabuild-nextstrain /opt/conda/envs/nextstrain /opt/conda/envs/nextstrain
-COPY --from=condabuild-snakemake /opt/conda/envs/snakemake /opt/conda/envs/snakemake
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends procps \
+  && apt-get clean -y \
+  && rm -rf /var/lib/apt/lists/*
+COPY --from=condabuild /opt/conda/envs/nextstrain /opt/conda/envs/nextstrain
+COPY --from=condabuild /opt/conda/envs/snakemake /opt/conda/envs/snakemake
 ENV PATH=/opt/conda/envs/nextstrain/bin:/opt/conda/envs/snakemake/bin:$PATH
+COPY nextstrain/ /nextstrain
+COPY nextstrain_config/defaults/* /nextstrain/defaults/
+COPY nextstrain_config/profile /custom_profile

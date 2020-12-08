@@ -7,10 +7,6 @@ log.info """\
     ======================
     ${workflow.manifest.name} v ${workflow.manifest.version}
     ======================
-    ncov2019-artic-nf config:
-    * docker image     : $params.ncov_docker_image
-    * prefix           : $params.ncov_prefix
-
     env vars:
     * COVID_PIPELINE_ROOTDIR    : ${COVID_PIPELINE_ROOTDIR}
     * COVID_PIPELINE_FASTQ_PATH : ${COVID_PIPELINE_FASTQ_PATH}
@@ -40,6 +36,7 @@ include { load_pangolin_data_to_db } from './modules.nf'
 include { generate_report_strain_level_and_global_context } from './modules.nf'
 include { generate_report_strain_first_seen } from './modules.nf'
 include { prepare_microreact_tsv } from './modules.nf'
+include { nextstrain_pipeline } from './modules.nf'
 
 
 workflow {
@@ -89,7 +86,7 @@ workflow {
         pangolin_pipeline.out.ch_pangolin_lineage_csv
     )
 
-    ch_nextstrain_input_tsv = prepare_tsv_for_nextstrain(
+    ch_nextstrain_metadata_tsv = prepare_tsv_for_nextstrain(
         ch_ncov_qc_sample_submitted.collect(),
         ch_pangolin_sample_submitted.collect()
     )
@@ -102,7 +99,7 @@ workflow {
     Channel
         .fromPath( COVID_PIPELINE_FASTA_PATH )
         .set{ archived_fasta }
-    concatenate_fasta(
+    ch_nextstrain_fasta = concatenate_fasta(
         params.root_genome_fasta,
         ch_qc_passed_fasta.collect(),
         archived_fasta
@@ -112,7 +109,12 @@ workflow {
         params.pangolearn_lineage_notes_url,
         params.pangolearn_metadata_url,
         params.pangolearn_dir,
-        ch_pangolin_sample_submitted.collect(),
+        ch_pangolin_sample_submitted.collect()
+    )
+
+    ch_nextstrain_pipeline = nextstrain_pipeline(
+        ch_nextstrain_metadata_tsv,
+        ch_nextstrain_fasta
     )
 
     generate_report_strain_first_seen(

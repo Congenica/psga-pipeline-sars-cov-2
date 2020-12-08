@@ -1,0 +1,12 @@
+configfile:
+  - /custom_profile/builds.yaml
+
+config:
+  - sequences=/nextstrain/data/nextstrain.fasta
+  - metadata=/nextstrain/data/nextstrain_metadata.tsv
+
+keep-going: False
+printshellcmds: True
+stats: stats.json
+
+cores: 4

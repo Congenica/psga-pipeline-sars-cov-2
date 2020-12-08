@@ -33,12 +33,12 @@ class NextstrainSampleMetadataInput:
 
     gisaid_epi_isl = None
     genbank_accession = None
-    region_exposure = None
     authors = None
     title = None
     date_submitted = None
     virus: str = "SARS-CoV-2"
     region: str = "Asia"
+    region_exposure: str = "Asia"
     segment: str = "genome"
     host: str = "human"
 
