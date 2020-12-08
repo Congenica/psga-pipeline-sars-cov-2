@@ -165,7 +165,7 @@ def load_iseha_data(file):
                         date_collected=row["ASSIGN DATE"],
                         ct_value=row["CT"],
                         symptoms=row["SYMPTOMS"],
-                        metadata_loaded=True
+                        metadata_loaded=True,
                     )
                     session.add(sample)
                     inserted.add(row["SAMPLE ID"])
