@@ -11,3 +11,4 @@
 07-remove_block_fk [02-apptables] 2020-12-01T11:46:03Z Andrew Bayliss,,, <andrewbayliss@con-xps-23> # Remove the foreign key constraint between the sample and block tables
 08-add_area_colours [06-areas] 2020-12-03T15:48:11Z Andrew Bayliss,,, <andrewbayliss@con-xps-23> # Add colours to the area table
 09-add_pangolin_pass [02-apptables] 2020-12-07T13:44:33Z Tautvydas Petkus <tautvydas.petkus@telesoftas.com> # Additional column describing, whether pangolin lineage process has passed for the sample
+10-add_metadata_loaded_flag [02-apptables] 2020-12-08T08:56:23Z Tautvydas Petkus <tautvydas.petkus@telesoftas.com> # Boolean flag indicating, that a metadata was loaded from i-seha
