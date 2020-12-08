@@ -38,6 +38,7 @@ include { concatenate_fasta } from './modules.nf'
 include { pangolin_pipeline } from './modules.nf'
 include { load_pangolin_data_to_db } from './modules.nf'
 include { generate_report_strain_level_and_global_context } from './modules.nf'
+include { generate_report_strain_first_seen } from './modules.nf'
 include { prepare_microreact_tsv } from './modules.nf'
 
 
@@ -113,4 +114,9 @@ workflow {
         params.pangolearn_dir,
         ch_pangolin_sample_submitted.collect(),
     )
+
+    generate_report_strain_first_seen(
+        ch_pangolin_sample_submitted.collect(),
+    )
+
 }
