@@ -184,6 +184,7 @@ class Sample(Base):  # type: ignore
     )
     genome_length = Column(Integer, comment="Number of base pair in the virus genome")
     mrn = Column(Integer, comment="Individual National Identity number")
+    metadata_loaded = Column(Boolean, comment="Metadata was loaded from Bahrain medical records system I-SEHA")
 
     area = relationship("Area")
     governorate = relationship("Governorate")
