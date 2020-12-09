@@ -8,8 +8,8 @@ import click
 from click import ClickException
 from sqlalchemy import String, cast, func
 
-from db.database import session_handler
-from db.models import Area, Governorate, Sample
+from scripts.db.database import session_handler
+from scripts.db.models import Area, Governorate, Sample
 
 EXPECTED_HEADERS = [
     "MRN",
