@@ -174,6 +174,7 @@ class Sample(Base):  # type: ignore
         server_default=FetchedValue(),
         comment="Reported pangolin lineage status",
     )
+    amino_acid_muts = Column(String, comment="Amino acid mutations calculated by Nextstrain")
     genbank_id = Column(Integer, comment="GeneBank accession of virus genome")
     gisaid_id = Column(
         String,
