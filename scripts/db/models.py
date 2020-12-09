@@ -49,6 +49,15 @@ class HospitalAdmittanceEnum(PyEnum):
         return str(self.name)
 
 
+class PangolinStatus(PyEnum):
+    unknown = "unknown"
+    fail = "fail"
+    passed_qc = "passed_qc"
+
+    def __str__(self):
+        return str(self.name)
+
+
 class Area(Base):  # type: ignore
     __tablename__ = "area"
     __table_args__ = {"schema": "sars_cov_2", "comment": 'Geographic "Area" location'}
@@ -159,6 +168,12 @@ class Sample(Base):  # type: ignore
     )
     pangolin_lineage = Column(String, comment="Viral phylogenetic lineage")
     pangolin_probability = Column(Float, comment="Probability of the viral phylogenetic lineage")
+    pangolin_status = Column(
+        Enum(PangolinStatus, name="pangolin_status"),
+        nullable=False,
+        server_default=FetchedValue(),
+        comment="Reported pangolin lineage status",
+    )
     genbank_id = Column(Integer, comment="GeneBank accession of virus genome")
     gisaid_id = Column(
         String,

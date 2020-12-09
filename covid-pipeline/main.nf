@@ -80,7 +80,7 @@ workflow {
         ch_sample_row_by_qc.qc_failed.flatten()
     )
 
-    pangolin_pipeline(ch_reheadered_fasta)
+    pangolin_pipeline(ch_qc_passed_fasta)
 
     ch_pangolin_sample_submitted = load_pangolin_data_to_db(
         pangolin_pipeline.out.ch_pangolin_lineage_csv
