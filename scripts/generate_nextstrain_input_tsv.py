@@ -75,6 +75,7 @@ def get_data_for_nextstrain() -> List[NextstrainSampleMetadataInput]:
             .options(joinedload(Sample.comorbidities))
             .join(Sample.sample_qc)
             .filter(SampleQC.qc_pass)
+            .filter(Sample.metadata_loaded)
             .all()
         )
         for sample in samples:
