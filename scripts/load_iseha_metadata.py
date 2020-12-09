@@ -119,7 +119,9 @@ def _validate_and_normalise_row(session, row):
 
 @click.command()
 @click.option("--file", required=True, type=click.File("r"), help="The metadata TSV input file")
-def load_iseha_data(file):
+@click.option("--output_file_for_samples_with_metadata", required=False, type=click.File("w"), 
+    help="File path to populate with all sample names, which have metadata loaded in the database")
+def load_iseha_data(file, output_file_for_samples_with_metadata):
     """
     Read in a TSV file of I-SEHA metadata and load each row into the database. Invalid rows are warned about, but
     skipped over.
@@ -180,6 +182,12 @@ def load_iseha_data(file):
         click.echo(
             "Errors encountered, these samples were not inserted or updated: " + ", ".join(map(str, errors)), err=True
         )
+
+    # if output_file_for_samples_with_metadata:
+    #     with open(output_file_for_samples_with_metadata, "w") as f:
+    #         with session_handler() as session:
+    #             session.query(Sample).filter(Sample.qc_pass).all()
+
 
 
 if __name__ == "__main__":

@@ -17,6 +17,23 @@ process load_iseha_metadata {
   """
 }
 
+process group_fastq_by_metadata_match {
+  input:
+    tuple val(sample_name), file(sample_file_1), file(sample_file_2)
+    path load_iseha_metadata_completion_flag
+
+  output:
+    tuple val(sample_name), file(sample_file_1), file(sample_file_2), val(matched) 
+
+  script:
+    matched = file("${sample_name}.txt").exists()
+
+  """
+  touch "140004926.txt"
+  """
+}
+
+
 /*
  * Run: ncov2019-artic-nf nextflow pipeline
  * see: https://github.com/connor-lab/ncov2019-artic-nf
@@ -25,6 +42,7 @@ process ncov2019_artic_nf_pipeline {
   publishDir COVID_PIPELINE_WORKDIR, mode: 'copy', overwrite: true
 
   input:
+    file fastq_file
     val ncov_docker_image
     val ncov_prefix
 
@@ -38,7 +56,7 @@ process ncov2019_artic_nf_pipeline {
     ncov_out_directory = "ncov_output"
 
   """
-  nextflow run ${COVID_PIPELINE_ROOTDIR}/ncov2019-artic-nf -profile docker --illumina --prefix ${ncov_prefix} --directory ${COVID_PIPELINE_FASTQ_PATH} -with-docker ${ncov_docker_image} --outdir ${ncov_out_directory}
+  nextflow run ${COVID_PIPELINE_ROOTDIR}/ncov2019-artic-nf -profile docker --illumina --prefix ${ncov_prefix} --directory `eval pwd` -with-docker ${ncov_docker_image} --outdir ${ncov_out_directory}
   """
 }
 

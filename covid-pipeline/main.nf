@@ -39,6 +39,7 @@ include { prepare_microreact_tsv } from './modules.nf'
 include { nextstrain_pipeline } from './modules.nf'
 include { load_nextstrain_aa_muts_to_db } from './modules.nf'
 
+include { filter_fastq_matching_with_metadata } from './fastq_match.nf'
 
 workflow {
 
@@ -46,7 +47,12 @@ workflow {
         "${COVID_PIPELINE_FASTQ_PATH}/" + params.metadata_file_name
     )
 
+    ch_fasta_matching_metadata = filter_fastq_matching_with_metadata(
+        load_iseha_metadata.out
+    )
+
     ncov2019_artic_nf_pipeline(
+        ch_fasta_matching_metadata.collect(),
         params.ncov_docker_image,
         params.ncov_prefix
     )
