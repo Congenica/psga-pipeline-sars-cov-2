@@ -31,7 +31,7 @@
     - containerd.io
 
 - name: SARS-CoV-2 pipeline - pre-create docker config directory
-  file: 
+  file:
     path: /etc/docker
     state: directory
 
