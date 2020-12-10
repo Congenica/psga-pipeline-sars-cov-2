@@ -14,6 +14,7 @@ from scripts.db.database import connect
 # you will be responsible for any cleanup needed before re-running tests in this case
 DISABLE_ROLLBACK = False
 
+
 Session = sessionmaker()
 
 
@@ -79,3 +80,8 @@ def scripts_test():
 @pytest.fixture
 def root_genome():
     return Path(__file__).parent.parent / "data" / "FASTA" / "SARS-CoV-2.fasta"
+
+
+@pytest.fixture
+def test_data_path():
+    return Path(__file__).parent / "test_data"

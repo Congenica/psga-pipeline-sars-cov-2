@@ -283,7 +283,10 @@ process nextstrain_pipeline {
 
   output:
     path "${nextstrain_out_directory}/*", emit: ch_all_nextstrain_results
-    path "${nextstrain_out_directory}/bahrain/ncov_with_accessions.json", emit: ch_ncov_with_accessions
+    path "${nextstrain_out_directory}/bahrain/ncov_with_accessions.json", emit: ch_nextstrain_ncov_with_accessions_json
+    path "${nextstrain_out_directory}/bahrain/aa_muts.json", emit: ch_nextstrain_aa_muts_json
+    path "${nextstrain_out_directory}/bahrain/nt_muts.json", emit: ch_nextstrain_nt_muts_json
+    path "${nextstrain_out_directory}/bahrain/tree.nwk", emit: ch_nextstrain_tree_nwk
 
   script:
     nextstrain_out_directory = "nextstrain_output"
@@ -305,5 +308,27 @@ process nextstrain_pipeline {
   cd -
   cp -R /nextstrain/results/* ${nextstrain_out_directory}
   chown -R \${UID}:\${GID} ${nextstrain_out_directory}
+  """
+}
+
+/*
+ * Load Nextstrain amino acid mutations to the database
+ */
+process load_nextstrain_aa_muts_to_db {
+  input:
+    file(ch_nextstrain_aa_muts_json_file)
+    file(ch_nextstrain_tree_nwk_file)
+
+  output:
+    path ch_load_nextstrain_aa_muts_done
+
+  script:
+    ch_load_nextstrain_aa_muts_done = "load_nextstrain_aa_muts_to_db.done"
+
+  """
+  python /app/scripts/load_nextstrain_aa_muts_to_db.py \
+    --aa-muts-json "${ch_nextstrain_aa_muts_json_file}" \
+    --tree-nwk "${ch_nextstrain_tree_nwk_file}"
+  touch ${ch_load_nextstrain_aa_muts_done}
   """
 }

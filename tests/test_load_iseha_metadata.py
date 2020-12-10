@@ -1,16 +1,11 @@
-import os
-from pathlib import Path
-
 from click.testing import CliRunner
 
 from scripts.db.models import Sample
 from scripts.load_iseha_metadata import load_iseha_data
 
-TEST_DATA_PATH = Path(os.path.join(os.path.dirname(__file__), "test_data"))
 
-
-def test_load_good_data(db_session):
-    rv = CliRunner().invoke(load_iseha_data, ["--file", open(TEST_DATA_PATH / "good_iseha_data.tsv", "r")])
+def test_load_good_data(db_session, test_data_path):
+    rv = CliRunner().invoke(load_iseha_data, ["--file", test_data_path / "good_iseha_data.tsv"])
 
     assert rv.exit_code == 0
 
@@ -19,8 +14,8 @@ def test_load_good_data(db_session):
     assert len(samples) == 4
 
 
-def test_load_bad_data(db_session):
-    rv = CliRunner().invoke(load_iseha_data, ["--file", open(TEST_DATA_PATH / "bad_iseha_data.tsv", "r")])
+def test_load_bad_data(db_session, test_data_path):
+    rv = CliRunner().invoke(load_iseha_data, ["--file", test_data_path / "bad_iseha_data.tsv"])
 
     assert rv.exit_code == 0
 

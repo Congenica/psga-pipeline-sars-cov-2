@@ -37,6 +37,7 @@ include { generate_report_strain_level_and_global_context } from './modules.nf'
 include { generate_report_strain_first_seen } from './modules.nf'
 include { prepare_microreact_tsv } from './modules.nf'
 include { nextstrain_pipeline } from './modules.nf'
+include { load_nextstrain_aa_muts_to_db } from './modules.nf'
 
 
 workflow {
@@ -112,13 +113,17 @@ workflow {
         ch_pangolin_sample_submitted.collect()
     )
 
-    ch_nextstrain_pipeline = nextstrain_pipeline(
-        ch_nextstrain_metadata_tsv,
-        ch_nextstrain_fasta
-    )
-
     generate_report_strain_first_seen(
         ch_pangolin_sample_submitted.collect(),
     )
 
+    nextstrain_pipeline(
+        ch_nextstrain_metadata_tsv,
+        ch_nextstrain_fasta
+    )
+
+    load_nextstrain_aa_muts_to_db(
+        nextstrain_pipeline.out.ch_nextstrain_aa_muts_json,
+        nextstrain_pipeline.out.ch_nextstrain_tree_nwk
+    )
 }
