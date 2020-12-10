@@ -119,9 +119,12 @@ def _validate_and_normalise_row(session, row):
 
 @click.command()
 @click.option("--file", required=True, type=click.File("r"), help="The metadata TSV input file")
-@click.option("--output_file_for_samples_with_metadata", required=False, 
-    type=click.Path(file_okay=True, writable=True), 
-    help="File path to populate with all sample names, which have metadata loaded in the database")
+@click.option(
+    "--output_file_for_samples_with_metadata",
+    required=False,
+    type=click.Path(file_okay=True, writable=True),
+    help="File path to populate with all sample names, which have metadata loaded in the database",
+)
 def load_iseha_data(file, output_file_for_samples_with_metadata):
     """
     Read in a TSV file of I-SEHA metadata and load each row into the database. Invalid rows are warned about, but

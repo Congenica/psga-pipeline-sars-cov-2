@@ -3,14 +3,14 @@ include { makeFastqSearchPath } from '../ncov2019-artic-nf/modules/util.nf'
 
 
 workflow filter_fastq_matching_with_metadata{
-    take: 
+    take:
         ch_samples_with_metadata_loaded
     main:
         // Original usage of grouping illumina fastq file pairs and extracting sample name
-        ch_fastq_search_path = makeFastqSearchPath( 
-            params.illuminaPrefixes, 
-            params.illuminaSuffixes, 
-            params.fastq_exts 
+        ch_fastq_search_path = makeFastqSearchPath(
+            params.illuminaPrefixes,
+            params.illuminaSuffixes,
+            params.fastq_exts
         )
         Channel.fromFilePairs( ch_fastq_search_path, flat: true)
             .filter{ !( it[0] =~ /Undetermined/ ) }
@@ -18,7 +18,7 @@ workflow filter_fastq_matching_with_metadata{
         // ch_fastq_file_pairs: [[sample_name, fastq1, fastq2], ...]
         // Matching our extracted sample names with samples loaded from I-SEHA
         ch_fastq_file_pair_matches = append_metadata_match_to_sample_file_pair(
-            ch_fastq_file_pairs, 
+            ch_fastq_file_pairs,
             ch_samples_with_metadata_loaded.collect()
         )
 
@@ -77,7 +77,7 @@ process store_fastas_not_matched{
 
     input:
       file(fastq)
-    
+
     output:
       file(fastq)
 
