@@ -30,6 +30,16 @@
     - docker-ce-cli
     - containerd.io
 
+- name: SARS-CoV-2 pipeline - pre-create docker config directory
+  file: 
+    path: /etc/docker
+    state: directory
+
+- name: SARS-CoV-2 pipeline - set custom docker networking config
+  template:
+    src: docker_daemon.j2
+    dest: /etc/docker/daemon.json
+
 - name: SARS-CoV-2 pipeline - enable and start docker
   systemd:
     name: docker
