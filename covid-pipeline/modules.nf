@@ -6,33 +6,20 @@ process load_iseha_metadata {
     path ch_iseha_metadata_tsv_file
 
   output:
-    path ch_iseha_metadata_load_done
+    path iseha_metadata_load_done, emit: ch_iseha_metadata_load_done
+    path samples_with_metadata, emit: ch_samples_with_metadata_file
 
   script:
-    ch_iseha_metadata_load_done = "load_iseha_metadata.done"
+    iseha_metadata_load_done = "load_iseha_metadata.done"
+    samples_with_metadata = "all_samples_with_metadata.txt"
 
   """
-  python /app/scripts/load_iseha_metadata.py --file "${ch_iseha_metadata_tsv_file}" &&
-  touch ${ch_iseha_metadata_load_done}
-  """
-}
-
-process group_fastq_by_metadata_match {
-  input:
-    tuple val(sample_name), file(sample_file_1), file(sample_file_2)
-    path load_iseha_metadata_completion_flag
-
-  output:
-    tuple val(sample_name), file(sample_file_1), file(sample_file_2), val(matched) 
-
-  script:
-    matched = file("${sample_name}.txt").exists()
-
-  """
-  touch "140004926.txt"
+  python /app/scripts/load_iseha_metadata.py \
+    --file "${ch_iseha_metadata_tsv_file}" \
+    --output_file_for_samples_with_metadata "${samples_with_metadata}"
+  touch ${iseha_metadata_load_done}
   """
 }
-
 
 /*
  * Run: ncov2019-artic-nf nextflow pipeline
