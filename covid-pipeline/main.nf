@@ -43,7 +43,7 @@ include { generate_report_strain_first_seen } from './modules.nf'
 include { prepare_microreact_tsv } from './modules.nf'
 include { nextstrain_pipeline } from './modules.nf'
 include { load_nextstrain_aa_muts_to_db } from './modules.nf'
-
+include { load_nextstrain_nt_muts_to_db } from './modules.nf'
 include { filter_fastq_matching_with_metadata } from './fastq_match.nf'
 
 workflow {
@@ -140,6 +140,11 @@ workflow {
 
     load_nextstrain_aa_muts_to_db(
         nextstrain_pipeline.out.ch_nextstrain_aa_muts_json,
+        nextstrain_pipeline.out.ch_nextstrain_tree_nwk
+    )
+
+    load_nextstrain_nt_muts_to_db(
+        nextstrain_pipeline.out.ch_nextstrain_nt_muts_json,
         nextstrain_pipeline.out.ch_nextstrain_tree_nwk
     )
 }
