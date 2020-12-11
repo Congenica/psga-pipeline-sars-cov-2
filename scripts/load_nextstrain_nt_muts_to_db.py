@@ -1,4 +1,3 @@
-import re
 from typing import Dict, List
 
 import click
@@ -7,10 +6,11 @@ from scripts.db.database import session_handler
 from scripts.db.models import Sample
 from scripts.util.load_nextstrain_data import (
     get_samples_from_tree,
+    sortkey_mutation_by_position,
 )
 from scripts.util.data_loading import (
-    load_phylogenetic_tree,
     load_json,
+    load_phylogenetic_tree,
 )
 
 SampleNTMutation = Dict[str, List[str]]
@@ -62,7 +62,7 @@ def format_sample_mutations_dict(sample_mutations: SampleNTMutation) -> Dict[str
     """
     sample_mutations_formatted = {}
     for sample, mutations in sample_mutations.items():
-        sample_mutations_formatted[sample] = ",".join(sorted(mutations, key=lambda mut: int(re.search(r"\d+", mut)[0])))
+        sample_mutations_formatted[sample] = ",".join(sorted(mutations, key=sortkey_mutation_by_position))
     return sample_mutations_formatted
 
 

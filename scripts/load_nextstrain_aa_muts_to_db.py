@@ -5,10 +5,13 @@ import click
 
 from scripts.db.database import session_handler
 from scripts.db.models import Sample
-from scripts.util.load_nextstrain_data import get_samples_from_tree
+from scripts.util.load_nextstrain_data import (
+    get_samples_from_tree,
+    sortkey_mutation_by_position,
+)
 from scripts.util.data_loading import (
-    load_phylogenetic_tree,
     load_json,
+    load_phylogenetic_tree,
 )
 
 SampleGeneAAMutation = Dict[str, Dict[str, List[str]]]
@@ -56,7 +59,12 @@ def format_sample_gene_mutations_dict(sample_gene_mutations: SampleGeneAAMutatio
     sample_gene_mutations_formatted = {}
     for sample, gene_mutations in sample_gene_mutations.items():
         sample_gene_mutations_formatted[sample] = ";".join(
-            natsorted([f"{gene}:{','.join(natsorted(mutations))}" for gene, mutations in gene_mutations.items()])
+            natsorted(
+                [
+                    f"{gene}:{','.join(sorted(mutations, key=sortkey_mutation_by_position))}"
+                    for gene, mutations in gene_mutations.items()
+                ]
+            )
         )
     return sample_gene_mutations_formatted
 
