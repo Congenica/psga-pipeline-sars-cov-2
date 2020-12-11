@@ -89,6 +89,16 @@ def test_data_path():
 
 
 @pytest.fixture
+def test_data_path_genbank_input(test_data_path):
+    return test_data_path / "genbank_input"
+
+
+@pytest.fixture
+def test_data_path_genbank_reference(test_data_path):
+    return test_data_path / "genbank_reference"
+
+
+@pytest.fixture
 def db_fetcher_by_name(db_session):
     def fetcher(db_object, name):
         return db_session.query(db_object).filter(db_object.name == name).one_or_none()

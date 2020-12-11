@@ -21,6 +21,13 @@ log.info """\
     * COVID_PIPELINE_MISSING_METADATA_PATH : ${COVID_PIPELINE_MISSING_METADATA_PATH}
     * COVID_PIPELINE_FASTA_PATH            : ${COVID_PIPELINE_FASTA_PATH}
     * COVID_PIPELINE_FASTA_PATH_QC_FAILED  : ${COVID_PIPELINE_FASTA_PATH_QC_FAILED}
+    * COVID_PIPELINE_GENBANK_PATH          : ${COVID_PIPELINE_GENBANK_PATH}
+
+    ======================
+    params:
+    * genbank_submitter_account_namespace   : ${params.genbank_submitter_account_namespace}
+    * genbank_storage_remote_url            : ${params.genbank_storage_remote_url}
+    * genbank_storage_remote_username       : ${params.genbank_storage_remote_username}
     ======================
 """
 
@@ -65,6 +72,11 @@ include { generate_report_strain_level_and_global_context } from './modules/repo
 include { generate_report_strain_first_seen } from './modules/report.nf'
 include { generate_report_strain_prevalence } from './modules/report.nf'
 include { generate_report_sample_dump } from './modules/report.nf'
+
+include { create_genbank_submission_files } from './modules/genbank.nf'
+include { submit_genbank_files} from './modules/genbank.nf'
+include { mark_samples_as_submitted_to_genbank} from './modules/genbank.nf'
+include { store_genbank_submission} from './modules/genbank.nf'
 
 workflow {
 
@@ -141,6 +153,54 @@ workflow {
         ch_qc_passed_fasta.collect(),
         archived_fasta
     )
+
+    create_genbank_submission_files(
+        ch_qc_passed_fasta.collect(),
+        archived_fasta,
+        params.genbank_submission_template,
+        params.genbank_submission_comment,
+        params.genbank_submitter_name,
+        params.genbank_submitter_account_namespace,
+        params.genbank_submission_id_suffix
+    )
+
+    create_genbank_submission_files.out.ch_samples_txt
+        .splitText()
+        .map { it.trim() }
+        .set{ ch_samples_to_submit_to_genbank }
+
+    ch_samples_to_submit_to_genbank
+        .ifEmpty{ "NO_SAMPLES" }
+        .set {ch_no_samples_flag }
+
+    store_genbank_submission(
+        create_genbank_submission_files.out.ch_genbank_xml,
+        create_genbank_submission_files.out.ch_genbank_zip,
+        create_genbank_submission_files.out.ch_samples_txt,
+        create_genbank_submission_files.out.ch_genbank_submission_id
+    )
+
+    if ( params.genbank_storage_remote_url && params.genbank_storage_remote_username && params.genbank_storage_remote_password ) {
+        submit_genbank_files(
+            create_genbank_submission_files.out.ch_genbank_xml,
+            create_genbank_submission_files.out.ch_genbank_zip,
+            create_genbank_submission_files.out.ch_samples_txt,
+            create_genbank_submission_files.out.ch_genbank_submission_id,
+            ch_no_samples_flag.collect(),
+            params.genbank_storage_remote_url,
+            params.genbank_storage_remote_username,
+            params.genbank_storage_remote_password
+        )
+
+        mark_samples_as_submitted_to_genbank(
+            submit_genbank_files.out.ch_genbank_sample_names_txt,
+            ch_no_samples_flag.collect(),
+            submit_genbank_files.out.ch_genbank_submission_id
+        )
+    }
+    else {
+        println("Missing information about GenBank upload. Please set 'genbank_storage_remote_' parameters in nextflow.config")
+    }
 
     nextstrain_pipeline(
         ch_nextstrain_metadata_tsv,
