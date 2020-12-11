@@ -6,14 +6,18 @@ process load_iseha_metadata {
     path ch_iseha_metadata_tsv_file
 
   output:
-    path ch_iseha_metadata_load_done
+    path iseha_metadata_load_done, emit: ch_iseha_metadata_load_done
+    path samples_with_metadata, emit: ch_samples_with_metadata_file
 
   script:
-    ch_iseha_metadata_load_done = "load_iseha_metadata.done"
+    iseha_metadata_load_done = "load_iseha_metadata.done"
+    samples_with_metadata = "all_samples_with_metadata.txt"
 
   """
-  python /app/scripts/load_iseha_metadata.py --file "${ch_iseha_metadata_tsv_file}" &&
-  touch ${ch_iseha_metadata_load_done}
+  python /app/scripts/load_iseha_metadata.py \
+    --file "${ch_iseha_metadata_tsv_file}" \
+    --output_file_for_samples_with_metadata "${samples_with_metadata}"
+  touch ${iseha_metadata_load_done}
   """
 }
 
@@ -25,6 +29,7 @@ process ncov2019_artic_nf_pipeline {
   publishDir COVID_PIPELINE_WORKDIR, mode: 'copy', overwrite: true
 
   input:
+    file fastq_file
     val ncov_docker_image
     val ncov_prefix
 
@@ -38,7 +43,7 @@ process ncov2019_artic_nf_pipeline {
     ncov_out_directory = "ncov_output"
 
   """
-  nextflow run ${COVID_PIPELINE_ROOTDIR}/ncov2019-artic-nf -profile docker --illumina --prefix ${ncov_prefix} --directory ${COVID_PIPELINE_FASTQ_PATH} -with-docker ${ncov_docker_image} --outdir ${ncov_out_directory}
+  nextflow run ${COVID_PIPELINE_ROOTDIR}/ncov2019-artic-nf -profile docker --illumina --prefix ${ncov_prefix} --directory `eval pwd` -with-docker ${ncov_docker_image} --outdir ${ncov_out_directory}
   """
 }
 
