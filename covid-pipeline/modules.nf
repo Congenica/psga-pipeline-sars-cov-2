@@ -337,3 +337,25 @@ process load_nextstrain_aa_muts_to_db {
   touch ${ch_load_nextstrain_aa_muts_done}
   """
 }
+
+/*
+ * Load Nextstrain nucleotide mutations to the database
+ */
+process load_nextstrain_nt_muts_to_db {
+  input:
+    file(ch_nextstrain_nt_muts_json_file)
+    file(ch_nextstrain_tree_nwk_file)
+
+  output:
+    path ch_load_nextstrain_nt_muts_done
+
+  script:
+    ch_load_nextstrain_nt_muts_done = "load_nextstrain_nt_muts_to_db.done"
+
+  """
+  python /app/scripts/load_nextstrain_nt_muts_to_db.py \
+    --nt-muts-json "${ch_nextstrain_nt_muts_json_file}" \
+    --tree-nwk "${ch_nextstrain_tree_nwk_file}"
+  touch ${ch_load_nextstrain_nt_muts_done}
+  """
+}
