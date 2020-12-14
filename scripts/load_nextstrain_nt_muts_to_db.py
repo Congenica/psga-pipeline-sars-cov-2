@@ -84,7 +84,13 @@ def print_sample_mutations(sample_mutations: Dict):
     required=True,
     help="Nextstrain NWK file containing the phylogenetic tree of viral gene mutations (newick format)",
 )
-def load_nextstrain_nt_muts_data(nt_muts_json: str, tree_nwk: str) -> None:
+@click.option(
+    "--discard-sample-ids",
+    type=str,
+    default="NC_045512.2",  # Wuhan sample
+    help="List of sample ids to be discarded. IDs are separated by colon (e.g. s-1,s-2,s-3)",
+)
+def load_nextstrain_nt_muts_data(nt_muts_json: str, tree_nwk: str, discard_sample_ids: str) -> None:
     """
     Load Nextstrain nucleotide mutations to the database
     """
@@ -93,7 +99,8 @@ def load_nextstrain_nt_muts_data(nt_muts_json: str, tree_nwk: str) -> None:
     loaded_mutations = load_json(nt_muts_json)["nodes"]
     loaded_mutations = restructure_loaded_mutations(loaded_mutations)
 
-    samples = get_samples_from_tree(tree)
+    # list of samples without those to discard
+    samples = list(set(get_samples_from_tree(tree)) - set(discard_sample_ids.split(",")))
     print(f"Samples: {samples}")
 
     sample_mutations = get_mutations_per_sample(samples, loaded_mutations, tree)
