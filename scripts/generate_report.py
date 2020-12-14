@@ -36,6 +36,7 @@ def fetch_csv(url: str, delimiter: str, fallback_dir: str):
     """
 
     def parse_csv(content):
+        content = (x.replace(f"{delimiter}{delimiter}", delimiter) for x in content)
         content = csv.reader(content, delimiter=delimiter)
         return tuple(content)
 
