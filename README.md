@@ -55,9 +55,14 @@ docker build -t auspice:1.0.0 -f Dockerfile.auspice .
 
 ### Run covid-pipeline
 
-The following command runs the covid-pipeline
+The pipeline can be executed in two modes:
 ```commandline
 cd ${COVID_PIPELINE_ROOTDIR}/covid-pipeline
+
+# MODE 1: Retain the previous computations (e.g. samples processed previously)
+nextflow run . -resume
+
+# MODE 2: Overriding the output from the previous computations
 nextflow run .
 ```
 
