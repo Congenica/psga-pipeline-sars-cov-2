@@ -56,18 +56,18 @@ process load_ncov_assembly_qc_to_db {
     file ch_qc_plot_files
 
   output:
-    path ch_ncov_qc_submit_done
+    path ch_ncov_qc_load_done, emit: ch_ncov_qc_load_done
 
   script:
     directory_with_qc_depth_files = "./"
-    ch_ncov_qc_submit_done = "load_ncov_assembly_qc_to_db.done"
+    ch_ncov_qc_load_done = "load_ncov_assembly_qc_to_db.done"
 
   """
   python /app/scripts/submit_sample_qc.py \
     --ncov_qc_csv_file "${ch_qc_ncov_result_csv_file}" \
     --ncov_qc_depth_directory "${directory_with_qc_depth_files}" \
     --pipeline_version "${workflow.manifest.version}"
-  touch ${ch_ncov_qc_submit_done}
+  touch ${ch_ncov_qc_load_done}
   """
 }
 
@@ -147,6 +147,12 @@ process concatenate_fasta {
     output_file = "nextstrain.fasta"
 
   """
+  # create links in ${files_dir} to the archived files, so that these can be concatenated
+  python /app/scripts/link_archived_fasta.py --destination ${files_dir}
+
+  echo "FASTA files to concatenate:"
+  ls -l
+
   python /app/scripts/concatenate_fasta.py --output ${output_file} --root-genome ${root_genome_fasta} ${files_dir}
   """
 }
@@ -317,45 +323,32 @@ process nextstrain_pipeline {
 }
 
 /*
- * Load Nextstrain amino acid mutations to the database
+ * Load Nextstrain data to the database.
+ * Data are: amino acid and nucleotide mutations.
  */
-process load_nextstrain_aa_muts_to_db {
+process load_nextstrain_data_to_db {
   input:
     file(ch_nextstrain_aa_muts_json_file)
-    file(ch_nextstrain_tree_nwk_file)
-
-  output:
-    path ch_load_nextstrain_aa_muts_done
-
-  script:
-    ch_load_nextstrain_aa_muts_done = "load_nextstrain_aa_muts_to_db.done"
-
-  """
-  python /app/scripts/load_nextstrain_aa_muts_to_db.py \
-    --aa-muts-json "${ch_nextstrain_aa_muts_json_file}" \
-    --tree-nwk "${ch_nextstrain_tree_nwk_file}"
-  touch ${ch_load_nextstrain_aa_muts_done}
-  """
-}
-
-/*
- * Load Nextstrain nucleotide mutations to the database
- */
-process load_nextstrain_nt_muts_to_db {
-  input:
     file(ch_nextstrain_nt_muts_json_file)
     file(ch_nextstrain_tree_nwk_file)
 
   output:
-    path ch_load_nextstrain_nt_muts_done
+    path ch_load_nextstrain_data_done, emit: ch_nextstrain_data_load_done
 
   script:
-    ch_load_nextstrain_nt_muts_done = "load_nextstrain_nt_muts_to_db.done"
+    ch_load_nextstrain_data_done = "load_nextstrain_data_to_db.done"
 
   """
+  # load amino acid mutations
+  python /app/scripts/load_nextstrain_aa_muts_to_db.py \
+    --aa-muts-json "${ch_nextstrain_aa_muts_json_file}" \
+    --tree-nwk "${ch_nextstrain_tree_nwk_file}"
+
+  # load nucleotide mutations
   python /app/scripts/load_nextstrain_nt_muts_to_db.py \
     --nt-muts-json "${ch_nextstrain_nt_muts_json_file}" \
     --tree-nwk "${ch_nextstrain_tree_nwk_file}"
-  touch ${ch_load_nextstrain_nt_muts_done}
+
+  touch ${ch_load_nextstrain_data_done}
   """
 }
