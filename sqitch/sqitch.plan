@@ -12,4 +12,5 @@
 08-add_area_colours [06-areas] 2020-12-03T15:48:11Z Andrew Bayliss,,, <andrewbayliss@con-xps-23> # Add colours to the area table
 09-add_pangolin_pass [02-apptables] 2020-12-07T13:44:33Z Tautvydas Petkus <tautvydas.petkus@telesoftas.com> # Additional column describing, whether pangolin lineage process has passed for the sample
 10-add_metadata_loaded_flag [02-apptables] 2020-12-08T08:56:23Z Tautvydas Petkus <tautvydas.petkus@telesoftas.com> # Boolean flag indicating, that a metadata was loaded from i-seha
-11-add_amino_acid_muts_column [02-apptables] 2020-12-08T18:11:26Z Piero Dalle Pezze <piero.dallepezze@congenica.com> # Add amino acid mutations columns to sample table
+11-add_amino_acid_muts_column [02-apptables] 2020-12-08T18:11:26Z Piero Dalle Pezze <piero.dallepezze@congenica.com> # Add amino acid mutations column to sample table
+12-add_nucleotide_muts_column [02-apptables] 2020-12-10T16:21:14Z Piero Dalle Pezze <piero.dallepezze@congenica.com> # Add nucleotide mutations column to sample table

@@ -1,49 +1,23 @@
 from typing import Dict, List
-import json
 
 from natsort import natsorted
 import click
-from Bio import Phylo
 
 from scripts.db.database import session_handler
 from scripts.db.models import Sample
+from scripts.util.load_nextstrain_data import (
+    get_samples_from_tree,
+    sortkey_mutation_by_position,
+)
+from scripts.util.data_loading import (
+    load_json,
+    load_phylogenetic_tree,
+)
 
-SampleGeneMutation = Dict[str, Dict[str, List[str]]]
-
-
-def load_phylogenetic_tree(tree_file: str, tree_format: str = "newick"):
-    """
-    Load phylogenetic trees using Bio.Phylo python package.
-    :param tree_file: the file containing the phylogenetic tree
-    :param tree_format: a format in: [newick, nexus, nexml, phyloxml, cdao]
-    :return: the loaded phylogenetic tree
-    """
-    with open(tree_file) as tree_handle:
-        tree = Phylo.read(tree_handle, tree_format)
-    return tree
+SampleGeneAAMutation = Dict[str, Dict[str, List[str]]]
 
 
-def load_json(json_file: str) -> Dict:
-    """
-    Load a json file
-    :param json_file: the json file to load
-    :return: the json file as a dictionary
-    """
-    with open(json_file) as json_handle:
-        json_dict = json.load(json_handle)
-    return json_dict
-
-
-def get_samples_from_tree(tree) -> List[str]:
-    """
-    Return the samples from the phylogenetic tree structure
-    :param tree: the phylogenetic tree (e.g. nwk tree)
-    :return: a list of samples
-    """
-    return [terminal.name for terminal in tree.get_terminals()]
-
-
-def get_mutations_per_gene_per_sample(samples: List[str], loaded_mutations: Dict, tree) -> SampleGeneMutation:
+def get_mutations_per_gene_per_sample(samples: List[str], loaded_mutations: Dict, tree) -> SampleGeneAAMutation:
     """
     Build a dictionary with structure { SAMPLE : { KEY : [MUTATIONS] } }, where KEY can be (gene|amino acid)
     :param samples: the list of samples to process
@@ -51,7 +25,7 @@ def get_mutations_per_gene_per_sample(samples: List[str], loaded_mutations: Dict
     :param tree: the phylogenetic tree
     :return: the structure
     """
-    sample_gene_mutations: SampleGeneMutation = {sample: {} for sample in samples}
+    sample_gene_mutations: SampleGeneAAMutation = {sample: {} for sample in samples}
     for sample in samples:
         for node in tree.get_path(sample):
             for gene, mutations in loaded_mutations[node.name]["aa_muts"].items():
@@ -75,7 +49,7 @@ def load_sample_aa_mutations_to_db(session, sample_name: str, mutations: str) ->
     sample.amino_acid_muts = mutations
 
 
-def format_sample_gene_mutations_dict(sample_gene_mutations: SampleGeneMutation) -> Dict[str, str]:
+def format_sample_gene_mutations_dict(sample_gene_mutations: SampleGeneAAMutation) -> Dict[str, str]:
     """
     Format the sample_gene_mutations. For any sample the aggregated changes should be reported as
     a semi-colon separated list eg ORF1a:E37D,S86T;ORF6:L98P;S:G222R
@@ -85,7 +59,12 @@ def format_sample_gene_mutations_dict(sample_gene_mutations: SampleGeneMutation)
     sample_gene_mutations_formatted = {}
     for sample, gene_mutations in sample_gene_mutations.items():
         sample_gene_mutations_formatted[sample] = ";".join(
-            natsorted([f"{gene}:{','.join(natsorted(mutations))}" for gene, mutations in gene_mutations.items()])
+            natsorted(
+                [
+                    f"{gene}:{','.join(sorted(mutations, key=sortkey_mutation_by_position))}"
+                    for gene, mutations in gene_mutations.items()
+                ]
+            )
         )
     return sample_gene_mutations_formatted
 
@@ -108,7 +87,13 @@ def print_sample_gene_mutations(sample_gene_mutations: Dict):
     required=True,
     help="Nextstrain NWK file containing the phylogenetic tree of viral gene mutations (newick format)",
 )
-def load_nextstrain_aa_muts_data(aa_muts_json: str, tree_nwk: str) -> None:
+@click.option(
+    "--discard-sample-ids",
+    type=str,
+    default="NC_045512.2",  # Wuhan sample
+    help="List of sample ids to be discarded. IDs are separated by colon (e.g. s-1,s-2,s-3)",
+)
+def load_nextstrain_aa_muts_data(aa_muts_json: str, tree_nwk: str, discard_sample_ids: str) -> None:
     """
     Load Nextstrain amino acid mutations to the database
     """
@@ -116,7 +101,9 @@ def load_nextstrain_aa_muts_data(aa_muts_json: str, tree_nwk: str) -> None:
     tree = load_phylogenetic_tree(tree_nwk)
     loaded_mutations = load_json(aa_muts_json)["nodes"]
 
-    samples = get_samples_from_tree(tree)
+    # list of samples without those to discard
+    samples = list(set(get_samples_from_tree(tree)) - set(discard_sample_ids.split(",")))
+
     print(f"Samples: {samples}")
 
     sample_gene_mutations = get_mutations_per_gene_per_sample(samples, loaded_mutations, tree)

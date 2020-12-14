@@ -14,8 +14,8 @@ from scripts.load_nextstrain_aa_muts_to_db import load_nextstrain_aa_muts_data
             "tree.nwk",
             {
                 "NC_045512.2": "",
-                "12704502": "ORF1a:A3901V,T265I,Y1947C;ORF1b:P314L;ORF3a:Q57H;ORF8:P38S;S:D614G",
-                "12704501": "N:S183Y;ORF1a:A968D,L1130H,T265I,T4207I;ORF1b:P314L;"
+                "12704502": "ORF1a:T265I,Y1947C,A3901V;ORF1b:P314L;ORF3a:Q57H;ORF8:P38S;S:D614G",
+                "12704501": "N:S183Y;ORF1a:T265I,A968D,L1130H,T4207I;ORF1b:P314L;"
                 "ORF3a:Q57H;ORF7a:T28I;ORF8:I74L;ORF14:L30I;S:D614G",
             },
         )
@@ -36,7 +36,7 @@ def test_load_nextstrain_aa_muts_data(db_session, test_data_path, aa_muts_json, 
 
     samples = db_session.query(Sample).all()
 
-    assert len(samples) == 3
+    assert len(samples) == 2
 
     for sample in samples:
         # elements in strings are sorted in the script
