@@ -36,7 +36,7 @@ def test_load_nextstrain_aa_muts_data(db_session, test_data_path, aa_muts_json, 
 
     samples = db_session.query(Sample).all()
 
-    assert len(samples) == 3
+    assert len(samples) == 2
 
     for sample in samples:
         # elements in strings are sorted in the script
