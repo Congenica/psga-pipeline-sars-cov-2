@@ -1,12 +1,14 @@
 import csv
 from pathlib import Path
-from typing import List, Tuple, Any, Dict, Callable
+from typing import List, Tuple, Any, Dict, Callable, DefaultDict
 
-from datetime import datetime
+import itertools
+from collections import defaultdict
+from datetime import datetime, timedelta
 import click
 import requests
 from requests.exceptions import ConnectTimeout, MissingSchema
-from sqlalchemy import func
+from sqlalchemy import func, and_
 
 from db.database import session_handler
 from db.models import Sample
@@ -22,6 +24,16 @@ STRAIN_FIRST_SEEN_HEADERS = (
     "Travel History",
     "Number of Subsequent occurrences",
 )
+STRAIN_PREVALENCE_HEADERS = (
+    "Location",
+    "Dominant Lineage",
+    "Frequency",
+    "Frequency Last Week",
+    "Difference",
+    "Sample Number",
+)
+STRAIN_PREVALENCE_WEEKS = 2
+FLOAT_ROUNDING = 2
 
 
 def fetch_csv(url: str, delimiter: str, fallback_dir: str):
@@ -58,7 +70,7 @@ def get_strain_level_and_global_context_report_data(
     lineage_notes_url: str, metadata_url: str, pangolearn_dir: str
 ) -> List[Tuple[Any, ...]]:
     """
-    Method to fetch report data from local database and external data sources.
+    Function to fetch report data from local database and external data sources.
     For more details on param usage lookup fetch_csv docstring
     :param str lineage_notes_url: url to latest pangoLEARN lineage notes
     :param str metadata_url: url to latest pangoLEARN metadata
@@ -108,7 +120,7 @@ def get_strain_level_and_global_context_report_data(
 
 def get_strain_first_seen_report_data() -> List[Tuple[Any, ...]]:
     """
-    Method to fetch report data from local database.
+    Function to fetch report data from local database.
     :return List[Tuple[Any, ...]]: lines for the csv report containing columns corresponding
     to STRAIN_FIRST_SEEN_HEADERS
     """
@@ -155,9 +167,103 @@ def get_strain_first_seen_report_data() -> List[Tuple[Any, ...]]:
     return result
 
 
+def get_strain_prevalence_report_data() -> List[Tuple[Any, ...]]:
+    """
+    Function to fetch report data from local database.
+    :return List[Tuple[Any, ...]]: lines for the csv report containing columns corresponding
+    to STRAIN_PREVALENCE_HEADERS
+    """
+    week_ago: datetime = datetime.now() - timedelta(weeks=1)
+    result: List[Tuple[Any, ...]] = [STRAIN_PREVALENCE_HEADERS]
+
+    def get_frequency(count, total):
+        if total:
+            return round(count / total, FLOAT_ROUNDING)
+        return 0
+
+    def process_lineages(lineage_records: List[List[Any]]) -> Dict[str, Dict[str, int]]:
+        """
+        group records by lineages and count how many are
+        from the last week, older than one week, and total
+        """
+        totals = {}
+        groups: DefaultDict[str, List[List]] = defaultdict(list)
+
+        for lineage, lines in itertools.groupby(lineage_records, lambda x: x[0]):
+            groups[lineage].extend(list(line) for line in lines)
+
+        for lineage, group in groups.items():
+            totals[lineage] = {
+                "this_week": sum(1 for x in group if x[3] > week_ago),
+                "last_week": sum(1 for x in group if x[3] <= week_ago),
+                "count": len(group),
+            }
+        return totals
+
+    def count_by_column(records: List[Any], column: int = None) -> None:
+        """
+        groups `records` data by specified `column`, determines `prevelant_lineage` for each group,
+        and calculates frequencies. If `column` is `None`, calculates entire country from all data given
+        """
+        groups: DefaultDict[str, List[List[Any]]] = defaultdict(list)
+
+        if column is None:
+            groups["Bahrain"] = records
+        else:
+            for location, values in itertools.groupby(records, key=lambda x: x[column]):
+                groups[location].extend(list(values))
+
+        for location, group in groups.items():
+            total_this_week: int = sum(1 for x in group if x[3] > week_ago)
+            total_last_week: int = sum(1 for x in group if x[3] <= week_ago)
+            lineages: Dict[str, Dict[str, int]] = process_lineages(group)
+            if not lineages:
+                continue
+
+            # prevalent strain commencing STRAIN_PREVALENCE_WEEKS prior to today
+            prevelant_lineage: str = max(lineages, key=lambda x: lineages[x]["count"])  # pylint: disable=W0640
+            counts: Dict[str, int] = lineages[prevelant_lineage]
+
+            frequency = get_frequency(counts["this_week"], total_this_week)
+            last_week_frequency = get_frequency(counts["last_week"], total_last_week)
+
+            result.append(
+                (
+                    location,
+                    prevelant_lineage,
+                    frequency,
+                    last_week_frequency,
+                    round(frequency - last_week_frequency, FLOAT_ROUNDING),
+                    counts["this_week"],
+                )
+            )
+
+    with session_handler() as session:
+        samples = (
+            session.query(Sample.pangolin_lineage, Sample.area_name, Sample.governorate_name, Sample.date_collected)
+            .filter(
+                and_(
+                    Sample.date_collected >= func.now() - timedelta(weeks=STRAIN_PREVALENCE_WEEKS),
+                    Sample.pangolin_lineage.isnot(None),
+                )
+            )
+            .all()
+        )
+
+    # area
+    count_by_column(samples, 1)
+    # governorate
+    count_by_column(samples, 2)
+    # entire country
+    count_by_column(samples)
+
+    return result
+
+
 reports: Dict[str, Callable[..., List[Tuple[Any, ...]]]] = {
     "strain_level_and_global_context": get_strain_level_and_global_context_report_data,
     "strain_first_seen": get_strain_first_seen_report_data,
+    "strain_prevalence": get_strain_prevalence_report_data,
 }
 
 
@@ -170,7 +276,7 @@ reports: Dict[str, Callable[..., List[Tuple[Any, ...]]]] = {
 )
 @click.option(
     "--report",
-    type=click.Choice(["strain_level_and_global_context", "strain_first_seen"]),
+    type=click.Choice(["strain_level_and_global_context", "strain_first_seen", "strain_prevalence"]),
     required=True,
     help="name of the report to be outputted",
 )
