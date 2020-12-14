@@ -9,6 +9,10 @@ These environment variables are set in `${COVID_PIPELINE_ROOTDIR}/covid-pipeline
 
 | Variable | Description |
 | :---------------- | :---------------------------------------------------------------- |
+| DB_HOST | Postgres database host address (e.g. 192.168.0.33) |
+| DB_NAME | Postgres database name (e.g. bahrain_sars_cov_2) |
+| DB_USER | Postgres database user name (e.g. postgres) |
+| DB_PASSWORD | Postgres database user password (e.g. postgres) |
 | COVID_PIPELINE_ROOTDIR | Path to the pipeline code (e.g. git checkout). Default: ${HOME}/ps-bahrain-covid |
 | COVID_PIPELINE_FASTQ_PATH | Path to the input FASTQ files and TSV metadata file. Default: ${HOME}/Bahrain_COVID_s3_data_lite/sample_data |
 | COVID_PIPELINE_WORKDIR | Path to the whole pipeline output. Default: ${HOME}/covid-pipeline |
