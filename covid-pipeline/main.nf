@@ -8,12 +8,17 @@ log.info """\
     ${workflow.manifest.name} v ${workflow.manifest.version}
     ======================
     env vars:
-    * COVID_PIPELINE_ROOTDIR    : ${COVID_PIPELINE_ROOTDIR}
-    * COVID_PIPELINE_FASTQ_PATH : ${COVID_PIPELINE_FASTQ_PATH}
-    * COVID_PIPELINE_WORKDIR    : ${COVID_PIPELINE_WORKDIR}
-    * COVID_PIPELINE_FASTA_PATH : ${COVID_PIPELINE_FASTA_PATH}
-    * DB_HOST                   : ${DB_HOST}
-    * DB_NAME                   : ${DB_NAME}
+    * COVID_PIPELINE_ROOTDIR               : ${COVID_PIPELINE_ROOTDIR}
+    * COVID_PIPELINE_FASTQ_PATH            : ${COVID_PIPELINE_FASTQ_PATH}
+    * COVID_PIPELINE_WORKDIR               : ${COVID_PIPELINE_WORKDIR}
+    * COVID_PIPELINE_REPORTS_PATH          : ${COVID_PIPELINE_REPORTS_PATH}
+    * COVID_PIPELINE_MISSING_METADATA_PATH : ${COVID_PIPELINE_MISSING_METADATA_PATH}
+    * COVID_PIPELINE_FASTA_PATH            : ${COVID_PIPELINE_FASTA_PATH}
+    * COVID_PIPELINE_FASTA_PATH_QC_FAILED  : ${COVID_PIPELINE_FASTA_PATH_QC_FAILED}
+
+    * DB_HOST                              : ${DB_HOST}
+    * DB_NAME                              : ${DB_NAME}
+    * DB_USER                              : ${DB_USER}
     ======================
 """
 
