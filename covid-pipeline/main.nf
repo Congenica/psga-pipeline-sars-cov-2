@@ -8,17 +8,17 @@ log.info """\
     ${workflow.manifest.name} v ${workflow.manifest.version}
     ======================
     env vars:
-    * COVID_PIPELINE_ROOTDIR               : ${COVID_PIPELINE_ROOTDIR}
-    * COVID_PIPELINE_FASTQ_PATH            : ${COVID_PIPELINE_FASTQ_PATH}
-    * COVID_PIPELINE_WORKDIR               : ${COVID_PIPELINE_WORKDIR}
-    * COVID_PIPELINE_REPORTS_PATH          : ${COVID_PIPELINE_REPORTS_PATH}
-    * COVID_PIPELINE_MISSING_METADATA_PATH : ${COVID_PIPELINE_MISSING_METADATA_PATH}
-    * COVID_PIPELINE_FASTA_PATH            : ${COVID_PIPELINE_FASTA_PATH}
-    * COVID_PIPELINE_FASTA_PATH_QC_FAILED  : ${COVID_PIPELINE_FASTA_PATH_QC_FAILED}
-
     * DB_HOST                              : ${DB_HOST}
     * DB_NAME                              : ${DB_NAME}
     * DB_USER                              : ${DB_USER}
+    * COVID_PIPELINE_ROOTDIR               : ${COVID_PIPELINE_ROOTDIR}
+    * COVID_PIPELINE_FASTQ_PATH            : ${COVID_PIPELINE_FASTQ_PATH}
+    * COVID_PIPELINE_WORKDIR               : ${COVID_PIPELINE_WORKDIR}
+    * COVID_PIPELINE_MISSING_METADATA_PATH : ${COVID_PIPELINE_MISSING_METADATA_PATH}
+    * COVID_PIPELINE_FASTA_PATH            : ${COVID_PIPELINE_FASTA_PATH}
+    * COVID_PIPELINE_FASTA_PATH_QC_FAILED  : ${COVID_PIPELINE_FASTA_PATH_QC_FAILED}
+    * COVID_PIPELINE_REPORTS_PATH          : ${COVID_PIPELINE_REPORTS_PATH}
+
     ======================
 """
 
@@ -42,8 +42,7 @@ include { generate_report_strain_level_and_global_context } from './modules.nf'
 include { generate_report_strain_first_seen } from './modules.nf'
 include { prepare_microreact_tsv } from './modules.nf'
 include { nextstrain_pipeline } from './modules.nf'
-include { load_nextstrain_aa_muts_to_db } from './modules.nf'
-include { load_nextstrain_nt_muts_to_db } from './modules.nf'
+include { load_nextstrain_data_to_db } from './modules.nf'
 include { filter_fastq_matching_with_metadata } from './fastq_match.nf'
 
 workflow {
@@ -122,6 +121,17 @@ workflow {
         archived_fasta
     )
 
+    nextstrain_pipeline(
+        ch_nextstrain_metadata_tsv,
+        ch_nextstrain_fasta
+    )
+
+    load_nextstrain_data_to_db(
+        nextstrain_pipeline.out.ch_nextstrain_aa_muts_json,
+        nextstrain_pipeline.out.ch_nextstrain_nt_muts_json,
+        nextstrain_pipeline.out.ch_nextstrain_tree_nwk
+    )
+
     generate_report_strain_level_and_global_context(
         params.pangolearn_lineage_notes_url,
         params.pangolearn_metadata_url,
@@ -133,18 +143,4 @@ workflow {
         ch_pangolin_sample_submitted.collect(),
     )
 
-    nextstrain_pipeline(
-        ch_nextstrain_metadata_tsv,
-        ch_nextstrain_fasta
-    )
-
-    load_nextstrain_aa_muts_to_db(
-        nextstrain_pipeline.out.ch_nextstrain_aa_muts_json,
-        nextstrain_pipeline.out.ch_nextstrain_tree_nwk
-    )
-
-    load_nextstrain_nt_muts_to_db(
-        nextstrain_pipeline.out.ch_nextstrain_nt_muts_json,
-        nextstrain_pipeline.out.ch_nextstrain_tree_nwk
-    )
 }
