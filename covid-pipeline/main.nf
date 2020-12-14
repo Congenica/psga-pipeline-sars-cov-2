@@ -63,7 +63,7 @@ include { prepare_microreact_tsv } from './modules/microreact.nf'
 
 include { generate_report_strain_level_and_global_context } from './modules.nf'
 include { generate_report_strain_first_seen } from './modules.nf'
-
+include { generate_report_strain_prevalence } from './modules.nf'
 
 workflow {
 
@@ -152,6 +152,21 @@ workflow {
         nextstrain_pipeline.out.ch_nextstrain_tree_nwk
     )
 
+    nextstrain_pipeline(
+        ch_nextstrain_metadata_tsv,
+        ch_nextstrain_fasta
+    )
+
+    load_nextstrain_aa_muts_to_db(
+        nextstrain_pipeline.out.ch_nextstrain_aa_muts_json,
+        nextstrain_pipeline.out.ch_nextstrain_tree_nwk
+    )
+
+    load_nextstrain_nt_muts_to_db(
+        nextstrain_pipeline.out.ch_nextstrain_nt_muts_json,
+        nextstrain_pipeline.out.ch_nextstrain_tree_nwk
+    )
+
     generate_report_strain_level_and_global_context(
         params.pangolearn_lineage_notes_url,
         params.pangolearn_metadata_url,
@@ -160,6 +175,10 @@ workflow {
     )
 
     generate_report_strain_first_seen(
+        ch_pangolin_sample_submitted.collect(),
+    )
+
+    generate_report_strain_prevalence(
         ch_pangolin_sample_submitted.collect(),
     )
 
