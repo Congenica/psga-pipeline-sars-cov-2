@@ -147,6 +147,12 @@ process concatenate_fasta {
     output_file = "nextstrain.fasta"
 
   """
+  # create links in ${files_dir} to the archived files, so that these can be concatenated
+  python /app/scripts/link_archived_fasta.py --destination ${files_dir}
+
+  echo "FASTA files to concatenate:"
+  ls -l
+
   python /app/scripts/concatenate_fasta.py --output ${output_file} --root-genome ${root_genome_fasta} ${files_dir}
   """
 }
