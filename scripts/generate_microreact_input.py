@@ -38,7 +38,7 @@ def generate_microreact_input(output):
         writer = csv.DictWriter(output, fieldnames=MICROREACT_FIELDS, delimiter="\t")
         writer.writeheader()
 
-        samples = session.query(Sample).order_by(Sample.date_collected).all()
+        samples = session.query(Sample).filter(Sample.metadata_loaded).order_by(Sample.date_collected).all()
         for sample in samples:
             tsv_row = {
                 "id": sample.lab_id,
