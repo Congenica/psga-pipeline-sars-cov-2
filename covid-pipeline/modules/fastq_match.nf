@@ -1,5 +1,5 @@
 // Imports from 3rd party pipelines
-include { makeFastqSearchPath } from '../ncov2019-artic-nf/modules/util.nf'
+include { makeFastqSearchPath } from '../../ncov2019-artic-nf/modules/util.nf'
 
 
 workflow filter_fastq_matching_with_metadata{
