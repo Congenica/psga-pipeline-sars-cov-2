@@ -10,6 +10,7 @@ The following variables need to be set for the playbook to run. The user will be
  - `db_host` : The host of the database, default: localhost
  - `db_name` : The logical name of the database on the host, default: bahrain_sars_cov_2
  - `db_user` : The user to use to connect to the database, default: postgres
+ - `db_port` : The port to use to connect to the database, default: 5432
  - `db_password` : The password to use to connect to the database. No default.
 
  - `covid_pipeline_rootdir` :Path to the pipeline code (e.g. git checkout). Default: ${HOME}/ps-bahrain-covid
@@ -51,9 +52,13 @@ sudo yum install python3 python3-pip -y
 pip3 install ansible --user --upgrade
 ```
 ### ansible-playbook fails with error for missing resource docker_image
+You may receive an error:
+```shell
+ERROR! couldnt resolve module/action community.general.docker_image. This often indicates a misspelling, missing collection, or incorrect module path.
+```
 Manually install dependencies: 
 ```shell
-ansible-galaxy collection install -r requirements.yml
+ansible-galaxy collection install -r ansible/requirements.yml
 ```
 
 ### Post install failures to communicate with docker

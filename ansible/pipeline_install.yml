@@ -12,15 +12,19 @@
     - name: db_host
       prompt: 'Database hostname/ip '
       private: no
-      default: 'localhost'
+      default: "{{ lookup('env', 'DB_HOST') | default('localhost', True) }}"
     - name: db_name
       prompt: 'Database logical name '
       private: no
-      default: 'bahrain_sars_cov_2'
+      default: "{{ lookup('env', 'DB_NAME') | default('bahrain_sars_cov_2', True) }}"
     - name: db_user
       prompt: 'Database username '
       private: no
-      default: 'postgres'
+      default: "{{ lookup('env', 'DB_USER') | default('postgres', True) }}"
+    - name: db_port
+      prompt: 'Database port '
+      private: no
+      default: "{{ lookup('env', 'DB_PORT') | default('5432', True) }}"
     - name: db_password
       prompt: 'Database password '
       private: yes
@@ -50,4 +54,5 @@
     - { role: build-covid-pipeline }
     - { role: build-nextstrain }
     - { role: build-auspice }
+    - { role: run-sqitch }
     - { role: post-install-setup }

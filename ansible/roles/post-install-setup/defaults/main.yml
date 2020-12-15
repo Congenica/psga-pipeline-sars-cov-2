@@ -2,6 +2,7 @@
 db_host: localhost #Postgres database host address (e.g. localhost)
 db_name: bahrain_sars_cov_2 #Postgres database name (e.g. bahrain_sars_cov_2)
 db_user: postgres #Postgres database user name (e.g. postgres)
+db_port: 5432 #Default postgres port
 db_password: #Postgres database user password (e.g. postgres)
 covid_pipeline_rootdir: ${HOME}/ps-bahrain-covid
 covid_pipeline_fastq_path: ${HOME}/Bahrain_COVID_s3_data_lite/sample_data

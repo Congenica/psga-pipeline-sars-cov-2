@@ -3,9 +3,9 @@
   become: false
   vars:
     docker_build:
-      path: "/home/vagrant/ps-bahrain-covid"
+      path: '~/ps-bahrain-covid'
     git_submod:
-      path: "/home/vagrant/ps-bahrain-covid"
+      path: '~/ps-bahrain-covid'
   roles:
     - { role: ../../install-os-packages, yum_update: false, become: yes }
-    - { role: ../../build-auspice }
+    - { role: ../../run-sqitch }
