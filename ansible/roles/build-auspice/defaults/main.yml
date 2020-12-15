@@ -1,0 +1,5 @@
+docker_build:
+  path: "{{ playbook_dir }}/../"
+
+git_submod:
+  path: "{{ playbook_dir }}/../"
