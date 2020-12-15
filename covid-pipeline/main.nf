@@ -41,22 +41,29 @@ if( "[:]" in [
 
 
 // Import modules
-include { load_iseha_metadata } from './modules.nf'
-include { ncov2019_artic_nf_pipeline } from './modules.nf'
-include { load_ncov_assembly_qc_to_db } from './modules.nf'
-include { prepare_tsv_for_nextstrain } from './modules.nf'
-include { reheader_genome_fasta } from './modules.nf'
-include { store_reheadered_fasta_passed } from './modules.nf'
-include { store_reheadered_fasta_failed } from './modules.nf'
-include { concatenate_fasta } from './modules.nf'
-include { pangolin_pipeline } from './modules.nf'
-include { load_pangolin_data_to_db } from './modules.nf'
+include { load_iseha_metadata } from './modules/iseha_metadata.nf'
+
+include { filter_fastq_matching_with_metadata } from './modules/fastq_match.nf'
+
+include { ncov2019_artic_nf_pipeline } from './modules/artic_ncov2019.nf'
+include { load_ncov_assembly_qc_to_db } from './modules/artic_ncov2019.nf'
+include { reheader_genome_fasta } from './modules/artic_ncov2019.nf'
+include { store_reheadered_fasta_passed } from './modules/artic_ncov2019.nf'
+include { store_reheadered_fasta_failed } from './modules/artic_ncov2019.nf'
+
+include { concatenate_fasta } from './modules/nextstrain.nf'
+include { prepare_tsv_for_nextstrain } from './modules/nextstrain.nf'
+include { nextstrain_pipeline } from './modules/nextstrain.nf'
+include { load_nextstrain_data_to_db } from './modules/nextstrain.nf'
+
+include { pangolin_pipeline } from './modules/pangolin.nf'
+include { load_pangolin_data_to_db } from './modules/pangolin.nf'
+
+include { prepare_microreact_tsv } from './modules/microreact.nf'
+
 include { generate_report_strain_level_and_global_context } from './modules.nf'
 include { generate_report_strain_first_seen } from './modules.nf'
-include { prepare_microreact_tsv } from './modules.nf'
-include { nextstrain_pipeline } from './modules.nf'
-include { load_nextstrain_data_to_db } from './modules.nf'
-include { filter_fastq_matching_with_metadata } from './fastq_match.nf'
+
 
 workflow {
 
