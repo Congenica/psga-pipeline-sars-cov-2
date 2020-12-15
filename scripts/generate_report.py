@@ -10,8 +10,8 @@ import requests
 from requests.exceptions import ConnectTimeout, MissingSchema
 from sqlalchemy import func, and_
 
-from db.database import session_handler
-from db.models import Sample
+from scripts.db.database import session_handler
+from scripts.db.models import Sample
 
 STRAIN_LEVEL_AND_GLOBAL_CONTEXT_REPORT_HEADERS = ("Lineage", "Description", "Count", "Percent", "Global Count")
 STRAIN_FIRST_SEEN_HEADERS = (
@@ -203,6 +203,33 @@ def get_strain_prevalence_report_data() -> REPORT_RETURN:
             }
         return totals
 
+    def get_prevalent_lineage(lineages, total_this_week, total_last_week):
+        """
+        determines prevalent strain commencing STRAIN_PREVALENCE_WEEKS prior to today
+        """
+        prevalent = ""
+        prevalent_count = {
+            "last_week": 0,
+            "count": 0,
+        }
+        last_week_frequency = 0
+        for lineage, counts in lineages.items():
+            if counts["count"] < prevalent_count["count"]:
+                continue
+
+            last_week_frequency = get_frequency(counts["last_week"], total_last_week)
+            if counts["count"] == prevalent_count["count"] and last_week_frequency > get_frequency(
+                prevalent_count["last_week"], total_last_week
+            ):
+                continue
+
+            prevalent_count = counts
+            prevalent = lineage
+
+        count_this_week = prevalent_count.get("this_week", 0)
+        frequency = get_frequency(count_this_week, total_this_week)
+        return prevalent, count_this_week, frequency, last_week_frequency
+
     def count_by_column(records: List[Any], column: int = None) -> None:
         """
         groups `records` data by specified `column`, determines `prevelant_lineage` for each group,
@@ -220,24 +247,21 @@ def get_strain_prevalence_report_data() -> REPORT_RETURN:
             total_this_week: int = sum(1 for x in group if x[3] > week_ago)
             total_last_week: int = sum(1 for x in group if x[3] <= week_ago)
             lineages: LINEAGES_COUNT_DICT = process_lineages(group)
-            if not lineages:
+
+            prevalent, count, frequency, last_week_frequency = get_prevalent_lineage(
+                lineages, total_this_week, total_last_week
+            )
+            if not prevalent:
                 continue
-
-            # prevalent strain commencing STRAIN_PREVALENCE_WEEKS prior to today
-            prevelant_lineage: str = max(lineages, key=lambda x: lineages[x]["count"])  # pylint: disable=W0640
-            counts: Dict[str, int] = lineages[prevelant_lineage]
-
-            frequency = get_frequency(counts["this_week"], total_this_week)
-            last_week_frequency = get_frequency(counts["last_week"], total_last_week)
 
             result.append(
                 (
                     location,
-                    prevelant_lineage,
+                    prevalent,
                     frequency,
                     last_week_frequency,
                     round(frequency - last_week_frequency, FLOAT_ROUNDING),
-                    counts["this_week"],
+                    count,
                 )
             )
 

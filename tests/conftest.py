@@ -1,14 +1,15 @@
 # pylint: disable=redefined-outer-name
 import os
+import random
 import sys
 import tempfile
 from pathlib import Path
 
 import pytest
+from scripts.db.database import connect
+from scripts.db.models import Area, Governorate, Sample
 from sqlalchemy import event
 from sqlalchemy.orm import sessionmaker
-
-from scripts.db.database import connect
 
 # set this to True to keep changes made to the database while tests are running
 # you will be responsible for any cleanup needed before re-running tests in this case
@@ -85,3 +86,37 @@ def root_genome():
 @pytest.fixture
 def test_data_path():
     return Path(__file__).parent / "test_data"
+
+
+@pytest.fixture
+def db_fetcher_by_name(db_session):
+    def fetcher(db_object, name):
+        return db_session.query(db_object).filter(db_object.name == name).one_or_none()
+
+    return fetcher
+
+
+@pytest.fixture
+def sample_generator(db_session, db_fetcher_by_name):
+    def generate_sample(governorate_name, area_name, lineage, date_collected):
+        governorate = db_fetcher_by_name(Governorate, governorate_name)
+        area = db_fetcher_by_name(Area, area_name)
+        return db_session.add(
+            Sample(
+                mrn=660602797,
+                age=random.randint(1, 100),
+                nationality="Bahraini",
+                governorate=governorate,
+                area=area,
+                block_number=729,
+                lab_id="12704502",
+                sample_number=12704502,
+                date_collected=date_collected,
+                ct_value="39",
+                symptoms="Headache, Sore Throat",
+                metadata_loaded=True,
+                pangolin_lineage=lineage,
+            )
+        )
+
+    return generate_sample

@@ -146,16 +146,6 @@ workflow {
         ch_nextstrain_fasta
     )
 
-    load_nextstrain_aa_muts_to_db(
-        nextstrain_pipeline.out.ch_nextstrain_aa_muts_json,
-        nextstrain_pipeline.out.ch_nextstrain_tree_nwk
-    )
-
-    load_nextstrain_nt_muts_to_db(
-        nextstrain_pipeline.out.ch_nextstrain_nt_muts_json,
-        nextstrain_pipeline.out.ch_nextstrain_tree_nwk
-    )
-
     load_nextstrain_data_to_db(
         nextstrain_pipeline.out.ch_nextstrain_aa_muts_json,
         nextstrain_pipeline.out.ch_nextstrain_nt_muts_json,
