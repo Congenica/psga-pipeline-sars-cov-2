@@ -41,6 +41,9 @@ docker build -t covid-pipeline:1.0.0 .
 git submodule init
 git submodule update
 
+# update pangolin, ncov2019_artic_nf, and nextstrain to their latest commits
+git submodule update --remote --merge
+
 # build ncov docker image
 docker build -t ncov2019_artic_nf:1.0.0 -f Dockerfile.ncov2019-artic-nf .
 
