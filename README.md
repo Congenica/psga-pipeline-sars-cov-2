@@ -5,11 +5,12 @@
 ### Environment variables
 
 Environment variables required to run the pipeline.
-These environment variables are set in `${COVID_PIPELINE_ROOTDIR}/covid-pipeline/nextflow.config` .
+These environment variables must be available in the system.
 
 | Variable | Description |
 | :---------------- | :---------------------------------------------------------------- |
 | DB_HOST | Postgres database host address (e.g. 192.168.0.33) |
+| DB_PORT | Postgres database port (e.g. 5432) |
 | DB_NAME | Postgres database name (e.g. bahrain_sars_cov_2) |
 | DB_USER | Postgres database user name (e.g. postgres) |
 | DB_PASSWORD | Postgres database user password (e.g. postgres) |
