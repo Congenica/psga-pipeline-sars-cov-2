@@ -7,25 +7,38 @@ log.info """\
     ======================
     ${workflow.manifest.name} v ${workflow.manifest.version}
     ======================
-    env vars:
+    Global environment variables:
     * DB_HOST                              : ${DB_HOST}
+    * DB_PORT                              : ${DB_PORT}
     * DB_NAME                              : ${DB_NAME}
     * DB_USER                              : ${DB_USER}
     * COVID_PIPELINE_ROOTDIR               : ${COVID_PIPELINE_ROOTDIR}
     * COVID_PIPELINE_FASTQ_PATH            : ${COVID_PIPELINE_FASTQ_PATH}
     * COVID_PIPELINE_WORKDIR               : ${COVID_PIPELINE_WORKDIR}
+    * COVID_PIPELINE_REPORTS_PATH          : ${COVID_PIPELINE_REPORTS_PATH}
+
+    Internal environment variables:
     * COVID_PIPELINE_MISSING_METADATA_PATH : ${COVID_PIPELINE_MISSING_METADATA_PATH}
     * COVID_PIPELINE_FASTA_PATH            : ${COVID_PIPELINE_FASTA_PATH}
     * COVID_PIPELINE_FASTA_PATH_QC_FAILED  : ${COVID_PIPELINE_FASTA_PATH_QC_FAILED}
-    * COVID_PIPELINE_REPORTS_PATH          : ${COVID_PIPELINE_REPORTS_PATH}
-
     ======================
 """
 
-// These do not do anything. However, if user environment is missing of these env variables,
-// nextflow will not allow to run the pipeline until these env variables are set
-required_variable = DB_USER
-required_variable = DB_PASSWORD
+// Required environment variables
+if( "[:]" in [
+    DB_HOST,
+    DB_PORT,
+    DB_NAME,
+    DB_USER,
+    DB_PASSWORD,
+    COVID_PIPELINE_ROOTDIR,
+    COVID_PIPELINE_FASTQ_PATH,
+    COVID_PIPELINE_WORKDIR,
+    COVID_PIPELINE_REPORTS_PATH
+    ]) {
+    throw new Exception("Found unset global environment variables. See '[:]' above. Abort")
+}
+
 
 // Import modules
 include { load_iseha_metadata } from './modules.nf'
