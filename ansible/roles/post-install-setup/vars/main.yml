@@ -1,8 +1,0 @@
----
-# vars file for the post install steps
-
-# github_repo: 'Congenica/ps-bahrain-covid'
-# github_checkout_dir: '~/ps-bahrain-covid'
-
-# s3_bucket: 's3://congenica-development-data-share/SAP-18211_Bahrain_COVID'
-# s3_sync_dir: '~/SAP-18211_Bahrain_COVID'
