@@ -21,6 +21,10 @@
       prompt: 'Database username '
       private: no
       default: 'postgres'
+    - name: db_port
+      prompt: 'Database port '
+      private: no
+      default: '5432'
     - name: db_password
       prompt: 'Database password '
       private: yes

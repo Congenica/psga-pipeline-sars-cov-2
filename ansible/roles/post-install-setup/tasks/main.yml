@@ -31,6 +31,13 @@
     regexp: "^export DB_PASSWORD="
     line: "export DB_PASSWORD={{ db_password}}"
 
+- name: SARS-CoV-2 pipeline - set DB_PORT environment variables
+  lineinfile:
+    path: ~/.bashrc
+    state: present
+    regexp: "^export DB_PORT="
+    line: "export DB_PORT={{ db_port }}"
+
 - name: SARS-CoV-2 pipeline - set COVID_PIPELINE_ROOTDIR environment variables
   lineinfile:
     path: ~/.bashrc
