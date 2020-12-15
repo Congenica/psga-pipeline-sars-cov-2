@@ -1,0 +1,11 @@
+---
+- hosts: all
+  become: false
+  vars:
+    docker_build:
+      path: '~/ps-bahrain-covid'
+    git_submod:
+      path: '~/ps-bahrain-covid'
+  roles:
+    - { role: ../../install-os-packages, yum_update: false, become: yes }
+    - { role: ../../build-ncov }

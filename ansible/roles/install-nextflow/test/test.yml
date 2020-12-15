@@ -1,7 +1,6 @@
 ---
 - hosts: all
-  become: true
+  become: false
   roles:
-    - { role: ../../install-os-packages, yum_update: false }
-    - { role: ../../create-pipeline-user, username: "{{ pipeline_user }}" }
-    - { role: ../../install-nextflow, become_user: "{{ pipeline_user }}" }
+    - { role: ../../install-os-packages, yum_update: false, become: true }
+    - { role: ../../install-nextflow}

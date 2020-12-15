@@ -4,12 +4,20 @@
     path: ~/nextflow
     state: directory
 
+- name: ARS-CoV-2 pipeline - stat nextflow
+  stat:
+    path: ~/nextflow/nextflow
+  register: nextflow
+
 - name: SARS-CoV-2 pipeline - install nextflow
   shell: wget -qO- https://get.nextflow.io | bash
   args:
     chdir: ~/nextflow
+  when: nextflow.stat.exists == False or nextflow.stat.executable == False
+  register: nextflowInstalled
 
 - name: SARS-CoV-2 pipeline - add nextflow to $PATH
   lineinfile:
     path: ~/.bashrc
     line: 'export PATH=$PATH:~/nextflow/'
+  when: nextflowInstalled.changed
