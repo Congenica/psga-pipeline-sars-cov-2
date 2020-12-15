@@ -43,3 +43,23 @@ process generate_report_strain_first_seen {
     --output "${output_filename}"
   """
 }
+
+process generate_report_strain_prevalence {
+  publishDir COVID_PIPELINE_REPORTS_PATH, mode: 'copy', overwrite: true
+
+  input:
+    path pangolin_to_db_submit_completion_flag
+
+  output:
+    path output_filename
+
+  script:
+    report_name = "strain_prevalence"
+    output_filename = "${report_name}_report.csv"
+
+  """
+  python /app/scripts/generate_report.py \
+    --report "${report_name}" \
+    --output "${output_filename}"
+  """
+}

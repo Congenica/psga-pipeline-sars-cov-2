@@ -63,7 +63,7 @@ include { prepare_microreact_tsv } from './modules/microreact.nf'
 
 include { generate_report_strain_level_and_global_context } from './modules.nf'
 include { generate_report_strain_first_seen } from './modules.nf'
-
+include { generate_report_strain_prevalence } from './modules.nf'
 
 workflow {
 
@@ -160,6 +160,10 @@ workflow {
     )
 
     generate_report_strain_first_seen(
+        ch_pangolin_sample_submitted.collect(),
+    )
+
+    generate_report_strain_prevalence(
         ch_pangolin_sample_submitted.collect(),
     )
 
