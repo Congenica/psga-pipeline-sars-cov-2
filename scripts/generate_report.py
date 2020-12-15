@@ -1,14 +1,14 @@
 import csv
-from pathlib import Path
-from typing import List, Tuple, Any, Dict, Callable, DefaultDict
-
 import itertools
 from collections import defaultdict
 from datetime import datetime, timedelta
+from pathlib import Path
+from typing import Any, Callable, DefaultDict, Dict, List, Tuple
+
 import click
 import requests
 from requests.exceptions import ConnectTimeout, MissingSchema
-from sqlalchemy import func, and_
+from sqlalchemy import and_, func
 
 from scripts.db.database import session_handler
 from scripts.db.models import Sample
@@ -287,10 +287,23 @@ def get_strain_prevalence_report_data() -> REPORT_RETURN:
     return result
 
 
+def get_sample_dump_report_data():
+    # headers
+    columns = [column.name for column in Sample.__table__.columns]
+    result: List[Tuple[Any]] = [columns]
+
+    with session_handler() as session:
+        samples = session.query(Sample).all()
+        result.extend([[getattr(sample, column) for column in columns] for sample in samples])
+
+    return result
+
+
 reports: Dict[str, Callable[..., REPORT_RETURN]] = {
     "strain_level_and_global_context": get_strain_level_and_global_context_report_data,
     "strain_first_seen": get_strain_first_seen_report_data,
     "strain_prevalence": get_strain_prevalence_report_data,
+    "sample_dump": get_sample_dump_report_data,
 }
 
 
@@ -303,7 +316,14 @@ reports: Dict[str, Callable[..., REPORT_RETURN]] = {
 )
 @click.option(
     "--report",
-    type=click.Choice(["strain_level_and_global_context", "strain_first_seen", "strain_prevalence"]),
+    type=click.Choice(
+        [
+            "strain_level_and_global_context",
+            "strain_first_seen",
+            "strain_prevalence",
+            "sample_dump",
+        ]
+    ),
     required=True,
     help="name of the report to be outputted",
 )

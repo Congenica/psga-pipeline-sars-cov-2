@@ -61,9 +61,10 @@ include { load_pangolin_data_to_db } from './modules/pangolin.nf'
 
 include { prepare_microreact_tsv } from './modules/microreact.nf'
 
-include { generate_report_strain_level_and_global_context } from './modules.nf'
-include { generate_report_strain_first_seen } from './modules.nf'
-include { generate_report_strain_prevalence } from './modules.nf'
+include { generate_report_strain_level_and_global_context } from './modules/report.nf'
+include { generate_report_strain_first_seen } from './modules/report.nf'
+include { generate_report_strain_prevalence } from './modules/report.nf'
+include { generate_report_sample_dump } from './modules/report.nf'
 
 workflow {
 
@@ -146,7 +147,7 @@ workflow {
         ch_nextstrain_fasta
     )
 
-    load_nextstrain_data_to_db(
+    ch_nextstrain_data_submitted = load_nextstrain_data_to_db(
         nextstrain_pipeline.out.ch_nextstrain_aa_muts_json,
         nextstrain_pipeline.out.ch_nextstrain_nt_muts_json,
         nextstrain_pipeline.out.ch_nextstrain_tree_nwk
@@ -156,15 +157,19 @@ workflow {
         params.pangolearn_lineage_notes_url,
         params.pangolearn_metadata_url,
         params.pangolearn_dir,
-        ch_pangolin_sample_submitted.collect()
+        ch_nextstrain_data_submitted.collect()
     )
 
     generate_report_strain_first_seen(
-        ch_pangolin_sample_submitted.collect(),
+        ch_nextstrain_data_submitted.collect(),
     )
 
     generate_report_strain_prevalence(
-        ch_pangolin_sample_submitted.collect(),
+        ch_nextstrain_data_submitted.collect(),
+    )
+
+    generate_report_sample_dump(
+        ch_nextstrain_data_submitted.collect(),
     )
 
 }
