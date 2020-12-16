@@ -15,11 +15,15 @@ from scripts.generate_genbank_files import generate_genbank_files
 def populated_db_session_with_samples(db_session):
     sample_names_not_submitted_yet = ["foo", "bar"]
     for sample in sample_names_not_submitted_yet:
-        db_session.add(Sample(lab_id=sample, date_collected=datetime.fromtimestamp(0)))
+        db_session.add(Sample(lab_id=sample, date_collected=datetime.fromtimestamp(0), metadata_loaded=True))
 
     sample_names_submitted = ["buzz"]
     for sample in sample_names_submitted:
-        db_session.add(Sample(lab_id=sample, genbank_submit_id="foo", date_collected=datetime.fromtimestamp(0)))
+        db_session.add(
+            Sample(
+                lab_id=sample, genbank_submit_id="foo", date_collected=datetime.fromtimestamp(0), metadata_loaded=True
+            )
+        )
 
     db_session.commit()
     yield db_session
