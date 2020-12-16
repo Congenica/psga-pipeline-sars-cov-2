@@ -26,7 +26,7 @@ The following environment variables are set internally and should not be changed
 | COVID_PIPELINE_MISSING_METADATA_PATH | Path to the missing metadata files. Set to: ${COVID_PIPELINE_WORKDIR}/no-metadata-found-fastq |
 | COVID_PIPELINE_FASTA_PATH | Path to the re-headered ncov FASTA files. Set to: ${COVID_PIPELINE_WORKDIR}/reheadered-fasta |
 | COVID_PIPELINE_FASTA_PATH_QC_FAILED | Path to the re-headered ncov QC_FAILED FASTA files. Set to: ${COVID_PIPELINE_WORKDIR}/reheadered-fasta-qc-failed |
-
+| COVID_PIPELINE_GENBANK_PATH | Path to submission files, which were used to submit samples to GenBank programmatic interface |
 
 ### Dependencies
 
@@ -55,6 +55,26 @@ docker build -t nextstrain:1.0.0 -f Dockerfile.nextstrain .
 
 # build auspice docker image (for visualising the results with Auspice web-service):
 docker build -t auspice:1.0.0 -f Dockerfile.auspice .
+```
+
+### GenBank submission
+
+To submit files to GenBank, appropriate files need to be prepared for submission:
+* Submission template. Navigate to https://submit.ncbi.nlm.nih.gov/genbank/template/submission/ and fill out the
+  form. A file .sbt will be available for download. Add this file path to nextflow parameter
+  `genbank_submission_template` in configuration file  `covid-pipeline/nextflow.config`
+* Add Center/account abbreviation provided during account creation in MyNCBI to parameter
+  `genbank_submitter_account_namespace` in configuration file  `covid-pipeline/nextflow.config`
+* Provide GenBank FTP connection details in `covid-pipeline/nextflow.config`
+
+#### GenBank Submission schema
+
+File `scripts/genbank/submission.py` was generated using submission schema
+[submission.xsd](https://www.ncbi.nlm.nih.gov/viewvc/v1/trunk/submit/public-docs/common/).
+A tool [generateDS](https://pypi.org/project/generateDS/) was used to generate a file.
+A command line used to generate a file:
+```commandline
+generateDS -o "scripts/genbank/genbank_submission.py" submission.xsd
 ```
 
 ### Run covid-pipeline

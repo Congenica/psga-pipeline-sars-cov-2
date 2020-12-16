@@ -176,7 +176,9 @@ class Sample(Base):  # type: ignore
     )
     amino_acid_muts = Column(String, comment="Amino acid mutations as calculated by Nextstrain")
     nucleotide_muts = Column(String, comment="Nucleotide mutations as calculated by Nextstrain")
-    genbank_id = Column(Integer, comment="GeneBank accession of virus genome")
+    genbank_submit_id = Column(
+        String, comment="Unique identifier of GenBank submission " "session, which was used to submit a sample."
+    )
     gisaid_id = Column(
         String,
         comment=(

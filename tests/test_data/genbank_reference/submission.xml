@@ -1,0 +1,21 @@
+<Submission>
+    <Description>
+        <Comment>Submission</Comment>
+        <Organization type="center" role="owner">
+            <Name>
+                <First>Submitter</First>
+            </Name>
+        </Organization>
+    </Description>
+    <Action>
+        <AddFiles target_db="GenBank">
+            <File file_path="submission.zip">
+                <DataType>genbank-submission-package</DataType>
+            </File>
+            <Attribute name="wizard">BankIt_SARSCoV2_api</Attribute>
+            <Identifier>
+                <SPUID spuid_namespace="company">id1</SPUID>
+            </Identifier>
+        </AddFiles>
+    </Action>
+</Submission>
