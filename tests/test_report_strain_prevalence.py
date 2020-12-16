@@ -5,7 +5,7 @@ from click.testing import CliRunner
 from scripts.generate_report import generate_report
 
 
-def test_report_strain_prevalence(db_session, sample_generator, tmp_path):
+def test_report_strain_prevalence(sample_generator, tmp_path):
     area_name = "JERDAB"
     governorate_name = "Capital"
 
