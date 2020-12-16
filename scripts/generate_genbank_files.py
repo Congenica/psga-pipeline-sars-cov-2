@@ -49,7 +49,7 @@ def get_unsubmitted_sample_names() -> List[str]:
     Return a list of all samples names available, which are not submitted to GenBank yet
     """
     with session_handler() as session:
-        samples = session.query(Sample).filter(Sample.genbank_submit_id.is_(None)).all()
+        samples = session.query(Sample).filter(and_(Sample.genbank_submit_id.is_(None), Sample.metadata_loaded)).all()
         return [sample.lab_id for sample in samples]
 
 
