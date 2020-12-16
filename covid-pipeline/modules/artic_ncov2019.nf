@@ -20,7 +20,8 @@ process ncov2019_artic_nf_pipeline {
     ncov_out_directory = "ncov_output"
 
   """
-  nextflow run ${COVID_PIPELINE_ROOTDIR}/ncov2019-artic-nf -profile docker --illumina --prefix ${ncov_prefix} --directory `eval pwd` -with-docker ${ncov_docker_image} --outdir ${ncov_out_directory}
+  # note: we inject our configuration into ncov to override parameters
+  nextflow run ${COVID_PIPELINE_ROOTDIR}/ncov2019-artic-nf -profile docker --illumina --prefix ${ncov_prefix} --directory `eval pwd` -with-docker ${ncov_docker_image} --outdir ${ncov_out_directory} -c ${COVID_PIPELINE_ROOTDIR}/covid-pipeline/ncov-illumina.config
   """
 }
 
