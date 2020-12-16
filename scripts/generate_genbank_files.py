@@ -4,6 +4,7 @@ import csv
 import zipfile
 
 import click
+from sqlalchemy import and_
 
 from scripts.db.database import session_handler
 from scripts.db.models import Sample
@@ -69,7 +70,7 @@ def create_metadata_table_file(sample_names: List[str], output_file: Path) -> Pa
     Metadata .tsv file, describing information about sequences included in the submission
     """
     with session_handler() as session:
-        samples = session.query(Sample).filter(Sample.lab_id.in_(sample_names)).all()
+        samples = session.query(Sample).filter(and_(Sample.lab_id.in_(sample_names), Sample.metadata_loaded)).all()
         metadata_table = [
             {
                 "sequence_ID": sample.lab_id,
