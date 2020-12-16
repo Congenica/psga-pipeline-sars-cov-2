@@ -35,6 +35,7 @@
     line: "export DB_PASSWORD={{ db_password}}"
   register: db_password_register
 
+
 - name: SARS-CoV-2 pipeline - set DB_PORT environment variables
   lineinfile:
     path: ~/.bashrc
