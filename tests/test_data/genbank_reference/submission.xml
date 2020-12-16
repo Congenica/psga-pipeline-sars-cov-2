@@ -2,9 +2,7 @@
     <Description>
         <Comment>Submission</Comment>
         <Organization type="center" role="owner">
-            <Name>
-                <First>Submitter</First>
-            </Name>
+            <Name>Submitter</Name>
         </Organization>
     </Description>
     <Action>

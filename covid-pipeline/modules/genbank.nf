@@ -61,6 +61,7 @@ process submit_genbank_files {
     val remote_url
     val remote_username
     val remote_password
+    val remote_directory
 
   when:
     no_samples_flag != ['NO_SAMPLES']
@@ -78,12 +79,13 @@ process submit_genbank_files {
   echo ${no_samples_flag}
 
   python /app/scripts/submit_genbank_files.py \
-    --input_xml ${submission_xml} \
-    --input_zip ${submission_zip} \
-    --submit_id ${submit_id} \
-    --url ${remote_url} \
-    --username ${remote_username} \
-    --password ${remote_password}
+    --input_xml "${submission_xml}" \
+    --input_zip "${submission_zip}" \
+    --submit_id "${submit_id}" \
+    --url "${remote_url}" \
+    --username "${remote_username}" \
+    --password "${remote_password}" \
+    --directory "${remote_directory}"
 
   touch ${ch_submit_genbank_files_done}
   """

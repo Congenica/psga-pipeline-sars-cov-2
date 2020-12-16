@@ -59,13 +59,22 @@ docker build -t auspice:1.0.0 -f Dockerfile.auspice .
 
 ### GenBank submission
 
-To submit files to GenBank, appropriate files need to be prepared for submission:
+To submit files to GenBank, appropriate files and values need to be prepared for submission:
 * Submission template. Navigate to https://submit.ncbi.nlm.nih.gov/genbank/template/submission/ and fill out the
   form. A file .sbt will be available for download. Add this file path to nextflow parameter
   `genbank_submission_template` in configuration file  `covid-pipeline/nextflow.config`
 * Add Center/account abbreviation provided during account creation in MyNCBI to parameter
-  `genbank_submitter_account_namespace` in configuration file  `covid-pipeline/nextflow.config`
-* Provide GenBank FTP connection details in `covid-pipeline/nextflow.config`
+  `genbank_submitter_account_namespace` and `genbank_submitter_name`
+  in configuration file  `covid-pipeline/nextflow.config`
+* Provide GenBank FTP connection details in `covid-pipeline/nextflow.config`:
+  * Username `genbank_storage_remote_username`
+  * Password `genbank_storage_remote_password`
+* Set the upload directory to `Production` for `genbank_storage_remote_directory` in `covid-pipeline/nextflow.config`
+
+Samples to GenBank are submitted once. When Sample is uploaded to GenBank, it is marked with session id. After that,
+sample won't be submitted to GenBank
+
+If any of credentials are missing for GenBank, submission is skipped
 
 #### GenBank Submission schema
 
