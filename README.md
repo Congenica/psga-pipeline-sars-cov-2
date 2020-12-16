@@ -69,8 +69,8 @@ To submit files to GenBank, appropriate files need to be prepared for submission
 
 #### GenBank Submission schema
 
-File `scripts/genbank/submission.py` was generated using submission schema 
-[submission.xsd](https://www.ncbi.nlm.nih.gov/viewvc/v1/trunk/submit/public-docs/common/). 
+File `scripts/genbank/submission.py` was generated using submission schema
+[submission.xsd](https://www.ncbi.nlm.nih.gov/viewvc/v1/trunk/submit/public-docs/common/).
 A tool [generateDS](https://pypi.org/project/generateDS/) was used to generate a file.
 A command line used to generate a file:
 ```commandline
