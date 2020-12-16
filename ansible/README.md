@@ -45,7 +45,7 @@ environment_vars:
 ```
 
 ## Troubleshooting
-### ansible-galaxy or ansible-playbook are not installed. 
+### ansible-galaxy or ansible-playbook are not installed.
 Ensure ansible is installed with the commands below, run from the user attempting the install:
 ```shell
 sudo yum install python3 python3-pip -y
@@ -56,7 +56,7 @@ You may receive an error:
 ```shell
 ERROR! couldnt resolve module/action community.general.docker_image. This often indicates a misspelling, missing collection, or incorrect module path.
 ```
-Manually install dependencies: 
+Manually install dependencies:
 ```shell
 ansible-galaxy collection install -r ansible/requirements.yml
 ```
@@ -68,5 +68,3 @@ Got permission denied while trying to connect to the Docker daemon socket at uni
 ```
 
 The ansible playbook modifies the running users groups, but this will not take effect until the next new session. Log out of your current session and log back in. Running `groups` should now show a secondary group of `docker`
-
-
