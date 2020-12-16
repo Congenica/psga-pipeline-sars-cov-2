@@ -2,24 +2,25 @@
 
 The anible playbook 'pipeline_install.yml' will install and configure an environment as defined in [SAP-18290](https://jira.congenica.net/browse/SAP-18290).
 
-The following variables need to be set for the playbook to run:
+### Configure Ansible
+As the user who will perform the install ensure that ansible is installed and functional
 
-- `_pipeline_user` : the user that will be configured to run the pipeline, i.e 'pipeline'
-- `_github_repo` : the name of the GitHub repo to be cloned, i.e 'Congenica/ps-bahrain-covid'
-- `_github_checkout_dir` : the directory that the github repo should be cloned into, i.e '~/ps-bahrain-covid' (the default home (~) directory is for the `_pipeline_user` user)
-- `_s3_bucket` : the S3 bucket that should be synchronised, i.e 's3://congenica-development-data-share/SAP-18211_Bahrain_COVID'
-- `_s3_sync_dir` : the directory used for the S3 sync, i.e '~/SAP-18211_Bahrain_COVID' (the default home (~) directory is for the `_pipeline_user` user)
+The following variables need to be set for the playbook to run. The user will be prompted to enter these when executing the ansible playbook:
 
-These are configured inside the 'pipeline_install.yml' file istelf.
+ - `db_host` : The host of the database, default: localhost
+ - `db_name` : The logical name of the database on the host, default: bahrain_sars_cov_2
+ - `db_user` : The user to use to connect to the database, default: postgres
+ - `db_port` : The port to use to connect to the database, default: 5432
+ - `db_password` : The password to use to connect to the database. No default.
 
-When running the playbook, the user will be prompted to set some additional variables:
+ - `covid_pipeline_rootdir` :Path to the pipeline code (e.g. git checkout). Default: ${HOME}/ps-bahrain-covid
+ - `covid_pipeline_fastq_path` : Path to the input FASTQ files and TSV metadata file. Default: ${HOME}/Bahrain_COVID_s3_data_lite/sample_data
+ - `covid_pipeline_workdir` :Path to the whole pipeline output. Default: ${HOME}/covid-pipeline
+ - `covid_pipeline_reports_path` :   Path to the pipeline reports. Default: ${HOME}/reports
 
-- `_github_username` : username of the account that will be used to clone the specified repo
-- `_github_password_or_token` : password/token of the account that will be used to clone the specified repo
-- `_aws_key_id` : This keypair will need permission to sync the specified S3 bucket
-- `_aws_private_key` : This keypair will need permission to sync the specified S3 bucket
 
 The playbook can be run against the local machine with the following command:
+
 
 ```shell
 ansible-playbook --connection=local -i 127.0.0.1, ansible/pipeline_install.yml
@@ -31,9 +32,9 @@ variables can also be passed through the command. These will override anything s
 ansible-playbook --connection=local -i 127.0.0.1, ansible/pipeline_install.yml --extra-vars "_pipeline_user=foo"
 ```
 
-Environment variables can be set for the `_pipeline_user` user by adding them to `vars/env_vars.yml`...
+Environment variables can be set for the installing user by adding them to `vars/env_vars.yml`...
 
-> Ensure that correct/relevant vars and values are set here before running the playbook.
+> Ensure that any additiona vars and values are set here before running the playbook.
 
 ```shell
 environment_vars:
@@ -42,3 +43,28 @@ environment_vars:
   - key: DIFFERENT_VAR
     value : '~/bar'
 ```
+
+## Troubleshooting
+### ansible-galaxy or ansible-playbook are not installed.
+Ensure ansible is installed with the commands below, run from the user attempting the install:
+```shell
+sudo yum install python3 python3-pip -y
+pip3 install ansible --user --upgrade
+```
+### ansible-playbook fails with error for missing resource docker_image
+You may receive an error:
+```shell
+ERROR! couldnt resolve module/action community.general.docker_image. This often indicates a misspelling, missing collection, or incorrect module path.
+```
+Manually install dependencies:
+```shell
+ansible-galaxy collection install -r ansible/requirements.yml
+```
+
+### Post install failures to communicate with docker
+You may receive an error such as:
+```shell
+Got permission denied while trying to connect to the Docker daemon socket at unix:///var/run/docker.sock: Get http://%2Fvar%2Frun%2Fdocker.sock/v1.24/containers/json: dial unix /var/run/docker.sock: connect: permission denied
+```
+
+The ansible playbook modifies the running users groups, but this will not take effect until the next new session. Log out of your current session and log back in. Running `groups` should now show a secondary group of `docker`

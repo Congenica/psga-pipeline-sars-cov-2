@@ -1,17 +1,10 @@
 ---
 - hosts: all
-  become: true
+  become: false
+  vars:
+    environment_vars:
+      - key: GENOME_FASTA_PATH
+        value : '~/foo'
   roles:
-    - { role: ../../install-os-packages, yum_update: false }
-    - { role: ../../create-pipeline-user, username: "{{ pipeline_user }}" }
-    - { role: ../../post-install-setup,
-          become_user: "{{ pipeline_user }}",
-          github_username: "{{ github_username }}",
-          github_password_or_token: "{{ github_password_or_token }}",
-          # github_repo: "{{ github_repo }}",
-          # github_dir: "{{ github_dir }}",
-          # s3_bucket: "{{ s3_bucket }}",
-          # s3_sync_dir: "{{ s3_sync_dir }}",
-          aws_key_id: "{{ aws_key_id }}",
-          aws_private_key: "{{ aws_private_key }}"
-      }
+    - { role: ../../install-os-packages, yum_update: false, become: true}
+    - { role: ../../post-install-setup, db_password: "test123"}

@@ -1,63 +1,58 @@
 ---
 - hosts: all
   gather_facts: true
-  become: true
+  become: false
 
-  # Change the below values to match the required GitHub repo and S3 bucket.
   # Ensure that valid credentials can be provided when requested by the playbook.
-  vars:
-    _pipeline_user: 'pipeline'
 
   vars_files:
     - vars/env_vars.yml
 
   vars_prompt:
-    - name: _github_repo
-      prompt: 'GitHub repo to clone '
+    - name: db_host
+      prompt: 'Database hostname/ip '
       private: no
-      default: 'Congenica/ps-bahrain-covid'
-    - name: _github_checkout_dir
-      prompt: 'directory to clone the GitHub repo into '
+      default: "{{ lookup('env', 'DB_HOST') | default('localhost', True) }}"
+    - name: db_name
+      prompt: 'Database logical name '
       private: no
-      default: '~/ps-bahrain-covid'
-    - name: _github_username
-      prompt: 'GitHub username '
+      default: "{{ lookup('env', 'DB_NAME') | default('bahrain_sars_cov_2', True) }}"
+    - name: db_user
+      prompt: 'Database username '
       private: no
-    - name: _github_password_or_token
-      prompt: 'GitHub password or token '
+      default: "{{ lookup('env', 'DB_USER') | default('postgres', True) }}"
+    - name: db_port
+      prompt: 'Database port '
+      private: no
+      default: "{{ lookup('env', 'DB_PORT') | default('5432', True) }}"
+    - name: db_password
+      prompt: 'Database password '
       private: yes
       confirm: yes
-    - name: _s3_bucket
-      prompt: 'S3 bucket to sync '
+    - name: covid_pipeline_rootdir
+      prompt: 'Root dir of the pipeline '
       private: no
-      default: 's3://congenica-development-data-share/SAP-18211_Bahrain_COVID'
-    - name: _s3_sync_dir
-      prompt: 'directory to sync the S3 bucket to '
+      default: '${HOME}/ps-bahrain-covid'
+    - name: covid_pipeline_fastq_path
+      prompt: 'Path to FASTQ files for pipeline '
       private: no
-      default: '~/SAP-18211_Bahrain_COVID'
-    - name: _aws_key_id
-      prompt: 'AWS access key '
+      default: '${HOME}/Bahrain_COVID_s3_data_lite/sample_data'
+    - name: covid_pipeline_workdir
+      prompt: 'Work dir of the pipeline '
       private: no
-    - name: _aws_private_key
-      prompt: 'AWS secret access key '
-      private: yes
-      confirm: yes
+      default: '${HOME}/covid-pipeline'
+    - name: covid_pipeline_reports_path
+      prompt: 'Report path for pipeline '
+      private: no
+      default: '${HOME}/reports'
 
   roles:
-    - { role: install-os-packages, yum_update: false }
-    - { role: create-pipeline-user, username: "{{ _pipeline_user }}" }
-    - { role: install-miniconda, become_user: "{{ _pipeline_user }}" }
-    - { role: install-pangolin, become_user: "{{ _pipeline_user }}" }
-    - { role: install-nextflow, become_user: "{{ _pipeline_user }}" }
-    - { role: install-nextstrain, become_user: "{{ _pipeline_user }}" }
-    - { role: post-install-setup,
-          become_user: "{{ _pipeline_user }}",
-          github_username: "{{ _github_username }}",
-          github_password_or_token: "{{ _github_password_or_token }}",
-          github_repo: "{{ _github_repo }}",
-          github_checkout_dir: "{{ _github_checkout_dir }}",
-          s3_bucket: "{{ _s3_bucket }}",
-          s3_sync_dir: "{{ _s3_sync_dir }}",
-          aws_key_id: "{{ _aws_key_id }}",
-          aws_private_key: "{{ _aws_private_key }}"
-      }
+    - { role: install-os-packages, yum_update: false, become: true }
+    - { role: install-nextflow }
+    - { role: build-pangolin }
+    - { role: build-ncov }
+    - { role: build-covid-pipeline }
+    - { role: build-nextstrain }
+    - { role: build-auspice }
+    - { role: run-sqitch }
+    - { role: post-install-setup }

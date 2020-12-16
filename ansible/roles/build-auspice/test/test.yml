@@ -1,0 +1,10 @@
+---
+- hosts: all
+  become: false
+  vars:
+    docker_build:
+      path: "/home/vagrant/ps-bahrain-covid"
+    git_submod:
+      path: "/home/vagrant/ps-bahrain-covid"
+    - { role: ../../install-os-packages, yum_update: false, become: yes }
+    - { role: ../../build-auspice }

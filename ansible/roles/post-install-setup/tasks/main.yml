@@ -1,19 +1,89 @@
 ---
-- name: SARS-CoV-2 pipeline - clone the covid-pipeline repo
-  git:
-    repo: "https://{{ github_username | urlencode }}:{{ github_password_or_token | urlencode }}@github.com/{{ github_repo }}.git"
-    dest: "{{ github_checkout_dir }}"
+- name: SARS-CoV-2 pipeline - set DB_HOST environment variables
+  lineinfile:
+    path: ~/.bashrc
+    state: present
+    regexp: "^export DB_HOST="
+    line: "export DB_HOST={{ db_host}}"
+  register: db_host_register
 
-- name: SARS-CoV-2 pipeline - s3 bucket sync
-  command: "aws s3 sync {{ s3_bucket }} {{ s3_sync_dir }}"
-  environment:
-    AWS_ACCESS_KEY_ID: '{{ aws_key_id }}'
-    AWS_SECRET_ACCESS_KEY: '{{ aws_private_key }}'
+- name: SARS-CoV-2 pipeline - set DB_NAME environment variables
+  lineinfile:
+    path: ~/.bashrc
+    state: present
+    regexp: "^export DB_NAME="
+    line: "export DB_NAME={{ db_name}}"
+  register: db_name_register
 
-- name: SARS-CoV-2 pipeline - set environment variables
+- name: SARS-CoV-2 pipeline - set DB_USER environment variables
+  lineinfile:
+    path: ~/.bashrc
+    state: present
+    regexp: "^export DB_USER="
+    line: "export DB_USER={{ db_user}}"
+  register: db_user_register
+
+- fail:
+    msg: "Must supply DB_PASSWORD"
+  when: db_password is not defined
+
+- name: SARS-CoV-2 pipeline - set DB_PASSWORD environment variables
+  lineinfile:
+    path: ~/.bashrc
+    state: present
+    regexp: "^export DB_PASSWORD="
+    line: "export DB_PASSWORD={{ db_password}}"
+  register: db_password_register
+
+
+- name: SARS-CoV-2 pipeline - set DB_PORT environment variables
+  lineinfile:
+    path: ~/.bashrc
+    state: present
+    regexp: "^export DB_PORT="
+    line: "export DB_PORT={{ db_port }}"
+  register: db_port_register
+
+- name: SARS-CoV-2 pipeline - set COVID_PIPELINE_ROOTDIR environment variables
+  lineinfile:
+    path: ~/.bashrc
+    state: present
+    regexp: "^export COVID_PIPELINE_ROOTDIR="
+    line: "export COVID_PIPELINE_ROOTDIR={{ covid_pipeline_rootdir }}"
+  register: covid_pipeline_rootdir_register
+
+- name: SARS-CoV-2 pipeline - set COVID_PIPELINE_FASTQ_PATH environment variables
+  lineinfile:
+    path: ~/.bashrc
+    state: present
+    regexp: "^export COVID_PIPELINE_FASTQ_PATH="
+    line: "export COVID_PIPELINE_FASTQ_PATH={{ covid_pipeline_fastq_path }}"
+  register: covid_pipeline_fastq_path_register
+
+- name: SARS-CoV-2 pipeline - set COVID_PIPELINE_WORKDIR environment variables
+  lineinfile:
+    path: ~/.bashrc
+    state: present
+    regexp: "^export COVID_PIPELINE_WORKDIR="
+    line: "export COVID_PIPELINE_WORKDIR={{ covid_pipeline_workdir }}"
+  register: covid_pipeline_workdir_register
+
+- name: SARS-CoV-2 pipeline - set COVID_PIPELINE_REPORTS_PATH environment variables
+  lineinfile:
+    path: ~/.bashrc
+    state: present
+    regexp: "^export COVID_PIPELINE_REPORTS_PATH="
+    line: "export COVID_PIPELINE_REPORTS_PATH={{ covid_pipeline_reports_path }}"
+  register: covid_pipeline_reports_path_register
+
+- name: SARS-CoV-2 pipeline - set environment extra variables
   lineinfile:
     path: ~/.bashrc
     state: present
     regexp: "^{{ item.key }}="
     line: "export {{ item.key }}={{ item.value}}"
   with_items: "{{ environment_vars }}"
+
+- name: SARS-CoV-2 pipeline - source changed bashrc file
+  shell: source ~/.bashrc
+  when: db_host_register.changed or db_name_register.changed or db_user_register.changed or db_password_register.changed or db_port_register.changed or covid_pipeline_rootdir_register.changed or covid_pipeline_fastq_path_register.changed or covid_pipeline_workdir_register.changed or covid_pipeline_reports_path_register.changed
