@@ -25,9 +25,9 @@ def submit_sample_qc_from_csv(
         sample.sample_qc = SampleQC()
 
     sample_qc = sample.sample_qc
-    sample_qc.pct_N_bases = sample_from_csv["pct_N_bases"]
+    sample_qc.pct_n_bases = sample_from_csv["pct_N_bases"]
     sample_qc.pct_covered_bases = sample_from_csv["pct_covered_bases"]
-    sample_qc.longest_no_N_run = sample_from_csv["longest_no_N_run"]
+    sample_qc.longest_no_n_run = sample_from_csv["longest_no_N_run"]
     sample_qc.num_aligned_reads = sample_from_csv["num_aligned_reads"]
     sample_qc.qc_pass = sample_from_csv["qc_pass"].lower() == "true"
     with open(sample_qc_depth_file_path, "rb") as f:

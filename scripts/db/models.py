@@ -187,7 +187,7 @@ class Sample(Base):  # type: ignore
         ),
     )
     genome_length = Column(Integer, comment="Number of base pair in the virus genome")
-    mrn = Column(Integer, comment="Individual National Identity number")
+    mrn = Column(String, comment="Individual National Identity number")
     metadata_loaded = Column(Boolean, comment="Metadata was loaded from Bahrain medical records system I-SEHA")
 
     area = relationship("Area")
@@ -209,9 +209,9 @@ class SampleQC(Base):  # type: ignore
         primary_key=True,
         comment="Primary key, and foreign key to sample table",
     )
-    pct_N_bases = Column(Float(53), comment="percentage of N bases in sequenced genome")
+    pct_n_bases = Column(Float(53), comment="percentage of N bases in sequenced genome")
     pct_covered_bases = Column(Float(53), comment="percentage of covered bases in sequenced genome")
-    longest_no_N_run = Column(Integer, comment="longest sequence run without N base")
+    longest_no_n_run = Column(Integer, comment="longest sequence run without N base")
     num_aligned_reads = Column(Float(53), comment="Number of reads succesfully aligned and mapped")
     qc_pass = Column(Boolean, comment="Has sample passed QC")
     qc_plot = Column(LargeBinary, comment="QC plot image")
