@@ -41,7 +41,7 @@ def generate_microreact_input(output):
 
         samples = (
             session.query(Sample)
-            .filter(and_(Sample.metadata_loaded, Sample.area.isnot(None)))
+            .filter(and_(Sample.metadata_loaded, Sample.area))
             .order_by(Sample.date_collected)
             .all()
         )
