@@ -346,6 +346,11 @@ def generate_report(output: str, report: str, **kwargs) -> None:
     """
     Generate a csv report from the database and external sources
     """
+    if report == "strain_level_and_global_context" and (keys := [key for key, value in kwargs.items() if not value]):
+        raise click.UsageError(
+            "\n".join(f"Missing option --{key.replace('_', '-')}. Required if --report={report}" for key in keys)
+        )
+
     kwargs = {key: value for key, value in kwargs.items() if value}
     samples = reports[report](**kwargs)
 

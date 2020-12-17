@@ -1,0 +1,3 @@
+gisaid id,sequence_name,country,travel_history,sample_date,epi_week,lineage
+EPI_ISL_406862,Germany/BY-ChVir-929/2020,Germany,,2020-01-28,5.0,B.1
+EPI_ISL_415639,Scotland/EDB013/2020,UK,,2020-03-10,11.0,B.1
