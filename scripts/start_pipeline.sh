@@ -6,8 +6,8 @@
 # Ensure COVID_PIPELINE_FASTQ_PATH is set pointing to a directory, the script assumes that there
 # will be directories under here that will each contain the FASTQ files and metadata.tsv. If this
 # script sees a file with a name starting "transfer_complete", it will create a "pipeline_started"
-# file in that the same directory and start a pipeline run for that directory. The pipeline will be
-# run in the background and the script will continue checking the remaining subdirectories.
+# file in the same directory, start a pipeline run for that directory and then exit. It will not
+# start a pipeline if the "pipeline_started" file already exists.
 #
 # Note that the "transfer_complete" name is checked case-insensitively, the words can be separated
 # by either a hyphen or an underscore, and the file can have any extension.
@@ -40,5 +40,6 @@ do
     touch "${dir}/${PIPELINE_STARTED_FLAG_FILE}"
     export COVID_PIPELINE_FASTQ_PATH=${dir}
     nextflow run -ansi-log false covid-pipeline > "${outfile}" 2>&1 &
+    break
   fi
 done
