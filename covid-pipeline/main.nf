@@ -207,7 +207,7 @@ workflow {
         )
     }
     else {
-        log.warn """Missing GenBank upload credentials. Upload to GenBank Submission Portal will be skipped. 
+        log.warn """Missing GenBank upload credentials. Upload to GenBank Submission Portal will be skipped.
             Please set the following parameters in nextflow.config:
                 - genbank_submitter_name
                 - genbank_submitter_account_namespace
