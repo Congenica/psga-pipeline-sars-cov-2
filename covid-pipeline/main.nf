@@ -207,7 +207,14 @@ workflow {
         )
     }
     else {
-        println("Missing information about GenBank upload. Please set 'genbank_storage_remote_' parameters in nextflow.config")
+        log.warn """Missing GenBank upload credentials. Upload to GenBank Submission Portal will be skipped.
+            Please set the following parameters in nextflow.config:
+                - genbank_submitter_name
+                - genbank_submitter_account_namespace
+                - genbank_storage_remote_directory
+                - genbank_storage_remote_username
+                - genbank_storage_remote_password
+        """
     }
 
     nextstrain_pipeline(
