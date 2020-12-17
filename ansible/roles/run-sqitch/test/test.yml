@@ -8,4 +8,5 @@
       path: '~/ps-bahrain-covid'
   roles:
     - { role: ../../install-os-packages, yum_update: false, become: yes }
+    - { role: test-postgres-db }
     - { role: ../../run-sqitch }

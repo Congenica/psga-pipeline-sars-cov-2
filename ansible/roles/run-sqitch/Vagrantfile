@@ -22,7 +22,5 @@ Vagrant.configure("2") do |config|
         }
         ansible.verbose = true
       end
-      # config.vm.provision "shell", inline: "docker pull postgres:11"
-      # config.vm.provision "shell", inline: "docker run --name testdb -e POSTGRES_PASSWORD=mysecretpassword -e POSTGRES_DB=testdb -d postgres:11"
     end
   end
