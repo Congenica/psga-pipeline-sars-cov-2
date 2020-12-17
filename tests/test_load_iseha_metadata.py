@@ -22,7 +22,7 @@ def test_load_bad_data(db_session, test_data_path):
     assert (
         rv.output
         == "Invalid row for sample ID HAM44444:\n"
-        + 'MRN "HAM111111" is not an integer\n'
+        + "MRN \"HAM111111\" is expected to be an integer, prefixed by 'T' if the person is a foreigner\n"
         + 'AGE "36" should be a number followed by a space then a letter (probably Y)\n'
         + 'GOVERNORATE "MIDDLE" looked right, but not found in database\n'
         + 'AREA "SAKHIR" looked right, but not found in database\n'

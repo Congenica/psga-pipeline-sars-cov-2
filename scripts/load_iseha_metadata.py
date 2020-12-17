@@ -32,14 +32,13 @@ def _validate_and_normalise_row(session, row):
 
     errs = []
 
-    # MRN should be only digits
-    if re.match(r"\d+$", row["MRN"]):
-        row["MRN"] = int(row["MRN"])
-    else:
-        errs.append(f"MRN \"{row['MRN']}\" is not an integer")
+    # MRN contains digits. If the person is a foreigner, a 'T' is prefixed
+    if not re.match(r"(T)?\d+$", row["MRN"]):
+        errs.append(f"MRN \"{row['MRN']}\" is expected to be an integer, prefixed by 'T' if the person is a foreigner")
 
     # AGE should be digits, space, "Y". turn into just digits. if not Y make it 0
-    if age := re.match(r"(\d{1,3}) ([A-Za-z])$", row["AGE"]):
+    age = re.match(r"(\d{1,3}) ([A-Za-z])$", row["AGE"])
+    if age:
         if age.group(2).lower() == "y":
             row["AGE"] = int(age.group(1))
         else:
@@ -52,7 +51,8 @@ def _validate_and_normalise_row(session, row):
         errs.append(f"NATIONALITY \"{row['NATIONALITY']}\" doesn't look like words")
 
     # GOVERNORATE should be in governorate enum
-    if governorate := re.match(r"([\w ]+)$", row["GOVERNORATE"]):
+    governorate = re.match(r"([\w ]+)$", row["GOVERNORATE"])
+    if governorate:
         found_governorate = (
             session.query(Governorate)
             .filter(func.lower(cast(Governorate.name, String)) == governorate.group(1).lower())
@@ -66,7 +66,8 @@ def _validate_and_normalise_row(session, row):
         errs.append(f"GOVERNORATE \"{row['GOVERNORATE']}\" doesn't look like words")
 
     # AREA should be in the area table
-    if area := re.match(r"([\w /']+)$", row["AREA"]):
+    area = re.match(r"([\w /']+)$", row["AREA"])
+    if area:
         # do a case insensitive match just in case, also the spaces around punctuation is inconsistent, so we compare
         # ignoring whitespace
         whitespace = re.compile(r"\s+")
@@ -92,7 +93,8 @@ def _validate_and_normalise_row(session, row):
         errs.append(f"SAMPLE ID \"{row['SAMPLE ID']}\" is not a number")
 
     # ASSIGN DATE should be dd/mm/yyyy
-    if assign_date_match := re.match(r"(\d{2})/(\d{2})/(\d{4})$", row["ASSIGN DATE"]):
+    assign_date_match = re.match(r"(\d{2})/(\d{2})/(\d{4})$", row["ASSIGN DATE"])
+    if assign_date_match:
         try:
             row["ASSIGN DATE"] = date(
                 int(assign_date_match.group(3)), int(assign_date_match.group(2)), int(assign_date_match.group(1))
@@ -104,7 +106,8 @@ def _validate_and_normalise_row(session, row):
 
     # CT should be CT: followed by a float, which might not have the fractional part
     # it's also not in every row in the example data, so assuming it's optional
-    if ct := re.match(r"CT:(\d+(?:\.\d+)?)$", row["CT"]):
+    ct = re.match(r"CT:(\d+(?:\.\d+)?)$", row["CT"])
+    if ct:
         row["CT"] = float(ct.group(1))
     else:
         row["CT"] = None
@@ -146,7 +149,8 @@ def load_iseha_data(file, output_file_for_samples_with_metadata):
         for row in reader:
             try:
                 row = _validate_and_normalise_row(session, row)
-                if existing_sample := session.query(Sample).filter(Sample.lab_id == row["SAMPLE ID"]).one_or_none():
+                existing_sample = session.query(Sample).filter(Sample.lab_id == row["SAMPLE ID"]).one_or_none()
+                if existing_sample:
                     existing_sample.mrn = row["MRN"]
                     existing_sample.age = row["AGE"]
                     existing_sample.nationality = row["NATIONALITY"]

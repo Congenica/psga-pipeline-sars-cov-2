@@ -15,3 +15,4 @@
 11-add_amino_acid_muts_column [02-apptables] 2020-12-08T18:11:26Z Piero Dalle Pezze <piero.dallepezze@congenica.com> # Add amino acid mutations column to sample table
 12-add_nucleotide_muts_column [02-apptables] 2020-12-10T16:21:14Z Piero Dalle Pezze <piero.dallepezze@congenica.com> # Add nucleotide mutations column to sample table
 13-add_genbank_submit_session [02-apptables] 2020-12-14T08:26:41Z Tautvydas Petkus <tautvydas.petkus@telesoftas.com> # A new column, which helps identify, in which upload session sample was submitted to genbank
+14-alter_sample_mrn_to_varchar [02-apptables] 2020-12-17T10:50:27Z Piero Dalle Pezze <piero.dallepezze@congenica.com> # Alter SAMPLE.MRN type from INTEGER to VARCHAR
