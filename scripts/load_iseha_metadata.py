@@ -51,8 +51,10 @@ def _validate_and_normalise_row(session, row):
         if age_digit:
             row["AGE"] = int(age_digit.group(1))
         else:
-            errs.append(f"AGE \"{row['AGE']}\" does not follow any known age formats. It needs to be a number-only "
-                        f"or a number followed by a space then a letter (probably Y)")
+            errs.append(
+                f"AGE \"{row['AGE']}\" does not follow any known age formats. It needs to be a number-only "
+                f"or a number followed by a space then a letter (probably Y)"
+            )
 
     # NATIONALITY should be str
     if not re.match(r"[\w ]+$", row["NATIONALITY"]):
