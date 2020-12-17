@@ -87,6 +87,8 @@ include { submit_genbank_files} from './modules/genbank.nf'
 include { mark_samples_as_submitted_to_genbank} from './modules/genbank.nf'
 include { store_genbank_submission} from './modules/genbank.nf'
 
+include { pipeline_complete } from './modules/pipeline_complete.nf'
+
 workflow {
 
     load_iseha_metadata(
@@ -237,23 +239,29 @@ workflow {
         nextstrain_pipeline.out.ch_nextstrain_tree_nwk
     )
 
-    generate_report_strain_level_and_global_context(
+    ch_report_strain_level_and_global_context = generate_report_strain_level_and_global_context(
         params.pangolearn_lineage_notes_url,
         params.pangolearn_metadata_url,
         params.pangolearn_dir,
         ch_nextstrain_data_submitted.collect()
     )
 
-    generate_report_strain_first_seen(
+    ch_report_strain_first_seen = generate_report_strain_first_seen(
         ch_nextstrain_data_submitted.collect(),
     )
 
-    generate_report_strain_prevalence(
+    ch_report_strain_prevalence = generate_report_strain_prevalence(
         ch_nextstrain_data_submitted.collect(),
     )
 
-    generate_report_sample_dump(
+    ch_report_sample_dump = generate_report_sample_dump(
         ch_nextstrain_data_submitted.collect(),
     )
 
+    pipeline_complete(
+        ch_report_strain_level_and_global_context,
+        ch_report_strain_first_seen,
+        ch_report_strain_prevalence,
+        ch_report_sample_dump
+    )
 }
