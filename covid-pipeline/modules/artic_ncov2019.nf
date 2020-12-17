@@ -3,7 +3,7 @@
  * see: https://github.com/connor-lab/ncov2019-artic-nf
  */
 process ncov2019_artic_nf_pipeline {
-  publishDir COVID_PIPELINE_WORKDIR, mode: 'copy', overwrite: true
+  publishDir "${COVID_PIPELINE_NCOV_OUTPUT_PATH}/${workflow.sessionId}", mode: 'copy', overwrite: true
 
   input:
     file fastq_file
@@ -103,6 +103,22 @@ process store_reheadered_fasta_failed {
 
   script:
     matching_file = "${sample_name}.fasta"
+
+  """
+  """
+}
+
+/*
+ * Storing .png images of sample qc plots in archive
+ */
+process store_ncov_qc_plots  {
+  publishDir COVID_PIPELINE_QC_PLOTS_PATH, mode: 'copy', overwrite: true
+
+  input:
+    path qc_plot_image
+
+  output:
+    path qc_plot_image
 
   """
   """

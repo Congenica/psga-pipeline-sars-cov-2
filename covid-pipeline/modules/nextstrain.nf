@@ -49,7 +49,7 @@ process prepare_tsv_for_nextstrain {
  * see: https://github.com/nextstrain/ncov
  */
 process nextstrain_pipeline {
-  publishDir COVID_PIPELINE_WORKDIR, mode: 'copy', overwrite: true
+  publishDir "${COVID_PIPELINE_NEXTSTRAIN_PATH}/${workflow.sessionId}", mode: 'copy', overwrite: true
 
   input:
     path metadata
