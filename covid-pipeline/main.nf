@@ -19,9 +19,12 @@ log.info """\
 
     Internal environment variables:
     * COVID_PIPELINE_MISSING_METADATA_PATH : ${COVID_PIPELINE_MISSING_METADATA_PATH}
+    * COVID_PIPELINE_NCOV_OUTPUT_PATH      : ${COVID_PIPELINE_NCOV_OUTPUT_PATH}
+    * COVID_PIPELINE_QC_PLOTS_PATH         : ${COVID_PIPELINE_QC_PLOTS_PATH}
     * COVID_PIPELINE_FASTA_PATH            : ${COVID_PIPELINE_FASTA_PATH}
     * COVID_PIPELINE_FASTA_PATH_QC_FAILED  : ${COVID_PIPELINE_FASTA_PATH_QC_FAILED}
     * COVID_PIPELINE_GENBANK_PATH          : ${COVID_PIPELINE_GENBANK_PATH}
+    * COVID_PIPELINE_NEXTSTRAIN_PATH       : ${COVID_PIPELINE_NEXTSTRAIN_PATH}
 
     ======================
     params:
@@ -61,6 +64,7 @@ include { load_ncov_assembly_qc_to_db } from './modules/artic_ncov2019.nf'
 include { reheader_genome_fasta } from './modules/artic_ncov2019.nf'
 include { store_reheadered_fasta_passed } from './modules/artic_ncov2019.nf'
 include { store_reheadered_fasta_failed } from './modules/artic_ncov2019.nf'
+include { store_ncov_qc_plots } from './modules/artic_ncov2019.nf'
 
 include { concatenate_fasta } from './modules/nextstrain.nf'
 include { prepare_tsv_for_nextstrain } from './modules/nextstrain.nf'
@@ -101,6 +105,10 @@ workflow {
         ch_fasta_matching_metadata.collect(),
         params.ncov_docker_image,
         params.ncov_prefix
+    )
+
+    store_ncov_qc_plots(
+        ncov2019_artic_nf_pipeline.out.ch_sample_depth_ncov_results
     )
 
     ch_ncov_qc_sample_submitted = load_ncov_assembly_qc_to_db(
