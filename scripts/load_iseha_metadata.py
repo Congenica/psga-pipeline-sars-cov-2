@@ -28,7 +28,7 @@ EXPECTED_HEADERS = [
 def _validate_and_normalise_row(session, row):
     # strip leading and trailing spaces from everything
     for f in EXPECTED_HEADERS:
-        row[f] = row[f].lstrip().rstrip()
+        row[f] = row[f].lstrip().rstrip() if row[f] is not None else ""
 
     errs = []
 
