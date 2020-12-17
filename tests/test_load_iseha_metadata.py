@@ -11,7 +11,7 @@ def test_load_good_data(db_session, test_data_path):
 
     samples = db_session.query(Sample).all()
 
-    assert len(samples) == 5
+    assert len(samples) == 6
 
 
 def test_load_bad_data(db_session, test_data_path):
