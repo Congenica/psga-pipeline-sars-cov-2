@@ -23,7 +23,7 @@ from scripts.genbank.submission import (
     typeFileAttribute,
     typeIdentifier,
     typeSPUID,
-    typeName,
+    NameType,
 )
 
 GENBANK_WIZARD_VALUE = "BankIt_SARSCoV2_api"
@@ -105,7 +105,9 @@ def generate_submission(
     submission = Submission(
         Description=DescriptionType(
             Comment=submit_name,
-            Organization=[typeOrganization(type_=typeType.CENTER, role=roleType.OWNER, Name=typeName(submitter))],
+            Organization=[
+                typeOrganization(type_=typeType.CENTER, role=roleType.OWNER, Name=NameType(valueOf_=submitter))
+            ],
         ),
         Action=[
             ActionType(

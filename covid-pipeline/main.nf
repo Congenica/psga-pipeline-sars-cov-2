@@ -25,9 +25,13 @@ log.info """\
 
     ======================
     params:
+    * genbank_submitter_name                : ${params.genbank_submitter_name}
     * genbank_submitter_account_namespace   : ${params.genbank_submitter_account_namespace}
+    * genbank_submission_template           : ${params.genbank_submission_template}
     * genbank_storage_remote_url            : ${params.genbank_storage_remote_url}
     * genbank_storage_remote_username       : ${params.genbank_storage_remote_username}
+    * genbank_storage_remote_directory      : ${params.genbank_storage_remote_directory}
+
     ======================
 """
 
@@ -154,10 +158,13 @@ workflow {
         archived_fasta
     )
 
+    Channel
+        .fromPath( params.genbank_submission_template )
+        .set{ ch_genbank_submission_template }
     create_genbank_submission_files(
         ch_qc_passed_fasta.collect(),
         archived_fasta,
-        params.genbank_submission_template,
+        ch_genbank_submission_template,
         params.genbank_submission_comment,
         params.genbank_submitter_name,
         params.genbank_submitter_account_namespace,
@@ -180,7 +187,7 @@ workflow {
         create_genbank_submission_files.out.ch_genbank_submission_id
     )
 
-    if ( params.genbank_storage_remote_url && params.genbank_storage_remote_username && params.genbank_storage_remote_password ) {
+    if ( params.genbank_storage_remote_url && params.genbank_storage_remote_username && params.genbank_storage_remote_password && params.genbank_storage_remote_directory) {
         submit_genbank_files(
             create_genbank_submission_files.out.ch_genbank_xml,
             create_genbank_submission_files.out.ch_genbank_zip,
@@ -189,7 +196,8 @@ workflow {
             ch_no_samples_flag.collect(),
             params.genbank_storage_remote_url,
             params.genbank_storage_remote_username,
-            params.genbank_storage_remote_password
+            params.genbank_storage_remote_password,
+            params.genbank_storage_remote_directory
         )
 
         mark_samples_as_submitted_to_genbank(
