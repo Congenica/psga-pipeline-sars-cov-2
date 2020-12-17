@@ -153,8 +153,8 @@ def db_fetcher_by_name(db_session):
 @pytest.fixture
 def sample_generator(db_session, db_fetcher_by_name):
     def generate_sample(governorate_name="Capital", area_name="JERDAB", lineage="B.1", date_collected=datetime.now()):
-        governorate = db_fetcher_by_name(Governorate, governorate_name)
-        area = db_fetcher_by_name(Area, area_name)
+        governorate = db_fetcher_by_name(Governorate, governorate_name) if governorate_name else None
+        area = db_fetcher_by_name(Area, area_name) if area_name else None
         return db_session.add(
             Sample(
                 governorate=governorate,
