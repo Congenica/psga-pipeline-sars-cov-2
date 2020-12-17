@@ -1,4 +1,5 @@
 # pylint: disable=redefined-outer-name
+import csv
 import os
 import sys
 import tempfile
@@ -6,8 +7,11 @@ from datetime import datetime
 from pathlib import Path
 
 import pytest
+from click.testing import CliRunner
+from pytest_socket import disable_socket
 from scripts.db.database import connect
 from scripts.db.models import Area, Governorate, Sample
+from scripts.generate_report import generate_report
 from sqlalchemy import event
 from sqlalchemy.orm import sessionmaker
 
@@ -17,6 +21,10 @@ DISABLE_ROLLBACK = False
 
 
 Session = sessionmaker()
+
+
+def pytest_runtest_setup():
+    disable_socket()
 
 
 @pytest.fixture
@@ -96,6 +104,42 @@ def test_data_path_genbank_input(test_data_path):
 @pytest.fixture
 def test_data_path_genbank_reference(test_data_path):
     return test_data_path / "genbank_reference"
+
+
+@pytest.fixture
+def test_data_pangolearn(test_data_path):
+    return test_data_path / "pangoLEARN"
+
+
+@pytest.fixture
+def report_reader():
+    def read_report(report):
+        with open(report, mode="r") as report:
+            report = [row for row in csv.reader(report)]
+        # drop headers
+        report.pop(0)
+        return report
+
+    return read_report
+
+
+@pytest.fixture
+def report_generator(tmp_path, report_reader):
+    def generator(report_name, *args):
+        report = tmp_path / f"{report_name}.csv"
+        result = CliRunner().invoke(
+            generate_report,
+            [
+                "--output",
+                str(report),
+                "--report",
+                report_name,
+            ]
+            + list(args),
+        )
+        return result, report_reader(report)
+
+    return generator
 
 
 @pytest.fixture

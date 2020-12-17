@@ -1,0 +1,2 @@
+Lineage	Description
+B.1	A large European lineage that corresponds to the Italian outbreak.
