@@ -1,5 +1,7 @@
 // Imports from 3rd party pipelines
 include { makeFastqSearchPath } from '../../ncov2019-artic-nf/modules/util.nf'
+include { concat_elements_to_single_string as concat_metadata_samples } from './utils.nf'
+include { concat_elements_to_single_string as concat_fastq_samples } from './utils.nf'
 
 
 workflow filter_fastq_matching_with_metadata{
@@ -16,6 +18,12 @@ workflow filter_fastq_matching_with_metadata{
             .filter{ !( it[0] =~ /Undetermined/ ) }
             .set{ ch_fastq_file_pairs }
         // ch_fastq_file_pairs: [[sample_name, fastq1, fastq2], ...]
+
+        ch_fastq_file_pairs
+            .map { it ->  it[0] }
+            .flatten()
+            .set{ ch_fastq_sample_names }
+
         // Matching our extracted sample names with samples loaded from I-SEHA
         ch_fastq_file_pair_matches = append_metadata_match_to_sample_file_pair(
             ch_fastq_file_pairs,
@@ -32,7 +40,11 @@ workflow filter_fastq_matching_with_metadata{
             .set{ ch_fastq_file_pairs_grouped_by_metadata_search }
 
         ch_fastq_file_pairs_grouped_by_metadata_search.mismatched.map {
-            it -> println("WARNING: Sample ${it[0]} was not found in database with metadata. Files ${it[1]} and ${it[2]} will not be processed")
+            it -> log.warn """Sample ${it[0]} was not found in database with metadata. 
+                The following files will not be processed:
+                  - ${it[1]}
+                  - ${it[2]}
+            """
         }
 
         ch_fastq_file_pairs_grouped_by_metadata_search.matched
@@ -47,8 +59,19 @@ workflow filter_fastq_matching_with_metadata{
 
         store_fastas_not_matched(ch_fasta_mismatching_metadata)
 
+        ch_samples_with_metatada_str = concat_metadata_samples(ch_samples_with_metadata_loaded.collect())
+        ch_fastq_sample_names_str = concat_fastq_samples(ch_fastq_sample_names.collect())
         ch_fasta_matching_metadata.ifEmpty {
-            println("ERROR: No illumina fastq file pairs found matching samples, provided by I-SEHA sample metdata import. Aborting!")
+          
+            log.error """\
+              ERROR: No illumina fastq file pairs found matching samples, provided by I-SEHA sample metdata import. 
+                This may be caused by failure in loading sample metadata from .tsv file to the database, or metadata .tsv file not matching any fastq files provided. 
+                Samples names with metadata loaded, found in database:
+                  ${ch_samples_with_metatada_str}
+                Samples names, which were extracted from fastq files provided:
+                  ${ch_fastq_sample_names_str}
+                Aborting!
+            """
             System.exit(1)
         }
 
