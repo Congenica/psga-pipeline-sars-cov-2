@@ -36,15 +36,23 @@ def _validate_and_normalise_row(session, row):
     if not re.match(r"(T)?\d+$", row["MRN"]):
         errs.append(f"MRN \"{row['MRN']}\" is expected to be an integer, prefixed by 'T' if the person is a foreigner")
 
-    # AGE should be digits, space, "Y". turn into just digits. if not Y make it 0
-    age = re.match(r"(\d{1,3}) ([A-Za-z])$", row["AGE"])
-    if age:
-        if age.group(2).lower() == "y":
-            row["AGE"] = int(age.group(1))
+    # AGE can come in two different formats:
+    # AGE can be digits, space, "Y". turn into just digits. if not Y make it 0
+    # AGE can be digits-only
+    age_column_value = row["AGE"]
+    age_y = re.match(r"(\d{1,3}) ([A-Za-z])$", age_column_value)
+    if age_y:
+        if age_y.group(2).lower() == "y":
+            row["AGE"] = int(age_y.group(1))
         else:
             row["AGE"] = 0
     else:
-        errs.append(f"AGE \"{row['AGE']}\" should be a number followed by a space then a letter (probably Y)")
+        age_digit = re.match(r"(\d{1,3})$", age_column_value)
+        if age_digit:
+            row["AGE"] = int(age_digit.group(1))
+        else:
+            errs.append(f"AGE \"{row['AGE']}\" does not follow any known age formats. It needs to be a number-only "
+                        f"or a number followed by a space then a letter (probably Y)")
 
     # NATIONALITY should be str
     if not re.match(r"[\w ]+$", row["NATIONALITY"]):
