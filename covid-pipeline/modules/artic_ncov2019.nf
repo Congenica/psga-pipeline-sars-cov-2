@@ -38,7 +38,7 @@ process store_ncov2019_artic_nf_output {
     path ch_all_ncov_results
 
   script:
-  
+
   """
   """
 }
