@@ -32,6 +32,10 @@
 - name: reset ssh connection
   meta: reset_connection
 
+- name: SARS-CoV-2 pipeline - create database
+  shell: "PGPASSWORD={{ db_password }} psql --host={{ db_host }} --port={{ db_port }} --username={{ db_user }} -c 'create database {{ db_name }}'"
+  ignore_errors: yes
+
 - name: SARS-CoV-2 pipeline - do sqitch deploy
   community.general.docker_container:
     name: sqitch
