@@ -17,7 +17,7 @@ def test_load_good_data(db_session, test_data_path):
 def test_load_bad_data(db_session, test_data_path):
     rv = CliRunner().invoke(load_iseha_data, ["--file", test_data_path / "bad_iseha_data.tsv"])
 
-    assert rv.exit_code == 0
+    assert rv.exit_code == 1
 
     assert (
         rv.output
@@ -30,9 +30,7 @@ def test_load_bad_data(db_session, test_data_path):
         + 'BLOCK "block" should contain digits\n'
         + 'SAMPLE ID "HAM44444" is not a number\n'
         + 'ASSIGN DATE "32/02/2020" is not a valid date: day is out of range for month\n'
-        + "Inserted samples: \n"
-        + "Updated samples: \n"
-        + "Errors encountered, these samples were not inserted or updated: HAM44444\n"
+        + "Error: Errors encountered: HAM44444\n"
     )
 
     samples = db_session.query(Sample).all()

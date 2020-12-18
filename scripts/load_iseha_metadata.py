@@ -192,17 +192,14 @@ def load_iseha_data(file, output_file_for_samples_with_metadata):
                     )
                     session.add(sample)
                     inserted.add(row["SAMPLE ID"])
-                session.commit()
             except ValueError as e:
                 click.echo(f"Invalid row for sample ID {row['SAMPLE ID']}:\n{e}", err=True)
                 errors.add(row["SAMPLE ID"])
 
+    if errors:
+        raise ClickException("Errors encountered: " + ", ".join(map(str, errors)))
     click.echo("Inserted samples: " + ", ".join(map(str, inserted)))
     click.echo("Updated samples: " + ", ".join(map(str, updated)))
-    if errors:
-        click.echo(
-            "Errors encountered, these samples were not inserted or updated: " + ", ".join(map(str, errors)), err=True
-        )
 
     if output_file_for_samples_with_metadata:
         with open(output_file_for_samples_with_metadata, "w") as f:
