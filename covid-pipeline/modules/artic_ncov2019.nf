@@ -3,9 +3,6 @@
  * see: https://github.com/connor-lab/ncov2019-artic-nf
  */
 process ncov2019_artic_nf_pipeline {
-  publishDir "${COVID_PIPELINE_NCOV_OUTPUT_PATH}/${workflow.sessionId}", mode: 'copy', overwrite: true
-  publishDir "${COVID_PIPELINE_NCOV_OUTPUT_PATH}/latest", mode: 'copy', overwrite: true
-
   input:
     file fastq_file
     val ncov_docker_image
@@ -23,6 +20,26 @@ process ncov2019_artic_nf_pipeline {
   """
   # note: we inject our configuration into ncov to override parameters
   nextflow run ${COVID_PIPELINE_ROOTDIR}/ncov2019-artic-nf -profile docker --illumina --prefix ${ncov_prefix} --directory `eval pwd` -with-docker ${ncov_docker_image} --outdir ${ncov_out_directory} -c ${COVID_PIPELINE_ROOTDIR}/covid-pipeline/ncov-illumina.config
+  """
+}
+
+/*
+ * Store ncov2019_artic output
+ * We publish only a single channel. This way multiple channels won't conflict on publish
+ */
+process store_ncov2019_artic_nf_output {
+  publishDir "${COVID_PIPELINE_NCOV_OUTPUT_PATH}/${workflow.sessionId}", mode: 'copy', overwrite: true
+  publishDir "${COVID_PIPELINE_NCOV_OUTPUT_PATH}/latest", mode: 'copy', overwrite: true
+
+  input:
+    path ch_all_ncov_results
+
+  output:
+    path ch_all_ncov_results
+
+  script:
+  
+  """
   """
 }
 

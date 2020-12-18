@@ -49,9 +49,6 @@ process prepare_tsv_for_nextstrain {
  * see: https://github.com/nextstrain/ncov
  */
 process nextstrain_pipeline {
-  publishDir "${COVID_PIPELINE_NEXTSTRAIN_PATH}/${workflow.sessionId}", mode: 'copy', overwrite: true
-  publishDir "${COVID_PIPELINE_NEXTSTRAIN_PATH}/latest", mode: 'copy', overwrite: true
-
   input:
     path metadata
     path fasta
@@ -83,6 +80,26 @@ process nextstrain_pipeline {
   cd -
   cp -R /nextstrain/results/* ${nextstrain_out_directory}
   chown -R \${UID}:\${GID} ${nextstrain_out_directory}
+  """
+}
+
+/*
+ * Store nextstrain output
+ * We publish only a single channel. This way multiple channels won't conflict on publish
+ */
+process store_nextstrain_output {
+  publishDir "${COVID_PIPELINE_NEXTSTRAIN_PATH}/${workflow.sessionId}", mode: 'copy', overwrite: true
+  publishDir "${COVID_PIPELINE_NEXTSTRAIN_PATH}/latest", mode: 'copy', overwrite: true
+
+  input:
+    path ch_all_nextstrain_results
+
+  output:
+    path ch_all_nextstrain_results
+
+  script:
+
+  """
   """
 }
 
