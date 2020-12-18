@@ -1,12 +1,26 @@
 -- Verify ps-bahrain-covid:13-add_genbank_submit_session om pg
 
-BEGIN;
+DO $$
+BEGIN
 
     SET LOCAL search_path = sars_cov_2;
 
-    SELECT genbank_submit_id FROM sample WHERE FALSE;
+    ASSERT (
+        SELECT EXISTS (
+            SELECT 1
+            FROM information_schema.columns
+            WHERE table_schema='sars_cov_2' AND table_name='sample'
+            AND column_name='genbank_submit_id'
+        )
+    );
 
-    SELECT 1/(COUNT(*)-1) FROM information_schema.columns WHERE table_name='sample' and column_name='genbank_id';
+    ASSERT (
+        SELECT NOT EXISTS (
+            SELECT 1
+            FROM information_schema.columns
+            WHERE table_schema='sars_cov_2' AND table_name='sample'
+            AND column_name='genbank_id'
+        )
+    );
 
-COMMIT;
-
+END $$;
