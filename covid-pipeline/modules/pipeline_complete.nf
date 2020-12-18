@@ -14,8 +14,10 @@ process pipeline_complete {
 
   script:
     pipeline_started_file = "${COVID_PIPELINE_FASTQ_PATH}/" + "pipeline_started"
+    pipeline_complete_file = "${COVID_PIPELINE_FASTQ_PATH}/" + "pipeline_complete"
 
   """
+  touch ${pipeline_complete_file}
   rm ${pipeline_started_file} || true
   """
 }
