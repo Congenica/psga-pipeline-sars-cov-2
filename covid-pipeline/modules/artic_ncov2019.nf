@@ -4,6 +4,7 @@
  */
 process ncov2019_artic_nf_pipeline {
   publishDir "${COVID_PIPELINE_NCOV_OUTPUT_PATH}/${workflow.sessionId}", mode: 'copy', overwrite: true
+  publishDir "${COVID_PIPELINE_NCOV_OUTPUT_PATH}/latest", mode: 'copy', overwrite: true
 
   input:
     file fastq_file

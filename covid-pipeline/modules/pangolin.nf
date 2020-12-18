@@ -4,6 +4,7 @@
  */
 process pangolin_pipeline {
   publishDir "${COVID_PIPELINE_PANGOLIN_PATH}/${workflow.sessionId}", mode: 'copy', overwrite: true
+  publishDir "${COVID_PIPELINE_PANGOLIN_PATH}/latest", mode: 'copy', overwrite: true
 
   input:
     path reheadered_fasta

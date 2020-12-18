@@ -116,7 +116,7 @@ Run the auspice web-service:
 ```commandline
 # the port 4000 is already exposed in the Dockerfile
 docker run -it --rm \
-  -v ${COVID_PIPELINE_WORKDIR}/nextstrain_output/bahrain/ncov_with_accessions.json:/ncov_with_accessions.json \
+  -v ${COVID_PIPELINE_WORKDIR}/nextstrain/latest/nextstrain_output/bahrain/ncov_with_accessions.json:/ncov_with_accessions.json \
   -p 4000:4000 \
   auspice:1.0.0 \
   auspice view --datasetDir=/
