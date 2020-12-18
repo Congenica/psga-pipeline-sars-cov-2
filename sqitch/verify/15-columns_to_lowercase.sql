@@ -1,10 +1,38 @@
 -- Verify sample_qc
 
-BEGIN;
+DO $$
+BEGIN
 
-    SET LOCAL search_path = sars_cov_2;
+    ASSERT (
+        SELECT EXISTS (
+            SELECT 1
+            FROM information_schema.columns
+            WHERE table_schema='sars_cov_2' AND table_name='sample_qc' AND column_name='pct_n_bases'
+        )
+    );
 
-    SELECT has_table_privilege('sample_qc', 'SELECT, INSERT, UPDATE, DELETE, TRUNCATE, REFERENCES');
+    ASSERT (
+        SELECT EXISTS (
+            SELECT 1
+            FROM information_schema.columns
+            WHERE table_schema='sars_cov_2' AND table_name='sample_qc' AND column_name='longest_no_n_run'
+        )
+    );
 
-COMMIT;
+    ASSERT (
+        SELECT NOT EXISTS (
+            SELECT 1
+            FROM information_schema.columns
+            WHERE table_schema='sars_cov_2' AND table_name='sample' AND column_name='pct_N_bases'
+        )
+    );
 
+    ASSERT (
+        SELECT NOT EXISTS (
+            SELECT 1
+            FROM information_schema.columns
+            WHERE table_schema='sars_cov_2' AND table_name='sample' AND column_name='longest_no_N_run'
+        )
+    );
+
+END $$;;
