@@ -5,6 +5,8 @@
     environment_vars:
       - key: GENOME_FASTA_PATH
         value : '~/foo'
+    start_pipeline_script:
+      path: '~/ps-bahrain-covid/scripts/start_pipeline.sh'
   roles:
     - { role: ../../install-os-packages, yum_update: false, become: true}
     - { role: ../../post-install-setup, db_password: "test123"}
