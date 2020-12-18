@@ -31,6 +31,7 @@ The following environment variables are set internally and should not be changed
 | COVID_PIPELINE_PANGOLIN_PATH | Path to the results of pangolin pipeline with lineage reports. ach run will be published to unique folder |
 | COVID_PIPELINE_GENBANK_PATH | Path to submission files, which were used to submit samples to GenBank programmatic interface |
 | COVID_PIPELINE_NEXTSTRAIN_PATH | Path to store all nextstrain result files. Each run will be published to unique folder |
+| COVID_PIPELINE_MICROREACT_PATH | Path to store microreact tsv file, generated from samples, found in database |
 | COVID_PIPELINE_NOTIFICATIONS_PATH | Path to the pipeline notifications. Unexpected events regarding missing samples, files are reported here in text files |
 
 ### Dependencies
