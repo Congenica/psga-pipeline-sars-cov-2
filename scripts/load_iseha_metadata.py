@@ -26,6 +26,12 @@ EXPECTED_HEADERS = [
 
 
 def _validate_and_normalise_row(session, row):
+    def location_error_message(location_type, location):
+        return (
+            f'{location_type} "{location}" is not a recognised location - '
+            "please check the list of known locations and for typo's etc"
+        )
+
     # strip leading and trailing spaces from everything
     for f in EXPECTED_HEADERS:
         row[f] = row[f].lstrip().rstrip() if row[f] is not None else ""
@@ -71,9 +77,9 @@ def _validate_and_normalise_row(session, row):
         if found_governorate:
             row["GOVERNORATE"] = found_governorate
         else:
-            errs.append(f"GOVERNORATE \"{row['GOVERNORATE']}\" looked right, but not found in database")
+            errs.append(location_error_message("GOVERNORATE", row["GOVERNORATE"]))
     elif row["GOVERNORATE"]:
-        errs.append(f"GOVERNORATE \"{row['GOVERNORATE']}\" doesn't look like words")
+        errs.append(location_error_message("GOVERNORATE", row["GOVERNORATE"]))
 
     # AREA should be in the area table
     area = re.match(r"([\w /']+)$", row["AREA"])
@@ -90,9 +96,9 @@ def _validate_and_normalise_row(session, row):
         if found_area:
             row["AREA"] = found_area
         else:
-            errs.append(f"AREA \"{row['AREA']}\" looked right, but not found in database")
+            errs.append(location_error_message("AREA", row["AREA"]))
     elif row["AREA"]:
-        errs.append(f"AREA \"{row['AREA']}\" doesn't look like words")
+        errs.append(location_error_message("AREA", row["AREA"]))
 
     # BLOCK should be a number, appears to normally be 3 digits, but have also seen 4, so we'll be lax on this
     if row["BLOCK"] and not re.match(r"(\d+)$", row["BLOCK"]):
