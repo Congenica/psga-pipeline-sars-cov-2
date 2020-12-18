@@ -13,27 +13,28 @@ builds:
     auspice_config: "/custom_profile/auspice_config_bahrain_build.json"
     # We can also set a title for *just* this build.
     title: "SARS-CoV-2 Sequences in Bahrain"
-  # division-level builds (governorates in Bahrain)
-  northern:
-    subsampling_scheme: governorate # <- use the 'governorate' sampling scheme
-    region: Asia
-    country: Bahrain
-    division: Northern
-  southern:
-    subsampling_scheme: governorate
-    region: Asia
-    country: Bahrain
-    division: Southern
-  capital:
-    subsampling_scheme: governorate
-    region: Asia
-    country: Bahrain
-    division: Capital
-  muharraq:
-    subsampling_scheme: governorate
-    region: Asia
-    country: Bahrain
-    division: Muharraq
+  ## division-level builds (governorates in Bahrain).
+  ## Skip as we only use `bahrain` subsampling_schema nextstrain output, as input for auspice
+  #  northern:
+  #    subsampling_scheme: governorate # <- use the 'governorate' sampling scheme
+  #    region: Asia
+  #    country: Bahrain
+  #    division: Northern
+  #  southern:
+  #    subsampling_scheme: governorate
+  #    region: Asia
+  #    country: Bahrain
+  #    division: Southern
+  #  capital:
+  #    subsampling_scheme: governorate
+  #    region: Asia
+  #    country: Bahrain
+  #    division: Capital
+  #  muharraq:
+  #    subsampling_scheme: governorate
+  #    region: Asia
+  #    country: Bahrain
+  #    division: Muharraq
 
 subsampling:
   # Here we use the default subsampling logic for countries
