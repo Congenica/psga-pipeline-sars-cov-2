@@ -68,3 +68,15 @@ Got permission denied while trying to connect to the Docker daemon socket at uni
 ```
 
 The ansible playbook modifies the running users groups, but this will not take effect until the next new session. Log out of your current session and log back in. Running `groups` should now show a secondary group of `docker`
+
+### Password required for sudo
+You may receive an error:
+```shell
+fatal: [127.0.0.1]: FAILED! => {"changed": false, "module_stderr": "sudo: a password is required\n", "module_stdout": "", "msg": "MODULE FAILURE\nSee stdout/stderr for the exact error", "rc": 1}
+```
+
+This is because you do not have passwordless sudo enabled for the account executing the ansible. While sudo is a requirement, you can have the ansible prompt you for your password before starting, like so:
+
+```shell
+ansible-playbook --connection=local -i 127.0.0.1, ansible/pipeline_install.yml --ask-become-pass
+```

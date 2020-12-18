@@ -98,5 +98,5 @@
     name: "run start_pipeline.sh"
     minute: "0"
     hour: "*/{{ cron.hourly }}"
-    job: "{{ spscript.stat.path }}"
-  when: spscript.stat.exists is true and spscript.stat.readable is true and spscript.stat.executable is true
+    job: "source ${HOME}/.bashrc && {{ spscript.stat.path }} > ${HOME}/crontab.log 2> ${HOME}/crontab.err"
+  when: spscript.stat.exists == True and spscript.stat.readable == True and spscript.stat.executable == True
