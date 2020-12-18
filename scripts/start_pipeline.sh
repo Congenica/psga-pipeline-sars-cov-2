@@ -16,6 +16,7 @@
 shopt -s nocaseglob extglob nullglob
 
 PIPELINE_STARTED_FLAG_FILE="pipeline_started"
+PIPELINE_COMPLETE_FLAG_FILE="pipeline_complete"
 
 if [ -z "${COVID_PIPELINE_FASTQ_PATH}" ]
 then
@@ -33,6 +34,10 @@ do
   if [ -e "${dir}/${PIPELINE_STARTED_FLAG_FILE}" ]
   then
     echo "Pipeline already started for ${dir}"
+    continue
+  elif [ -e "${dir}/${PIPELINE_COMPLETE_FLAG_FILE}" ]
+  then
+    echo "Pipeline already run for for ${dir}"
     continue
   else
     outfile="nextflow_$(date +%s).out"
