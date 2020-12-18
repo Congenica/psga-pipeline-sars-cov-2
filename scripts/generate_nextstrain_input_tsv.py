@@ -9,6 +9,9 @@ from db.database import session_handler
 from db.models import Sample, SampleQC, GenderEnum, HospitalAdmittanceEnum
 
 
+DEFAULT_REGION = "Asia"
+
+
 @dataclass
 class NextstrainSampleMetadataInput:
     strain: str
@@ -30,6 +33,8 @@ class NextstrainSampleMetadataInput:
     comorbitities: str
     travel_exposure: str
     hospital_admittance: HospitalAdmittanceEnum
+    region: str
+    region_exposure: str
 
     gisaid_epi_isl = None
     genbank_accession = None
@@ -37,8 +42,6 @@ class NextstrainSampleMetadataInput:
     title = None
     date_submitted = None
     virus: str = "SARS-CoV-2"
-    region: str = "Asia"
-    region_exposure: str = "Asia"
     segment: str = "genome"
     host: str = "human"
 
@@ -63,6 +66,8 @@ root_genome = NextstrainSampleMetadataInput(
     comorbitities="",
     travel_exposure="",
     hospital_admittance=HospitalAdmittanceEnum.No,
+    region=DEFAULT_REGION,
+    region_exposure=DEFAULT_REGION,
 )
 
 
@@ -79,20 +84,34 @@ def get_data_for_nextstrain() -> List[NextstrainSampleMetadataInput]:
             .all()
         )
         for sample in samples:
-            division = sample.governorate_name
-            country = "Bahrain"
-            country_exposure = sample.travel_exposure
-            if not country_exposure:
-                country_exposure = country
+            country = ""
+            division = ""
+            area = ""
+            country_exposure = ""
+            division_exposure = ""
+            region = ""
+            region_exposure = ""
+
+            if sample.governorate_name and sample.area_name:
+                country = "Bahrain"
+                division = sample.governorate_name
+                area = sample.area_name
+                country_exposure = sample.travel_exposure
+                if not country_exposure:
+                    country_exposure = country
+                division_exposure = division
+                region = DEFAULT_REGION
+                region_exposure = DEFAULT_REGION
+
             res.append(
                 NextstrainSampleMetadataInput(
                     strain=sample.lab_id,
                     date=sample.date_collected.strftime("%Y-%m-%d") if sample.date_collected else None,
                     country=country,
                     division=division,
-                    area=sample.area_name,
+                    area=area,
                     country_exposure=country_exposure,
-                    division_exposure=division,
+                    division_exposure=division_exposure,
                     length=sample.genome_length,
                     age=sample.age,
                     sex=sample.gender,
@@ -105,6 +124,8 @@ def get_data_for_nextstrain() -> List[NextstrainSampleMetadataInput]:
                     comorbitities=",".join([x.description for x in sample.comorbidities]),
                     travel_exposure=sample.travel_exposure,
                     hospital_admittance=sample.hospital_admittance,
+                    region=region,
+                    region_exposure=region_exposure,
                 )
             )
     res.append(root_genome)

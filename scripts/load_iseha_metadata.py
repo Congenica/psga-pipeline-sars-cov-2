@@ -28,7 +28,7 @@ EXPECTED_HEADERS = [
 def _validate_and_normalise_row(session, row):
     # strip leading and trailing spaces from everything
     for f in EXPECTED_HEADERS:
-        row[f] = row[f].lstrip().rstrip()
+        row[f] = row[f].lstrip().rstrip() if row[f] is not None else ""
 
     errs = []
 
@@ -72,7 +72,7 @@ def _validate_and_normalise_row(session, row):
             row["GOVERNORATE"] = found_governorate
         else:
             errs.append(f"GOVERNORATE \"{row['GOVERNORATE']}\" looked right, but not found in database")
-    else:
+    elif row["GOVERNORATE"]:
         errs.append(f"GOVERNORATE \"{row['GOVERNORATE']}\" doesn't look like words")
 
     # AREA should be in the area table
@@ -91,11 +91,11 @@ def _validate_and_normalise_row(session, row):
             row["AREA"] = found_area
         else:
             errs.append(f"AREA \"{row['AREA']}\" looked right, but not found in database")
-    else:
+    elif row["AREA"]:
         errs.append(f"AREA \"{row['AREA']}\" doesn't look like words")
 
     # BLOCK should be a number, appears to normally be 3 digits, but have also seen 4, so we'll be lax on this
-    if not re.match(r"(\d+)$", row["BLOCK"]):
+    if row["BLOCK"] and not re.match(r"(\d+)$", row["BLOCK"]):
         errs.append(f"BLOCK \"{row['BLOCK']}\" should contain digits")
 
     # SAMPLE ID should be numbers, but not an integer
@@ -160,13 +160,16 @@ def load_iseha_data(file, output_file_for_samples_with_metadata):
             try:
                 row = _validate_and_normalise_row(session, row)
                 existing_sample = session.query(Sample).filter(Sample.lab_id == row["SAMPLE ID"]).one_or_none()
+                governorate = row["GOVERNORATE"] if row["GOVERNORATE"] else None
+                area = row["AREA"] if row["AREA"] else None
+                block = row["BLOCK"] if row["BLOCK"] else None
                 if existing_sample:
                     existing_sample.mrn = row["MRN"]
                     existing_sample.age = row["AGE"]
                     existing_sample.nationality = row["NATIONALITY"]
-                    existing_sample.governorate = row["GOVERNORATE"]
-                    existing_sample.area = row["AREA"]
-                    existing_sample.block_number = row["BLOCK"]
+                    existing_sample.governorate = governorate
+                    existing_sample.area = area
+                    existing_sample.block_number = block
                     existing_sample.date_collected = row["ASSIGN DATE"]
                     existing_sample.ct_value = row["CT"]
                     existing_sample.symptoms = row["SYMPTOMS"]
@@ -177,9 +180,9 @@ def load_iseha_data(file, output_file_for_samples_with_metadata):
                         mrn=row["MRN"],
                         age=row["AGE"],
                         nationality=row["NATIONALITY"],
-                        governorate=row["GOVERNORATE"],
-                        area=row["AREA"],
-                        block_number=row["BLOCK"],
+                        governorate=governorate,
+                        area=area,
+                        block_number=block,
                         lab_id=row["SAMPLE ID"],
                         sample_number=int(row["SAMPLE ID"]),
                         date_collected=row["ASSIGN DATE"],

@@ -3,6 +3,7 @@
 import csv
 
 import click
+from sqlalchemy import and_
 
 from db.database import session_handler
 from db.models import Sample
@@ -38,7 +39,12 @@ def generate_microreact_input(output):
         writer = csv.DictWriter(output, fieldnames=MICROREACT_FIELDS, delimiter="\t")
         writer.writeheader()
 
-        samples = session.query(Sample).filter(Sample.metadata_loaded).order_by(Sample.date_collected).all()
+        samples = (
+            session.query(Sample)
+            .filter(and_(Sample.metadata_loaded, Sample.area))
+            .order_by(Sample.date_collected)
+            .all()
+        )
         for sample in samples:
             tsv_row = {
                 "id": sample.lab_id,

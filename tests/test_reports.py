@@ -46,9 +46,9 @@ def test_report_strain_level_and_global_context(
     ]
 
 
-def test_report_strain_prevalence(sample_generator, report_generator):
-    area_name = "JERDAB"
-    governorate_name = "Capital"
+@pytest.mark.parametrize("area_name", ["JERDAB", ""])
+@pytest.mark.parametrize("governorate_name", ["Capital", ""])
+def test_report_strain_prevalence(sample_generator, report_generator, area_name, governorate_name):
     prevalent_strain = "B.1.366"
 
     for lineage in (prevalent_strain, "B.1.369"):
@@ -71,14 +71,15 @@ def test_report_strain_prevalence(sample_generator, report_generator):
     assert report[2] == ["Bahrain", prevalent_strain] + totals
 
 
-def test_report_strain_first_seen(sample_generator, report_generator):
+@pytest.mark.parametrize("area_name", ["JERDAB", ""])
+def test_report_strain_first_seen(sample_generator, report_generator, area_name):
     date = "2020-12-17"
-    sample_generator(date_collected=date)
+    sample_generator(date_collected=date, area_name=area_name)
 
     result, report = report_generator("strain_first_seen")
 
     assert result.exit_code == 0
-    assert report == [["B.1", date, "", "", "JERDAB", "", "", "0"]]
+    assert report == [["B.1", date, "", "", area_name, "", "", "0"]]
 
 
 def test_report_sample_dump(sample_generator, report_generator):
