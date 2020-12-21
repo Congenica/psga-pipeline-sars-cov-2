@@ -123,7 +123,8 @@ workflow {
         params.ncov_docker_image,
         params.ncov_prefix
     )
-
+    // Taking only a single output channel and publishing output in separate process after `ncov2019_artic_nf_pipeline`
+    // Using single output channel is required to avoid publish conflicts, when two channels attempt to write same file
     store_ncov2019_artic_nf_output(
         ncov2019_artic_nf_pipeline.out.ch_all_ncov_results.collect()
     )
@@ -250,7 +251,7 @@ workflow {
         ch_nextstrain_metadata_tsv,
         ch_nextstrain_fasta
     )
-
+    // Storing single-channel output only after nextstrain_pipeline ends
     store_nextstrain_output(
         nextstrain_pipeline.out.ch_all_nextstrain_results.collect()
     )
