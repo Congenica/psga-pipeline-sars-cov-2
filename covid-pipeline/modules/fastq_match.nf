@@ -11,7 +11,6 @@ include { store_notification_with_values_list as store_notification_no_fastq_fil
 include { store_notification_with_values_list as store_notification_updated } from './utils.nf'
 include { store_notification_with_values_list as store_notification_fastq_only } from './utils.nf'
 include { store_notification_with_values_list as store_notification_processed_already } from './utils.nf'
-include { store_notification_with_values_list as store_notification_load_fail } from './utils.nf'
 
 
 workflow filter_fastq_matching_with_metadata{
