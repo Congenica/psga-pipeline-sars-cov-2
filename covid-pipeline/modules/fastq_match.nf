@@ -11,7 +11,6 @@ include { store_notification_with_values_list as store_notification_no_fastq_fil
 include { store_notification_with_values_list as store_notification_updated } from './utils.nf'
 include { store_notification_with_values_list as store_notification_fastq_only } from './utils.nf'
 include { store_notification_with_values_list as store_notification_processed_already } from './utils.nf'
-include { store_notification_with_values_list as store_notification_load_fail } from './utils.nf'
 
 
 workflow filter_fastq_matching_with_metadata{
@@ -19,7 +18,6 @@ workflow filter_fastq_matching_with_metadata{
         ch_all_samples_with_metadata_loaded
         ch_current_session_samples_with_metadata_loaded
         ch_qc_passed_samples
-        ch_failed_to_load_samples
         ch_updated_samples
     main:
         // Original usage of grouping illumina fastq file pairs and extracting sample name
@@ -134,14 +132,6 @@ workflow filter_fastq_matching_with_metadata{
         store_notification_processed_already(
           "${workflow.start}-already_processed_fastq_samples.txt",
           ch_fastq_sample_qc_pass_matches_search.matched.collect()
-        )
-
-        ch_failed_to_load_samples.map {
-          it -> log.error """Sample ${it} failed to load metadata. It may have invalid data provided. Please check metadata file!"""
-        }
-        store_notification_load_fail(
-          "${workflow.start}-samples_failed_to_load.txt",
-          ch_failed_to_load_samples.collect()
         )
 
         ch_fasta_matching_metadata.ifEmpty {
