@@ -26,6 +26,7 @@ log.info """\
     * COVID_PIPELINE_PANGOLIN_PATH         : ${COVID_PIPELINE_PANGOLIN_PATH}
     * COVID_PIPELINE_GENBANK_PATH          : ${COVID_PIPELINE_GENBANK_PATH}
     * COVID_PIPELINE_NEXTSTRAIN_PATH       : ${COVID_PIPELINE_NEXTSTRAIN_PATH}
+    * COVID_PIPELINE_MICROREACT_PATH       : ${COVID_PIPELINE_MICROREACT_PATH}
     * COVID_PIPELINE_NOTIFICATIONS_PATH    : ${COVID_PIPELINE_NOTIFICATIONS_PATH}
 
     ======================
@@ -62,6 +63,7 @@ include { load_iseha_metadata } from './modules/iseha_metadata.nf'
 include { filter_fastq_matching_with_metadata } from './modules/fastq_match.nf'
 
 include { ncov2019_artic_nf_pipeline } from './modules/artic_ncov2019.nf'
+include { store_ncov2019_artic_nf_output } from './modules/artic_ncov2019.nf'
 include { load_ncov_assembly_qc_to_db } from './modules/artic_ncov2019.nf'
 include { reheader_genome_fasta } from './modules/artic_ncov2019.nf'
 include { store_reheadered_fasta_passed } from './modules/artic_ncov2019.nf'
@@ -71,6 +73,7 @@ include { store_ncov_qc_plots } from './modules/artic_ncov2019.nf'
 include { concatenate_fasta } from './modules/nextstrain.nf'
 include { prepare_tsv_for_nextstrain } from './modules/nextstrain.nf'
 include { nextstrain_pipeline } from './modules/nextstrain.nf'
+include { store_nextstrain_output } from './modules/nextstrain.nf'
 include { load_nextstrain_data_to_db } from './modules/nextstrain.nf'
 
 include { pangolin_pipeline } from './modules/pangolin.nf'
@@ -119,6 +122,11 @@ workflow {
         ch_fasta_matching_metadata.collect(),
         params.ncov_docker_image,
         params.ncov_prefix
+    )
+    // Taking only a single output channel and publishing output in separate process after `ncov2019_artic_nf_pipeline`
+    // Using single output channel is required to avoid publish conflicts, when two channels attempt to write same file
+    store_ncov2019_artic_nf_output(
+        ncov2019_artic_nf_pipeline.out.ch_all_ncov_results.collect()
     )
 
     store_ncov_qc_plots(
@@ -242,6 +250,10 @@ workflow {
     nextstrain_pipeline(
         ch_nextstrain_metadata_tsv,
         ch_nextstrain_fasta
+    )
+    // Storing single-channel output only after nextstrain_pipeline ends
+    store_nextstrain_output(
+        nextstrain_pipeline.out.ch_all_nextstrain_results.collect()
     )
 
     ch_nextstrain_data_submitted = load_nextstrain_data_to_db(

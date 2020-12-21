@@ -31,6 +31,7 @@ The following environment variables are set internally and should not be changed
 | COVID_PIPELINE_PANGOLIN_PATH | Path to the results of pangolin pipeline with lineage reports. ach run will be published to unique folder |
 | COVID_PIPELINE_GENBANK_PATH | Path to submission files, which were used to submit samples to GenBank programmatic interface |
 | COVID_PIPELINE_NEXTSTRAIN_PATH | Path to store all nextstrain result files. Each run will be published to unique folder |
+| COVID_PIPELINE_MICROREACT_PATH | Path to store microreact tsv file, generated from samples, found in database |
 | COVID_PIPELINE_NOTIFICATIONS_PATH | Path to the pipeline notifications. Unexpected events regarding missing samples, files are reported here in text files |
 
 ### Dependencies
@@ -116,7 +117,7 @@ Run the auspice web-service:
 ```commandline
 # the port 4000 is already exposed in the Dockerfile
 docker run -it --rm \
-  -v ${COVID_PIPELINE_WORKDIR}/nextstrain_output/bahrain/ncov_with_accessions.json:/ncov_with_accessions.json \
+  -v ${COVID_PIPELINE_WORKDIR}/nextstrain/latest/nextstrain_output/bahrain/ncov_with_accessions.json:/ncov_with_accessions.json \
   -p 4000:4000 \
   auspice:1.0.0 \
   auspice view --datasetDir=/
