@@ -1,15 +1,17 @@
 #!/usr/bin/env python
 
+from typing import List
 import csv
 from datetime import date
 import re
+from pathlib import Path
 
 import click
 from click import ClickException
 from sqlalchemy import String, cast, func
 
 from scripts.db.database import session_handler
-from scripts.db.models import Area, Governorate, Sample
+from scripts.db.models import Area, Governorate, Sample, SampleQC
 
 EXPECTED_HEADERS = [
     "MRN",
@@ -136,20 +138,86 @@ def _validate_and_normalise_row(session, row):
     return row
 
 
+def write_list_to_file(out_file: Path, elements: List[str]) -> None:
+    with open(out_file, "w") as f:
+        for element in elements:
+            f.write(f"{element}\n")
+
+
+def write_sample_list_files(
+    updated_samples: List[str],
+    invalid_samples: List[str],
+    valid_samples: List[str],
+    file_all_samples: str,
+    file_current_samples: str,
+    file_updated_samples: str,
+    file_invalid_samples: str,
+    file_qc_pass_samples: str,
+) -> None:
+    if file_all_samples:
+        with session_handler() as session:
+            all_samples_with_metadata = session.query(Sample.lab_id).filter(Sample.metadata_loaded).all()
+            all_samples_with_metadata = [x[0] for x in all_samples_with_metadata]
+            write_list_to_file(Path(file_all_samples), all_samples_with_metadata)
+    if file_current_samples:
+        write_list_to_file(Path(file_current_samples), valid_samples)
+    if file_qc_pass_samples:
+        with session_handler() as session:
+            samples_with_qc_pass = session.query(Sample.lab_id).join(Sample.sample_qc).filter(SampleQC.qc_pass).all()
+            samples_with_qc_pass = [x[0] for x in samples_with_qc_pass]
+            write_list_to_file(Path(file_qc_pass_samples), samples_with_qc_pass)
+    if file_invalid_samples:
+        write_list_to_file(Path(file_invalid_samples), invalid_samples)
+    if file_updated_samples:
+        write_list_to_file(Path(file_updated_samples), updated_samples)
+
+
 @click.command()
 @click.option("--file", required=True, type=click.File("r"), help="The metadata TSV input file")
 @click.option(
-    "--output_file_for_samples_with_metadata",
+    "--output_all_samples_with_metadata",
     required=False,
     type=click.Path(file_okay=True, writable=True),
-    help="File path to populate with all sample names, which have metadata loaded in the database",
+    help="File path to populate with all ALL sample names found historically, "
+    "which have metadata loaded in the database",
 )
-def load_iseha_data(file, output_file_for_samples_with_metadata):
+@click.option(
+    "--output_current_samples_with_metadata",
+    required=False,
+    type=click.Path(file_okay=True, writable=True),
+    help="File path to populate with sample names within the current metadata file, "
+    "which were loaded into the database",
+)
+@click.option(
+    "--output_samples_with_qc_pass",
+    required=False,
+    type=click.Path(file_okay=True, writable=True),
+    help="File path to populate with all sample names, "
+    "which were processed by artic-ncov2019 pipeline and were marked as QC_PASS",
+)
+@click.option(
+    "--output_samples_with_invalid_metadata",
+    required=False,
+    type=click.Path(file_okay=True, writable=True),
+    help="File path to populate with all sample names, which failed to load with current provided metadata",
+)
+@click.option(
+    "--output_samples_updated",
+    required=False,
+    type=click.Path(file_okay=True, writable=True),
+    help="File path to populate with all sample names, which were re-submitted and overwritten with provided metadata",
+)
+def load_iseha_data(
+    file,
+    output_all_samples_with_metadata,
+    output_current_samples_with_metadata,
+    output_samples_with_qc_pass,
+    output_samples_with_invalid_metadata,
+    output_samples_updated,
+):
     """
     Read in a TSV file of I-SEHA metadata and load each row into the database. Invalid rows are warned about, but
     skipped over.
-
-    :param File file: the TSV file to load
     """
     reader = csv.DictReader(file, delimiter="\t")
 
@@ -158,6 +226,10 @@ def load_iseha_data(file, output_file_for_samples_with_metadata):
         err = "Unexpected TSV headers, got:\n" + ", ".join(headers) + "\nexpected\n" + ", ".join(EXPECTED_HEADERS)
         raise ClickException(err)
 
+    file_samples_with_valid_meta = []
+    file_samples_with_invalid_meta = []
+    file_samples_updated = []
+
     inserted = set()
     updated = set()
     errors = set()
@@ -165,10 +237,11 @@ def load_iseha_data(file, output_file_for_samples_with_metadata):
         for row in reader:
             try:
                 row = _validate_and_normalise_row(session, row)
-                existing_sample = session.query(Sample).filter(Sample.lab_id == row["SAMPLE ID"]).one_or_none()
                 governorate = row["GOVERNORATE"] if row["GOVERNORATE"] else None
                 area = row["AREA"] if row["AREA"] else None
                 block = row["BLOCK"] if row["BLOCK"] else None
+                sample_name = row["SAMPLE ID"]
+                existing_sample = session.query(Sample).filter(Sample.lab_id == sample_name).one_or_none()
                 if existing_sample:
                     existing_sample.mrn = row["MRN"]
                     existing_sample.age = row["AGE"]
@@ -180,40 +253,47 @@ def load_iseha_data(file, output_file_for_samples_with_metadata):
                     existing_sample.ct_value = row["CT"]
                     existing_sample.symptoms = row["SYMPTOMS"]
                     existing_sample.metadata_loaded = True
-                    updated.add(row["SAMPLE ID"])
+                    updated.add(sample_name)
+                    file_samples_updated.append(sample_name)
                 else:
                     sample = Sample(
                         mrn=row["MRN"],
                         age=row["AGE"],
                         nationality=row["NATIONALITY"],
+                        lab_id=sample_name,
+                        sample_number=int(sample_name),
                         governorate=governorate,
                         area=area,
                         block_number=block,
-                        lab_id=row["SAMPLE ID"],
-                        sample_number=int(row["SAMPLE ID"]),
                         date_collected=row["ASSIGN DATE"],
                         ct_value=row["CT"],
                         symptoms=row["SYMPTOMS"],
                         metadata_loaded=True,
                     )
                     session.add(sample)
-                    inserted.add(row["SAMPLE ID"])
+                    inserted.add(sample_name)
+                session.commit()
+                file_samples_with_valid_meta.append(sample_name)
             except ValueError as e:
                 click.echo(f"Invalid row for sample ID {row['SAMPLE ID']}:\n{e}", err=True)
                 errors.add(row["SAMPLE ID"])
+                file_samples_with_invalid_meta.append(row["SAMPLE ID"])
+
+    write_sample_list_files(
+        updated_samples=file_samples_updated,
+        invalid_samples=file_samples_with_invalid_meta,
+        valid_samples=file_samples_with_valid_meta,
+        file_all_samples=output_all_samples_with_metadata,
+        file_current_samples=output_current_samples_with_metadata,
+        file_updated_samples=output_samples_updated,
+        file_invalid_samples=output_samples_with_invalid_metadata,
+        file_qc_pass_samples=output_samples_with_qc_pass,
+    )
 
     if errors:
         raise ClickException("Errors encountered: " + ", ".join(map(str, errors)))
     click.echo("Inserted samples: " + ", ".join(map(str, inserted)))
     click.echo("Updated samples: " + ", ".join(map(str, updated)))
-
-    if output_file_for_samples_with_metadata:
-        with open(output_file_for_samples_with_metadata, "w") as f:
-            with session_handler() as session:
-                all_samples_with_metadata = session.query(Sample).filter(Sample.metadata_loaded).all()
-                sample_names = [x.lab_id for x in all_samples_with_metadata]
-                for sample in sample_names:
-                    f.write(f"{sample}\n")
 
 
 if __name__ == "__main__":

@@ -26,6 +26,7 @@ log.info """\
     * COVID_PIPELINE_PANGOLIN_PATH         : ${COVID_PIPELINE_PANGOLIN_PATH}
     * COVID_PIPELINE_GENBANK_PATH          : ${COVID_PIPELINE_GENBANK_PATH}
     * COVID_PIPELINE_NEXTSTRAIN_PATH       : ${COVID_PIPELINE_NEXTSTRAIN_PATH}
+    * COVID_PIPELINE_NOTIFICATIONS_PATH    : ${COVID_PIPELINE_NOTIFICATIONS_PATH}
 
     ======================
     params:
@@ -95,13 +96,23 @@ workflow {
         "${COVID_PIPELINE_FASTQ_PATH}/" + params.metadata_file_name
     )
 
-    load_iseha_metadata.out.ch_samples_with_metadata_file
-        .splitText()
-        .map { it.trim() }
-        .set { ch_samples_with_metadata_loaded }
+    load_iseha_metadata.out.ch_all_samples_with_metadata_file
+        .splitText().map { it.trim() }.set { ch_all_samples_with_metadata_loaded }
+    load_iseha_metadata.out.ch_current_session_samples_with_metadata_file
+        .splitText().map { it.trim() }.set { ch_current_session_samples_with_metadata_loaded }
+    load_iseha_metadata.out.ch_all_samples_artic_ncov2019_qc_passed_file
+        .splitText().map { it.trim() }.set { ch_qc_passed_samples }
+    load_iseha_metadata.out.ch_failed_to_load_samples_file
+        .splitText().map { it.trim() }.set { ch_failed_to_load_samples }
+    load_iseha_metadata.out.ch_current_session_updated_samples_file
+        .splitText().map { it.trim() }.set { ch_updated_samples }
 
     ch_fasta_matching_metadata = filter_fastq_matching_with_metadata(
-        ch_samples_with_metadata_loaded
+        ch_all_samples_with_metadata_loaded,
+        ch_current_session_samples_with_metadata_loaded,
+        ch_qc_passed_samples,
+        ch_failed_to_load_samples,
+        ch_updated_samples
     )
 
     ncov2019_artic_nf_pipeline(
