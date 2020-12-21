@@ -146,12 +146,10 @@ def write_list_to_file(out_file: Path, elements: List[str]) -> None:
 
 def write_sample_list_files(
     updated_samples: List[str],
-    invalid_samples: List[str],
     valid_samples: List[str],
     file_all_samples: str,
     file_current_samples: str,
     file_updated_samples: str,
-    file_invalid_samples: str,
     file_qc_pass_samples: str,
 ) -> None:
     if file_all_samples:
@@ -166,8 +164,6 @@ def write_sample_list_files(
             samples_with_qc_pass = session.query(Sample.lab_id).join(Sample.sample_qc).filter(SampleQC.qc_pass).all()
             samples_with_qc_pass = [x[0] for x in samples_with_qc_pass]
             write_list_to_file(Path(file_qc_pass_samples), samples_with_qc_pass)
-    if file_invalid_samples:
-        write_list_to_file(Path(file_invalid_samples), invalid_samples)
     if file_updated_samples:
         write_list_to_file(Path(file_updated_samples), updated_samples)
 
@@ -196,12 +192,6 @@ def write_sample_list_files(
     "which were processed by artic-ncov2019 pipeline and were marked as QC_PASS",
 )
 @click.option(
-    "--output_samples_with_invalid_metadata",
-    required=False,
-    type=click.Path(file_okay=True, writable=True),
-    help="File path to populate with all sample names, which failed to load with current provided metadata",
-)
-@click.option(
     "--output_samples_updated",
     required=False,
     type=click.Path(file_okay=True, writable=True),
@@ -212,7 +202,6 @@ def load_iseha_data(
     output_all_samples_with_metadata,
     output_current_samples_with_metadata,
     output_samples_with_qc_pass,
-    output_samples_with_invalid_metadata,
     output_samples_updated,
 ):
     """
@@ -227,7 +216,6 @@ def load_iseha_data(
         raise ClickException(err)
 
     file_samples_with_valid_meta = []
-    file_samples_with_invalid_meta = []
     file_samples_updated = []
 
     inserted = set()
@@ -277,16 +265,13 @@ def load_iseha_data(
             except ValueError as e:
                 click.echo(f"Invalid row for sample ID {row['SAMPLE ID']}:\n{e}", err=True)
                 errors.add(row["SAMPLE ID"])
-                file_samples_with_invalid_meta.append(row["SAMPLE ID"])
 
     write_sample_list_files(
         updated_samples=file_samples_updated,
-        invalid_samples=file_samples_with_invalid_meta,
         valid_samples=file_samples_with_valid_meta,
         file_all_samples=output_all_samples_with_metadata,
         file_current_samples=output_current_samples_with_metadata,
         file_updated_samples=output_samples_updated,
-        file_invalid_samples=output_samples_with_invalid_metadata,
         file_qc_pass_samples=output_samples_with_qc_pass,
     )
 

@@ -105,8 +105,6 @@ workflow {
         .splitText().map { it.trim() }.set { ch_current_session_samples_with_metadata_loaded }
     load_iseha_metadata.out.ch_all_samples_artic_ncov2019_qc_passed_file
         .splitText().map { it.trim() }.set { ch_qc_passed_samples }
-    load_iseha_metadata.out.ch_failed_to_load_samples_file
-        .splitText().map { it.trim() }.set { ch_failed_to_load_samples }
     load_iseha_metadata.out.ch_current_session_updated_samples_file
         .splitText().map { it.trim() }.set { ch_updated_samples }
 
@@ -114,7 +112,6 @@ workflow {
         ch_all_samples_with_metadata_loaded,
         ch_current_session_samples_with_metadata_loaded,
         ch_qc_passed_samples,
-        ch_failed_to_load_samples,
         ch_updated_samples
     )
 
