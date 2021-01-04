@@ -1,10 +1,10 @@
 ---
-- name: GSARS-CoV-2 pipeline - init submodules
+- name: SARS-CoV-2 pipeline - init submodules
   command: git submodule init
   args:
     chdir: "{{ git_submod.path }}"
 
-- name: GSARS-CoV-2 pipeline - update submodules
+- name: SARS-CoV-2 pipeline - update submodules
   command: git submodule update --remote --merge
   args:
     chdir: "{{ git_submod.path }}"

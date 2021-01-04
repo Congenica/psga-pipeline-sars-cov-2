@@ -29,6 +29,7 @@
     - docker-ce
     - docker-ce-cli
     - containerd.io
+    - postgresql
 
 - name: SARS-CoV-2 pipeline - pre-create docker config directory
   file:
