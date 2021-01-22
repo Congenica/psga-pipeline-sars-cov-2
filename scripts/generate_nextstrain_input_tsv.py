@@ -18,7 +18,7 @@ class NextstrainSampleMetadataInput:
     date: str
     country: str
     division: str
-    area: str
+    location: str
     country_exposure: str
     division_exposure: str
     length: int
@@ -51,7 +51,7 @@ root_genome = NextstrainSampleMetadataInput(
     date="2019-12-20",
     country="China",
     division="C",
-    area="",
+    location="",
     country_exposure="",
     division_exposure="",
     length=29903,
@@ -109,7 +109,7 @@ def get_data_for_nextstrain() -> List[NextstrainSampleMetadataInput]:
                     date=sample.date_collected.strftime("%Y-%m-%d") if sample.date_collected else None,
                     country=country,
                     division=division,
-                    area=area,
+                    location=area,
                     country_exposure=country_exposure,
                     division_exposure=division_exposure,
                     length=sample.genome_length,
