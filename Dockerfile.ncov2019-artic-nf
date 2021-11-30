@@ -1,4 +1,4 @@
-FROM continuumio/miniconda3:4.8.2 AS condabuild
+FROM continuumio/miniconda3:4.10.3 AS condabuild
 COPY ncov2019-artic-nf/environments/extras.yml /extras.yml
 COPY ncov2019-artic-nf/environments/illumina/environment.yml /environment.yml
 RUN /opt/conda/bin/conda update conda && \

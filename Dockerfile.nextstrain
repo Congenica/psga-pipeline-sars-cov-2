@@ -1,4 +1,4 @@
-FROM continuumio/miniconda3:4.8.2 AS condabuild
+FROM continuumio/miniconda3:4.10.3 AS condabuild
 COPY nextstrain/workflow/envs/nextstrain.yaml /environment.yml
 RUN /opt/conda/bin/conda update conda \
   && /opt/conda/bin/conda install mamba -c conda-forge \
