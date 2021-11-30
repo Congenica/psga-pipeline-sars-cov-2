@@ -37,11 +37,13 @@ The following environment variables are set internally and should not be changed
 ### Dependencies
 
 ```commandline
+export VERSION=1.0.0
+
 # install nextflow (copy nextflow executable to a directory in your PATH environment variable):
 wget -qO- https://get.nextflow.io | bash
 
 # build the covid-pipeline image
-docker build -t covid-pipeline:1.0.0 .
+docker build -t covid-pipeline:${VERSION} .
 
 # add project submodules
 git submodule init
@@ -51,16 +53,16 @@ git submodule update
 git submodule update --remote --merge
 
 # build ncov docker image
-docker build -t ncov2019_artic_nf:1.0.0 -f Dockerfile.ncov2019-artic-nf .
+docker build -t ncov2019_artic_nf:${VERSION} -f Dockerfile.ncov2019-artic-nf .
 
 # build pangolin docker image
-docker build -t pangolin:1.0.0 -f Dockerfile.pangolin .
+docker build -t pangolin:${VERSION} -f Dockerfile.pangolin .
 
 # build nextstrain docker image
-docker build -t nextstrain:1.0.0 -f Dockerfile.nextstrain .
+docker build -t nextstrain:${VERSION} -f Dockerfile.nextstrain .
 
 # build auspice docker image (for visualising the results with Auspice web-service):
-docker build -t auspice:1.0.0 -f Dockerfile.auspice .
+docker build -t auspice:${VERSION} -f Dockerfile.auspice .
 ```
 
 ### GenBank submission
@@ -115,11 +117,13 @@ Once the Nextstrain process of the Covid-Pipeline has completed, the results can
 
 Run the auspice web-service:
 ```commandline
+export VERSION=1.0.0
+
 # the port 4000 is already exposed in the Dockerfile
 docker run -it --rm \
   -v ${COVID_PIPELINE_WORKDIR}/nextstrain/latest/nextstrain_output/bahrain/ncov_with_accessions.json:/ncov_with_accessions.json \
   -p 4000:4000 \
-  auspice:1.0.0 \
+  auspice:${VERSION} \
   auspice view --datasetDir=/
 ```
 
