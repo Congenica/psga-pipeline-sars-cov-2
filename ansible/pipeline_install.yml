@@ -32,7 +32,7 @@
     - name: covid_pipeline_rootdir
       prompt: 'Root dir of the pipeline '
       private: no
-      default: '${HOME}/ps-bahrain-covid'
+      default: '${HOME}/covid-pipeline'
     - name: covid_pipeline_fastq_path
       prompt: 'Path to FASTQ files for pipeline '
       private: no
@@ -40,11 +40,11 @@
     - name: covid_pipeline_workdir
       prompt: 'Work dir of the pipeline '
       private: no
-      default: '${HOME}/covid-pipeline'
+      default: '${HOME}/covid-pipeline-workdir'
     - name: covid_pipeline_reports_path
       prompt: 'Report path for pipeline '
       private: no
-      default: '${HOME}/reports'
+      default: '${HOME}/covid-pipeline-reports'
 
   roles:
     - { role: install-os-packages, yum_update: false, become: true }

@@ -7,16 +7,16 @@
 # Python 3.8.3 (default, Sep  7 2020, 14:20:01)  [GCC 7.5.0]
 #
 # Command line options:
-#   ('-o', '/home/tautvydas/PycharmProjects/ps-bahrain-covid/scripts/genbank/genbank_submission.py')
+#   ('-o', '/home/tautvydas/PycharmProjects/covid-pipeline/scripts/genbank/genbank_submission.py')
 #
 # Command line arguments:
 #   submission.xsd
 #
 # Command line:
-#   /home/tautvydas/.pyenv/versions/3.8.3/envs/ps-bahrain-covid-38/bin/generateDS -o "/home/tautvydas/PycharmProjects/ps-bahrain-covid/scripts/genbank/genbank_submission.py" submission.xsd
+#   /home/tautvydas/.pyenv/versions/3.8.3/envs/venv-covid-pipeline-38/bin/generateDS -o "/home/tautvydas/PycharmProjects/covid-pipeline/scripts/genbank/genbank_submission.py" submission.xsd
 #
 # Current working directory (os.getcwd()):
-#   ps-bahrain-covid
+#   covid-pipeline
 #
 
 import sys
