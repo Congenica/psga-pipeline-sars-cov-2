@@ -36,7 +36,7 @@
     - name: covid_pipeline_fastq_path
       prompt: 'Path to FASTQ files for pipeline '
       private: no
-      default: '${HOME}/Bahrain_COVID_s3_data_lite/sample_data'
+      default: '${HOME}/COVID_s3_data_lite/sample_data'
     - name: covid_pipeline_workdir
       prompt: 'Work dir of the pipeline '
       private: no
