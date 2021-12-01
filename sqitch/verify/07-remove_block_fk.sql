@@ -1,4 +1,4 @@
--- Verify ps-bahrain-covid:07-remove_block_fk on pg
+-- Verify covid-pipeline:07-remove_block_fk on pg
 
 DO $$
 DECLARE

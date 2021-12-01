@@ -1,4 +1,4 @@
--- Revert ps-bahrain-covid:03-add-pangolin-probability from pg
+-- Revert covid-pipeline:03-add-pangolin-probability from pg
 
 BEGIN;
 

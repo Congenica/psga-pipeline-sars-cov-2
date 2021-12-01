@@ -1,6 +1,6 @@
 %syntax-version=1.0.0
-%project=ps-bahrain-covid
-%uri=https://github.com/Congenica/ps-bahrain-covid
+%project=covid-pipeline
+%uri=https://github.com/Congenica/covid-pipeline
 
 01-appschema 2020-11-12T07:51:37Z Tautvydas Petkus <tautvydas.petkus@telesoftas.com> # Initial schema for SARS-CoV-2 sample database
 02-apptables [01-appschema] 2020-11-17T12:12:13Z Daniel Bunford-Jones <dbj@MacBook-Pro.local> # Create tables and enum types for SAR COV Bahrain application

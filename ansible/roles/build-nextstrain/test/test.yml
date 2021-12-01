@@ -3,9 +3,9 @@
   become: false
   vars:
     docker_build:
-      path: '~/ps-bahrain-covid'
+      path: '~/covid-pipeline'
     git_submod:
-      path: '~/ps-bahrain-covid'
+      path: '~/covid-pipeline'
   roles:
     - { role: ../../install-os-packages, yum_update: false, become: yes }
     - { role: ../../build-nextstrain }

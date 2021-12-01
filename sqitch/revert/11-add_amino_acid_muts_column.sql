@@ -1,4 +1,4 @@
--- Revert ps-bahrain-covid:11-add-amino-acid-muts-column from pg
+-- Revert covid-pipeline:11-add-amino-acid-muts-column from pg
 
 BEGIN;
 

@@ -1,4 +1,4 @@
--- Revert ps-bahrain-covid:04-add-pangolearn-version from pg
+-- Revert covid-pipeline:04-add-pangolearn-version from pg
 
 BEGIN;
 

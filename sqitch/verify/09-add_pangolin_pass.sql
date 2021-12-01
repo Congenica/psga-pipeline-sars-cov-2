@@ -1,4 +1,4 @@
--- Verify ps-bahrain-covid:09-add_pangolin_pass on pg
+-- Verify covid-pipeline:09-add_pangolin_pass on pg
 
 DO $$
 BEGIN

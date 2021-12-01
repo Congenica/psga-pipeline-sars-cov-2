@@ -1,4 +1,4 @@
--- Revert ps-bahrain-covid:05-governorates from pg
+-- Revert covid-pipeline:05-governorates from pg
 
 BEGIN;
 

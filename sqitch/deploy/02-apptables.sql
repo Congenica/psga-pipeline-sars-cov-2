@@ -1,4 +1,4 @@
--- Deploy ps-bahrain-covid:02-apptables to pg
+-- Deploy covid-pipeline:02-apptables to pg
 -- requires: 01-appschema
 
 BEGIN;

@@ -1,4 +1,4 @@
--- Revert ps-bahrain-covid:02-apptables from pg
+-- Revert covid-pipeline:02-apptables from pg
 
 BEGIN;
 

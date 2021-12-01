@@ -1,4 +1,4 @@
--- Revert ps-bahrain-covid:10-add_metadata_loaded_flag from pg
+-- Revert covid-pipeline:10-add_metadata_loaded_flag from pg
 
 BEGIN;
 

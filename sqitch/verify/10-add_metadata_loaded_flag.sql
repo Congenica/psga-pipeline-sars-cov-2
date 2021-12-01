@@ -1,4 +1,4 @@
--- Verify ps-bahrain-covid:10-add_metadata_loaded_flag on pg
+-- Verify covid-pipeline:10-add_metadata_loaded_flag on pg
 
 DO $$
 BEGIN

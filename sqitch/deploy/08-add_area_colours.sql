@@ -1,4 +1,4 @@
--- Deploy ps-bahrain-covid:08-add_area_colours to pg
+-- Deploy covid-pipeline:08-add_area_colours to pg
 
 BEGIN;
 

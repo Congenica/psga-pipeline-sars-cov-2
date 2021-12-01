@@ -1,4 +1,4 @@
--- Verify ps-bahrain-covid:08-add_area_colours on pg
+-- Verify covid-pipeline:08-add_area_colours on pg
 
 DO $$
 DECLARE

@@ -1,4 +1,4 @@
--- Revert ps-bahrain-covid:07-remove_block_fk from pg
+-- Revert covid-pipeline:07-remove_block_fk from pg
 
 BEGIN;
 

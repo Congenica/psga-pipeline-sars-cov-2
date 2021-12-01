@@ -1,4 +1,4 @@
--- Verify ps-bahrain-covid:03-add-pangolin-probability om pg
+-- Verify covid-pipeline:03-add-pangolin-probability om pg
 DO $$
 BEGIN
 

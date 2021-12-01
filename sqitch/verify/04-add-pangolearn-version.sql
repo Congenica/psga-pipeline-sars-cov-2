@@ -1,4 +1,4 @@
--- Verify ps-bahrain-covid:04-add-pangolearn-version on pg
+-- Verify covid-pipeline:04-add-pangolearn-version on pg
 
 DO $$
 BEGIN

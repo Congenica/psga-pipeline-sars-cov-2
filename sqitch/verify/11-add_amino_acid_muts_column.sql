@@ -1,4 +1,4 @@
--- Verify ps-bahrain-covid:11-add-amino-acid-muts-column om pg
+-- Verify covid-pipeline:11-add-amino-acid-muts-column om pg
 
 DO $$
 BEGIN

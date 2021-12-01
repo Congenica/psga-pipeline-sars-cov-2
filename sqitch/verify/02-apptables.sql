@@ -1,4 +1,4 @@
--- Verify ps-bahrain-covid:02-apptables on pg
+-- Verify covid-pipeline:02-apptables on pg
 
 DO $$
 declare

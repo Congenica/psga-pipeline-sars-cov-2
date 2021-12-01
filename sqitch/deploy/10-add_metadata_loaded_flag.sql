@@ -1,4 +1,4 @@
--- Deploy ps-bahrain-covid:10-add_metadata_loaded_flag to pg
+-- Deploy covid-pipeline:10-add_metadata_loaded_flag to pg
 -- requires: 02-apptables
 
 BEGIN;

@@ -1,4 +1,4 @@
--- Verify ps-bahrain-covid:13-add_genbank_submit_session om pg
+-- Verify covid-pipeline:13-add_genbank_submit_session om pg
 
 DO $$
 BEGIN

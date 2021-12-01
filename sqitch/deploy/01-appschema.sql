@@ -1,4 +1,4 @@
--- Deploy ps-bahrain-covid:appschema to pg
+-- Deploy covid-pipeline:appschema to pg
 
 BEGIN;
 

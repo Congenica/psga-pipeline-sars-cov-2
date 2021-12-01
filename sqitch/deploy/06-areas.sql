@@ -1,4 +1,4 @@
--- Deploy ps-bahrain-covid:06-blocks to pg
+-- Deploy covid-pipeline:06-blocks to pg
 -- requires: 02-apptables
 
 BEGIN;
