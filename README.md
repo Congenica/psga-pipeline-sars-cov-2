@@ -34,8 +34,72 @@ The following environment variables are set internally and should not be changed
 | COVID_PIPELINE_MICROREACT_PATH | Path to store microreact tsv file, generated from samples, found in database |
 | COVID_PIPELINE_NOTIFICATIONS_PATH | Path to the pipeline notifications. Unexpected events regarding missing samples, files are reported here in text files |
 
-### Dependencies
 
+### Requirements
+
+#### Set up the required environment variables (the following configuration is just an example)
+```commandline
+export DB_HOST=127.0.0.1
+export DB_PORT=5432
+export DB_NAME=covid_pipeline_db
+export DB_USER=postgres
+export DB_PASSWORD=postgres
+
+export COVID_PIPELINE_ROOTDIR="${HOME}/covid-pipeline"
+export COVID_PIPELINE_FASTQ_PATH="${HOME}/COVID_s3_data_lite/sample_data"
+export COVID_PIPELINE_WORKDIR="${HOME}/covid-pipeline-workdir"
+export COVID_PIPELINE_REPORTS_PATH="${HOME}/covid-pipeline-reports"
+```
+
+#### Set up a local postgres database
+
+A local database can be set up using a postgres docker image:
+```commandline
+docker pull postgres:11.14
+docker run -d -p ${DB_PORT}:${DB_PORT} --name my-postgres-server -e POSTGRES_PASSWORD=${DB_PASSWORD} postgres:11.14
+
+# test the connection from your local machine
+psql -h ${DB_HOST} -p ${DB_PORT} -U ${DB_USER} -W
+
+# once finished testing
+docker stop my-postgres-server
+docker rm my-postgres-server
+```
+
+All database schema migrations are managed using `sqitch` tool. Prerequisites for running the `sqitch`:
+
+* `sqitch` is installed in the machine. See [sqitch downloads page](https://sqitch.org/download/). Choose docker installation.
+* `Postgres` with `psql` installed in the environment. Has postgres user set up
+* `Postgres` has password exported to env variable
+
+Create a dedicated database for the project:
+```commandline
+export PGPASSWORD=${DB_PASSWORD}
+createdb -h ${DB_HOST} -U ${DB_USER} ${DB_NAME}
+```
+
+Finally, deploy the required DB migrations:
+```commandline
+# all migrations are in the project sqitch dir
+cd ${COVID_PIPELINE_ROOTDIR}/sqitch/
+SQITCH_URI=db:pg://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}
+sqitch deploy ${SQITCH_URI}
+```
+
+The following sqitch commands can be helpful for diagnosis:
+```commandline
+# check the migration status (are we missing any migrations?):
+sqitch status ${SQITCH_URI}
+
+# verify migrations, which were made:
+sqitch verify ${SQITCH_URI}
+
+# revert the changes:
+sqitch revert ${SQITCH_URI}
+```
+
+
+#### Build the docker containers
 ```commandline
 export VERSION=1.0.0
 
@@ -117,8 +181,6 @@ Once the Nextstrain process of the Covid-Pipeline has completed, the results can
 
 Run the auspice web-service:
 ```commandline
-export VERSION=1.0.0
-
 # the port 4000 is already exposed in the Dockerfile
 docker run -it --rm \
   -v ${COVID_PIPELINE_WORKDIR}/nextstrain/latest/nextstrain_output/bahrain/ncov_with_accessions.json:/ncov_with_accessions.json \
@@ -152,6 +214,20 @@ We use git pre-commit hooks to automatically run code formatting and linting on 
 pre-commit install --install-hooks
 ```
 
+#### Testing the pipeline
+Unit tests are implemented with pytest and stored in the project tests dir
+```commandline
+cd ${COVID_PIPELINE_ROOTDIR}/tests
+pytest
+```
+
+To run the full pipeline:
+```commandline
+cd ${COVID_PIPELINE_ROOTDIR}/covid-pipeline
+nextflow run .
+```
+
+
 #### Install additional libraries if needed
 If you need to install additional python libraries (e.g. boto3), you can run the command:
 ```commandline
@@ -175,21 +251,6 @@ To update to a specific version that is not the latest version, re-run the add c
 
 
 ### Database
-All database schema migrations are managed using `sqitch` tool.
-
-#### Dependencies
-Prerequisites for running the `sqitch`:
-
-* `sqitch` is installed in the machine. See [sqitch downloads page](https://sqitch.org/download/)
-* `Postgres` with `psql` installed in the environment. Has postgres user set up
-* `Postgres` has password exported to env variable
-```commandline
-export PGPASSWORD=some_secret_password
-```
-* A dedicated database is created for the project. It may be created using the following cmd:
-```commandline
-createdb -h localhost -U postgres covid_pipeline_db
-```
 
 #### Working with sqitch
 The work is done in `${COVID_PIPELINE_ROOTDIR}/sqitch/` directory
@@ -202,32 +263,13 @@ An `.sql` file will be created in `deploy`, `revert` and `verify`. Populate the 
 Important - `verify` scripts only fail, if `.sql` query raises an exception. Create verify scripts
 accordingly to throw exceptions in case of failed verification
 
-To check the migration status (are we missing any migrations?):
-```commandline
-sqitch status db:pg:covid_pipeline_db
-```
-
-Migrations can be made using the following:
-```commandline
-sqitch deploy db:pg:covid_pipeline_db
-```
-
-To verify migrations, which were made:
-```commandline
-sqitch verify db:pg:covid_pipeline_db
-```
-
-To revert the changes:
-```commandline
-sqitch revert db:pg:covid_pipeline_db
-```
 
 ## Troubleshootings
 
 ### Sqitch
 If authentication fails, try adding connection info to the command-line. For example:
 ```commandline
-sqitch --db-user postgres --db-host localhost --db-port 5432 deploy db:pg:covid_pipeline_db
+sqitch --db-user ${DB_USER} --db-host ${DB_HOST} --db-port ${DB_PORT} deploy db:pg:${DB_NAME}
 ```
 
 ### Nextstrain
