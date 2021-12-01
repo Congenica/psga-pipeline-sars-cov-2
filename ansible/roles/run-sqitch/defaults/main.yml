@@ -5,7 +5,7 @@ git_submod:
   path: "{{ playbook_dir }}/../"
 
 db_host: localhost #Postgres database host address (e.g. localhost)
-db_name: bahrain_sars_cov_2 #Postgres database name (e.g. bahrain_sars_cov_2)
+db_name: covid_pipeline_db #Postgres database name (e.g. covid_pipeline_db)
 db_user: postgres #Postgres database user name (e.g. postgres)
 db_port: 5432 #Default postgres port
 db_password: #Default postgres port

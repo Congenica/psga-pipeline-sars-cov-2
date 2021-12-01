@@ -8,7 +8,7 @@ As the user who will perform the install ensure that ansible is installed and fu
 The following variables need to be set for the playbook to run. The user will be prompted to enter these when executing the ansible playbook:
 
  - `db_host` : The host of the database, default: localhost
- - `db_name` : The logical name of the database on the host, default: bahrain_sars_cov_2
+ - `db_name` : The logical name of the database on the host, default: covid_pipeline_db
  - `db_user` : The user to use to connect to the database, default: postgres
  - `db_port` : The port to use to connect to the database, default: 5432
  - `db_password` : The password to use to connect to the database. No default.

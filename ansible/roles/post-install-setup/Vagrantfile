@@ -16,7 +16,7 @@ Vagrant.configure("2") do |config|
         ansible.extra_vars = {
           covid_pipeline_rootdir: "covid_pipeline_rootdir_value1",
           db_host: "localhost",
-          db_name: "bahrain_sars_cov_2",
+          db_name: "covid_pipeline_db",
           db_user: "postgres",
           db_port: "5432",
           db_password: "test12345",

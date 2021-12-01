@@ -12,7 +12,7 @@ parameters:
     default: "somesecret"
   db_name:
     type: string
-    default: "bahrain_sars_cov_2"
+    default: "covid_pipeline_db"
 
 executors:
   python:
@@ -55,7 +55,7 @@ jobs:
           name: Install sqitch and create database
           command: |
             sudo apt-get install -qq sqitch postgresql-client
-            createdb bahrain_sars_cov_2
+            createdb covid_pipeline_db
             cd sqitch
             sqitch deploy
             sqitch verify

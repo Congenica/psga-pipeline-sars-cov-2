@@ -16,7 +16,7 @@
     - name: db_name
       prompt: 'Database logical name '
       private: no
-      default: "{{ lookup('env', 'DB_NAME') | default('bahrain_sars_cov_2', True) }}"
+      default: "{{ lookup('env', 'DB_NAME') | default('covid_pipeline_db', True) }}"
     - name: db_user
       prompt: 'Database username '
       private: no

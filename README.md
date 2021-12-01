@@ -11,7 +11,7 @@ These environment variables must be available in the system.
 | :---------------- | :---------------------------------------------------------------- |
 | DB_HOST | Postgres database host address (e.g. 192.168.0.33) |
 | DB_PORT | Postgres database port (e.g. 5432) |
-| DB_NAME | Postgres database name (e.g. bahrain_sars_cov_2) |
+| DB_NAME | Postgres database name (e.g. covid_pipeline_db) |
 | DB_USER | Postgres database user name (e.g. postgres) |
 | DB_PASSWORD | Postgres database user password (e.g. postgres) |
 | COVID_PIPELINE_ROOTDIR | Path to the pipeline code (e.g. git checkout). Default: ${HOME}/covid-pipeline |
@@ -188,7 +188,7 @@ export PGPASSWORD=some_secret_password
 ```
 * A dedicated database is created for the project. It may be created using the following cmd:
 ```commandline
-createdb -h localhost -U postgres bahrain_sars_cov_2
+createdb -h localhost -U postgres covid_pipeline_db
 ```
 
 #### Working with sqitch
@@ -204,22 +204,22 @@ accordingly to throw exceptions in case of failed verification
 
 To check the migration status (are we missing any migrations?):
 ```commandline
-sqitch status db:pg:bahrain_sars_cov_2
+sqitch status db:pg:covid_pipeline_db
 ```
 
 Migrations can be made using the following:
 ```commandline
-sqitch deploy db:pg:bahrain_sars_cov_2
+sqitch deploy db:pg:covid_pipeline_db
 ```
 
 To verify migrations, which were made:
 ```commandline
-sqitch verify db:pg:bahrain_sars_cov_2
+sqitch verify db:pg:covid_pipeline_db
 ```
 
 To revert the changes:
 ```commandline
-sqitch revert db:pg:bahrain_sars_cov_2
+sqitch revert db:pg:covid_pipeline_db
 ```
 
 ## Troubleshootings
@@ -227,7 +227,7 @@ sqitch revert db:pg:bahrain_sars_cov_2
 ### Sqitch
 If authentication fails, try adding connection info to the command-line. For example:
 ```commandline
-sqitch --db-user postgres --db-host localhost --db-port 5432 deploy db:pg:bahrain_sars_cov_2
+sqitch --db-user postgres --db-host localhost --db-port 5432 deploy db:pg:covid_pipeline_db
 ```
 
 ### Nextstrain
