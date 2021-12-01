@@ -3,7 +3,7 @@
 
 BEGIN;
 
-  -- Create tables, enums, et al for the SARS COV2 (Bahrain) Application
+  -- Create tables, enums, et al for the SARS COV2 Application
 
   SET LOCAL search_path = sars_cov_2;
 
