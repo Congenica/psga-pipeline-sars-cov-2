@@ -70,14 +70,14 @@ def fetch_csv(url: str, delimiter: str, fallback_dir: str):
 
 
 def get_strain_level_and_global_context_report_data(
-    lineage_notes_url: str, metadata_url: str, pangolearn_dir: str
+    lineage_notes_url: str, metadata_url: str, pango_designation_dir: str
 ) -> REPORT_RETURN:
     """
     Function to fetch report data from local database and external data sources.
     For more details on param usage lookup fetch_csv docstring
     :param str lineage_notes_url: url to latest pangoLEARN lineage notes
     :param str metadata_url: url to latest pangoLEARN metadata
-    :param str pangolearn_dir: fallback pangoLEARN directory with local lineage notes and metadata
+    :param str pango_designation_dir: fallback pangoLEARN directory with local lineage notes and metadata
     :return List[Tuple[Any, ...]]: lines for the csv report containing columns:
     Lineage, Description (from lineage notes), count, percent, global count (from metadata)
     order corresponds with STRAIN_LEVEL_AND_GLOBAL_CONTEXT_REPORT_HEADERS
@@ -86,9 +86,9 @@ def get_strain_level_and_global_context_report_data(
     with session_handler() as session:
         lineage_count = session.query(Sample.pangolin_lineage, func.count("*")).group_by(Sample.pangolin_lineage).all()
     # fetch lineage notes
-    notes = fetch_csv(lineage_notes_url, "\t", pangolearn_dir)
+    notes = fetch_csv(lineage_notes_url, "\t", pango_designation_dir)
     # fetch metadata
-    meta_data = fetch_csv(metadata_url, ",", pangolearn_dir)
+    meta_data = fetch_csv(metadata_url, ",", pango_designation_dir)
     # adapt report values
     result: REPORT_RETURN = [STRAIN_LEVEL_AND_GLOBAL_CONTEXT_REPORT_HEADERS]
     notes = dict(notes)

@@ -260,9 +260,9 @@ workflow {
     )
 
     ch_report_strain_level_and_global_context = generate_report_strain_level_and_global_context(
-        params.pangolearn_lineage_notes_url,
-        params.pangolearn_metadata_url,
-        params.pangolearn_dir,
+        params.pango_designation_lineage_notes_url,
+        params.pango_designation_metadata_url,
+        params.pango_designation_dir,
         ch_nextstrain_data_submitted.collect()
     )
 

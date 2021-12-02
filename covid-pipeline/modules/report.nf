@@ -2,9 +2,9 @@ process generate_report_strain_level_and_global_context {
   publishDir COVID_PIPELINE_REPORTS_PATH, mode: 'copy', overwrite: true
 
   input:
-    val pangolearn_lineage_notes_url
-    val pangolearn_metadata_url
-    val pangolearn_dir
+    val pango_designation_lineage_notes_url
+    val pango_designation_metadata_url
+    val pango_designation_dir
     path pangolin_to_db_submit_completion_flag
 
   output:
@@ -17,9 +17,9 @@ process generate_report_strain_level_and_global_context {
   """
   python /app/scripts/generate_report.py \
     --report "${report_name}" \
-    --lineage-notes-url "${pangolearn_lineage_notes_url}" \
-    --metadata-url "${pangolearn_metadata_url}" \
-    --pangolearn-dir "${pangolearn_dir}" \
+    --lineage-notes-url "${pango_designation_lineage_notes_url}" \
+    --metadata-url "${pango_designation_metadata_url}" \
+    --pango_designation-dir "${pango_designation_dir}" \
     --output "${output_filename}"
   """
 }
