@@ -1,9 +1,9 @@
--- Deploy ps-bahrain-covid:02-apptables to pg
+-- Deploy covid-pipeline:02-apptables to pg
 -- requires: 01-appschema
 
 BEGIN;
 
-  -- Create tables, enums, et al for the SARS COV2 (Bahrain) Application
+  -- Create tables, enums, et al for the SARS COV2 Application
 
   SET LOCAL search_path = sars_cov_2;
 

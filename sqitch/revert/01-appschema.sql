@@ -1,4 +1,4 @@
--- Revert ps-bahrain-covid:appschema from pg
+-- Revert covid-pipeline:appschema from pg
 
 BEGIN;
 

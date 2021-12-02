@@ -1,4 +1,4 @@
--- Deploy ps-bahrain-covid:09-add_pangolin_pass to pg
+-- Deploy covid-pipeline:09-add_pangolin_pass to pg
 -- requires: 02-apptables
 
 BEGIN;

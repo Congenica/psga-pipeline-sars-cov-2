@@ -1,4 +1,4 @@
--- Verify ps-bahrain-covid:appschema on pg
+-- Verify covid-pipeline:appschema on pg
 
 BEGIN;
 

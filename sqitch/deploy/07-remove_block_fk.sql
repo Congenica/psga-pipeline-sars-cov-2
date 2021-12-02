@@ -1,4 +1,4 @@
--- Deploy ps-bahrain-covid:07-remove_block_fk to pg
+-- Deploy covid-pipeline:07-remove_block_fk to pg
 -- requires: 02-apptables
 
 BEGIN;

@@ -3,8 +3,8 @@
   become: false
   vars:
     docker_build:
-      path: "/home/vagrant/ps-bahrain-covid"
+      path: "/home/vagrant/covid-pipeline"
     git_submod:
-      path: "/home/vagrant/ps-bahrain-covid"
+      path: "/home/vagrant/covid-pipeline"
     - { role: ../../install-os-packages, yum_update: false, become: yes }
     - { role: ../../build-auspice }

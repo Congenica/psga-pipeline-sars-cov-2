@@ -1,4 +1,4 @@
--- Revert ps-bahrain-covid:12-add-nucleotide-muts-column from pg
+-- Revert covid-pipeline:12-add-nucleotide-muts-column from pg
 
 BEGIN;
 

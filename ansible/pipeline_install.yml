@@ -16,7 +16,7 @@
     - name: db_name
       prompt: 'Database logical name '
       private: no
-      default: "{{ lookup('env', 'DB_NAME') | default('bahrain_sars_cov_2', True) }}"
+      default: "{{ lookup('env', 'DB_NAME') | default('covid_pipeline_db', True) }}"
     - name: db_user
       prompt: 'Database username '
       private: no
@@ -32,19 +32,19 @@
     - name: covid_pipeline_rootdir
       prompt: 'Root dir of the pipeline '
       private: no
-      default: '${HOME}/ps-bahrain-covid'
+      default: '${HOME}/covid-pipeline'
     - name: covid_pipeline_fastq_path
       prompt: 'Path to FASTQ files for pipeline '
       private: no
-      default: '${HOME}/Bahrain_COVID_s3_data_lite/sample_data'
+      default: '${HOME}/COVID_s3_data_lite/sample_data'
     - name: covid_pipeline_workdir
       prompt: 'Work dir of the pipeline '
       private: no
-      default: '${HOME}/covid-pipeline'
+      default: '${HOME}/covid-pipeline-workdir'
     - name: covid_pipeline_reports_path
       prompt: 'Report path for pipeline '
       private: no
-      default: '${HOME}/reports'
+      default: '${HOME}/covid-pipeline-reports'
 
   roles:
     - { role: install-os-packages, yum_update: false, become: true }

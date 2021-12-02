@@ -1,4 +1,4 @@
--- Revert ps-bahrain-covid:13-add_genbank_submit_session from pg
+-- Revert covid-pipeline:13-add_genbank_submit_session from pg
 
 BEGIN;
 

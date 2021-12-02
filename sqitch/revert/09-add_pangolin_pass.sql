@@ -1,4 +1,4 @@
--- Revert ps-bahrain-covid:09-add_pangolin_pass from pg
+-- Revert covid-pipeline:09-add_pangolin_pass from pg
 
 BEGIN;
 

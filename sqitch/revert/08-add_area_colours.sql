@@ -1,4 +1,4 @@
--- Revert ps-bahrain-covid:08-add_area_colours from pg
+-- Revert covid-pipeline:08-add_area_colours from pg
 
 BEGIN;
 

@@ -1,9 +1,9 @@
 %syntax-version=1.0.0
-%project=ps-bahrain-covid
-%uri=https://github.com/Congenica/ps-bahrain-covid
+%project=covid-pipeline
+%uri=https://github.com/Congenica/covid-pipeline
 
 01-appschema 2020-11-12T07:51:37Z Tautvydas Petkus <tautvydas.petkus@telesoftas.com> # Initial schema for SARS-CoV-2 sample database
-02-apptables [01-appschema] 2020-11-17T12:12:13Z Daniel Bunford-Jones <dbj@MacBook-Pro.local> # Create tables and enum types for SAR COV Bahrain application
+02-apptables [01-appschema] 2020-11-17T12:12:13Z Daniel Bunford-Jones <dbj@MacBook-Pro.local> # Create tables and enum types for SAR COV application
 03-add-pangolin-probability [02-apptables] 2020-11-30T09:47:26Z Piero Dalle Pezze <piero.dallepezze@congenica.com> # Add pangolin_probability column to sample table
 04-add-pangolearn-version [02-apptables] 2020-11-30T12:37:52Z Piero Dalle Pezze <piero.dallepezze@congenica.com> # Add pangolearn_version column to sample_qc table
 05-governorates [02-apptables] 2020-12-01T10:31:17Z Andrew Bayliss,,, <andrewbayliss@con-xps-23> # Add governorates data
@@ -17,3 +17,4 @@
 13-add_genbank_submit_session [02-apptables] 2020-12-14T08:26:41Z Tautvydas Petkus <tautvydas.petkus@telesoftas.com> # A new column, which helps identify, in which upload session sample was submitted to genbank
 14-alter_sample_mrn_to_varchar [02-apptables] 2020-12-17T10:50:27Z Piero Dalle Pezze <piero.dallepezze@congenica.com> # Alter SAMPLE.MRN type from INTEGER to VARCHAR
 15-columns_to_lowercase [02-apptables] 2020-12-17T13:26:47Z Piero Dalle Pezze <piero.dallepezze@congenica.com> # Lowercase columns in sample_qc table
+16-update_pangolin_fields [02-apptables] 2021-12-02T14:56:13Z Piero Dalle Pezze <piero.dallepezze@congenica.com> # Remove pangolin_probability and add pangolin_conflict, pangolin_ambiguity_score columns to the sample table

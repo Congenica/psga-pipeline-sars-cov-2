@@ -1,4 +1,4 @@
--- Deploy ps-bahrain-covid:05-governorates to pg
+-- Deploy covid-pipeline:05-governorates to pg
 -- requires: 02-apptables
 
 BEGIN;

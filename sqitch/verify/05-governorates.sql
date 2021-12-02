@@ -1,4 +1,4 @@
--- Verify ps-bahrain-covid:05-governorates on pg
+-- Verify covid-pipeline:05-governorates on pg
 
 DO $$
 DECLARE

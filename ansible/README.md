@@ -8,15 +8,15 @@ As the user who will perform the install ensure that ansible is installed and fu
 The following variables need to be set for the playbook to run. The user will be prompted to enter these when executing the ansible playbook:
 
  - `db_host` : The host of the database, default: localhost
- - `db_name` : The logical name of the database on the host, default: bahrain_sars_cov_2
+ - `db_name` : The logical name of the database on the host, default: covid_pipeline_db
  - `db_user` : The user to use to connect to the database, default: postgres
  - `db_port` : The port to use to connect to the database, default: 5432
  - `db_password` : The password to use to connect to the database. No default.
 
- - `covid_pipeline_rootdir` :Path to the pipeline code (e.g. git checkout). Default: ${HOME}/ps-bahrain-covid
- - `covid_pipeline_fastq_path` : Path to the input FASTQ files and TSV metadata file. Default: ${HOME}/Bahrain_COVID_s3_data_lite/sample_data
- - `covid_pipeline_workdir` :Path to the whole pipeline output. Default: ${HOME}/covid-pipeline
- - `covid_pipeline_reports_path` :   Path to the pipeline reports. Default: ${HOME}/reports
+ - `covid_pipeline_rootdir` :Path to the pipeline code (e.g. git checkout). Default: ${HOME}/covid-pipeline
+ - `covid_pipeline_fastq_path` : Path to the input FASTQ files and TSV metadata file. Default: ${HOME}/COVID_s3_data_lite/sample_data
+ - `covid_pipeline_workdir` :Path to the whole pipeline output. Default: ${HOME}/covid-pipeline-workdir
+ - `covid_pipeline_reports_path` :   Path to the pipeline reports. Default: ${HOME}/covid-pipeline-reports
 
 
 The playbook can be run against the local machine with the following command:

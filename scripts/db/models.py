@@ -167,7 +167,8 @@ class Sample(Base):  # type: ignore
         comment="Hospital type host admited to",
     )
     pangolin_lineage = Column(String, comment="Viral phylogenetic lineage")
-    pangolin_probability = Column(Float, comment="Probability of the viral phylogenetic lineage")
+    pangolin_conflict = Column(Float, comment="Positive if a sequence can fit into more than 1 category based on known diversity")
+    pangolin_ambiguity_score = Column(Float, comment="A function of the quantity of missing data in a sequence")
     pangolin_status = Column(
         Enum(PangolinStatus, name="pangolin_status"),
         nullable=False,

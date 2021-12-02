@@ -1,4 +1,4 @@
--- Revert ps-bahrain-covid:06-blocks from pg
+-- Revert covid-pipeline:06-blocks from pg
 
 BEGIN;
   SET LOCAL search_path = sars_cov_2;
