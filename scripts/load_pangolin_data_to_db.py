@@ -22,8 +22,8 @@ def load_data_from_csv(session: scoped_session, sample_name: str, sample_from_cs
     if pangolin_status == PangolinStatus.passed_qc:
         sample.pangolin_lineage = sample_from_csv["lineage"]
 
-    sample.pangolin_conflict = sample_from_csv["conflict"]
-    sample.pangolin_ambiguity_score = sample_from_csv["ambiguity_score"]
+    sample.pangolin_conflict = sample_from_csv["conflict"] if sample_from_csv["conflict"] else None
+    sample.pangolin_ambiguity_score = sample_from_csv["ambiguity_score"] if sample_from_csv["ambiguity_score"] else None
     sample.pangolin_status = pangolin_status
     sample.sample_qc.pangolearn_version = sample_from_csv["pangoLEARN_version"]
 

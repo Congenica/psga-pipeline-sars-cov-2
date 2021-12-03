@@ -5,10 +5,8 @@
  */
 process pipeline_complete {
   input:
-    file strain_level_and_global_context_complete
-    file strain_first_seen_complete
-    file strain_prevalence_complete
-    file sample_dump_complete
+    file ncov_qc_sample_submitted_complete
+    file pangolin_sample_submitted_complete
 
   output:
 

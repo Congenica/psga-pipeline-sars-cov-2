@@ -15,7 +15,6 @@ log.info """\
     * COVID_PIPELINE_ROOTDIR               : ${COVID_PIPELINE_ROOTDIR}
     * COVID_PIPELINE_FASTQ_PATH            : ${COVID_PIPELINE_FASTQ_PATH}
     * COVID_PIPELINE_WORKDIR               : ${COVID_PIPELINE_WORKDIR}
-    * COVID_PIPELINE_REPORTS_PATH          : ${COVID_PIPELINE_REPORTS_PATH}
 
     Internal environment variables:
     * COVID_PIPELINE_MISSING_METADATA_PATH : ${COVID_PIPELINE_MISSING_METADATA_PATH}
@@ -25,8 +24,6 @@ log.info """\
     * COVID_PIPELINE_FASTA_PATH_QC_FAILED  : ${COVID_PIPELINE_FASTA_PATH_QC_FAILED}
     * COVID_PIPELINE_PANGOLIN_PATH         : ${COVID_PIPELINE_PANGOLIN_PATH}
     * COVID_PIPELINE_GENBANK_PATH          : ${COVID_PIPELINE_GENBANK_PATH}
-    * COVID_PIPELINE_NEXTSTRAIN_PATH       : ${COVID_PIPELINE_NEXTSTRAIN_PATH}
-    * COVID_PIPELINE_MICROREACT_PATH       : ${COVID_PIPELINE_MICROREACT_PATH}
     * COVID_PIPELINE_NOTIFICATIONS_PATH    : ${COVID_PIPELINE_NOTIFICATIONS_PATH}
 
     ======================
@@ -50,8 +47,7 @@ if( "[:]" in [
     DB_PASSWORD,
     COVID_PIPELINE_ROOTDIR,
     COVID_PIPELINE_FASTQ_PATH,
-    COVID_PIPELINE_WORKDIR,
-    COVID_PIPELINE_REPORTS_PATH
+    COVID_PIPELINE_WORKDIR
     ]) {
     throw new Exception("Found unset global environment variables. See '[:]' above. Abort")
 }
@@ -70,21 +66,8 @@ include { store_reheadered_fasta_passed } from './modules/artic_ncov2019.nf'
 include { store_reheadered_fasta_failed } from './modules/artic_ncov2019.nf'
 include { store_ncov_qc_plots } from './modules/artic_ncov2019.nf'
 
-include { concatenate_fasta } from './modules/nextstrain.nf'
-include { prepare_tsv_for_nextstrain } from './modules/nextstrain.nf'
-include { nextstrain_pipeline } from './modules/nextstrain.nf'
-include { store_nextstrain_output } from './modules/nextstrain.nf'
-include { load_nextstrain_data_to_db } from './modules/nextstrain.nf'
-
 include { pangolin_pipeline } from './modules/pangolin.nf'
 include { load_pangolin_data_to_db } from './modules/pangolin.nf'
-
-include { prepare_microreact_tsv } from './modules/microreact.nf'
-
-include { generate_report_strain_level_and_global_context } from './modules/report.nf'
-include { generate_report_strain_first_seen } from './modules/report.nf'
-include { generate_report_strain_prevalence } from './modules/report.nf'
-include { generate_report_sample_dump } from './modules/report.nf'
 
 include { create_genbank_submission_files } from './modules/genbank.nf'
 include { submit_genbank_files} from './modules/genbank.nf'
@@ -166,25 +149,9 @@ workflow {
         pangolin_pipeline.out.ch_pangolin_lineage_csv
     )
 
-    ch_nextstrain_metadata_tsv = prepare_tsv_for_nextstrain(
-        ch_ncov_qc_sample_submitted.collect(),
-        ch_pangolin_sample_submitted.collect()
-    )
-
-    ch_microreact_input_tsv = prepare_microreact_tsv(
-        ch_ncov_qc_sample_submitted.collect(),
-        ch_pangolin_sample_submitted.collect()
-    )
-
     Channel
         .fromPath( COVID_PIPELINE_FASTA_PATH )
         .set{ archived_fasta }
-    ch_nextstrain_fasta = concatenate_fasta(
-        params.root_genome_fasta,
-        ch_qc_passed_fasta.collect(),
-        archived_fasta
-    )
-
     Channel
         .fromPath( params.genbank_submission_template )
         .set{ ch_genbank_submission_template }
@@ -244,44 +211,8 @@ workflow {
         """
     }
 
-    nextstrain_pipeline(
-        ch_nextstrain_metadata_tsv,
-        ch_nextstrain_fasta
-    )
-    // Storing single-channel output only after nextstrain_pipeline ends
-    store_nextstrain_output(
-        nextstrain_pipeline.out.ch_all_nextstrain_results.collect()
-    )
-
-    ch_nextstrain_data_submitted = load_nextstrain_data_to_db(
-        nextstrain_pipeline.out.ch_nextstrain_aa_muts_json,
-        nextstrain_pipeline.out.ch_nextstrain_nt_muts_json,
-        nextstrain_pipeline.out.ch_nextstrain_tree_nwk
-    )
-
-    ch_report_strain_level_and_global_context = generate_report_strain_level_and_global_context(
-        params.pango_designation_lineage_notes_url,
-        params.pango_designation_metadata_url,
-        params.pango_designation_dir,
-        ch_nextstrain_data_submitted.collect()
-    )
-
-    ch_report_strain_first_seen = generate_report_strain_first_seen(
-        ch_nextstrain_data_submitted.collect(),
-    )
-
-    ch_report_strain_prevalence = generate_report_strain_prevalence(
-        ch_nextstrain_data_submitted.collect(),
-    )
-
-    ch_report_sample_dump = generate_report_sample_dump(
-        ch_nextstrain_data_submitted.collect(),
-    )
-
     pipeline_complete(
-        ch_report_strain_level_and_global_context,
-        ch_report_strain_first_seen,
-        ch_report_strain_prevalence,
-        ch_report_sample_dump
+        ch_ncov_qc_sample_submitted,
+        ch_pangolin_sample_submitted
     )
 }
