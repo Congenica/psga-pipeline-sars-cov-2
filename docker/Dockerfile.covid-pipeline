@@ -12,11 +12,6 @@ WORKDIR /app
 
 COPY . .
 
-# used by our reports
-RUN wget -P /app/data/pango-designation \
-    https://raw.githubusercontent.com/cov-lineages/pango-designation/master/lineages.csv \
-    https://raw.githubusercontent.com/cov-lineages/pango-designation/master/lineage_notes.txt
-
 RUN pip install --progress-bar=off --no-cache-dir --upgrade pip==${PIP_VERSION} && \
     pip install --progress-bar=off --no-cache-dir poetry==${POETRY_VERSION} && \
     # make poetry install everything system wide, no need for a virtualenv in docker
