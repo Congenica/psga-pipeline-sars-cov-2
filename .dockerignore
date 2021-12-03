@@ -1,2 +1,5 @@
 .git
 .vscode
+# nextflow output files
+covid-pipeline/work
+covid-pipeline/.nextflow*
