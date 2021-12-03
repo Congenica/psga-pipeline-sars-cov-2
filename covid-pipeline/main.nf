@@ -24,7 +24,6 @@ log.info """\
     * COVID_PIPELINE_FASTA_PATH_QC_FAILED  : ${COVID_PIPELINE_FASTA_PATH_QC_FAILED}
     * COVID_PIPELINE_PANGOLIN_PATH         : ${COVID_PIPELINE_PANGOLIN_PATH}
     * COVID_PIPELINE_GENBANK_PATH          : ${COVID_PIPELINE_GENBANK_PATH}
-    * COVID_PIPELINE_MICROREACT_PATH       : ${COVID_PIPELINE_MICROREACT_PATH}
     * COVID_PIPELINE_NOTIFICATIONS_PATH    : ${COVID_PIPELINE_NOTIFICATIONS_PATH}
 
     ======================
@@ -69,8 +68,6 @@ include { store_ncov_qc_plots } from './modules/artic_ncov2019.nf'
 
 include { pangolin_pipeline } from './modules/pangolin.nf'
 include { load_pangolin_data_to_db } from './modules/pangolin.nf'
-
-include { prepare_microreact_tsv } from './modules/microreact.nf'
 
 include { create_genbank_submission_files } from './modules/genbank.nf'
 include { submit_genbank_files} from './modules/genbank.nf'
@@ -152,11 +149,6 @@ workflow {
         pangolin_pipeline.out.ch_pangolin_lineage_csv
     )
 
-    ch_microreact_input_tsv = prepare_microreact_tsv(
-        ch_ncov_qc_sample_submitted.collect(),
-        ch_pangolin_sample_submitted.collect()
-    )
-
     Channel
         .fromPath( COVID_PIPELINE_FASTA_PATH )
         .set{ archived_fasta }
@@ -220,6 +212,7 @@ workflow {
     }
 
     pipeline_complete(
-        ch_microreact_input_tsv
+        ch_ncov_qc_sample_submitted,
+        ch_pangolin_sample_submitted
     )
 }
