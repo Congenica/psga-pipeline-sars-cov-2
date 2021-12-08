@@ -19,7 +19,7 @@ process ncov2019_artic_nf_pipeline {
   """
   # note: we inject our configuration into ncov to override parameters
   # note: `pwd` is the workdir for this nextflow process
-  nextflow run ${COVID_PIPELINE_ROOTDIR}/ncov2019-artic-nf --illumina --prefix ${ncov_prefix} --directory `eval pwd` --outdir ${ncov_out_directory} -c ${COVID_PIPELINE_ROOTDIR}/covid-pipeline/ncov-illumina.config
+  nextflow run ${COVID_PIPELINE_ROOTDIR}/ncov2019-artic-nf --illumina --prefix ${ncov_prefix} --directory `eval pwd` --outdir ${ncov_out_directory} -c ${COVID_PIPELINE_ROOTDIR}/covid-pipeline/ncov-illumina.config -c ${COVID_PIPELINE_ROOTDIR}/covid-pipeline/ncov-illumina-k8s.config
   """
 }
 
