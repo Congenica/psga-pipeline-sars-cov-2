@@ -2,10 +2,18 @@
 
 ## Operation
 
+This pipeline runs on a Kubernetes environment. For the time being, there are two k8s deployments:
+* `covid-pipeline`, which allows for the execution of the nextflow pipeline within a k8s pod
+* `psql`, which is a postgresql database accessible by the pods within the environment
+Ideally, the postgresql database should be stored in an RDS aurora system outside the cluster, but for development, the current setting is fine.
+
+The following diagram offers an overview of the pipeline execution in k8s. Each nextflow process is executed on a dedicated pod spun up by the main `covid-pipeline` pod.
+![Alt text](img/UKHSA_covid_project.png?raw=true "Covid pipeline in k8s environment")
+
+
 ### Environment variables
 
-Environment variables required to run the pipeline.
-These environment variables must be available in the system.
+Environment variables required to run the pipeline. They are set up in the covid-pipeline k8s deployment.
 
 | Variable | Description |
 | :---------------- | :---------------------------------------------------------------- |
@@ -14,10 +22,9 @@ These environment variables must be available in the system.
 | DB_NAME | Postgres database name (e.g. covid_pipeline_db) |
 | DB_USER | Postgres database user name (e.g. postgres) |
 | DB_PASSWORD | Postgres database user password (e.g. postgres) |
-| COVID_PIPELINE_ROOTDIR | Path to the pipeline code (e.g. git checkout). Default: ${HOME}/covid-pipeline |
-| COVID_PIPELINE_FASTQ_PATH | Path to the input FASTQ files and TSV metadata file. Default: ${HOME}/COVID_s3_data_lite/sample_data |
-| COVID_PIPELINE_WORKDIR | Path to the whole pipeline output. Default: ${HOME}/covid-pipeline-workdir |
-| COVID_PIPELINE_REPORTS_PATH | Path to the pipeline reports. Default: ${HOME}/covid-pipeline-reports |
+| COVID_PIPELINE_ROOTDIR | Path to the pipeline code (e.g. git checkout). (e.g. /app) |
+| COVID_PIPELINE_FASTQ_PATH | Path to the input FASTQ files and TSV metadata file. (e.g. /data/input) |
+| COVID_PIPELINE_WORKDIR | Path to the whole pipeline output. (e.g. /data/work) |
 
 
 The following environment variables are set internally and should not be changed
@@ -30,90 +37,33 @@ The following environment variables are set internally and should not be changed
 | COVID_PIPELINE_FASTA_PATH_QC_FAILED | Path to the re-headered ncov QC_FAILED FASTA files. Set to: ${COVID_PIPELINE_WORKDIR}/reheadered-fasta-qc-failed |
 | COVID_PIPELINE_PANGOLIN_PATH | Path to the results of pangolin pipeline with lineage reports. ach run will be published to unique folder |
 | COVID_PIPELINE_GENBANK_PATH | Path to submission files, which were used to submit samples to GenBank programmatic interface |
-| COVID_PIPELINE_NEXTSTRAIN_PATH | Path to store all nextstrain result files. Each run will be published to unique folder |
-| COVID_PIPELINE_MICROREACT_PATH | Path to store microreact tsv file, generated from samples, found in database |
 | COVID_PIPELINE_NOTIFICATIONS_PATH | Path to the pipeline notifications. Unexpected events regarding missing samples, files are reported here in text files |
 
 
-### Requirements
+### Running the pipeline using K8s Minikube
 
-#### Set up the required environment variables (the following configuration is just an example)
+Download and install Minikube using the instructions provided here: https://minikube.sigs.k8s.io/docs/start/
+
+Once minikube is active, we need to activate the minikube registry of docker images so that Minikube can find these locally.
+See: https://medium.com/swlh/how-to-run-locally-built-docker-images-in-kubernetes-b28fbc32cc1d for additional ideas
 ```commandline
-export DB_HOST=127.0.0.1
-export DB_PORT=5432
-export DB_NAME=covid_pipeline_db
-export DB_USER=postgres
-export DB_PASSWORD=postgres
-
-export COVID_PIPELINE_ROOTDIR="${HOME}/covid-pipeline"
-export COVID_PIPELINE_FASTQ_PATH="${HOME}/COVID_s3_data_lite/sample_data"
-export COVID_PIPELINE_WORKDIR="${HOME}/covid-pipeline-workdir"
-export COVID_PIPELINE_REPORTS_PATH="${HOME}/covid-pipeline-reports"
+eval $(minikube -p minikube docker-env)
 ```
 
-#### Set up a local postgres database
-
-A local database can be set up using a postgres docker image:
-```commandline
-docker pull postgres:11.14
-docker run -d -p ${DB_PORT}:${DB_PORT} --name my-postgres-server -e POSTGRES_PASSWORD=${DB_PASSWORD} postgres:11.14
-
-# test the connection from your local machine
-psql -h ${DB_HOST} -p ${DB_PORT} -U ${DB_USER} -W
-
-# once finished testing
-docker stop my-postgres-server
-docker rm my-postgres-server
-```
-
-All database schema migrations are managed using `sqitch` tool. Prerequisites for running the `sqitch`:
-
-* `sqitch` is installed in the machine. See [sqitch downloads page](https://sqitch.org/download/). Choose docker installation.
-* `Postgres` with `psql` installed in the environment. Has postgres user set up
-* `Postgres` has password exported to env variable
-
-Create a dedicated database for the project:
-```commandline
-export PGPASSWORD=${DB_PASSWORD}
-createdb -h ${DB_HOST} -U ${DB_USER} ${DB_NAME}
-```
-
-Finally, deploy the required DB migrations:
-```commandline
-# all migrations are in the project sqitch dir
-cd ${COVID_PIPELINE_ROOTDIR}/sqitch/
-SQITCH_URI=db:pg://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}
-sqitch deploy ${SQITCH_URI}
-```
-
-The following sqitch commands can be helpful for diagnosis:
-```commandline
-# check the migration status (are we missing any migrations?):
-sqitch status ${SQITCH_URI}
-
-# verify migrations, which were made:
-sqitch verify ${SQITCH_URI}
-
-# revert the changes:
-sqitch revert ${SQITCH_URI}
-```
-
-
-#### Build the docker containers
+The next step is to build the pipeline docker images in the minikube docker environment. For simplicity, the database is stored on a pod. This is not ideal as this can be lost if the pod crashes or is deleted. However, as a proof of concept, this is fine. In the future, the database will be stored in an RDS aurora cluster, therefore outside the k8s environment.
 ```commandline
 export VERSION=1.0.0
 
-# install nextflow (copy nextflow executable to a directory in your PATH environment variable):
-wget -qO- https://get.nextflow.io | bash
-
-# build the covid-pipeline image
-docker build -t covid-pipeline:${VERSION} .
+# build main images
+docker build -t covid-pipeline:${VERSION} -f Dockerfile .
+docker build -t covid-pipeline-db:${VERSION} -f Dockerfile.postgres .
+docker build -t nextflow-wrapper:${VERSION} -f Dockerfile.nextflow .
 
 # add project submodules
 git submodule init
 git submodule update
 
-# update pangolin, ncov2019_artic_nf, and nextstrain to their latest commits
+# update pangolin, ncov2019_artic_nf to their latest commits
 git submodule update --remote --merge
 
 # build ncov docker image
@@ -121,12 +71,37 @@ docker build -t ncov2019_artic_nf:${VERSION} -f Dockerfile.ncov2019-artic-nf .
 
 # build pangolin docker image
 docker build -t pangolin:${VERSION} -f Dockerfile.pangolin .
+```
 
-# build nextstrain docker image
-docker build -t nextstrain:${VERSION} -f Dockerfile.nextstrain .
+Once all the required images are generated, the deployments can be created:
+```commandline
+cd minikube
+./startup.sh
 
-# build auspice docker image (for visualising the results with Auspice web-service):
-docker build -t auspice:${VERSION} -f Dockerfile.auspice .
+# copy input files to covid-pipeline pod: /data/input
+
+# exec the covid-pipeline pod
+kubectl exec -it covid-pipeline-XXXX -- bash
+
+# ------------------
+# WITHIN THE POD
+# run the pipeline within the pod (processes are spun up as pod workers by this pipeline)
+# the results will be stored in covid-pipeline pod: /data/output
+# MODE 1: Fresh run, overriding the output from the previous computations
+nextflow run .
+
+# MODE 2: run from the last successful process
+nextflow run . -resume
+
+# The following command cleans up the previous run's work directories and cache, but retains the content of ${COVID_PIPELINE_WORKDIR}:
+nextflow clean -f
+
+# once finished
+exit
+# ------------------
+
+# when finished:
+./cleanup.sh
 ```
 
 ### GenBank submission
@@ -158,44 +133,6 @@ A command line used to generate a file:
 generateDS -o "scripts/genbank/genbank_submission.py" submission.xsd
 ```
 
-### Run covid-pipeline
-
-The pipeline can be executed in two modes:
-```commandline
-cd ${COVID_PIPELINE_ROOTDIR}/covid-pipeline
-
-# MODE 1: Retain the previous computations (e.g. samples processed previously)
-nextflow run . -resume
-
-# MODE 2: Overriding the output from the previous computations
-nextflow run .
-```
-
-The following command cleans up the previous run's work directories and cache, but retains the content of ${COVID_PIPELINE_WORKDIR}:
-```commandline
-nextflow clean -f
-```
-
-### Analyse the results via Auspice web-service
-Once the Nextstrain process of the Covid-Pipeline has completed, the results can be visualised as follows.
-
-Run the auspice web-service:
-```commandline
-# the port 4000 is already exposed in the Dockerfile
-docker run -it --rm \
-  -v ${COVID_PIPELINE_WORKDIR}/nextstrain/latest/nextstrain_output/bahrain/ncov_with_accessions.json:/ncov_with_accessions.json \
-  -p 4000:4000 \
-  auspice:${VERSION} \
-  auspice view --datasetDir=/
-```
-
-Start your local browser from the same machine running the auspice docker image using the address:
-```commandline
-google-chrome http://localhost:4000
-```
-In the section `Available datasets`, click on `ncov/with/accessions`
-
-
 ## Development
 
 ### Install dependency packages using Python Poetry tool
@@ -214,19 +151,72 @@ We use git pre-commit hooks to automatically run code formatting and linting on 
 pre-commit install --install-hooks
 ```
 
-#### Testing the pipeline
+
+#### Set up the required environment variables (the following configuration is just an example)
+```commandline
+export DB_HOST=127.0.0.1
+export DB_PORT=5432
+export DB_NAME=covid_pipeline_db
+export DB_USER=postgres
+export DB_PASSWORD=postgres
+
+export COVID_PIPELINE_ROOTDIR="${HOME}/covid-pipeline"
+export COVID_PIPELINE_FASTQ_PATH="${HOME}/COVID_s3_data_lite/sample_data_0"
+export COVID_PIPELINE_WORKDIR="${HOME}/covid-pipeline-workdir"
+```
+
+#### Set up a local postgres database
+
+A local database must be available to run the tests
+```commandline
+export VERSION=1.0.0
+
+docker build -t covid-pipeline-db:${VERSION} -f Dockerfile.postgres .
+
+docker run -d -p ${DB_PORT}:${DB_PORT} --name my-postgres-server -e POSTGRES_PASSWORD=${DB_PASSWORD} covid-pipeline-db:${VERSION}
+
+# test the connection from your local machine
+psql -h ${DB_HOST} -p ${DB_PORT} -U ${DB_USER} -W
+
+# once finished testing
+docker stop my-postgres-server
+docker rm my-postgres-server
+```
+
+All database schema migrations are managed using `sqitch` tool. Prerequisites for running the `sqitch`. The docker image covid-pipeline-db
+already has sqitch installed. The following commands are executed within the covid-pipeline-db docker container:
+
+Create a dedicated database for the project:
+```commandline
+export PGPASSWORD=${DB_PASSWORD}
+createdb -h ${DB_HOST} -U ${DB_USER} ${DB_NAME}
+```
+
+Finally, deploy the required DB migrations:
+```commandline
+# all migrations are in the project sqitch dir
+SQITCH_URI=db:pg://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}
+sqitch deploy ${SQITCH_URI}
+```
+
+The following sqitch commands can be helpful for diagnosis:
+```commandline
+# check the migration status (are we missing any migrations?):
+sqitch status ${SQITCH_URI}
+
+# verify migrations, which were made:
+sqitch verify ${SQITCH_URI}
+
+# revert the changes:
+sqitch revert ${SQITCH_URI}
+```
+
+#### Run the unit tests
 Unit tests are implemented with pytest and stored in the project tests dir
 ```commandline
 cd ${COVID_PIPELINE_ROOTDIR}/tests
 pytest
 ```
-
-To run the full pipeline:
-```commandline
-cd ${COVID_PIPELINE_ROOTDIR}/covid-pipeline
-nextflow run .
-```
-
 
 #### Install additional libraries if needed
 If you need to install additional python libraries (e.g. boto3), you can run the command:
@@ -250,8 +240,6 @@ poetry add package@latest
 To update to a specific version that is not the latest version, re-run the add command specifying a different version constraint.
 
 
-### Database
-
 #### Working with sqitch
 The work is done in `${COVID_PIPELINE_ROOTDIR}/sqitch/` directory
 
@@ -271,13 +259,3 @@ If authentication fails, try adding connection info to the command-line. For exa
 ```commandline
 sqitch --db-user ${DB_USER} --db-host ${DB_HOST} --db-port ${DB_PORT} deploy db:pg:${DB_NAME}
 ```
-
-### Nextstrain
-To manually test nextstrain:
-1. Start a nextstrain container
-2. copy the fasta and metadata to: `<nextstrain_container>:/nextstrain/data/nextstrain.fasta` and `<nextstrain_container>:/nextstrain/data/nextstrain_metadata.tsv`
-  without changing the destination names.
-3. Exec nextstrain container
-4. Inside the contaienr, run `cd /nextstrain ; snakemake --profile /custom_profile`
-
-Note: the custom configuration is in `<nextstrain_container>:/custom_profile`

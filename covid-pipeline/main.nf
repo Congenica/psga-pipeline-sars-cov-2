@@ -100,7 +100,6 @@ workflow {
 
     ncov2019_artic_nf_pipeline(
         ch_fasta_matching_metadata.collect(),
-        params.ncov_docker_image,
         params.ncov_prefix
     )
     // Taking only a single output channel and publishing output in separate process after `ncov2019_artic_nf_pipeline`

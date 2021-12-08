@@ -5,7 +5,6 @@
 process ncov2019_artic_nf_pipeline {
   input:
     file fastq_file
-    val ncov_docker_image
     val ncov_prefix
 
   output:
@@ -19,7 +18,8 @@ process ncov2019_artic_nf_pipeline {
 
   """
   # note: we inject our configuration into ncov to override parameters
-  nextflow run ${COVID_PIPELINE_ROOTDIR}/ncov2019-artic-nf -profile docker --illumina --prefix ${ncov_prefix} --directory `eval pwd` -with-docker ${ncov_docker_image} --outdir ${ncov_out_directory} -c ${COVID_PIPELINE_ROOTDIR}/covid-pipeline/ncov-illumina.config
+  # note: `pwd` is the workdir for this nextflow process
+  nextflow run ${COVID_PIPELINE_ROOTDIR}/ncov2019-artic-nf --illumina --prefix ${ncov_prefix} --directory `eval pwd` --outdir ${ncov_out_directory} -c ${COVID_PIPELINE_ROOTDIR}/covid-pipeline/ncov-illumina.config -c ${COVID_PIPELINE_ROOTDIR}/covid-pipeline/ncov-illumina-k8s.config
   """
 }
 

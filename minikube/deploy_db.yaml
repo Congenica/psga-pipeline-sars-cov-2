@@ -1,0 +1,73 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: psql-pv
+  labels:
+    type: local
+spec:
+  storageClassName: db-storage
+  capacity:
+    storage: 2Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: /mnt/minikube_psql_db
+    type: Directory
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: psql-pvc
+spec:
+  storageClassName: db-storage
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 2Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: psql-host
+  labels:
+    app: psql
+spec:
+  ports:
+  - port: 5432
+    protocol: TCP
+  selector:
+    app: psql
+  clusterIP: None
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: psql
+spec:
+  selector:
+    matchLabels:
+      app: psql
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: psql
+    spec:
+      containers:
+      - image: covid-pipeline-db:1.0.0
+        name: psql
+        env:
+        - name: POSTGRES_PASSWORD
+          value: postgres
+        ports:
+        - containerPort: 5432
+          name: psql
+        volumeMounts:
+        - name: psql-persistent-storage
+          mountPath: /var/lib/psql
+      volumes:
+      - name: psql-persistent-storage
+        persistentVolumeClaim:
+          claimName: psql-pvc

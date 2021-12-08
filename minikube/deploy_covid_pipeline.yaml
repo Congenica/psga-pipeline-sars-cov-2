@@ -1,0 +1,76 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: covid-pipeline-pv
+  labels:
+    type: local
+spec:
+  storageClassName: pip-storage
+  capacity:
+    storage: 6Gi
+  accessModes:
+    - ReadWriteMany
+  hostPath:
+    path: /mnt/minikube_covid_pipeline_data
+    type: Directory
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: covid-pipeline-pvc
+spec:
+  storageClassName: pip-storage
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 6Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: covid-pipeline
+spec:
+  selector:
+    matchLabels:
+      app: covid-pipeline
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: covid-pipeline
+    spec:
+      containers:
+      - image: nextflow-wrapper:1.0.0
+        name: covid-pipeline
+        env:
+        - name: DB_HOST
+          value: psql-host
+        - name: DB_NAME
+          value: covid_pipeline_db
+        - name: DB_PASSWORD
+          value: postgres
+        - name: DB_PORT
+          value: '5432'
+        - name: DB_USER
+          value: postgres
+        - name: COVID_PIPELINE_ROOTDIR
+          value: /app
+        - name: COVID_PIPELINE_FASTQ_PATH
+          value: /data/input
+        - name: COVID_PIPELINE_WORKDIR
+          value: /data/output
+        - name: NXF_WORK
+          value: /data/work
+        - name: NXF_EXECUTOR
+          value: k8s
+        - name: NXF_ANSI_LOG
+          value: 'false'
+        volumeMounts:
+        - name: covid-pipeline-persistent-storage
+          mountPath: /data
+      volumes:
+      - name: covid-pipeline-persistent-storage
+        persistentVolumeClaim:
+          claimName: covid-pipeline-pvc

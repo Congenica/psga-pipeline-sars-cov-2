@@ -7,13 +7,19 @@ RUN /opt/conda/bin/conda update conda && \
 /opt/conda/bin/mamba env update -f /extras.yml -n artic-ncov2019-illumina
 
 # reinstall these two packages to their latest version, as the conda-selected downgraded ones fail to run
-RUN /opt/conda/bin/mamba install -c conda-forge -c bioconda cutadapt==3.1 dnaio==0.4.4 -n artic-ncov2019-illumina
+RUN /opt/conda/bin/mamba install -c conda-forge -c bioconda cutadapt==3.1 dnaio==0.4.4 openjdk=11.0.8 -n artic-ncov2019-illumina
 
 FROM debian:buster-slim
 RUN apt-get update \
-  && apt-get install -y git procps \
+  && apt-get install -y git procps wget \
   && apt-get clean -y \
   && rm -rf /var/lib/apt/lists/*
+
 COPY --from=condabuild /opt/conda/envs/artic-ncov2019-illumina /opt/conda/envs/artic-ncov2019-illumina
 ENV PATH=/opt/conda/envs/artic-ncov2019-illumina/bin:$PATH
 COPY ncov2019-artic-nf/bin/qc.py /opt/conda/envs/artic-ncov2019-illumina/bin
+
+RUN wget -qO- https://get.nextflow.io | bash && chmod +x nextflow && mv nextflow /usr/bin
+
+COPY . /app
+WORKDIR /app/ncov2019-artic-nf
