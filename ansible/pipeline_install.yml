@@ -33,8 +33,8 @@
       prompt: 'Root dir of the pipeline '
       private: no
       default: '${HOME}/covid-pipeline'
-    - name: covid_pipeline_fastq_path
-      prompt: 'Path to FASTQ files for pipeline '
+    - name: covid_pipeline_bam_path
+      prompt: 'Path to BAM files for pipeline '
       private: no
       default: '${HOME}/COVID_s3_data_lite/sample_data'
     - name: covid_pipeline_workdir

@@ -57,7 +57,7 @@ spec:
           value: postgres
         - name: COVID_PIPELINE_ROOTDIR
           value: /app
-        - name: COVID_PIPELINE_FASTQ_PATH
+        - name: COVID_PIPELINE_BAM_PATH
           value: /data/input
         - name: COVID_PIPELINE_WORKDIR
           value: /data/output

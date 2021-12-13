@@ -1,3 +1,35 @@
+process bam_to_fastq {
+  input:
+    file bam
+
+  output:
+    path "${fastq_directory}/*", emit: ch_bam_to_fastq_files
+
+  script:
+    sample_name = "${bam.baseName}"
+    fastq_preproc = "fastq_preproc"
+    fastq_directory = "fastq_files"
+    // illumina suffix format
+    fastq_suffix_1 = "S01_L001_R1_001"
+    fastq_suffix_2 = "S01_L001_R2_001"
+
+  """
+  mkdir -p ${fastq_preproc}
+  mkdir -p ${fastq_directory}
+
+  # sort by coordinates
+  samtools sort -o ${fastq_preproc}/${sample_name}.sorted.bam ${bam}
+
+  # Starting from a coordinate sorted file, output paired reads to separate files, discarding singletons, supplementary and secondary reads. The resulting files can be used with, for example, the bwa aligner.
+  # see: http://www.htslib.org/doc/samtools-fasta.html
+  samtools collate -u -O ${fastq_preproc}/${sample_name}.sorted.bam | samtools fastq -1 ${fastq_directory}/${sample_name}_${fastq_suffix_1}.fq -2  ${fastq_directory}/${sample_name}_${fastq_suffix_2}.fq -0 /dev/null -s /dev/null -n
+
+  bgzip ${fastq_directory}/${sample_name}_${fastq_suffix_1}.fq
+  bgzip ${fastq_directory}/${sample_name}_${fastq_suffix_2}.fq
+  """
+}
+
+
 /*
  * Run: ncov2019-artic-nf nextflow pipeline
  * see: https://github.com/connor-lab/ncov2019-artic-nf
@@ -19,7 +51,7 @@ process ncov2019_artic_nf_pipeline {
   """
   # note: we inject our configuration into ncov to override parameters
   # note: `pwd` is the workdir for this nextflow process
-  nextflow run ${COVID_PIPELINE_ROOTDIR}/ncov2019-artic-nf --illumina --prefix ${ncov_prefix} --directory `eval pwd` --outdir ${ncov_out_directory} -c ${COVID_PIPELINE_ROOTDIR}/covid-pipeline/ncov-illumina.config -c ${COVID_PIPELINE_ROOTDIR}/covid-pipeline/ncov-illumina-k8s.config
+  nextflow run ${COVID_PIPELINE_ROOTDIR}/ncov2019-artic-nf --illumina --prefix ${ncov_prefix} --directory `eval pwd` --outdir ${ncov_out_directory} -c ${COVID_PIPELINE_ROOTDIR}/covid-pipeline/ncov-custom.config -c ${COVID_PIPELINE_ROOTDIR}/covid-pipeline/ncov-k8s.config
   """
 }
 

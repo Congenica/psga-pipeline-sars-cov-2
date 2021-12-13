@@ -52,13 +52,13 @@
     line: "export COVID_PIPELINE_ROOTDIR={{ covid_pipeline_rootdir }}"
   register: covid_pipeline_rootdir_register
 
-- name: SARS-CoV-2 pipeline - set COVID_PIPELINE_FASTQ_PATH environment variables
+- name: SARS-CoV-2 pipeline - set COVID_PIPELINE_BAM_PATH environment variables
   lineinfile:
     path: ~/.bashrc
     state: present
-    regexp: "^export COVID_PIPELINE_FASTQ_PATH="
-    line: "export COVID_PIPELINE_FASTQ_PATH={{ covid_pipeline_fastq_path }}"
-  register: covid_pipeline_fastq_path_register
+    regexp: "^export COVID_PIPELINE_BAM_PATH="
+    line: "export COVID_PIPELINE_BAM_PATH={{ covid_pipeline_bam_path }}"
+  register: covid_pipeline_bam_path_register
 
 - name: SARS-CoV-2 pipeline - set COVID_PIPELINE_WORKDIR environment variables
   lineinfile:
@@ -86,7 +86,7 @@
 
 - name: SARS-CoV-2 pipeline - source changed bashrc file
   shell: source ~/.bashrc
-  when: db_host_register.changed or db_name_register.changed or db_user_register.changed or db_password_register.changed or db_port_register.changed or covid_pipeline_rootdir_register.changed or covid_pipeline_fastq_path_register.changed or covid_pipeline_workdir_register.changed or covid_pipeline_reports_path_register.changed
+  when: db_host_register.changed or db_name_register.changed or db_user_register.changed or db_password_register.changed or db_port_register.changed or covid_pipeline_rootdir_register.changed or covid_pipeline_bam_path_register.changed or covid_pipeline_workdir_register.changed or covid_pipeline_reports_path_register.changed
 
 - name: SARS-CoV-2 pipeline - stat start_pipeline.sh script
   stat:
