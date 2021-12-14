@@ -1,15 +1,21 @@
-process concat_elements_to_single_string{
-    input:
-      val string_value_list
+import java.nio.file.Paths
 
-    output:
-      val concatenated_string
+def makeBamSearchPath ( ) {
 
-    script:
-      concatenated_string = string_value_list.join(" ")
+    def bamSearchPath = []
 
-    """
-    """
+    // Make a glob to recurse directories
+    dirNameGlob = params.directory.replaceAll(/\/+$/, "") + '**'
+
+    // Make a glob for filenames
+    fileNameGlob = '*.bam'
+
+    // Build a path
+    searchPath = Paths.get(dirNameGlob, fileNameGlob)
+
+    bamSearchPath.add(searchPath.toString())
+
+    return bamSearchPath
 }
 
 // Checks, which values in first set have matches in reference set

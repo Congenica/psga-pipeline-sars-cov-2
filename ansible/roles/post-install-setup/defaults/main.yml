@@ -5,8 +5,8 @@ db_user: postgres #Postgres database user name (e.g. postgres)
 db_port: 5432 #Default postgres port
 db_password: #Postgres database user password (e.g. postgres)
 covid_pipeline_rootdir: ${HOME}/covid-pipeline
-covid_pipeline_fastq_path: ${HOME}/COVID_s3_data_lite/sample_data
-covid_pipeline_workdir: ${HOME}/covid-pipeline-workdir
+covid_pipeline_bam_path: ${HOME}/COVID_s3_data_lite/sample_data
+covid_pipeline_output_dir: ${HOME}/covid-pipeline-output
 covid_pipeline_reports_path: ${HOME}/covid-pipeline-reports
 start_pipeline_script:
   path: "{{ playbook_dir }}/../scripts/start_pipeline.sh"

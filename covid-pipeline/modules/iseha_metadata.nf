@@ -9,7 +9,7 @@ process load_iseha_metadata {
     path iseha_metadata_load_done, emit: ch_iseha_metadata_load_done
     path all_samples_with_metadata, emit: ch_all_samples_with_metadata_file
     path current_samples_with_metadata, emit: ch_current_session_samples_with_metadata_file
-    path samples_with_qc_pass, emit: ch_all_samples_artic_ncov2019_qc_passed_file
+    path samples_with_qc_pass, emit: ch_all_samples_ncov2019_artic_qc_passed_file
     path updated_samples, emit: ch_current_session_updated_samples_file
 
   script:

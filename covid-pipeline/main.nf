@@ -13,8 +13,8 @@ log.info """\
     * DB_NAME                              : ${DB_NAME}
     * DB_USER                              : ${DB_USER}
     * COVID_PIPELINE_ROOTDIR               : ${COVID_PIPELINE_ROOTDIR}
-    * COVID_PIPELINE_FASTQ_PATH            : ${COVID_PIPELINE_FASTQ_PATH}
-    * COVID_PIPELINE_WORKDIR               : ${COVID_PIPELINE_WORKDIR}
+    * COVID_PIPELINE_BAM_PATH              : ${COVID_PIPELINE_BAM_PATH}
+    * COVID_PIPELINE_OUTPUT_DIR            : ${COVID_PIPELINE_OUTPUT_DIR}
 
     Internal environment variables:
     * COVID_PIPELINE_MISSING_METADATA_PATH : ${COVID_PIPELINE_MISSING_METADATA_PATH}
@@ -46,8 +46,8 @@ if( "[:]" in [
     DB_USER,
     DB_PASSWORD,
     COVID_PIPELINE_ROOTDIR,
-    COVID_PIPELINE_FASTQ_PATH,
-    COVID_PIPELINE_WORKDIR
+    COVID_PIPELINE_BAM_PATH,
+    COVID_PIPELINE_OUTPUT_DIR
     ]) {
     throw new Exception("Found unset global environment variables. See '[:]' above. Abort")
 }
@@ -56,15 +56,16 @@ if( "[:]" in [
 // Import modules
 include { load_iseha_metadata } from './modules/iseha_metadata.nf'
 
-include { filter_fastq_matching_with_metadata } from './modules/fastq_match.nf'
+include { filter_bam_matching_with_metadata } from './modules/bam_match.nf'
 
-include { ncov2019_artic_nf_pipeline } from './modules/artic_ncov2019.nf'
-include { store_ncov2019_artic_nf_output } from './modules/artic_ncov2019.nf'
-include { load_ncov_assembly_qc_to_db } from './modules/artic_ncov2019.nf'
-include { reheader_genome_fasta } from './modules/artic_ncov2019.nf'
-include { store_reheadered_fasta_passed } from './modules/artic_ncov2019.nf'
-include { store_reheadered_fasta_failed } from './modules/artic_ncov2019.nf'
-include { store_ncov_qc_plots } from './modules/artic_ncov2019.nf'
+include { bam_to_fastq } from './modules/ncov2019_artic.nf'
+include { ncov2019_artic_nf_pipeline } from './modules/ncov2019_artic.nf'
+include { store_ncov2019_artic_nf_output } from './modules/ncov2019_artic.nf'
+include { load_ncov_assembly_qc_to_db } from './modules/ncov2019_artic.nf'
+include { reheader_genome_fasta } from './modules/ncov2019_artic.nf'
+include { store_reheadered_fasta_passed } from './modules/ncov2019_artic.nf'
+include { store_reheadered_fasta_failed } from './modules/ncov2019_artic.nf'
+include { store_ncov_qc_plots } from './modules/ncov2019_artic.nf'
 
 include { pangolin_pipeline } from './modules/pangolin.nf'
 include { load_pangolin_data_to_db } from './modules/pangolin.nf'
@@ -79,27 +80,29 @@ include { pipeline_complete } from './modules/pipeline_complete.nf'
 workflow {
 
     load_iseha_metadata(
-        "${COVID_PIPELINE_FASTQ_PATH}/" + params.metadata_file_name
+        "${COVID_PIPELINE_BAM_PATH}/" + params.metadata_file_name
     )
 
     load_iseha_metadata.out.ch_all_samples_with_metadata_file
         .splitText().map { it.trim() }.set { ch_all_samples_with_metadata_loaded }
     load_iseha_metadata.out.ch_current_session_samples_with_metadata_file
         .splitText().map { it.trim() }.set { ch_current_session_samples_with_metadata_loaded }
-    load_iseha_metadata.out.ch_all_samples_artic_ncov2019_qc_passed_file
+    load_iseha_metadata.out.ch_all_samples_ncov2019_artic_qc_passed_file
         .splitText().map { it.trim() }.set { ch_qc_passed_samples }
     load_iseha_metadata.out.ch_current_session_updated_samples_file
         .splitText().map { it.trim() }.set { ch_updated_samples }
 
-    ch_fasta_matching_metadata = filter_fastq_matching_with_metadata(
+    ch_bam_matching_metadata = filter_bam_matching_with_metadata(
         ch_all_samples_with_metadata_loaded,
         ch_current_session_samples_with_metadata_loaded,
         ch_qc_passed_samples,
         ch_updated_samples
     )
 
+    ch_bam_to_fastq = bam_to_fastq(ch_bam_matching_metadata)
+
     ncov2019_artic_nf_pipeline(
-        ch_fasta_matching_metadata.collect(),
+        ch_bam_to_fastq.collect(),
         params.ncov_prefix
     )
     // Taking only a single output channel and publishing output in separate process after `ncov2019_artic_nf_pipeline`
@@ -214,4 +217,5 @@ workflow {
         ch_ncov_qc_sample_submitted,
         ch_pangolin_sample_submitted
     )
+
 }

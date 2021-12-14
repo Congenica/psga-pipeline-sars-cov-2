@@ -21,8 +21,8 @@ Vagrant.configure("2") do |config|
           db_port: "5432",
           db_password: "test12345",
           covid_pipeline_rootdir: "${HOME}/covid-pipeline",
-          covid_pipeline_fastq_path: "${HOME}/COVID_s3_data_lite/sample_data",
-          covid_pipeline_workdir: "${HOME}/covid-pipeline-workdir",
+          covid_pipeline_bam_path: "${HOME}/COVID_s3_data_lite/sample_data",
+          covid_pipeline_output_dir: "${HOME}/covid-pipeline-output",
           covid_pipeline_reports_path: "${HOME}/covid-pipeline-reports"
         }
         ansible.verbose = true

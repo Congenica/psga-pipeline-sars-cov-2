@@ -23,18 +23,18 @@ Environment variables required to run the pipeline. They are set up in the covid
 | DB_USER | Postgres database user name (e.g. postgres) |
 | DB_PASSWORD | Postgres database user password (e.g. postgres) |
 | COVID_PIPELINE_ROOTDIR | Path to the pipeline code (e.g. git checkout). (e.g. /app) |
-| COVID_PIPELINE_FASTQ_PATH | Path to the input FASTQ files and TSV metadata file. (e.g. /data/input) |
-| COVID_PIPELINE_WORKDIR | Path to the whole pipeline output. (e.g. /data/work) |
+| COVID_PIPELINE_BAM_PATH | Path to the input FASTQ files and TSV metadata file. (e.g. /data/input) |
+| COVID_PIPELINE_OUTPUT_DIR | Path to the whole pipeline output. (e.g. /data/output) |
 
 
 The following environment variables are set internally and should not be changed
 | Variable | Description |
 | :---------------- | :---------------------------------------------------------------- |
-| COVID_PIPELINE_MISSING_METADATA_PATH | Path to the missing metadata files. Set to: ${COVID_PIPELINE_WORKDIR}/no-metadata-found-fastq |
+| COVID_PIPELINE_MISSING_METADATA_PATH | Path to the missing metadata files. Set to: ${COVID_PIPELINE_OUTPUT_DIR}/no-metadata-found-bam |
 | COVID_PIPELINE_NCOV_OUTPUT_PATH | Path to store all ncov2019-artic result files. Each run will be published to unique folder |
 | COVID_PIPELINE_QC_PLOTS_PATH | Path to store all ncov2019-artic qc_plots graphs in single folder |
-| COVID_PIPELINE_FASTA_PATH | Path to the re-headered ncov FASTA files. Set to: ${COVID_PIPELINE_WORKDIR}/reheadered-fasta |
-| COVID_PIPELINE_FASTA_PATH_QC_FAILED | Path to the re-headered ncov QC_FAILED FASTA files. Set to: ${COVID_PIPELINE_WORKDIR}/reheadered-fasta-qc-failed |
+| COVID_PIPELINE_FASTA_PATH | Path to the re-headered ncov FASTA files. Set to: ${COVID_PIPELINE_OUTPUT_DIR}/reheadered-fasta |
+| COVID_PIPELINE_FASTA_PATH_QC_FAILED | Path to the re-headered ncov QC_FAILED FASTA files. Set to: ${COVID_PIPELINE_OUTPUT_DIR}/reheadered-fasta-qc-failed |
 | COVID_PIPELINE_PANGOLIN_PATH | Path to the results of pangolin pipeline with lineage reports. ach run will be published to unique folder |
 | COVID_PIPELINE_GENBANK_PATH | Path to submission files, which were used to submit samples to GenBank programmatic interface |
 | COVID_PIPELINE_NOTIFICATIONS_PATH | Path to the pipeline notifications. Unexpected events regarding missing samples, files are reported here in text files |
@@ -55,9 +55,9 @@ The next step is to build the pipeline docker images in the minikube docker envi
 export VERSION=1.0.0
 
 # build main images
+docker build -t nextflow-wrapper:${VERSION} -f Dockerfile.nextflow .
 docker build -t covid-pipeline:${VERSION} -f Dockerfile .
 docker build -t covid-pipeline-db:${VERSION} -f Dockerfile.postgres .
-docker build -t nextflow-wrapper:${VERSION} -f Dockerfile.nextflow .
 
 # add project submodules
 git submodule init
@@ -93,7 +93,7 @@ nextflow run .
 # MODE 2: run from the last successful process
 nextflow run . -resume
 
-# The following command cleans up the previous run's work directories and cache, but retains the content of ${COVID_PIPELINE_WORKDIR}:
+# The following command cleans up the previous run's work directories and cache, but retains the content of ${COVID_PIPELINE_OUTPUT_DIR}:
 nextflow clean -f
 
 # once finished
@@ -161,8 +161,8 @@ export DB_USER=postgres
 export DB_PASSWORD=postgres
 
 export COVID_PIPELINE_ROOTDIR="${HOME}/covid-pipeline"
-export COVID_PIPELINE_FASTQ_PATH="${HOME}/COVID_s3_data_lite/sample_data_0"
-export COVID_PIPELINE_WORKDIR="${HOME}/covid-pipeline-workdir"
+export COVID_PIPELINE_BAM_PATH="${HOME}/COVID_s3_data_lite/sample_data_0"
+export COVID_PIPELINE_OUTPUT_DIR="${HOME}/covid-pipeline-output"
 ```
 
 #### Set up a local postgres database
