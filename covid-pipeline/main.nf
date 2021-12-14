@@ -14,7 +14,7 @@ log.info """\
     * DB_USER                              : ${DB_USER}
     * COVID_PIPELINE_ROOTDIR               : ${COVID_PIPELINE_ROOTDIR}
     * COVID_PIPELINE_BAM_PATH              : ${COVID_PIPELINE_BAM_PATH}
-    * COVID_PIPELINE_WORKDIR               : ${COVID_PIPELINE_WORKDIR}
+    * COVID_PIPELINE_OUTPUT_DIR            : ${COVID_PIPELINE_OUTPUT_DIR}
 
     Internal environment variables:
     * COVID_PIPELINE_MISSING_METADATA_PATH : ${COVID_PIPELINE_MISSING_METADATA_PATH}
@@ -47,7 +47,7 @@ if( "[:]" in [
     DB_PASSWORD,
     COVID_PIPELINE_ROOTDIR,
     COVID_PIPELINE_BAM_PATH,
-    COVID_PIPELINE_WORKDIR
+    COVID_PIPELINE_OUTPUT_DIR
     ]) {
     throw new Exception("Found unset global environment variables. See '[:]' above. Abort")
 }

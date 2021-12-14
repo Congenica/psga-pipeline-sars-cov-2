@@ -59,7 +59,7 @@ spec:
           value: /app
         - name: COVID_PIPELINE_BAM_PATH
           value: /data/input
-        - name: COVID_PIPELINE_WORKDIR
+        - name: COVID_PIPELINE_OUTPUT_DIR
           value: /data/output
         - name: NXF_WORK
           value: /data/work
