@@ -88,6 +88,7 @@ kubectl exec -it covid-pipeline-XXXX -- bash
 # run the pipeline within the pod (processes are spun up as pod workers by this pipeline)
 # the results will be stored in covid-pipeline pod: /data/output
 # MODE 1: Fresh run, overriding the output from the previous computations
+cd /app/covid-pipeline
 nextflow run .
 
 # MODE 2: run from the last successful process
