@@ -13,7 +13,7 @@ log.info """\
     * DB_NAME                              : ${DB_NAME}
     * DB_USER                              : ${DB_USER}
     * COVID_PIPELINE_ROOTDIR               : ${COVID_PIPELINE_ROOTDIR}
-    * COVID_PIPELINE_INPUT_PATH              : ${COVID_PIPELINE_INPUT_PATH}
+    * COVID_PIPELINE_INPUT_PATH            : ${COVID_PIPELINE_INPUT_PATH}
     * COVID_PIPELINE_OUTPUT_DIR            : ${COVID_PIPELINE_OUTPUT_DIR}
 
     Internal environment variables:
@@ -28,6 +28,7 @@ log.info """\
 
     ======================
     params:
+    * input_type                            : ${params.input_type}
     * genbank_submitter_name                : ${params.genbank_submitter_name}
     * genbank_submitter_account_namespace   : ${params.genbank_submitter_account_namespace}
     * genbank_submission_template           : ${params.genbank_submission_template}
@@ -56,8 +57,8 @@ if( "[:]" in [
 // Import modules
 include { load_iseha_metadata } from './modules/iseha_metadata.nf'
 
+include { filter_fastq_matching_with_metadata } from './modules/fastq_match.nf'
 include { filter_bam_matching_with_metadata } from './modules/bam_match.nf'
-
 include { bam_to_fastq } from './modules/ncov2019_artic.nf'
 include { ncov2019_artic_nf_pipeline } from './modules/ncov2019_artic.nf'
 include { store_ncov2019_artic_nf_output } from './modules/ncov2019_artic.nf'
@@ -92,19 +93,38 @@ workflow {
     load_iseha_metadata.out.ch_current_session_updated_samples_file
         .splitText().map { it.trim() }.set { ch_updated_samples }
 
-    ch_bam_matching_metadata = filter_bam_matching_with_metadata(
-        ch_all_samples_with_metadata_loaded,
-        ch_current_session_samples_with_metadata_loaded,
-        ch_qc_passed_samples,
-        ch_updated_samples
-    )
 
-    ch_bam_to_fastq = bam_to_fastq(ch_bam_matching_metadata)
+    ch_input_files = Channel.empty()
+
+    if ( params.input_type == "fastq" ) {
+
+        ch_input_files = filter_fastq_matching_with_metadata(
+            ch_all_samples_with_metadata_loaded,
+            ch_current_session_samples_with_metadata_loaded,
+            ch_qc_passed_samples,
+            ch_updated_samples
+        )
+
+    } else if ( params.input_type == "bam" ) {
+
+        ch_bam_matching_metadata = filter_bam_matching_with_metadata(
+            ch_all_samples_with_metadata_loaded,
+            ch_current_session_samples_with_metadata_loaded,
+            ch_qc_passed_samples,
+            ch_updated_samples
+        )
+        ch_input_files = bam_to_fastq(ch_bam_matching_metadata)
+
+    } else {
+        throw new Exception("Error: input_type can only be 'fastq' or 'bam'")
+    }
 
     ncov2019_artic_nf_pipeline(
-        ch_bam_to_fastq.collect(),
+        ch_input_files.collect(),
         params.ncov_prefix
     )
+
+
     // Taking only a single output channel and publishing output in separate process after `ncov2019_artic_nf_pipeline`
     // Using single output channel is required to avoid publish conflicts, when two channels attempt to write same file
     store_ncov2019_artic_nf_output(

@@ -1,4 +1,3 @@
-// Imports from 3rd party pipelines
 include { makeBamSearchPath } from './utils.nf'
 
 include { append_match_to_values_list as append_match_to_current_session_samples }  from './utils.nf'

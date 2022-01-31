@@ -1,5 +1,6 @@
 import java.nio.file.Paths
 
+
 def makeBamSearchPath ( ) {
 
     def bamSearchPath = []
@@ -16,6 +17,20 @@ def makeBamSearchPath ( ) {
     bamSearchPath.add(searchPath.toString())
 
     return bamSearchPath
+}
+
+process concat_elements_to_single_string{
+    input:
+      val string_value_list
+
+    output:
+      val concatenated_string
+
+    script:
+      concatenated_string = string_value_list.join(" ")
+
+    """
+    """
 }
 
 // Checks, which values in first set have matches in reference set
