@@ -14,7 +14,7 @@ The following variables need to be set for the playbook to run. The user will be
  - `db_password` : The password to use to connect to the database. No default.
 
  - `covid_pipeline_rootdir` :Path to the pipeline code (e.g. git checkout). Default: ${HOME}/covid-pipeline
- - `covid_pipeline_bam_path` : Path to the input BAM files and TSV metadata file. Default: ${HOME}/COVID_s3_data_lite/sample_data
+ - `covid_pipeline_input_path` : Path to the input FASTQ/BAM files and TSV metadata file. Default: ${HOME}/COVID_s3_data_lite/sample_data
  - `covid_pipeline_output_dir` :Path to the whole pipeline output. Default: ${HOME}/covid-pipeline-output
  - `covid_pipeline_reports_path` :   Path to the pipeline reports. Default: ${HOME}/covid-pipeline-reports
 

@@ -23,7 +23,7 @@ Environment variables required to run the pipeline. They are set up in the covid
 | DB_USER | Postgres database user name (e.g. postgres) |
 | DB_PASSWORD | Postgres database user password (e.g. postgres) |
 | COVID_PIPELINE_ROOTDIR | Path to the pipeline code (e.g. git checkout). (e.g. /app) |
-| COVID_PIPELINE_BAM_PATH | Path to the input FASTQ files and TSV metadata file. (e.g. /data/input) |
+| COVID_PIPELINE_INPUT_PATH | Path to the input BAM/FASTQ files and TSV metadata file. (e.g. /data/input) |
 | COVID_PIPELINE_OUTPUT_DIR | Path to the whole pipeline output. (e.g. /data/output) |
 
 
@@ -161,7 +161,7 @@ export DB_USER=postgres
 export DB_PASSWORD=postgres
 
 export COVID_PIPELINE_ROOTDIR="${HOME}/covid-pipeline"
-export COVID_PIPELINE_BAM_PATH="${HOME}/COVID_s3_data_lite/sample_data_0"
+export COVID_PIPELINE_INPUT_PATH="${HOME}/COVID_s3_data_lite/sample_data_0"
 export COVID_PIPELINE_OUTPUT_DIR="${HOME}/covid-pipeline-output"
 ```
 

@@ -13,7 +13,7 @@ log.info """\
     * DB_NAME                              : ${DB_NAME}
     * DB_USER                              : ${DB_USER}
     * COVID_PIPELINE_ROOTDIR               : ${COVID_PIPELINE_ROOTDIR}
-    * COVID_PIPELINE_BAM_PATH              : ${COVID_PIPELINE_BAM_PATH}
+    * COVID_PIPELINE_INPUT_PATH              : ${COVID_PIPELINE_INPUT_PATH}
     * COVID_PIPELINE_OUTPUT_DIR            : ${COVID_PIPELINE_OUTPUT_DIR}
 
     Internal environment variables:
@@ -46,7 +46,7 @@ if( "[:]" in [
     DB_USER,
     DB_PASSWORD,
     COVID_PIPELINE_ROOTDIR,
-    COVID_PIPELINE_BAM_PATH,
+    COVID_PIPELINE_INPUT_PATH,
     COVID_PIPELINE_OUTPUT_DIR
     ]) {
     throw new Exception("Found unset global environment variables. See '[:]' above. Abort")
@@ -80,7 +80,7 @@ include { pipeline_complete } from './modules/pipeline_complete.nf'
 workflow {
 
     load_iseha_metadata(
-        "${COVID_PIPELINE_BAM_PATH}/" + params.metadata_file_name
+        "${COVID_PIPELINE_INPUT_PATH}/" + params.metadata_file_name
     )
 
     load_iseha_metadata.out.ch_all_samples_with_metadata_file
