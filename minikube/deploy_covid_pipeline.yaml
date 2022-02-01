@@ -41,11 +41,11 @@ spec:
           value: '5432'
         - name: DB_USER
           value: postgres
-        - name: COVID_PIPELINE_ROOTDIR
+        - name: COVID_PIPELINE_ROOT_PATH
           value: /app
-        - name: COVID_PIPELINE_BAM_PATH
+        - name: COVID_PIPELINE_INPUT_PATH
           value: /data/input
-        - name: COVID_PIPELINE_OUTPUT_DIR
+        - name: COVID_PIPELINE_OUTPUT_PATH
           value: /data/output
         - name: NXF_WORK
           value: /data/work
