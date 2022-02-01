@@ -16,9 +16,9 @@
 PIPELINE_STARTED_FLAG_FILE="pipeline_started"
 PIPELINE_COMPLETE_FLAG_FILE="pipeline_complete"
 
-if [ -z "${COVID_PIPELINE_ROOTDIR}" ]
+if [ -z "${COVID_PIPELINE_ROOT_PATH}" ]
 then
-  echo "COVID_PIPELINE_ROOTDIR not set!"
+  echo "COVID_PIPELINE_ROOT_PATH not set!"
   exit 1
 fi
 if [ -z "${COVID_PIPELINE_INPUT_PATH}" ]
@@ -47,7 +47,7 @@ do
     echo "Starting pipeline for ${dir}, output to ${outfile}"
     touch "${dir}/${PIPELINE_STARTED_FLAG_FILE}"
     export COVID_PIPELINE_INPUT_PATH=${dir}
-    cd "${COVID_PIPELINE_ROOTDIR}/covid-pipeline"
+    cd "${COVID_PIPELINE_ROOT_PATH}/covid-pipeline"
     nextflow run . -ansi-log false > "${outfile}" 2>&1 &
     break
   fi

@@ -22,19 +22,19 @@ Environment variables required to run the pipeline. They are set up in the covid
 | DB_NAME | Postgres database name (e.g. covid_pipeline_db) |
 | DB_USER | Postgres database user name (e.g. postgres) |
 | DB_PASSWORD | Postgres database user password (e.g. postgres) |
-| COVID_PIPELINE_ROOTDIR | Path to the pipeline code (e.g. git checkout). (e.g. /app) |
-| COVID_PIPELINE_INPUT_PATH | Path to the input BAM/FASTQ files and TSV metadata file. (e.g. /data/input) |
-| COVID_PIPELINE_OUTPUT_DIR | Path to the whole pipeline output. (e.g. /data/output) |
+| COVID_PIPELINE_ROOT_PATH | Path to the pipeline code (e.g. git checkout). (e.g. /app) |
+| COVID_PIPELINE_INPUT_PATH | Path to the required input BAM/FASTQ files and TSV metadata file. (e.g. /data/input) |
+| COVID_PIPELINE_OUTPUT_PATH | Path to the whole pipeline output. (e.g. /data/output) |
 
 
 The following environment variables are set internally and should not be changed
 | Variable | Description |
 | :---------------- | :---------------------------------------------------------------- |
-| COVID_PIPELINE_MISSING_METADATA_PATH | Path to the missing metadata files. Set to: ${COVID_PIPELINE_OUTPUT_DIR}/no-metadata-found-bam |
+| COVID_PIPELINE_MISSING_METADATA_PATH | Path to the missing metadata files. Set to: ${COVID_PIPELINE_OUTPUT_PATH}/no-metadata-found-bam |
 | COVID_PIPELINE_NCOV_OUTPUT_PATH | Path to store all ncov2019-artic result files. Each run will be published to unique folder |
 | COVID_PIPELINE_QC_PLOTS_PATH | Path to store all ncov2019-artic qc_plots graphs in single folder |
-| COVID_PIPELINE_FASTA_PATH | Path to the re-headered ncov FASTA files. Set to: ${COVID_PIPELINE_OUTPUT_DIR}/reheadered-fasta |
-| COVID_PIPELINE_FASTA_PATH_QC_FAILED | Path to the re-headered ncov QC_FAILED FASTA files. Set to: ${COVID_PIPELINE_OUTPUT_DIR}/reheadered-fasta-qc-failed |
+| COVID_PIPELINE_FASTA_PATH | Path to the re-headered ncov FASTA files. Set to: ${COVID_PIPELINE_OUTPUT_PATH}/reheadered-fasta |
+| COVID_PIPELINE_FASTA_PATH_QC_FAILED | Path to the re-headered ncov QC_FAILED FASTA files. Set to: ${COVID_PIPELINE_OUTPUT_PATH}/reheadered-fasta-qc-failed |
 | COVID_PIPELINE_PANGOLIN_PATH | Path to the results of pangolin pipeline with lineage reports. ach run will be published to unique folder |
 | COVID_PIPELINE_GENBANK_PATH | Path to submission files, which were used to submit samples to GenBank programmatic interface |
 | COVID_PIPELINE_NOTIFICATIONS_PATH | Path to the pipeline notifications. Unexpected events regarding missing samples, files are reported here in text files |
@@ -93,7 +93,7 @@ nextflow run .
 # MODE 2: run from the last successful process
 nextflow run . -resume
 
-# The following command cleans up the previous run's work directories and cache, but retains the content of ${COVID_PIPELINE_OUTPUT_DIR}:
+# The following command cleans up the previous run's work directories and cache, but retains the content of ${COVID_PIPELINE_OUTPUT_PATH}:
 nextflow clean -f
 
 # once finished
@@ -160,9 +160,9 @@ export DB_NAME=covid_pipeline_db
 export DB_USER=postgres
 export DB_PASSWORD=postgres
 
-export COVID_PIPELINE_ROOTDIR="${HOME}/covid-pipeline"
+export COVID_PIPELINE_ROOT_PATH="${HOME}/covid-pipeline"
 export COVID_PIPELINE_INPUT_PATH="${HOME}/COVID_s3_data_lite/sample_data_0"
-export COVID_PIPELINE_OUTPUT_DIR="${HOME}/covid-pipeline-output"
+export COVID_PIPELINE_OUTPUT_PATH="${HOME}/covid-pipeline-output"
 ```
 
 #### Set up a local postgres database
@@ -214,7 +214,7 @@ sqitch revert ${SQITCH_URI}
 #### Run the unit tests
 Unit tests are implemented with pytest and stored in the project tests dir
 ```commandline
-cd ${COVID_PIPELINE_ROOTDIR}/tests
+cd ${COVID_PIPELINE_ROOT_PATH}/tests
 pytest
 ```
 
@@ -229,7 +229,7 @@ poetry add "boto3>=1.14,<1.16"
 ```
 
 #### Upgrading libraries
-To update all libraries to their latest versions, while still matching the constraints in `${COVID_PIPELINE_ROOTDIR}/pyproject.toml`, run:
+To update all libraries to their latest versions, while still matching the constraints in `${COVID_PIPELINE_ROOT_PATH}/pyproject.toml`, run:
 ```commandline
 poetry update
 ```
@@ -241,7 +241,7 @@ To update to a specific version that is not the latest version, re-run the add c
 
 
 #### Working with sqitch
-The work is done in `${COVID_PIPELINE_ROOTDIR}/sqitch/` directory
+The work is done in `${COVID_PIPELINE_ROOT_PATH}/sqitch/` directory
 
 To add the new migration, use the following command:
 ```commandline

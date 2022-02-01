@@ -29,7 +29,7 @@
       prompt: 'Database password '
       private: yes
       confirm: yes
-    - name: covid_pipeline_rootdir
+    - name: covid_pipeline_root_path
       prompt: 'Root dir of the pipeline '
       private: no
       default: '${HOME}/covid-pipeline'
@@ -37,7 +37,7 @@
       prompt: 'Path to FASTQ/BAM files for pipeline '
       private: no
       default: '${HOME}/COVID_s3_data_lite/sample_data'
-    - name: covid_pipeline_output_dir
+    - name: covid_pipeline_output_path
       prompt: 'Work dir of the pipeline '
       private: no
       default: '${HOME}/covid-pipeline-output'
