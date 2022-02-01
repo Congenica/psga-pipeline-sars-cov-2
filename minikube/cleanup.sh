@@ -5,13 +5,11 @@
 kubectl delete deployment psql
 kubectl delete service psql-host
 kubectl delete pvc psql-pvc
-kubectl delete pv psql-pv
 
 
 ## delete covid-pipeline
 kubectl delete deployment covid-pipeline
 kubectl delete pvc covid-pipeline-pvc
-kubectl delete pv covid-pipeline-pv
 
 
 ## delete any nf pod
