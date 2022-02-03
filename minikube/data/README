@@ -1,0 +1,16 @@
+# ncov2019-artic
+
+## Illumina workflow
+Original input files are stored in: s3://synthetic-data-dev/UKHSA/data/fastq_run.tgz
+
+Subsets of those files are stored here.
+
+Subsample 10000 read pairs from two large paired FASTQ files (same seed to keep pairing)
+```
+seqtk sample -s100 read1.fq 10000 > read1.subset.fq
+seqtk sample -s100 read2.fq 10000 > read2.subset.fq
+```
+
+
+## Nanopore nanopolish / medaka:
+See: ../ncov2019-artic-nf/.github/scripts/test_nanopore_pipelines.sh

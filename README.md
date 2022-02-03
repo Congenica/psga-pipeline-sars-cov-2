@@ -66,8 +66,9 @@ git submodule update
 # update pangolin, ncov2019_artic_nf to their latest commits
 git submodule update --remote --merge
 
-# build ncov docker image
-docker build -t ncov2019_artic_nf:${VERSION} -f Dockerfile.ncov2019-artic-nf .
+# build ncov docker images
+docker build -t ncov2019_artic_nf_illumina:${VERSION} -f Dockerfile.ncov2019-artic-nf-illumina .
+docker build -t ncov2019_artic_nf_nanopore:${VERSION} -f Dockerfile.ncov2019-artic-nf-nanopore .
 
 # build pangolin docker image
 docker build -t pangolin:${VERSION} -f Dockerfile.pangolin .

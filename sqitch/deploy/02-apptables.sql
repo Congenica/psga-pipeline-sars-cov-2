@@ -113,7 +113,7 @@ BEGIN;
    ,"block_number"   VARCHAR
       REFERENCES     "block" ("number")
       ON DELETE NO ACTION ON UPDATE NO ACTION DEFERRABLE INITIALLY DEFERRED
-   ,"sample_number"  INTEGER
+   ,"sample_number"  VARCHAR
    ,"ct_value"       DOUBLE PRECISION
    ,"symptoms"       TEXT
    ,"travel_exposure"  VARCHAR

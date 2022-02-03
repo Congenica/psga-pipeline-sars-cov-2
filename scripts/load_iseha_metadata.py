@@ -106,10 +106,6 @@ def _validate_and_normalise_row(session, row):
     if row["BLOCK"] and not re.match(r"(\d+)$", row["BLOCK"]):
         errs.append(f"BLOCK \"{row['BLOCK']}\" should contain digits")
 
-    # SAMPLE ID should be numbers, but not an integer
-    if not re.match(r"\d+$", row["SAMPLE ID"]):
-        errs.append(f"SAMPLE ID \"{row['SAMPLE ID']}\" is not a number")
-
     # ASSIGN DATE should be dd/mm/yyyy
     assign_date_match = re.match(r"(\d{2})/(\d{2})/(\d{4})$", row["ASSIGN DATE"])
     if assign_date_match:
@@ -249,7 +245,7 @@ def load_iseha_data(
                         age=row["AGE"],
                         nationality=row["NATIONALITY"],
                         lab_id=sample_name,
-                        sample_number=int(sample_name),
+                        sample_number=sample_name,
                         governorate=governorate,
                         area=area,
                         block_number=block,

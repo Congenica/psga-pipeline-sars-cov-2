@@ -29,4 +29,5 @@ kubectl create -f deploy_covid_pipeline.yaml
 pipeline_pod="$( kubectl get pods -l app=covid-pipeline --no-headers -o custom-columns=':metadata.name' )"
 wait_for_pod "${pipeline_pod}"
 # copy some basic input files so that we do not need to copy over every time
-kubectl exec -it ${pipeline_pod} -- bash -c 'mkdir -p /data/input && cp /app/minikube/input_files/* /data/input/'
+# use ncov illumina workflow by default
+kubectl exec -it ${pipeline_pod} -- bash -c 'mkdir -p /data && cp -R /app/minikube/data/* /data/ && ln -s /data/illumina /data/input'

@@ -31,10 +31,10 @@ process bam_to_fastq {
 
 
 /*
- * Run: ncov2019-artic-nf nextflow pipeline
+ * Run: ncov2019-artic-nf nextflow pipeline (illumina workflow)
  * see: https://github.com/connor-lab/ncov2019-artic-nf
  */
-process ncov2019_artic_nf_pipeline {
+process ncov2019_artic_nf_pipeline_illumina {
   input:
     file fastq_file
     val ncov_prefix
@@ -51,9 +51,48 @@ process ncov2019_artic_nf_pipeline {
   """
   # note: we inject our configuration into ncov to override parameters
   # note: `pwd` is the workdir for this nextflow process
-  nextflow run ${COVID_PIPELINE_ROOT_PATH}/ncov2019-artic-nf --illumina --prefix ${ncov_prefix} --directory `eval pwd` --outdir ${ncov_out_directory} -c ${COVID_PIPELINE_ROOT_PATH}/covid-pipeline/ncov-custom.config -c ${COVID_PIPELINE_ROOT_PATH}/covid-pipeline/ncov-k8s.config
+  nextflow run ${COVID_PIPELINE_ROOT_PATH}/ncov2019-artic-nf \
+      --illumina \
+      --prefix ${ncov_prefix} \
+      --directory `eval pwd` \
+      --outdir ${ncov_out_directory} \
+      -c ${COVID_PIPELINE_ROOT_PATH}/covid-pipeline/ncov-custom.config \
+      -c ${COVID_PIPELINE_ROOT_PATH}/covid-pipeline/ncov-illumina-k8s.config
   """
 }
+
+
+/*
+ * Run: ncov2019-artic-nf nextflow pipeline (nanopore/medaka workflow)
+ * see: https://github.com/connor-lab/ncov2019-artic-nf
+ */
+process ncov2019_artic_nf_pipeline_medaka {
+  input:
+    file input_dir
+    val ncov_prefix
+
+  output:
+    path "${ncov_out_directory}/*", emit: ch_all_ncov_results
+    path "${ncov_out_directory}/articNcovNanopore_sequenceAnalysisMedaka_articMinIONMedaka/*.consensus.fasta", emit: ch_fasta_ncov_results
+    path "${ncov_out_directory}/${ncov_prefix}.qc.csv", emit: ch_qc_csv_ncov_result
+    path "${ncov_out_directory}/qc_plots/*.depth.png", emit: ch_sample_depth_ncov_results
+
+  script:
+    ncov_out_directory = "ncov_output"
+
+  """
+  # note: we inject our configuration into ncov to override parameters
+  # note: `pwd` is the workdir for this nextflow process
+  nextflow run ${COVID_PIPELINE_ROOT_PATH}/ncov2019-artic-nf \
+      --medaka \
+      --prefix ${ncov_prefix} \
+      --basecalled_fastq `eval pwd` \
+      --outdir ${ncov_out_directory} \
+      -c ${COVID_PIPELINE_ROOT_PATH}/covid-pipeline/ncov-custom.config \
+      -c ${COVID_PIPELINE_ROOT_PATH}/covid-pipeline/ncov-nanopore-k8s.config
+  """
+}
+
 
 /*
  * Store ncov2019_artic output
