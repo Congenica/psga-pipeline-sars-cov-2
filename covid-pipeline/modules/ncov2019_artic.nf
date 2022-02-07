@@ -30,6 +30,25 @@ process bam_to_fastq {
 }
 
 
+process decompress_fastq_files {
+  input:
+    file compressed_fastq
+
+  output:
+    path "${output_directory}/*", emit: ch_decompressed_fastq_files
+
+  script:
+    decompressed_name = "${compressed_fastq.baseName}"
+    output_directory = "decompressed_fastq_files"
+
+  """
+  # decompress a file.fastq.gz and save it to file.fastq in an output dir
+  mkdir -p ${output_directory}
+  gunzip -c ${compressed_fastq} > ${output_directory}/${decompressed_name}
+  """
+}
+
+
 /*
  * Run: ncov2019-artic-nf nextflow pipeline (illumina workflow)
  * see: https://github.com/connor-lab/ncov2019-artic-nf

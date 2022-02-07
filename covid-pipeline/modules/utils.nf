@@ -8,7 +8,7 @@ def makeNanoporeSearchPath ( ) {
     // Make a glob to recurse directories
     dirNameGlob = params.directory.replaceAll(/\/+$/, "") + '**'
 
-    fileNameGlob = '*.fastq'
+    fileNameGlob = '*.fastq.gz'
 
     // Build a path
     searchPath = Paths.get(dirNameGlob, fileNameGlob)

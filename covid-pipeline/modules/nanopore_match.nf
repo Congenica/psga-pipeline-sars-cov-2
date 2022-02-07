@@ -20,7 +20,7 @@ workflow filter_nanopore_matching_with_metadata{
 
         Channel
             .fromPath(ch_nanopore_search_path)
-            .map { file -> tuple(file.baseName, file) }
+            .map { file -> tuple(file.simpleName, file) }
             .set{ ch_nanopore_files }
 
         ch_nanopore_files

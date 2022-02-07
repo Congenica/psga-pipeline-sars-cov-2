@@ -39,6 +39,14 @@ The following environment variables are set internally and should not be changed
 | COVID_PIPELINE_GENBANK_PATH | Path to submission files, which were used to submit samples to GenBank programmatic interface |
 | COVID_PIPELINE_NOTIFICATIONS_PATH | Path to the pipeline notifications. Unexpected events regarding missing samples, files are reported here in text files |
 
+### Pipeline input parameters
+
+Input parameters to run the pipeline.
+
+| Argument | Value |
+| :---------------- | :---------------------------------------------------------------- |
+| --ncov2019_artic_workflow | illumina (default; input file extension: .fq.gz or .bam), medaka (nanopore workflow; input file extension: .fastq.gz). |
+| --input_type | fastq (default), bam . The type of input file. Currently bam is only supported by the illumina workflow |
 
 ### Running the pipeline using K8s Minikube
 

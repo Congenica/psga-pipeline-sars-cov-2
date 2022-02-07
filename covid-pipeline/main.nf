@@ -69,6 +69,7 @@ if ( params.ncov2019_artic_workflow == "illumina" ) {
         throw new Exception("Error: input_type can only be 'fastq' or 'bam'")
     }
 } else if ( params.ncov2019_artic_workflow == "medaka" ) {
+    include { decompress_fastq_files } from './modules/ncov2019_artic.nf'
     include { filter_nanopore_matching_with_metadata as filter_input_files_matching_metadata } from './modules/nanopore_match.nf'
     include { ncov2019_artic_nf_pipeline_medaka as ncov2019_artic_nf_pipeline } from './modules/ncov2019_artic.nf'
 } else {
@@ -116,10 +117,19 @@ workflow {
         ch_qc_passed_samples,
         ch_updated_samples
     )
-    if ( params.ncov2019_artic_workflow == "illumina" && params.input_type == "bam" ) {
-        ch_input_files = bam_to_fastq(ch_input_files_prep)
-    } else {
+
+    if ( params.ncov2019_artic_workflow == "illumina" && params.input_type == "fastq" ) {
         ch_input_files = ch_input_files_prep
+    } else if ( params.ncov2019_artic_workflow == "illumina" && params.input_type == "bam" ) {
+        ch_input_files = bam_to_fastq(ch_input_files_prep)
+    } else if ( params.ncov2019_artic_workflow == "medaka" && params.input_type == "fastq" ) {
+        ch_input_files = decompress_fastq_files(ch_input_files_prep)
+    } else {
+        log.error """\
+            ERROR: nanopore / medaka workflow can only run with fastq input files.
+            Aborting!
+        """
+        System.exit(1)
     }
     ncov2019_artic_nf_pipeline(
         ch_input_files.collect(),
