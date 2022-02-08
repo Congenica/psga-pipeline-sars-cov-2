@@ -1,5 +1,4 @@
-// Imports from 3rd party pipelines
-include { makeFastqSearchPath } from '../../ncov2019-artic-nf/modules/util.nf'
+include { makeFastqSearchPath } from './utils.nf'
 
 include { concat_elements_to_single_string as concat_metadata_samples } from './utils.nf'
 include { concat_elements_to_single_string as concat_fastq_samples } from './utils.nf'

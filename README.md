@@ -23,7 +23,7 @@ Environment variables required to run the pipeline. They are set up in the covid
 | DB_USER | Postgres database user name (e.g. postgres) |
 | DB_PASSWORD | Postgres database user password (e.g. postgres) |
 | COVID_PIPELINE_ROOT_PATH | Path to the pipeline code (e.g. git checkout). (e.g. /app) |
-| COVID_PIPELINE_INPUT_PATH | Path to the required input BAM/FASTQ files and TSV metadata file. (e.g. /data/input) |
+| COVID_PIPELINE_INPUT_PATH | Path to the required input BAM/FASTQ files and TSV metadata file. (e.g. /data/input, s3://synthetic-data-dev/UKHSA/piero-test-data/illumina_fastq ) |
 | COVID_PIPELINE_OUTPUT_PATH | Path to the whole pipeline output. (e.g. /data/output) |
 
 
@@ -47,6 +47,21 @@ Input parameters to run the pipeline.
 | :---------------- | :---------------------------------------------------------------- |
 | --ncov2019_artic_workflow | illumina (default; input file extension: .fq.gz or .bam), medaka (nanopore workflow; input file extension: .fastq.gz). |
 | --input_type | fastq (default), bam . The type of input file. Currently bam is only supported by the illumina workflow |
+
+Example of execution with parameter: `nextflow run . --ncov2019_artic_workflow medaka`
+
+### Input files stored in aws s3
+If you plan to read input files from an aws s3 bucket you will need to:
+
+- copy your aws credentials to the /root dir in the covid-pipeline pod
+- export the env var `COVID_PIPELINE_INPUT_PATH` (see section: `Environment variables`) to point to the s3 dir containing your data. For quick tests we have these three paths:
+s3://synthetic-data-dev/UKHSA/piero-test-data/illumina_fastq
+s3://synthetic-data-dev/UKHSA/piero-test-data/illumina_bams
+s3://synthetic-data-dev/UKHSA/piero-test-data/medaka_fastq_fail
+s3://synthetic-data-dev/UKHSA/piero-test-data/medaka_fastq_pass  (quite large sample)
+
+If you intend to use your own path, do not forget to store a metadata.tsv file as well.
+
 
 ### Running the pipeline using K8s Minikube
 
