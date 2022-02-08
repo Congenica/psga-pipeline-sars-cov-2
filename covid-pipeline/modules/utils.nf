@@ -1,6 +1,23 @@
 import java.nio.file.Paths
 
 
+def makeNanoporeSearchPath ( ) {
+
+    def nanoporeSearchPath = []
+
+    // Make a glob to recurse directories
+    dirNameGlob = params.directory.replaceAll(/\/+$/, "") + '**'
+
+    fileNameGlob = '*.fastq.gz'
+
+    // Build a path
+    searchPath = Paths.get(dirNameGlob, fileNameGlob)
+
+    nanoporeSearchPath.add(searchPath.toString())
+
+    return nanoporeSearchPath
+}
+
 def makeBamSearchPath ( ) {
 
     def bamSearchPath = []

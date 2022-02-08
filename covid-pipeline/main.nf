@@ -28,6 +28,7 @@ log.info """\
 
     ======================
     params:
+    * ncov2019_artic_workflow               : ${params.ncov2019_artic_workflow}
     * input_type                            : ${params.input_type}
     * genbank_submitter_name                : ${params.genbank_submitter_name}
     * genbank_submitter_account_namespace   : ${params.genbank_submitter_account_namespace}
@@ -57,10 +58,24 @@ if( "[:]" in [
 // Import modules
 include { load_iseha_metadata } from './modules/iseha_metadata.nf'
 
-include { filter_fastq_matching_with_metadata } from './modules/fastq_match.nf'
-include { filter_bam_matching_with_metadata } from './modules/bam_match.nf'
-include { bam_to_fastq } from './modules/ncov2019_artic.nf'
-include { ncov2019_artic_nf_pipeline } from './modules/ncov2019_artic.nf'
+if ( params.ncov2019_artic_workflow == "illumina" ) {
+    include { ncov2019_artic_nf_pipeline_illumina as ncov2019_artic_nf_pipeline } from './modules/ncov2019_artic.nf'
+    if ( params.input_type == "fastq" ) {
+        include { filter_fastq_matching_with_metadata as filter_input_files_matching_metadata } from './modules/fastq_match.nf'
+    } else if ( params.input_type == "bam" ) {
+        include { bam_to_fastq } from './modules/ncov2019_artic.nf'
+        include { filter_bam_matching_with_metadata as filter_input_files_matching_metadata } from './modules/bam_match.nf'
+    } else {
+        throw new Exception("Error: input_type can only be 'fastq' or 'bam'")
+    }
+} else if ( params.ncov2019_artic_workflow == "medaka" ) {
+    include { decompress_fastq_files } from './modules/ncov2019_artic.nf'
+    include { filter_nanopore_matching_with_metadata as filter_input_files_matching_metadata } from './modules/nanopore_match.nf'
+    include { ncov2019_artic_nf_pipeline_medaka as ncov2019_artic_nf_pipeline } from './modules/ncov2019_artic.nf'
+} else {
+    throw new Exception("Error: ncov2019_artic_workflow can only be 'illumina' or 'medaka'")
+}
+
 include { store_ncov2019_artic_nf_output } from './modules/ncov2019_artic.nf'
 include { load_ncov_assembly_qc_to_db } from './modules/ncov2019_artic.nf'
 include { reheader_genome_fasta } from './modules/ncov2019_artic.nf'
@@ -80,10 +95,10 @@ include { pipeline_complete } from './modules/pipeline_complete.nf'
 
 workflow {
 
+    // METADATA
     load_iseha_metadata(
         "${COVID_PIPELINE_INPUT_PATH}/" + params.metadata_file_name
     )
-
     load_iseha_metadata.out.ch_all_samples_with_metadata_file
         .splitText().map { it.trim() }.set { ch_all_samples_with_metadata_loaded }
     load_iseha_metadata.out.ch_current_session_samples_with_metadata_file
@@ -94,31 +109,28 @@ workflow {
         .splitText().map { it.trim() }.set { ch_updated_samples }
 
 
+    // NCOV2019-ARTIC
     ch_input_files = Channel.empty()
+    ch_input_files_prep = filter_input_files_matching_metadata(
+        ch_all_samples_with_metadata_loaded,
+        ch_current_session_samples_with_metadata_loaded,
+        ch_qc_passed_samples,
+        ch_updated_samples
+    )
 
-    if ( params.input_type == "fastq" ) {
-
-        ch_input_files = filter_fastq_matching_with_metadata(
-            ch_all_samples_with_metadata_loaded,
-            ch_current_session_samples_with_metadata_loaded,
-            ch_qc_passed_samples,
-            ch_updated_samples
-        )
-
-    } else if ( params.input_type == "bam" ) {
-
-        ch_bam_matching_metadata = filter_bam_matching_with_metadata(
-            ch_all_samples_with_metadata_loaded,
-            ch_current_session_samples_with_metadata_loaded,
-            ch_qc_passed_samples,
-            ch_updated_samples
-        )
-        ch_input_files = bam_to_fastq(ch_bam_matching_metadata)
-
+    if ( params.ncov2019_artic_workflow == "illumina" && params.input_type == "fastq" ) {
+        ch_input_files = ch_input_files_prep
+    } else if ( params.ncov2019_artic_workflow == "illumina" && params.input_type == "bam" ) {
+        ch_input_files = bam_to_fastq(ch_input_files_prep)
+    } else if ( params.ncov2019_artic_workflow == "medaka" && params.input_type == "fastq" ) {
+        ch_input_files = decompress_fastq_files(ch_input_files_prep)
     } else {
-        throw new Exception("Error: input_type can only be 'fastq' or 'bam'")
+        log.error """\
+            ERROR: nanopore / medaka workflow can only run with fastq input files.
+            Aborting!
+        """
+        System.exit(1)
     }
-
     ncov2019_artic_nf_pipeline(
         ch_input_files.collect(),
         params.ncov_prefix

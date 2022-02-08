@@ -15,13 +15,19 @@ ASSEMBLY_LENGTHS_FILENAME = "sequence_lengths.text"
 def convert_file(source_file: Path, output_dir: Path) -> None:
     sequence_lengths = {}
     for record in SeqIO.parse(source_file, FASTA_FILE_HANDLE):
+
+        # ncov-illumina workflow
         # >Consensus_ERR4157960.primertrimmed.consensus_threshold_0.75_quality_20
-        sample_name = re.search(r"^Consensus_(\w+)", record.id)
+        # ncov-nanopore workflow
+        # >20200311_1427_X1_FAK72834_a3787181_barcode07/ARTIC/medaka
+        sample_name = re.search(r"^(Consensus_)?(\w+)", record.id)
+
         if not sample_name:
             click.echo(f'sample name not found in {source_file} in header "{record.id}" skipping')
             continue
 
-        sample_name = sample_name.group(1)
+        # remove string if present (e.g. ncov-illumina workflow)
+        sample_name = sample_name.group(0).replace("Consensus_", "", 1)
 
         sequence_lengths[sample_name] = len(record.seq)
         output_file = join(output_dir, f"{sample_name}.{FASTA_FILE_HANDLE}")
@@ -41,12 +47,20 @@ def convert_file(source_file: Path, output_dir: Path) -> None:
 # directory to output. If not specified, will output to source directory
 @click.argument("destination", default="", envvar="COVID_PIPELINE_FASTA_PATH")
 def reheader_fasta(source: str, destination: str) -> None:
-    """Genome sequences produce by ncov have sequence identifiers that include
+    """
+    Genome sequences produce by ncov have sequence identifiers that include
     QC parameters. This is to get rid of them.
+    We only consider consensus fasta files
     """
     destination = destination or source
 
-    for path in Path(source).rglob(f"*.{FASTA_FILE_EXTENSION}"):
+    # ncov returns consensus *.fa files when executed with the illumina workflow, but
+    # it returns consensus *.fasta files when executed with the nanopore workflow
+    # Here we rename any *.fasta to *.fa as 'fasta' is the extension of our output files
+    for path in Path(source).rglob(f"*.consensus.{FASTA_FILE_HANDLE}"):
+        path.rename(path.with_suffix(f".{FASTA_FILE_EXTENSION}"))
+
+    for path in Path(source).rglob(f"*.consensus.{FASTA_FILE_EXTENSION}"):
         click.echo(f"processing file {path}")
         convert_file(path, Path(destination))
 
