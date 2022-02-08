@@ -12,5 +12,5 @@ seqtk sample -s100 read2.fq 10000 > read2.subset.fq
 ```
 
 
-## Nanopore nanopolish / medaka:
+## Nanopore medaka:
 See: ../ncov2019-artic-nf/.github/scripts/test_nanopore_pipelines.sh

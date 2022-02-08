@@ -136,7 +136,7 @@ workflow filter_fastq_matching_with_metadata{
 
         ch_fasta_matching_metadata.ifEmpty {
             log.error """\
-              ERROR: No illumina fastq file pairs found matching samples, provided by I-SEHA sample metdata import.
+              ERROR: No illumina fastq file pairs found matching samples, provided by I-SEHA sample metadata import.
                 This may be caused by failure in loading sample metadata from .tsv file to the database, or metadata .tsv file not matching any fastq files provided.
                 Aborting!
             """
