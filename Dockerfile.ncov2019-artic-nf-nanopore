@@ -19,7 +19,7 @@ COPY --from=condabuild /opt/conda/envs/artic /opt/conda/envs/artic
 ENV PATH=/opt/conda/envs/artic/bin:$PATH
 COPY ncov2019-artic-nf/bin/qc.py /opt/conda/envs/artic/bin
 
-RUN wget -qO- https://get.nextflow.io | bash && chmod +x nextflow && mv nextflow /usr/bin
+RUN wget -qO- https://github.com/nextflow-io/nextflow/releases/download/v21.10.6/nextflow | bash && chmod +x nextflow && mv nextflow /usr/bin
 
 COPY . /app
 WORKDIR /app/ncov2019-artic-nf

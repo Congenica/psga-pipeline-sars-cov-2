@@ -11,8 +11,8 @@ process pipeline_complete {
   output:
 
   script:
-    pipeline_started_file = "${COVID_PIPELINE_INPUT_PATH}/" + "pipeline_started"
-    pipeline_complete_file = "${COVID_PIPELINE_INPUT_PATH}/" + "pipeline_complete"
+    pipeline_started_file = "${COVID_PIPELINE_OUTPUT_PATH}/" + "pipeline_started"
+    pipeline_complete_file = "${COVID_PIPELINE_OUTPUT_PATH}/" + "pipeline_complete"
 
   """
   touch ${pipeline_complete_file}

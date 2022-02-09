@@ -1,39 +1,38 @@
 import java.nio.file.Paths
 
 
-def makeNanoporeSearchPath ( ) {
+/* make a glob for retrieving illumina fastq files */
+def makeFastqSearchPath ( illuminaPrefixes, illuminaSuffixes, fastq_exts ) {
+    def fastqSearchPath = []
 
-    def nanoporeSearchPath = []
+    for (suff in illuminaSuffixes) {
+        for(ext in fastq_exts) {
+            if ( illuminaPrefixes ) {
+                for (prefix in illuminaPrefixes) {
+                    dirNameGlob = params.directory.replaceAll(/\/+$/, "") + '**' +  '/' + prefix + suff + ext
+                    fastqSearchPath.add(dirNameGlob)
+                }
+            } else {
+                dirNameGlob = params.directory.replaceAll(/\/+$/, "") + '**' +  '/' + suff + ext
+                fastqSearchPath.add(dirNameGlob)
+            }
+        }
+    }
 
-    // Make a glob to recurse directories
-    dirNameGlob = params.directory.replaceAll(/\/+$/, "") + '**'
-
-    fileNameGlob = '*.fastq.gz'
-
-    // Build a path
-    searchPath = Paths.get(dirNameGlob, fileNameGlob)
-
-    nanoporeSearchPath.add(searchPath.toString())
-
-    return nanoporeSearchPath
+    return fastqSearchPath
 }
 
+/* make a glob for retrieving nanopore-medaka fastq files */
+def makeNanoporeSearchPath ( ) {
+    // note: we need this specific extension
+    filePathGlob = params.directory.replaceAll(/\/+$/, "") + '**' + '/*.fastq.gz'
+    return filePathGlob
+}
+
+/* make a glob for retrieving bam files for the ncov-illumina workflow */
 def makeBamSearchPath ( ) {
-
-    def bamSearchPath = []
-
-    // Make a glob to recurse directories
-    dirNameGlob = params.directory.replaceAll(/\/+$/, "") + '**'
-
-    // Make a glob for filenames
-    fileNameGlob = '*.bam'
-
-    // Build a path
-    searchPath = Paths.get(dirNameGlob, fileNameGlob)
-
-    bamSearchPath.add(searchPath.toString())
-
-    return bamSearchPath
+    filePathGlob = params.directory.replaceAll(/\/+$/, "") + '**' + '/*.bam'
+    return filePathGlob
 }
 
 process concat_elements_to_single_string{
