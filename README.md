@@ -57,8 +57,8 @@ If you plan to read input files from an aws s3 bucket you will need to:
 - export the env var `COVID_PIPELINE_INPUT_PATH` (see section: `Environment variables`) to point to the s3 dir containing your data. For quick tests we have these three paths:
 s3://synthetic-data-dev/UKHSA/piero-test-data/illumina_fastq
 s3://synthetic-data-dev/UKHSA/piero-test-data/illumina_bams
-s3://synthetic-data-dev/UKHSA/piero-test-data/medaka_fastq_fail
-s3://synthetic-data-dev/UKHSA/piero-test-data/medaka_fastq_pass  (quite large sample)
+s3://synthetic-data-dev/UKHSA/piero-test-data/medaka_fastq_fail/20200311_1427_X1_FAK72834_a3787181
+s3://synthetic-data-dev/UKHSA/piero-test-data/medaka_fastq_pass                                     (TO BE REVIEWED)
 
 If you intend to use your own path, do not forget to store a metadata.tsv file as well.
 
