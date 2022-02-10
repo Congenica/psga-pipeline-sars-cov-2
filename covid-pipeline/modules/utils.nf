@@ -1,8 +1,15 @@
 import java.nio.file.Paths
 
 
+/* return the name of the last dir (e.g. /a/b/c/d => d) */
+def getDirName (myDir) {
+    pathDir = Paths.get(myDir)
+    dirName = pathDir.getFileName().toString()
+    return dirName
+}
+
 /* make a glob for retrieving illumina fastq files */
-def makeFastqSearchPath ( illuminaPrefixes, illuminaSuffixes, fastq_exts ) {
+def makeFastqSearchPath (illuminaPrefixes, illuminaSuffixes, fastq_exts) {
     def fastqSearchPath = []
 
     for (suff in illuminaSuffixes) {
@@ -25,7 +32,7 @@ def makeFastqSearchPath ( illuminaPrefixes, illuminaSuffixes, fastq_exts ) {
 /* make a glob for retrieving nanopore-medaka fastq files */
 def makeNanoporeSearchPath ( ) {
     // note: we need this specific extension
-    filePathGlob = params.directory.replaceAll(/\/+$/, "") + '**' + '/*.fastq.gz'
+    filePathGlob = params.directory.replaceAll(/\/+$/, "") + '/fastq_pass/barcode*/*.fastq'
     return filePathGlob
 }
 

@@ -30,25 +30,6 @@ process bam_to_fastq {
 }
 
 
-process decompress_fastq_files {
-  input:
-    file compressed_fastq
-
-  output:
-    path "${output_directory}/*", emit: ch_decompressed_fastq_files
-
-  script:
-    decompressed_name = "${compressed_fastq.baseName}"
-    output_directory = "decompressed_fastq_files"
-
-  """
-  # decompress a file.fastq.gz and save it to file.fastq in an output dir
-  mkdir -p ${output_directory}
-  gunzip -c ${compressed_fastq} > ${output_directory}/${decompressed_name}
-  """
-}
-
-
 /*
  * Run: ncov2019-artic-nf nextflow pipeline (illumina workflow)
  * see: https://github.com/connor-lab/ncov2019-artic-nf
@@ -92,14 +73,21 @@ process ncov2019_artic_nf_pipeline_medaka {
 
   output:
     path "${ncov_out_directory}/*", emit: ch_all_ncov_results
-    path "${ncov_out_directory}/articNcovNanopore_sequenceAnalysisMedaka_articMinIONMedaka/*.consensus.fasta", emit: ch_fasta_ncov_results
+    path "${ncov_out_directory}/articNcovNanopore_sequenceAnalysisMedaka_articMinIONMedaka/${ncov_prefix}*.consensus.fasta", emit: ch_fasta_ncov_results
     path "${ncov_out_directory}/${ncov_prefix}.qc.csv", emit: ch_qc_csv_ncov_result
-    path "${ncov_out_directory}/qc_plots/*.depth.png", emit: ch_sample_depth_ncov_results
+    path "${ncov_out_directory}/qc_plots/${ncov_prefix}*.depth.png", emit: ch_sample_depth_ncov_results
 
   script:
     ncov_out_directory = "ncov_output"
 
   """
+  # move fastq file to its specific barcode dir
+  for fq in *.fastq; do
+      barcode="\$(echo "\$fq" | egrep -o 'barcode[[:digit:]]+' | head -n1)"
+      mkdir "\$barcode"
+      mv "\$fq" "\$barcode"
+  done
+
   # note: we inject our configuration into ncov to override parameters
   # note: `pwd` is the workdir for this nextflow process
   nextflow run ${COVID_PIPELINE_ROOT_PATH}/ncov2019-artic-nf \

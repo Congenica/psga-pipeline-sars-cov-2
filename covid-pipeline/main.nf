@@ -69,7 +69,7 @@ if ( params.ncov2019_artic_workflow == "illumina" ) {
         throw new Exception("Error: input_type can only be 'fastq' or 'bam'")
     }
 } else if ( params.ncov2019_artic_workflow == "medaka" ) {
-    include { decompress_fastq_files } from './modules/ncov2019_artic.nf'
+    include { getDirName } from './modules/utils.nf'
     include { filter_nanopore_matching_with_metadata as filter_input_files_matching_metadata } from './modules/nanopore_match.nf'
     include { ncov2019_artic_nf_pipeline_medaka as ncov2019_artic_nf_pipeline } from './modules/ncov2019_artic.nf'
 } else {
@@ -118,12 +118,17 @@ workflow {
         ch_updated_samples
     )
 
+    ncov_prefix = "covid_test"
     if ( params.ncov2019_artic_workflow == "illumina" && params.input_type == "fastq" ) {
         ch_input_files = ch_input_files_prep
     } else if ( params.ncov2019_artic_workflow == "illumina" && params.input_type == "bam" ) {
         ch_input_files = bam_to_fastq(ch_input_files_prep)
     } else if ( params.ncov2019_artic_workflow == "medaka" && params.input_type == "fastq" ) {
-        ch_input_files = decompress_fastq_files(ch_input_files_prep)
+        ch_input_files = ch_input_files_prep
+        // for ncov nanopore/medaka workflow this is not arbitrary. It must be the name of the full run coming from the lab.
+        // This is the name of the input dir
+        // e.g. 20200311_1427_X1_FAK72834_a3787181
+        ncov_prefix = getDirName("${COVID_PIPELINE_INPUT_PATH}")
     } else {
         log.error """\
             ERROR: nanopore / medaka workflow can only run with fastq input files.
@@ -133,7 +138,7 @@ workflow {
     }
     ncov2019_artic_nf_pipeline(
         ch_input_files.collect(),
-        params.ncov_prefix
+        ncov_prefix
     )
 
 
