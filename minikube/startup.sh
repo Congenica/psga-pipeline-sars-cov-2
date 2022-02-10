@@ -6,7 +6,7 @@ wait_for_pod() {
 
     printf "waiting for pod ${__POD} to run "
     while [[ $(kubectl get pods ${__POD} -o 'jsonpath={..status.conditions[?(@.type=="Ready")].status}') != "True" ]]; do
-        printf "." && sleep 2
+        printf "." && sleep 1
     done
     printf "\n${__POD} is running\n"
 }

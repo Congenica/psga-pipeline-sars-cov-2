@@ -21,5 +21,9 @@ COPY ncov2019-artic-nf/bin/qc.py /opt/conda/envs/artic-ncov2019-illumina/bin
 
 RUN wget -qO- https://github.com/nextflow-io/nextflow/releases/download/v21.10.6/nextflow | bash && chmod +x nextflow && mv nextflow /usr/bin
 
+# clone the primer schemes so that ncov pipeline does not need to download every time
+RUN mkdir -p /artic-network \
+  && git clone https://github.com/artic-network/primer-schemes.git /artic-network/primer-schemes
+
 COPY . /app
 WORKDIR /app/ncov2019-artic-nf
