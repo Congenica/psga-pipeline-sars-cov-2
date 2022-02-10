@@ -18,10 +18,18 @@ workflow filter_nanopore_matching_with_metadata{
     main:
         ch_nanopore_search_path = makeNanoporeSearchPath()
 
+        // for this workflow, the sample id is:
+        //   20200311_1427_X1_FAK72834_a3787181_barcode07
+        // where the corresponding fastq file is something like:
+        //   /data/medaka_input/20200311_1427_X1_FAK72834_a3787181/fastq_pass/barcode07/FAK72834_pass_barcode07_298b7829_0.fastq
         Channel
             .fromPath(ch_nanopore_search_path)
-            .map { file -> tuple(file.simpleName, file) }
+            .map { file -> tuple(
+                file.parent.parent.parent.baseName + '_' + file.parent.baseName,
+                file
+            ) }
             .set{ ch_nanopore_files }
+        // ch_nanopore_files.subscribe { println it }
 
         ch_nanopore_files
             .map { it ->  it[0] }
