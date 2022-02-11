@@ -1,0 +1,35 @@
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: covid-pipeline-pv
+  labels:
+    explicitMount: covid-pipeline-pv
+    app.kubernetes.io/name: covid-pipeline-pv
+spec:
+  storageClassName: covid-pipeline-pv
+  capacity:
+    storage: 250Gi
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  nfs:
+    server: efs.saas-dev.k8s.congenica.net
+    path: "/data/ukhsa-covid"
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: covid-pipeline-pvc
+  labels:
+    app.kubernetes.io/name: covid-pipeline-pvc
+spec:
+  selector:
+    matchLabels:
+      explicitMount: covid-pipeline-pv
+  storageClassName: covid-pipeline-pv
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 250Gi
