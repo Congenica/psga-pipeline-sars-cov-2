@@ -65,6 +65,8 @@ spec:
           value: k8s
         - name: NXF_ANSI_LOG
           value: 'false'
+        - name: K8S_PULL_POLICY
+          value: Always
         volumeMounts:
         - name: covid-pipeline-persistent-storage
           mountPath: /data

@@ -38,6 +38,7 @@ The following environment variables are set internally and should not be changed
 | COVID_PIPELINE_PANGOLIN_PATH | Path to the results of pangolin pipeline with lineage reports. ach run will be published to unique folder |
 | COVID_PIPELINE_GENBANK_PATH | Path to submission files, which were used to submit samples to GenBank programmatic interface |
 | COVID_PIPELINE_NOTIFICATIONS_PATH | Path to the pipeline notifications. Unexpected events regarding missing samples, files are reported here in text files |
+| K8S_PULL_POLICY | The Kubernetes docker image pull policy (e.g. Always, Never) |
 
 ### Pipeline input parameters
 
@@ -63,7 +64,7 @@ s3://synthetic-data-dev/UKHSA/piero-test-data/medaka_fastq_pass                 
 If you intend to use your own path, do not forget to store a metadata.tsv file as well.
 
 
-### Running the pipeline using K8s Minikube
+### Running the pipeline using K8s Minikube (local testing)
 
 Download and install Minikube using the instructions provided here: https://minikube.sigs.k8s.io/docs/start/
 
