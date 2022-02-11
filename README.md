@@ -80,7 +80,7 @@ export VERSION=1.0.0
 
 # build main images
 docker build -t ${DOCKER_IMAGE_PREFIX}/nextflow-wrapper:${VERSION} -f Dockerfile.nextflow .
-docker build -t ${DOCKER_IMAGE_PREFIX}/covid-pipeline:${VERSION} -f Dockerfile .
+docker build -t ${DOCKER_IMAGE_PREFIX}/covid-pipeline:${VERSION} -f Dockerfile.covid-pipeline .
 docker build -t ${DOCKER_IMAGE_PREFIX}/covid-pipeline-db:${VERSION} -f Dockerfile.postgres .
 
 # add project submodules
