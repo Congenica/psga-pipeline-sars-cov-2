@@ -79,9 +79,9 @@ export DOCKER_IMAGE_PREFIX=144563655722.dkr.ecr.eu-west-1.amazonaws.com/congenic
 export VERSION=1.0.0
 
 # build main images
-docker build -t ${DOCKER_IMAGE_PREFIX}/nextflow-wrapper:${VERSION} -f Dockerfile.nextflow .
-docker build -t ${DOCKER_IMAGE_PREFIX}/covid-pipeline:${VERSION} -f Dockerfile.covid-pipeline .
-docker build -t ${DOCKER_IMAGE_PREFIX}/covid-pipeline-db:${VERSION} -f Dockerfile.postgres .
+docker build -t ${DOCKER_IMAGE_PREFIX}/nextflow-wrapper:${VERSION} -f docker/Dockerfile.nextflow .
+docker build -t ${DOCKER_IMAGE_PREFIX}/covid-pipeline:${VERSION} -f docker/Dockerfile.covid-pipeline .
+docker build -t ${DOCKER_IMAGE_PREFIX}/covid-pipeline-db:${VERSION} -f docker/Dockerfile.postgres .
 
 # add project submodules
 git submodule init
@@ -91,11 +91,11 @@ git submodule update
 git submodule update --remote --merge
 
 # build ncov docker images
-docker build -t ${DOCKER_IMAGE_PREFIX}/ncov2019_artic_nf_illumina:${VERSION} -f Dockerfile.ncov2019-artic-nf-illumina .
-docker build -t ${DOCKER_IMAGE_PREFIX}/ncov2019_artic_nf_nanopore:${VERSION} -f Dockerfile.ncov2019-artic-nf-nanopore .
+docker build -t ${DOCKER_IMAGE_PREFIX}/ncov2019_artic_nf_illumina:${VERSION} -f docker/Dockerfile.ncov2019-artic-nf-illumina .
+docker build -t ${DOCKER_IMAGE_PREFIX}/ncov2019_artic_nf_nanopore:${VERSION} -f docker/Dockerfile.ncov2019-artic-nf-nanopore .
 
 # build pangolin docker image
-docker build -t ${DOCKER_IMAGE_PREFIX}/pangolin:${VERSION} -f Dockerfile.pangolin .
+docker build -t ${DOCKER_IMAGE_PREFIX}/pangolin:${VERSION} -f docker/Dockerfile.pangolin .
 ```
 
 Once all the required images are generated, the deployments can be created:
@@ -197,7 +197,7 @@ A local database must be available to run the tests
 export DOCKER_IMAGE_PREFIX=144563655722.dkr.ecr.eu-west-1.amazonaws.com/congenica/dev
 export VERSION=1.0.0
 
-docker build -t ${DOCKER_IMAGE_PREFIX}/covid-pipeline-db:${VERSION} -f Dockerfile.postgres .
+docker build -t ${DOCKER_IMAGE_PREFIX}/covid-pipeline-db:${VERSION} -f docker/Dockerfile.postgres .
 
 docker run -d -p ${DB_PORT}:${DB_PORT} --name my-postgres-server -e POSTGRES_PASSWORD=${DB_PASSWORD} covid-pipeline-db:${VERSION}
 
