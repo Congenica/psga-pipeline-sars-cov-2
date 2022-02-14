@@ -6,8 +6,9 @@ RUN /opt/conda/bin/conda update conda && \
 /opt/conda/bin/mamba env create -f /nanopore.yml && \
 /opt/conda/bin/mamba env update -f /extras.yml -n artic
 
-# reinstall these two packages to their latest version, as the conda-selected downgraded ones fail to run
-RUN /opt/conda/bin/mamba install -y -c conda-forge -c bioconda cutadapt==3.1 dnaio==0.4.4 openjdk=11.0.8 -n artic
+# reinstall these two packages to their latest version, as the conda-selected downgraded ones fail to run.
+# pin muscle to 3.8 as this is what the artic code uses, but the dependencies above install the 5.1 which does not work
+RUN /opt/conda/bin/mamba install -y -c conda-forge -c bioconda cutadapt==3.1 dnaio==0.4.4 muscle==3.8.1551 openjdk=11.0.8 -n artic
 
 FROM debian:buster-slim
 RUN apt-get update \
