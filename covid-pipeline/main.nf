@@ -15,6 +15,16 @@ log.info """\
     * COVID_PIPELINE_ROOT_PATH             : ${COVID_PIPELINE_ROOT_PATH}
     * COVID_PIPELINE_INPUT_PATH            : ${COVID_PIPELINE_INPUT_PATH}
     * COVID_PIPELINE_OUTPUT_PATH           : ${COVID_PIPELINE_OUTPUT_PATH}
+    * DOCKER_IMAGE_PREFIX                  : ${DOCKER_IMAGE_PREFIX}
+    * DOCKER_IMAGE_TAG                     : ${DOCKER_IMAGE_TAG}
+    * K8S_PULL_POLICY                      : ${K8S_PULL_POLICY}
+    * K8S_SERVICE_ACCOUNT                  : ${K8S_SERVICE_ACCOUNT}
+    * K8S_QUEUE_SIZE                       : ${K8S_QUEUE_SIZE}
+    * K8S_STORAGE_CLAIM_NAME               : ${K8S_STORAGE_CLAIM_NAME}
+    * K8S_STORAGE_MOUNT_PATH               : ${K8S_STORAGE_MOUNT_PATH}
+    * NXF_WORK                             : ${NXF_WORK}
+    * NXF_EXECUTOR                         : ${NXF_EXECUTOR}
+    * NXF_ANSI_LOG                         : ${NXF_ANSI_LOG}
 
     Internal environment variables:
     * COVID_PIPELINE_MISSING_METADATA_PATH : ${COVID_PIPELINE_MISSING_METADATA_PATH}
@@ -49,7 +59,17 @@ if( "[:]" in [
     DB_PASSWORD,
     COVID_PIPELINE_ROOT_PATH,
     COVID_PIPELINE_INPUT_PATH,
-    COVID_PIPELINE_OUTPUT_PATH
+    COVID_PIPELINE_OUTPUT_PATH,
+    DOCKER_IMAGE_PREFIX,
+    DOCKER_IMAGE_TAG,
+    K8S_PULL_POLICY,
+    K8S_SERVICE_ACCOUNT,
+    K8S_QUEUE_SIZE,
+    K8S_STORAGE_CLAIM_NAME,
+    K8S_STORAGE_MOUNT_PATH,
+    NXF_WORK,
+    NXF_EXECUTOR,
+    NXF_ANSI_LOG
     ]) {
     throw new Exception("Found unset global environment variables. See '[:]' above. Abort")
 }
