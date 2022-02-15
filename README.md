@@ -38,6 +38,7 @@ The following environment variables are set internally and should not be changed
 | COVID_PIPELINE_PANGOLIN_PATH | Path to the results of pangolin pipeline with lineage reports. ach run will be published to unique folder |
 | COVID_PIPELINE_GENBANK_PATH | Path to submission files, which were used to submit samples to GenBank programmatic interface |
 | COVID_PIPELINE_NOTIFICATIONS_PATH | Path to the pipeline notifications. Unexpected events regarding missing samples, files are reported here in text files |
+| K8S_PULL_POLICY | The Kubernetes docker image pull policy (e.g. Always, Never) |
 
 ### Pipeline input parameters
 
@@ -63,7 +64,7 @@ s3://synthetic-data-dev/UKHSA/piero-test-data/medaka_fastq_pass                 
 If you intend to use your own path, do not forget to store a metadata.tsv file as well.
 
 
-### Running the pipeline using K8s Minikube
+### Running the pipeline using K8s Minikube (local testing)
 
 Download and install Minikube using the instructions provided here: https://minikube.sigs.k8s.io/docs/start/
 
@@ -75,12 +76,13 @@ eval $(minikube -p minikube docker-env)
 
 The next step is to build the pipeline docker images in the minikube docker environment. For simplicity, the database is stored on a pod. This is not ideal as this can be lost if the pod crashes or is deleted. However, as a proof of concept, this is fine. In the future, the database will be stored in an RDS aurora cluster, therefore outside the k8s environment.
 ```commandline
+export DOCKER_IMAGE_PREFIX=144563655722.dkr.ecr.eu-west-1.amazonaws.com/congenica/dev
 export VERSION=1.0.0
 
 # build main images
-docker build -t nextflow-wrapper:${VERSION} -f Dockerfile.nextflow .
-docker build -t covid-pipeline:${VERSION} -f Dockerfile .
-docker build -t covid-pipeline-db:${VERSION} -f Dockerfile.postgres .
+docker build -t ${DOCKER_IMAGE_PREFIX}/nextflow-wrapper:${VERSION} -f docker/Dockerfile.nextflow .
+docker build -t ${DOCKER_IMAGE_PREFIX}/covid-pipeline:${VERSION} -f docker/Dockerfile.covid-pipeline .
+docker build -t ${DOCKER_IMAGE_PREFIX}/covid-pipeline-db:${VERSION} -f docker/Dockerfile.postgres .
 
 # add project submodules
 git submodule init
@@ -90,11 +92,11 @@ git submodule update
 git submodule update --remote --merge
 
 # build ncov docker images
-docker build -t ncov2019_artic_nf_illumina:${VERSION} -f Dockerfile.ncov2019-artic-nf-illumina .
-docker build -t ncov2019_artic_nf_nanopore:${VERSION} -f Dockerfile.ncov2019-artic-nf-nanopore .
+docker build -t ${DOCKER_IMAGE_PREFIX}/ncov2019_artic_nf_illumina:${VERSION} -f docker/Dockerfile.ncov2019-artic-nf-illumina .
+docker build -t ${DOCKER_IMAGE_PREFIX}/ncov2019_artic_nf_nanopore:${VERSION} -f docker/Dockerfile.ncov2019-artic-nf-nanopore .
 
 # build pangolin docker image
-docker build -t pangolin:${VERSION} -f Dockerfile.pangolin .
+docker build -t ${DOCKER_IMAGE_PREFIX}/pangolin:${VERSION} -f docker/Dockerfile.pangolin .
 ```
 
 Once all the required images are generated, the deployments can be created:
@@ -193,9 +195,10 @@ export COVID_PIPELINE_OUTPUT_PATH="${HOME}/covid-pipeline-output"
 
 A local database must be available to run the tests
 ```commandline
+export DOCKER_IMAGE_PREFIX=144563655722.dkr.ecr.eu-west-1.amazonaws.com/congenica/dev
 export VERSION=1.0.0
 
-docker build -t covid-pipeline-db:${VERSION} -f Dockerfile.postgres .
+docker build -t ${DOCKER_IMAGE_PREFIX}/covid-pipeline-db:${VERSION} -f docker/Dockerfile.postgres .
 
 docker run -d -p ${DB_PORT}:${DB_PORT} --name my-postgres-server -e POSTGRES_PASSWORD=${DB_PASSWORD} covid-pipeline-db:${VERSION}
 
