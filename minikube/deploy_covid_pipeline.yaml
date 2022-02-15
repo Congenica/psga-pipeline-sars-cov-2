@@ -47,12 +47,10 @@ spec:
           value: /data/input
         - name: COVID_PIPELINE_OUTPUT_PATH
           value: /data/output
-        - name: NXF_WORK
-          value: /data/work
-        - name: NXF_EXECUTOR
-          value: k8s
-        - name: NXF_ANSI_LOG
-          value: 'false'
+        - name: DOCKER_IMAGE_PREFIX
+          value: '144563655722.dkr.ecr.eu-west-1.amazonaws.com/congenica/dev'
+        - name: DOCKER_IMAGE_TAG
+          value: '1.0.0'
         - name: K8S_PULL_POLICY
           value: Never
         - name: K8S_SERVICE_ACCOUNT
@@ -63,6 +61,12 @@ spec:
           value: covid-pipeline-pvc
         - name: K8S_STORAGE_MOUNT_PATH
           value: /data
+        - name: NXF_WORK
+          value: /data/work
+        - name: NXF_EXECUTOR
+          value: k8s
+        - name: NXF_ANSI_LOG
+          value: 'false'
         volumeMounts:
         - name: covid-pipeline-persistent-storage
           mountPath: /data
