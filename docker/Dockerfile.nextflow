@@ -4,8 +4,9 @@ FROM python:3.8
 ENV PIP_VERSION=20.2.4 \
     POETRY_VERSION=1.1.4
 
+# Also install a DB client and sqitch so that we can access the DB from this image
 RUN apt-get update \
-  && apt-get install --yes --no-install-recommends build-essential procps wget default-jre openjdk-11-jre-headless libpq-dev \
+  && apt-get install --yes --no-install-recommends build-essential procps wget default-jre openjdk-11-jre-headless libpq-dev sqitch libdbd-pg-perl postgresql-client libdbd-sqlite3-perl sqlite3 \
   && apt-get clean -y \
   && rm -rf /var/lib/apt/lists/*
 

@@ -1,4 +1,4 @@
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: ukhsa-covid
+  name: ukhsa-covid-minikube

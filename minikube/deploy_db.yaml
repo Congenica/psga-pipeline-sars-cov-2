@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: psql-pvc
+  name: psql-minikube-pvc
   annotations:
     volume.beta.kubernetes.io/storage-class: standard
 spec:
@@ -15,7 +15,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: psql-host
+  name: psql-minikube-host
   labels:
     app: psql
 spec:
@@ -29,7 +29,7 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: psql
+  name: psql-minikube
 spec:
   selector:
     matchLabels:
@@ -56,4 +56,4 @@ spec:
       volumes:
       - name: psql-persistent-storage
         persistentVolumeClaim:
-          claimName: psql-pvc
+          claimName: psql-minikube-pvc

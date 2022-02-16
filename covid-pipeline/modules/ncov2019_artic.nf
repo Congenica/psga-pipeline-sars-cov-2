@@ -82,6 +82,7 @@ process ncov2019_artic_nf_pipeline_medaka {
 
   """
   # move fastq file to its specific barcode dir
+  # these files are located in the nextflow workdir. We need to regenerate the barcode dir
   for fq in *.fastq; do
       barcode="\$(echo "\$fq" | egrep -o 'barcode[[:digit:]]+' | head -n1)"
       mkdir "\$barcode"
