@@ -17,6 +17,8 @@ kubectl config set-context $(kubectl config current-context) --namespace=ukhsa-c
 # set service account
 kubectl apply -f service_account.yaml
 
+# set covid-pipeline resources (e.g. pvc)
+kubectl apply -f deploy_covid_pipeline_resources.yaml
 
 ## deploy DB. Currently, the DB is stored in a pod.
 # This is fine for a proof of concept, but obviously not the long term solution.
