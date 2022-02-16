@@ -12,7 +12,7 @@ wait_for_pod() {
 
 # create new namespace and set it as default
 kubectl apply -f create_namespace.yaml
-kubectl config set-context $(kubectl config current-context) --namespace=ukhsa-covid
+kubectl config set-context $(kubectl config current-context) --namespace=ukhsa-covid-minikube
 
 # set service account
 kubectl apply -f service_account.yaml
@@ -30,7 +30,7 @@ kubectl exec -it ${db_pod} -- bash -c './setup_db.sh'
 
 ## deploy covid-pipeline
 kubectl apply -f deploy_covid_pipeline.yaml
-pipeline_pod="$( kubectl get pods -l app=covid-pipeline --no-headers -o custom-columns=':metadata.name' )"
+pipeline_pod="$( kubectl get pods -l app=covid-pipeline-minikube --no-headers -o custom-columns=':metadata.name' )"
 wait_for_pod "${pipeline_pod}"
 # you will need to copy files to the /data/input or change COVID_PIPELINE_INPUT_PATH to point to an s3 location
 kubectl exec -it ${pipeline_pod} -- bash -c 'mkdir -p /data/input'
