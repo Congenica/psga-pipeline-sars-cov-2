@@ -1,5 +1,8 @@
 FROM postgres:11.14
 
+# This image is ONLY used for minikube and for local testing
+# For the actual K8S deployment, the DB is stored in RDS Aurora
+
 RUN apt-get update \
   && apt-get install --yes --no-install-recommends sqitch libdbd-pg-perl postgresql-client libdbd-sqlite3-perl sqlite3 \
   && apt-get clean -y \
