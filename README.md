@@ -104,7 +104,9 @@ Once all the required images are generated, the deployments can be created:
 cd minikube
 ./startup.sh
 
-# copy input files to covid-pipeline pod: /data/input
+# input files can either be copied to the covid-pipeline pod: /data/input
+# or fetched from S3 (see examples: https://jira.congenica.net/browse/PSG-183).
+# The env var: COVID_PIPELINE_INPUT_PATH must be set, accordingly.
 
 # exec the covid-pipeline pod
 kubectl exec -it covid-pipeline-XXXX -- bash
@@ -129,6 +131,19 @@ exit
 # when finished:
 ./cleanup.sh
 ```
+
+
+### Running the pipeline using K8s (currently in Congenica saas-dev cluster)
+Start a new shell to make sure that the standard docker environment is used and not the one dedicated to minikube.
+All the docker images mentioned in the Minikube section, except for `docker/Dockerfile.postgres` must be built and pushed to Congenica ECR.
+To redeploy the covid pipeline components:
+```
+cd k8s
+./startup.sh
+```
+The DB is stored in RDS Aurora and can be accessed via the covid-pipeline pod.
+
+
 
 ### GenBank submission
 
