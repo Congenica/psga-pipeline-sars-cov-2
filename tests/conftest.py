@@ -67,10 +67,11 @@ def tmp_path():
 
 @pytest.fixture
 def fasta_file_generator():
+    # generate consensus fasta files
     def generator(path, extension, content):
         for sample_id in range(5):
             sample_id = f"NNN{str(sample_id).zfill(5)}"
-            fasta_file = path / f"{sample_id}.{extension}"
+            fasta_file = path / f"{sample_id}.consensus.{extension}"
             fasta_file.write_text(content.format(sample_id=sample_id))
 
     return generator
