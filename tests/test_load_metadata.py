@@ -29,7 +29,6 @@ def test_load_bad_data(db_session, test_data_path):
         + "please check the list of known locations and for typo's etc\n"
         + 'AREA "SAKHIR" is not a recognised location - please check the list of known locations and for typo\'s etc\n'
         + 'BLOCK "block" should contain digits\n'
-        + 'SAMPLE ID "HAM44444" is not a number\n'
         + 'ASSIGN DATE "32/02/2020" is not a valid date: day is out of range for month\n'
         + "Error: Errors encountered: HAM44444\n"
     )
