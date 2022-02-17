@@ -76,7 +76,7 @@ if( "[:]" in [
 
 
 // Import modules
-include { load_iseha_metadata } from './modules/iseha_metadata.nf'
+include { load_metadata } from './modules/load_metadata.nf'
 
 if ( params.ncov2019_artic_workflow == "illumina" ) {
     include { ncov2019_artic_nf_pipeline_illumina as ncov2019_artic_nf_pipeline } from './modules/ncov2019_artic.nf'
@@ -116,16 +116,16 @@ include { pipeline_complete } from './modules/pipeline_complete.nf'
 workflow {
 
     // METADATA
-    load_iseha_metadata(
+    load_metadata(
         "${COVID_PIPELINE_INPUT_PATH}/" + params.metadata_file_name
     )
-    load_iseha_metadata.out.ch_all_samples_with_metadata_file
+    load_metadata.out.ch_all_samples_with_metadata_file
         .splitText().map { it.trim() }.set { ch_all_samples_with_metadata_loaded }
-    load_iseha_metadata.out.ch_current_session_samples_with_metadata_file
+    load_metadata.out.ch_current_session_samples_with_metadata_file
         .splitText().map { it.trim() }.set { ch_current_session_samples_with_metadata_loaded }
-    load_iseha_metadata.out.ch_all_samples_ncov2019_artic_qc_passed_file
+    load_metadata.out.ch_all_samples_ncov2019_artic_qc_passed_file
         .splitText().map { it.trim() }.set { ch_qc_passed_samples }
-    load_iseha_metadata.out.ch_current_session_updated_samples_file
+    load_metadata.out.ch_current_session_updated_samples_file
         .splitText().map { it.trim() }.set { ch_updated_samples }
 
 

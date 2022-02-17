@@ -193,7 +193,7 @@ def write_sample_list_files(
     type=click.Path(file_okay=True, writable=True),
     help="File path to populate with all sample names, which were re-submitted and overwritten with provided metadata",
 )
-def load_iseha_data(
+def load_metadata(
     file,
     output_all_samples_with_metadata,
     output_current_samples_with_metadata,
@@ -279,4 +279,4 @@ def load_iseha_data(
 
 if __name__ == "__main__":
     # pylint: disable=no-value-for-parameter
-    load_iseha_data()
+    load_metadata()
