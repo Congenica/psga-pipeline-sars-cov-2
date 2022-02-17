@@ -177,8 +177,6 @@ class Sample(Base):  # type: ignore
         server_default=FetchedValue(),
         comment="Reported pangolin lineage status",
     )
-    amino_acid_muts = Column(String, comment="Amino acid mutations as calculated by Nextstrain")
-    nucleotide_muts = Column(String, comment="Nucleotide mutations as calculated by Nextstrain")
     genbank_submit_id = Column(
         String, comment="Unique identifier of GenBank submission " "session, which was used to submit a sample."
     )

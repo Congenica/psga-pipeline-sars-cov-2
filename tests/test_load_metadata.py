@@ -1,11 +1,11 @@
 from click.testing import CliRunner
 
 from scripts.db.models import Sample
-from scripts.load_iseha_metadata import load_iseha_data
+from scripts.load_metadata import load_metadata
 
 
 def test_load_good_data(db_session, test_data_path):
-    rv = CliRunner().invoke(load_iseha_data, ["--file", test_data_path / "good_iseha_data.tsv"])
+    rv = CliRunner().invoke(load_metadata, ["--file", test_data_path / "good_metadata.tsv"])
 
     assert rv.exit_code == 0
 
@@ -15,7 +15,7 @@ def test_load_good_data(db_session, test_data_path):
 
 
 def test_load_bad_data(db_session, test_data_path):
-    rv = CliRunner().invoke(load_iseha_data, ["--file", test_data_path / "bad_iseha_data.tsv"])
+    rv = CliRunner().invoke(load_metadata, ["--file", test_data_path / "bad_metadata.tsv"])
 
     assert rv.exit_code == 1
 

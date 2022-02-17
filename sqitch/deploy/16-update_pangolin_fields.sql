@@ -1,11 +1,9 @@
--- Remove pangolin_probability and add pangolin conflict / ambiguity_score to sample table
+-- add pangolin conflict / ambiguity_score to sample table
 -- requires: 02-apptables
 
 BEGIN;
 
     SET LOCAL search_path = sars_cov_2;
-
-    ALTER TABLE "sample" DROP COLUMN IF EXISTS "pangolin_probability";
 
     ALTER TABLE "sample" ADD COLUMN IF NOT EXISTS "pangolin_conflict" DOUBLE PRECISION;
     ALTER TABLE "sample" ADD COLUMN IF NOT EXISTS "pangolin_ambiguity_score" DOUBLE PRECISION;
