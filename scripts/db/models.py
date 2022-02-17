@@ -177,6 +177,32 @@ class Sample(Base):  # type: ignore
         server_default=FetchedValue(),
         comment="Reported pangolin lineage status",
     )
+    scorpio_call = Column(
+        String, comment="If a query is assigned a constellation by scorpio this call is output in this column"
+    )
+    scorpio_support = Column(
+        Float,
+        comment=(
+            "The support score is the proportion of defining variants which have the alternative "
+            "allele in the sequence.",
+        ),
+    )
+    scorpio_conflict = Column(
+        Float,
+        comment=(
+            "The conflict score is the proportion of defining variants which have the reference allele "
+            "in the sequence.",
+        ),
+    )
+    note = Column(
+        String,
+        comment=(
+            "If any conflicts from the decision tree, this field will output the alternative assignments. "
+            "If the sequence failed QC this field will describe why. If the sequence met the SNP thresholds "
+            "for scorpio to call a constellation, it’ll describe the exact SNP counts of Alt, Ref and Amb "
+            "(Alternative, reference and ambiguous) alleles for that call.",
+        ),
+    )
     genbank_submit_id = Column(
         String, comment="Unique identifier of GenBank submission " "session, which was used to submit a sample."
     )
@@ -217,7 +243,9 @@ class SampleQC(Base):  # type: ignore
     qc_pass = Column(Boolean, comment="Has sample passed QC")
     qc_plot = Column(LargeBinary, comment="QC plot image")
     pipeline_version = Column(String, comment="mapping pipeline version")
+    pangolin_version = Column(String, comment="pangolin version")
     pangolearn_version = Column(String, comment="pangoLEARN version used by Pangolin")
+    pango_version = Column(String, comment="pango version used by Pangolin")
 
 
 t_sample_comorbidity = Table(
