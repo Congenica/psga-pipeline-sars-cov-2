@@ -50,7 +50,7 @@ def get_unsubmitted_sample_names() -> List[str]:
     """
     with session_handler() as session:
         samples = session.query(Sample).filter(and_(Sample.genbank_submit_id.is_(None), Sample.metadata_loaded)).all()
-        return [sample.lab_id for sample in samples]
+        return [sample.sample_name for sample in samples]
 
 
 def merge_fastas_to_sequence_fsa(fasta_files: List[Path], output_file: Path) -> Path:
@@ -70,15 +70,15 @@ def create_metadata_table_file(sample_names: List[str], output_file: Path) -> Pa
     Metadata .tsv file, describing information about sequences included in the submission
     """
     with session_handler() as session:
-        samples = session.query(Sample).filter(and_(Sample.lab_id.in_(sample_names), Sample.metadata_loaded)).all()
+        samples = session.query(Sample).filter(and_(Sample.sample_name.in_(sample_names), Sample.metadata_loaded)).all()
         metadata_table = [
             {
-                "sequence_ID": sample.lab_id,
+                "sequence_ID": sample.sample_name,
                 "organism": SOURCE_METADATA_ORGANISM,
                 "isolate": f"{SOURCE_METADATA_ISOLATE_VIRUS}/"
                 f"{SOURCE_METADATA_ISOLATE_HOST}/"
                 f"{SOURCE_METADATA_ISOLATE_COUNTRY_ABBREVIATION}/"
-                f"{sample.lab_id}/"
+                f"{sample.sample_name}/"
                 f"{sample.date_collected.strftime('%Y')}",
                 "host": SOURCE_METADATA_HOST,
                 "collection-date": sample.date_collected.strftime("%Y-%m-%d"),

@@ -215,7 +215,7 @@ export VERSION=1.0.0
 
 docker build -t ${DOCKER_IMAGE_PREFIX}/covid-pipeline-db:${VERSION} -f docker/Dockerfile.postgres .
 
-docker run -d -p ${DB_PORT}:${DB_PORT} --name my-postgres-server -e POSTGRES_PASSWORD=${DB_PASSWORD} covid-pipeline-db:${VERSION}
+docker run -d -p ${DB_PORT}:${DB_PORT} --name my-postgres-server -e POSTGRES_PASSWORD=${DB_PASSWORD} ${DOCKER_IMAGE_PREFIX}/covid-pipeline-db:${VERSION}
 
 # test the connection from your local machine
 psql -h ${DB_HOST} -p ${DB_PORT} -U ${DB_USER} -W

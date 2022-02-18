@@ -30,7 +30,7 @@ def mark_submitted_genbank_samples(
     sample_names = [sample.strip() for sample in sample_names]
 
     with session_handler() as session:
-        samples = session.query(Sample).filter(Sample.lab_id.in_(sample_names)).all()
+        samples = session.query(Sample).filter(Sample.sample_name.in_(sample_names)).all()
 
         for sample in samples:
             sample.genbank_submit_id = submit_id

@@ -9,7 +9,7 @@ from scripts.mark_submitted_genbank_samples import mark_submitted_genbank_sample
 def populated_db_session_with_samples(db_session):
     sample_names = ["foo", "bar", "buzz"]
     for sample in sample_names:
-        db_session.add(Sample(lab_id=sample))
+        db_session.add(Sample(sample_name=sample))
 
     db_session.commit()
     yield db_session

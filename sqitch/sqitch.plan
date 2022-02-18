@@ -2,13 +2,5 @@
 %project=covid-pipeline
 %uri=https://github.com/Congenica/covid-pipeline
 
-01-appschema 2020-11-12T07:51:37Z Tautvydas Petkus <tautvydas.petkus@telesoftas.com> # Initial schema for SARS-CoV-2 sample database
-02-apptables [01-appschema] 2020-11-17T12:12:13Z Daniel Bunford-Jones <dbj@MacBook-Pro.local> # Create tables and enum types for SAR COV application
-04-add-pangolearn-version [02-apptables] 2020-11-30T12:37:52Z Piero Dalle Pezze <piero.dallepezze@congenica.com> # Add pangolearn_version column to sample_qc table
-09-add_pangolin_pass [02-apptables] 2020-12-07T13:44:33Z Tautvydas Petkus <tautvydas.petkus@telesoftas.com> # Additional column describing, whether pangolin lineage process has passed for the sample
-10-add_metadata_loaded_flag [02-apptables] 2020-12-08T08:56:23Z Tautvydas Petkus <tautvydas.petkus@telesoftas.com> # Boolean flag indicating, that a metadata was loaded from i-seha
-13-add_genbank_submit_session [02-apptables] 2020-12-14T08:26:41Z Tautvydas Petkus <tautvydas.petkus@telesoftas.com> # A new column, which helps identify, in which upload session sample was submitted to genbank
-15-columns_to_lowercase [02-apptables] 2020-12-17T13:26:47Z Piero Dalle Pezze <piero.dallepezze@congenica.com> # Lowercase columns in sample_qc table
-16-update_pangolin_fields [02-apptables] 2021-12-02T14:56:13Z Piero Dalle Pezze <piero.dallepezze@congenica.com> # Add pangolin_conflict, pangolin_ambiguity_score columns to the sample table
-17-add_scorpio_fields [02-apptables] 2022-02-17T16:30:13Z Piero Dalle Pezze <piero.dallepezze@congenica.com> # Add scorpio fields as calculated by pangolin
-18-add_pango_versions [02-apptables] 2022-02-17T16:54:13Z Piero Dalle Pezze <piero.dallepezze@congenica.com> # Add pangolin and pango versions
+01-appschema 2020-11-12T07:51:37Z Tautvydas Petkus <tautvydas.petkus@telesoftas.com> # Initial schema for SARS-CoV-2 database
+02-apptables [01-appschema] 2022-02-18T12:36:13Z Piero Dalle Pezze <piero.dallepezze@congenica.com> # Create tables and enum types for SARS-CoV-2 database

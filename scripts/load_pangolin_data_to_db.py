@@ -9,10 +9,12 @@ from db.models import Sample, SampleQC, PangolinStatus
 
 
 def load_data_from_csv(session: scoped_session, sample_name: str, sample_from_csv: Dict):
-    sample = session.query(Sample).filter_by(lab_id=sample_name).options(joinedload(Sample.sample_qc)).one_or_none()
+    sample = (
+        session.query(Sample).filter_by(sample_name=sample_name).options(joinedload(Sample.sample_qc)).one_or_none()
+    )
 
     if not sample:
-        sample = Sample(lab_id=sample_name)
+        sample = Sample(sample_name=sample_name)
         session.add(sample)
     if not sample.sample_qc:
         sample.sample_qc = SampleQC()

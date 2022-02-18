@@ -17,9 +17,11 @@ def submit_sample_qc_from_csv(
     if not os.path.isfile(sample_qc_depth_file_path):
         raise ValueError(f"File {sample_qc_depth_file_path}, required to submit sample {sample_name}, does not exist")
 
-    sample = session.query(Sample).filter_by(lab_id=sample_name).options(joinedload(Sample.sample_qc)).one_or_none()
+    sample = (
+        session.query(Sample).filter_by(sample_name=sample_name).options(joinedload(Sample.sample_qc)).one_or_none()
+    )
     if not sample:
-        sample = Sample(lab_id=sample_name)
+        sample = Sample(sample_name=sample_name)
         session.add(sample)
     if not sample.sample_qc:
         sample.sample_qc = SampleQC()
