@@ -8,6 +8,20 @@ from sqlalchemy.orm import scoped_session
 from db.database import session_handler
 from db.models import AnalysisRun, Sample, PangolinStatus
 
+EXPECTED_HEADERS = {
+    "status",
+    "lineage",
+    "conflict",
+    "ambiguity_score",
+    "scorpio_call",
+    "scorpio_support",
+    "scorpio_conflict",
+    "note",
+    "pangolin_version",
+    "pangoLEARN_version",
+    "pango_version",
+}
+
 
 def load_data_from_csv(session: scoped_session, analysis_run_name: str, sample_name: str, sample_from_csv: Dict):
     sample = (
@@ -77,6 +91,17 @@ def load_pangolin_data(pangolin_lineage_report_file: str, sample_name: str, anal
     """
     with open(pangolin_lineage_report_file) as csv_file:
         sample_from_csv_reader = csv.DictReader(csv_file)
+
+        headers = set(sample_from_csv_reader.fieldnames)
+        if not EXPECTED_HEADERS.issubset(headers):
+            err = (
+                "Unexpected CSV headers, got:\n"
+                + ", ".join(headers)
+                + "\n, but expect at least \n"
+                + ", ".join(EXPECTED_HEADERS)
+            )
+            raise ClickException(err)
+
         with session_handler() as session:
             # this file only has one data row
             for sample_from_csv in sample_from_csv_reader:
