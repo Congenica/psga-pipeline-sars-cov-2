@@ -1,9 +1,10 @@
 /*
- * Load the I-SEHA metadata into the database
+ * Load the metadata into the database
  */
 process load_metadata {
   input:
     path ch_metadata_tsv_file
+    val ch_analysis_run_name
 
   output:
     path metadata_load_done, emit: ch_metadata_load_done
@@ -27,6 +28,7 @@ process load_metadata {
 
   python /app/scripts/load_metadata.py \
     --file "${ch_metadata_tsv_file}" \
+    --analysis-run-name "${ch_analysis_run_name}" \
     --output_all_samples_with_metadata "${all_samples_with_metadata}" \
     --output_current_samples_with_metadata "${current_samples_with_metadata}" \
     --output_samples_with_qc_pass "${samples_with_qc_pass}" \

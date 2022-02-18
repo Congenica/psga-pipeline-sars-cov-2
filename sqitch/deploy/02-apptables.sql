@@ -7,6 +7,30 @@ BEGIN;
 
   SET LOCAL search_path = sars_cov_2;
 
+  CREATE TABLE IF NOT EXISTS "analysis_run" (
+    "analysis_run_id" SERIAL PRIMARY KEY
+   ,"analysis_run_name" VARCHAR
+   ,"pipeline_version" VARCHAR
+   ,"pangolearn_version" VARCHAR
+   ,"pangolin_version" VARCHAR
+   ,"pango_version" VARCHAR
+  );
+
+  COMMENT ON TABLE "analysis_run" IS
+    'Analysis run of samples';
+    COMMENT ON COLUMN "analysis_run"."analysis_run_id" IS
+      'Primary key, serial sequence generated in the database';
+    COMMENT ON COLUMN "analysis_run"."analysis_run_name" IS
+      'The dir of the analysis run';
+    COMMENT ON COLUMN "analysis_run"."pipeline_version" IS
+      'The version of this pipeline';
+    COMMENT ON COLUMN "analysis_run"."pangolearn_version"
+        IS 'The version of pangoLEARN used by Pangolin';
+    COMMENT ON COLUMN "analysis_run"."pangolin_version"
+        IS 'The version of Pangolin';
+    COMMENT ON COLUMN "analysis_run"."pango_version"
+        IS 'The version of pango used by Pangolin';
+
   CREATE TYPE "pangolin_status" AS ENUM (
     'unknown',
     'fail'
@@ -15,6 +39,9 @@ BEGIN;
 
   CREATE TABLE IF NOT EXISTS "sample" (
     "sample_id" SERIAL PRIMARY KEY
+   ,"analysis_run_id" INTEGER
+      REFERENCES "analysis_run" ("analysis_run_id")
+      ON DELETE NO ACTION ON UPDATE NO ACTION DEFERRABLE INITIALLY DEFERRED
    ,"sample_name" VARCHAR
    ,"date_collected" TIMESTAMP WITHOUT TIME ZONE
    ,"pangolin_lineage" VARCHAR
@@ -36,6 +63,8 @@ BEGIN;
     'Sample data';
     COMMENT ON COLUMN "sample"."sample_id" IS
       'Primary key, serial sequence generated in the database';
+    COMMENT ON COLUMN "sample"."analysis_run_id" IS
+      'Primary key, and foreign key to analysis_run table';
     COMMENT ON COLUMN "sample"."sample_name" IS
       'Lab sample identifier';
     COMMENT ON COLUMN "sample"."date_collected" IS
@@ -76,10 +105,6 @@ BEGIN;
    ,"num_aligned_reads"	DOUBLE PRECISION
    ,"qc_pass" BOOLEAN
    ,"qc_plot" BYTEA
-   ,"pipeline_version" VARCHAR
-   ,"pangolearn_version" VARCHAR
-   ,"pangolin_version" VARCHAR
-   ,"pango_version" VARCHAR
   );
 
   COMMENT ON TABLE "sample_qc" IS
@@ -98,13 +123,5 @@ BEGIN;
       'Has sample passed QC';
     COMMENT ON COLUMN "sample_qc"."qc_plot" IS
       'QC plot image';
-    COMMENT ON COLUMN "sample_qc"."pipeline_version" IS
-      'The version of this pipeline';
-    COMMENT ON COLUMN "sample_qc"."pangolearn_version"
-        IS 'The version of pangoLEARN used by Pangolin.';
-    COMMENT ON COLUMN "sample_qc"."pangolin_version"
-        IS 'The version of Pangolin.';
-    COMMENT ON COLUMN "sample_qc"."pango_version"
-        IS 'The version of pango used by Pangolin.';
 
 COMMIT;

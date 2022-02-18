@@ -1,21 +1,41 @@
 from click.testing import CliRunner
 
-from scripts.db.models import Sample
+from scripts.db.models import AnalysisRun, Sample
 from scripts.load_metadata import load_metadata
 
 
 def test_load_good_data(db_session, test_data_path):
-    rv = CliRunner().invoke(load_metadata, ["--file", test_data_path / "good_metadata.tsv"])
+    analysis_name = "success"
+    rv = CliRunner().invoke(
+        load_metadata,
+        [
+            "--file",
+            test_data_path / "good_metadata.tsv",
+            "--analysis-run-name",
+            analysis_name,
+        ],
+    )
 
     assert rv.exit_code == 0
 
     samples = db_session.query(Sample).all()
-
     assert len(samples) == 6
+
+    analysis_run = db_session.query(AnalysisRun).one_or_none()
+    assert analysis_run.analysis_run_name == analysis_name
 
 
 def test_load_bad_data(db_session, test_data_path):
-    rv = CliRunner().invoke(load_metadata, ["--file", test_data_path / "bad_metadata.tsv"])
+    analysis_name = "unsuccess"
+    rv = CliRunner().invoke(
+        load_metadata,
+        [
+            "--file",
+            test_data_path / "bad_metadata.tsv",
+            "--analysis-run-name",
+            analysis_name,
+        ],
+    )
 
     assert rv.exit_code == 1
 
@@ -27,5 +47,7 @@ def test_load_bad_data(db_session, test_data_path):
     )
 
     samples = db_session.query(Sample).all()
-
     assert len(samples) == 0
+
+    analysis_run = db_session.query(AnalysisRun).one_or_none()
+    assert analysis_run.analysis_run_name == analysis_name

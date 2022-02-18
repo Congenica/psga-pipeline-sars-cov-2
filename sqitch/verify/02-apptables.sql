@@ -7,12 +7,27 @@ BEGIN
 
   SET LOCAL search_path = sars_cov_2;
 
+    -- analysis_run table verifications
+  ASSERT (SELECT has_table_privilege('analysis_run', 'SELECT, INSERT, UPDATE, DELETE, TRUNCATE, REFERENCES'));
+  SELECT count(*) INTO column_count
+  FROM information_schema.columns
+  WHERE table_schema='sars_cov_2' AND table_name='analysis_run' AND column_name IN (
+    'analysis_run_id',
+    'analysis_run_name',
+    'pipeline_version',
+    'pangolearn_version',
+    'pangolin_version',
+    'pango_version'
+  );
+  ASSERT column_count = 6;
+
     -- sample table verifications
   ASSERT (SELECT has_table_privilege('sample', 'SELECT, INSERT, UPDATE, DELETE, TRUNCATE, REFERENCES'));
   SELECT count(*) INTO column_count
   FROM information_schema.columns
   WHERE table_schema='sars_cov_2' AND table_name='sample' AND column_name IN (
     'sample_id',
+    'analysis_run_id',
     'sample_name',
     'date_collected',
     'pangolin_lineage',
@@ -24,7 +39,7 @@ BEGIN
     'pangolin_conflict',
     'pangolin_ambiguity_score'
   );
-  ASSERT column_count = 11;
+  ASSERT column_count = 12;
 
     -- sample_qc table verifications
   ASSERT (SELECT has_table_privilege('sample_qc', 'SELECT, INSERT, UPDATE, DELETE, TRUNCATE, REFERENCES'));
@@ -37,12 +52,8 @@ BEGIN
     'longest_no_n_run',
     'num_aligned_reads',
     'qc_pass',
-    'qc_plot',
-    'pipeline_version',
-    'pangolearn_version',
-    'pangolin_version',
-    'pango_version'
+    'qc_plot'
   );
-  ASSERT column_count = 11;
+  ASSERT column_count = 7;
 
 END $$;

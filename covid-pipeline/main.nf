@@ -60,6 +60,7 @@ if( "[:]" in [
     COVID_PIPELINE_ROOT_PATH,
     COVID_PIPELINE_INPUT_PATH,
     COVID_PIPELINE_OUTPUT_PATH,
+    ANALYSIS_RUN_NAME,
     DOCKER_IMAGE_PREFIX,
     DOCKER_IMAGE_TAG,
     K8S_PULL_POLICY,
@@ -117,7 +118,8 @@ workflow {
 
     // METADATA
     load_metadata(
-        "${COVID_PIPELINE_INPUT_PATH}/" + params.metadata_file_name
+        "${COVID_PIPELINE_INPUT_PATH}/" + params.metadata_file_name,
+        "${ANALYSIS_RUN_NAME}"
     )
     load_metadata.out.ch_all_samples_with_metadata_file
         .splitText().map { it.trim() }.set { ch_all_samples_with_metadata_loaded }
@@ -205,7 +207,8 @@ workflow {
     pangolin_pipeline(ch_qc_passed_fasta)
 
     ch_pangolin_sample_submitted = load_pangolin_data_to_db(
-        pangolin_pipeline.out.ch_pangolin_lineage_csv
+        pangolin_pipeline.out.ch_pangolin_lineage_csv,
+        "${ANALYSIS_RUN_NAME}"
     )
 
     Channel

@@ -10,7 +10,7 @@ import click
 from click import ClickException
 
 from scripts.db.database import session_handler
-from scripts.db.models import Sample, SampleQC
+from scripts.db.models import AnalysisRun, Sample, SampleQC
 
 EXPECTED_HEADERS = {
     "SAMPLE ID",
@@ -78,6 +78,7 @@ def write_sample_list_files(
 
 @click.command()
 @click.option("--file", required=True, type=click.File("r"), help="The metadata TSV input file")
+@click.option("--analysis-run-name", required=True, type=str, help="The name of the analysis run")
 @click.option(
     "--output_all_samples_with_metadata",
     required=False,
@@ -107,6 +108,7 @@ def write_sample_list_files(
 )
 def load_metadata(
     file,
+    analysis_run_name,
     output_all_samples_with_metadata,
     output_current_samples_with_metadata,
     output_samples_with_qc_pass,
@@ -135,18 +137,47 @@ def load_metadata(
     updated = set()
     errors = set()
     with session_handler() as session:
+
+        # insert the analysis run record
+        analysis_run = (
+            session.query(AnalysisRun)
+            .filter(
+                AnalysisRun.analysis_run_name == analysis_run_name,
+            )
+            .one_or_none()
+        )
+        if not analysis_run:
+            analysis_run = AnalysisRun(
+                analysis_run_name=analysis_run_name,
+            )
+            session.add(analysis_run)
+
         for row in reader:
             try:
                 row = _validate_and_normalise_row(row)
                 sample_name = row["SAMPLE ID"]
-                existing_sample = session.query(Sample).filter(Sample.sample_name == sample_name).one_or_none()
+
+                existing_sample = (
+                    session.query(Sample)
+                    .filter(
+                        Sample.sample_name == sample_name,
+                    )
+                    .join(AnalysisRun)
+                    .filter(
+                        AnalysisRun.analysis_run_name == analysis_run_name,
+                    )
+                    .one_or_none()
+                )
+
                 if existing_sample:
+                    existing_sample.analysis_run_id = analysis_run.analysis_run_id
                     existing_sample.date_collected = row["ASSIGN DATE"]
                     existing_sample.metadata_loaded = True
                     updated.add(sample_name)
                     file_samples_updated.append(sample_name)
                 else:
                     sample = Sample(
+                        analysis_run_id=analysis_run.analysis_run_id,
                         sample_name=sample_name,
                         date_collected=row["ASSIGN DATE"],
                         metadata_loaded=True,

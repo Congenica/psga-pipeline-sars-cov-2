@@ -28,6 +28,23 @@ class PangolinStatus(PyEnum):
         return str(self.name)
 
 
+class AnalysisRun(Base):  # type: ignore
+    __tablename__ = "analysis_run"
+    __table_args__ = {"schema": "sars_cov_2", "comment": "The analysis run of samples"}
+
+    analysis_run_id = Column(
+        Integer,
+        primary_key=True,
+        server_default=FetchedValue(),
+        comment="Primary key, serial sequence generated in the database",
+    )
+    analysis_run_name = Column(String, comment="The name of this run")
+    pipeline_version = Column(String, comment="mapping pipeline version")
+    pangolin_version = Column(String, comment="pangolin version")
+    pangolearn_version = Column(String, comment="pangoLEARN version used by Pangolin")
+    pango_version = Column(String, comment="pango version used by Pangolin")
+
+
 class Sample(Base):  # type: ignore
     __tablename__ = "sample"
     __table_args__ = {"schema": "sars_cov_2", "comment": "Sample data"}
@@ -37,6 +54,11 @@ class Sample(Base):  # type: ignore
         primary_key=True,
         server_default=FetchedValue(),
         comment="Primary key, serial sequence generated in the database",
+    )
+    analysis_run_id = Column(
+        Integer,
+        ForeignKey("sars_cov_2.analysis_run.analysis_run_id", deferrable=True, initially="DEFERRED"),
+        comment="Foreign key to analysis_run table",
     )
     sample_name = Column(String, comment="Lab sample identifier")
     date_collected = Column(DateTime, comment="timestamp of sample collection")
@@ -112,7 +134,3 @@ class SampleQC(Base):  # type: ignore
     num_aligned_reads = Column(Float(53), comment="Number of reads succesfully aligned and mapped")
     qc_pass = Column(Boolean, comment="Has sample passed QC")
     qc_plot = Column(LargeBinary, comment="QC plot image")
-    pipeline_version = Column(String, comment="mapping pipeline version")
-    pangolin_version = Column(String, comment="pangolin version")
-    pangolearn_version = Column(String, comment="pangoLEARN version used by Pangolin")
-    pango_version = Column(String, comment="pango version used by Pangolin")

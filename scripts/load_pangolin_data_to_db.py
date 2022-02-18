@@ -2,22 +2,35 @@ from typing import Dict
 import csv
 
 import click
-from sqlalchemy.orm import scoped_session, joinedload
+from click import ClickException
+from sqlalchemy.orm import scoped_session
 
 from db.database import session_handler
-from db.models import Sample, SampleQC, PangolinStatus
+from db.models import AnalysisRun, Sample, PangolinStatus
 
 
-def load_data_from_csv(session: scoped_session, sample_name: str, sample_from_csv: Dict):
+def load_data_from_csv(session: scoped_session, analysis_run_name: str, sample_name: str, sample_from_csv: Dict):
     sample = (
-        session.query(Sample).filter_by(sample_name=sample_name).options(joinedload(Sample.sample_qc)).one_or_none()
+        session.query(Sample)
+        .filter(
+            Sample.sample_name == sample_name,
+        )
+        .join(AnalysisRun)
+        .filter(
+            AnalysisRun.analysis_run_name == analysis_run_name,
+        )
+        .one_or_none()
+    )
+
+    sample_analysis_run = (
+        session.query(AnalysisRun).filter(AnalysisRun.analysis_run_id == sample.analysis_run_id).one_or_none()
     )
 
     if not sample:
-        sample = Sample(sample_name=sample_name)
-        session.add(sample)
-    if not sample.sample_qc:
-        sample.sample_qc = SampleQC()
+        raise ClickException(f"Sample name: {sample_name} was not found")
+
+    if not sample_analysis_run:
+        raise ClickException(f"No analysis run was found for sample name: {sample_name}")
 
     pangolin_status = PangolinStatus[sample_from_csv["status"]]
 
@@ -33,9 +46,15 @@ def load_data_from_csv(session: scoped_session, sample_name: str, sample_from_cs
     sample.scorpio_conflict = sample_from_csv["scorpio_conflict"] if sample_from_csv["scorpio_conflict"] else None
     sample.note = sample_from_csv["note"] if sample_from_csv["note"] else None
 
-    sample.sample_qc.pangolin_version = sample_from_csv["pangolin_version"]
-    sample.sample_qc.pangolearn_version = sample_from_csv["pangoLEARN_version"]
-    sample.sample_qc.pango_version = sample_from_csv["pango_version"]
+    # This needs refactory. We should run all pangolin data in one single process
+    # and this part should be done one time only
+    sample_analysis_run.pangolin_version = (
+        sample_from_csv["pangolin_version"] if sample_from_csv["pangolin_version"] else None
+    )
+    sample_analysis_run.pangolearn_version = (
+        sample_from_csv["pangoLEARN_version"] if sample_from_csv["pangoLEARN_version"] else None
+    )
+    sample_analysis_run.pango_version = sample_from_csv["pango_version"] if sample_from_csv["pango_version"] else None
 
 
 @click.command()
@@ -51,7 +70,8 @@ def load_data_from_csv(session: scoped_session, sample_name: str, sample_from_cs
     required=True,
     help="Lab sample identifier",
 )
-def load_pangolin_data(pangolin_lineage_report_file: str, sample_name: str) -> None:
+@click.option("--analysis-run-name", required=True, type=str, help="The name of the analysis run")
+def load_pangolin_data(pangolin_lineage_report_file: str, sample_name: str, analysis_run_name: str) -> None:
     """
     Load Pangolin lineage report for a certain sample to the database
     """
@@ -60,7 +80,7 @@ def load_pangolin_data(pangolin_lineage_report_file: str, sample_name: str) -> N
         with session_handler() as session:
             # this file only has one data row
             for sample_from_csv in sample_from_csv_reader:
-                load_data_from_csv(session, sample_name, sample_from_csv)
+                load_data_from_csv(session, analysis_run_name, sample_name, sample_from_csv)
 
 
 if __name__ == "__main__":
