@@ -110,7 +110,7 @@ class Sample(Base):  # type: ignore
         ),
     )
     genome_length = Column(Integer, comment="Number of base pair in the virus genome")
-    metadata_loaded = Column(Boolean, comment="Metadata was loaded from Bahrain medical records system I-SEHA")
+    metadata_loaded = Column(Boolean, comment="Metadata was loaded")
 
     sample_qc = relationship("SampleQC", uselist=False)
 
