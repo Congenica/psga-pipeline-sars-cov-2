@@ -25,7 +25,15 @@ def load_data_from_csv(session: scoped_session, sample_name: str, sample_from_cs
     sample.pangolin_conflict = sample_from_csv["conflict"] if sample_from_csv["conflict"] else None
     sample.pangolin_ambiguity_score = sample_from_csv["ambiguity_score"] if sample_from_csv["ambiguity_score"] else None
     sample.pangolin_status = pangolin_status
+
+    sample.scorpio_call = sample_from_csv["scorpio_call"] if sample_from_csv["scorpio_call"] else None
+    sample.scorpio_support = sample_from_csv["scorpio_support"] if sample_from_csv["scorpio_support"] else None
+    sample.scorpio_conflict = sample_from_csv["scorpio_conflict"] if sample_from_csv["scorpio_conflict"] else None
+    sample.note = sample_from_csv["note"] if sample_from_csv["note"] else None
+
+    sample.sample_qc.pangolin_version = sample_from_csv["pangolin_version"]
     sample.sample_qc.pangolearn_version = sample_from_csv["pangoLEARN_version"]
+    sample.sample_qc.pango_version = sample_from_csv["pango_version"]
 
 
 @click.command()
