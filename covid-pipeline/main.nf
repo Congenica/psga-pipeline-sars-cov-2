@@ -60,7 +60,6 @@ if( "[:]" in [
     COVID_PIPELINE_ROOT_PATH,
     COVID_PIPELINE_INPUT_PATH,
     COVID_PIPELINE_OUTPUT_PATH,
-    ANALYSIS_RUN_NAME,
     DOCKER_IMAGE_PREFIX,
     DOCKER_IMAGE_TAG,
     K8S_PULL_POLICY,
@@ -75,6 +74,9 @@ if( "[:]" in [
     throw new Exception("Found unset global environment variables. See '[:]' above. Abort")
 }
 
+if ( params.run == "" ) {
+    throw new Exception("Error: '--run' must be defined")
+}
 
 // Import modules
 include { load_metadata } from './modules/load_metadata.nf'
@@ -87,14 +89,14 @@ if ( params.workflow == "illumina_artic" ) {
         include { bam_to_fastq } from './modules/ncov2019_artic.nf'
         include { filter_bam_matching_with_metadata as filter_input_files_matching_metadata } from './modules/bam_match.nf'
     } else {
-        throw new Exception("Error: --filetype can only be 'fastq' or 'bam'")
+        throw new Exception("Error: '--filetype' can only be 'fastq' or 'bam'")
     }
 } else if ( params.workflow == "medaka_artic" ) {
     include { getDirName } from './modules/utils.nf'
     include { filter_nanopore_matching_with_metadata as filter_input_files_matching_metadata } from './modules/nanopore_match.nf'
     include { ncov2019_artic_nf_pipeline_medaka as ncov2019_artic_nf_pipeline } from './modules/ncov2019_artic.nf'
 } else {
-    throw new Exception("Error: workflow can only be 'illumina_artic' or 'medaka_artic'")
+    throw new Exception("Error: '--workflow' can only be 'illumina_artic' or 'medaka_artic'")
 }
 
 include { store_ncov2019_artic_nf_output } from './modules/ncov2019_artic.nf'
@@ -119,7 +121,7 @@ workflow {
     // METADATA
     load_metadata(
         "${COVID_PIPELINE_INPUT_PATH}/" + params.metadata_file_name,
-        "${ANALYSIS_RUN_NAME}"
+        params.run
     )
     load_metadata.out.ch_all_samples_with_metadata_file
         .splitText().map { it.trim() }.set { ch_all_samples_with_metadata_loaded }
@@ -208,7 +210,7 @@ workflow {
 
     ch_pangolin_sample_submitted = load_pangolin_data_to_db(
         pangolin_pipeline.out.ch_pangolin_lineage_csv,
-        "${ANALYSIS_RUN_NAME}"
+        params.run
     )
 
     Channel

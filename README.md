@@ -48,6 +48,7 @@ Input parameters to run the pipeline.
 | :---------------- | :---------------------------------------------------------------- |
 | --workflow | illumina_artic (default; input file extension: .fq.gz or .bam), medaka_artic (nanopore workflow; input file extension: .fastq.gz). |
 | --filetype | fastq (default), bam . The type of input file. Currently bam is only supported by the illumina workflow |
+| --run | The name for this analysis run |
 
 Example of execution with parameter: `nextflow run . --workflow medaka_artic`
 
