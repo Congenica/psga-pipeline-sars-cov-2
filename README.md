@@ -46,10 +46,10 @@ Input parameters to run the pipeline.
 
 | Argument | Value |
 | :---------------- | :---------------------------------------------------------------- |
-| --ncov2019_artic_workflow | illumina (default; input file extension: .fq.gz or .bam), medaka (nanopore workflow; input file extension: .fastq.gz). |
-| --input_type | fastq (default), bam . The type of input file. Currently bam is only supported by the illumina workflow |
+| --workflow | illumina_artic (default; input file extension: .fq.gz or .bam), medaka_artic (nanopore workflow; input file extension: .fastq.gz). |
+| --filetype | fastq (default), bam . The type of input file. Currently bam is only supported by the illumina workflow |
 
-Example of execution with parameter: `nextflow run . --ncov2019_artic_workflow medaka`
+Example of execution with parameter: `nextflow run . --workflow medaka_artic`
 
 ### Input files stored in aws s3
 If you plan to read input files from an aws s3 bucket you will need to:
@@ -116,10 +116,10 @@ kubectl exec -it covid-pipeline-XXXX -- bash
 # run the pipeline within the pod (processes are spun up as pod workers by this pipeline)
 # the results will be stored in covid-pipeline pod: /data/output
 # MODE 1: Fresh run, overriding the output from the previous computations
-nextflow run .
+nextflow run . <input_parameters>
 
 # MODE 2: run from the last successful process
-nextflow run . -resume
+nextflow run . <input_parameters> -resume
 
 # The following command cleans up the previous run's work directories and cache, but retains the content of ${COVID_PIPELINE_OUTPUT_PATH}:
 nextflow clean -f
