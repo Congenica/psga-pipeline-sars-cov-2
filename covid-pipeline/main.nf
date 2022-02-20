@@ -38,6 +38,7 @@ log.info """\
 
     ======================
     params:
+    * run                                   : ${params.run}
     * workflow                              : ${params.workflow}
     * filetype                              : ${params.filetype}
     * genbank_submitter_name                : ${params.genbank_submitter_name}
@@ -100,7 +101,7 @@ if ( params.workflow == "illumina_artic" ) {
 }
 
 include { store_ncov2019_artic_nf_output } from './modules/ncov2019_artic.nf'
-include { load_ncov_assembly_qc_to_db } from './modules/ncov2019_artic.nf'
+include { load_ncov_data_to_db } from './modules/ncov2019_artic.nf'
 include { reheader_genome_fasta } from './modules/ncov2019_artic.nf'
 include { store_reheadered_fasta_passed } from './modules/ncov2019_artic.nf'
 include { store_reheadered_fasta_failed } from './modules/ncov2019_artic.nf'
@@ -176,9 +177,10 @@ workflow {
         ncov2019_artic_nf_pipeline.out.ch_sample_depth_ncov_results
     )
 
-    ch_ncov_qc_sample_submitted = load_ncov_assembly_qc_to_db(
+    ch_ncov_qc_sample_submitted = load_ncov_data_to_db(
         ncov2019_artic_nf_pipeline.out.ch_qc_csv_ncov_result,
-        ncov2019_artic_nf_pipeline.out.ch_sample_depth_ncov_results
+        ncov2019_artic_nf_pipeline.out.ch_sample_depth_ncov_results,
+        params.run
     )
 
     // flatten so that pipeline branches off by fasta file
@@ -226,7 +228,8 @@ workflow {
         params.genbank_submission_comment,
         params.genbank_submitter_name,
         params.genbank_submitter_account_namespace,
-        params.genbank_submission_id_suffix
+        params.genbank_submission_id_suffix,
+        params.run
     )
 
     create_genbank_submission_files.out.ch_samples_txt
@@ -261,7 +264,8 @@ workflow {
         mark_samples_as_submitted_to_genbank(
             submit_genbank_files.out.ch_genbank_sample_names_txt,
             ch_no_samples_flag.collect(),
-            submit_genbank_files.out.ch_genbank_submission_id
+            submit_genbank_files.out.ch_genbank_submission_id,
+            params.run
         )
     }
     else {

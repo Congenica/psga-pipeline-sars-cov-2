@@ -26,13 +26,14 @@ process load_metadata {
   touch ${samples_with_qc_pass}
   touch ${updated_samples}
 
-  python /app/scripts/load_metadata.py \
+  python /app/scripts/load_metadata_to_db.py \
     --file "${ch_metadata_tsv_file}" \
     --analysis-run-name "${ch_analysis_run_name}" \
-    --output_all_samples_with_metadata "${all_samples_with_metadata}" \
-    --output_current_samples_with_metadata "${current_samples_with_metadata}" \
-    --output_samples_with_qc_pass "${samples_with_qc_pass}" \
-    --output_samples_updated "${updated_samples}"
+    --output-all-samples-with-metadata "${all_samples_with_metadata}" \
+    --output-current-samples-with-metadata "${current_samples_with_metadata}" \
+    --output-samples-with-qc-pass "${samples_with_qc_pass}" \
+    --output-samples-updated "${updated_samples}" \
+    --pipeline-version "${workflow.manifest.version}"
   touch ${metadata_load_done}
   """
 }

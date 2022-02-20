@@ -5,8 +5,8 @@ import click
 from click import ClickException
 from sqlalchemy.orm import scoped_session
 
-from db.database import session_handler
-from db.models import AnalysisRun, Sample, PangolinStatus
+from scripts.db.database import session_handler
+from scripts.db.models import AnalysisRun, Sample, PangolinStatus
 
 EXPECTED_HEADERS = {
     "status",
@@ -23,14 +23,12 @@ EXPECTED_HEADERS = {
 }
 
 
-def load_data_from_csv(session: scoped_session, analysis_run_name: str, sample_name: str, sample_from_csv: Dict):
+def load_pangolin_sample(session: scoped_session, analysis_run_name: str, sample_name: str, sample_from_csv: Dict):
     sample = (
         session.query(Sample)
-        .filter(
-            Sample.sample_name == sample_name,
-        )
         .join(AnalysisRun)
         .filter(
+            Sample.sample_name == sample_name,
             AnalysisRun.analysis_run_name == analysis_run_name,
         )
         .one_or_none()
@@ -105,7 +103,7 @@ def load_pangolin_data(pangolin_lineage_report_file: str, sample_name: str, anal
         with session_handler() as session:
             # this file only has one data row
             for sample_from_csv in sample_from_csv_reader:
-                load_data_from_csv(session, analysis_run_name, sample_name, sample_from_csv)
+                load_pangolin_sample(session, analysis_run_name, sample_name, sample_from_csv)
 
 
 if __name__ == "__main__":

@@ -7,21 +7,40 @@ from click.testing import CliRunner
 
 
 from utils_tests import assert_files_are_equal
-from scripts.db.models import Sample
+from scripts.db.models import AnalysisRun, Sample
 from scripts.generate_genbank_files import generate_genbank_files
+
+ANALYSIS_RUN_NAME = "just_a_name"
 
 
 @pytest.fixture
 def populated_db_session_with_samples(db_session):
+    db_session.add(AnalysisRun(analysis_run_name=ANALYSIS_RUN_NAME))
+    analysis_run = (
+        db_session.query(AnalysisRun)
+        .filter(
+            AnalysisRun.analysis_run_name == ANALYSIS_RUN_NAME,
+        )
+        .one_or_none()
+    )
+
     sample_names_not_submitted_yet = ["foo", "bar"]
     for sample in sample_names_not_submitted_yet:
-        db_session.add(Sample(sample_name=sample, date_collected=datetime.fromtimestamp(0), metadata_loaded=True))
+        db_session.add(
+            Sample(
+                sample_name=sample,
+                analysis_run_id=analysis_run.analysis_run_id,
+                date_collected=datetime.fromtimestamp(0),
+                metadata_loaded=True,
+            )
+        )
 
     sample_names_submitted = ["buzz"]
     for sample in sample_names_submitted:
         db_session.add(
             Sample(
                 sample_name=sample,
+                analysis_run_id=analysis_run.analysis_run_id,
                 genbank_submit_id="foo",
                 date_collected=datetime.fromtimestamp(0),
                 metadata_loaded=True,
@@ -91,27 +110,29 @@ def test_genbank_generating(
     rv = CliRunner().invoke(
         generate_genbank_files,
         [
-            "--input_sequence_fasta_directory",
+            "--analysis-run-name",
+            ANALYSIS_RUN_NAME,
+            "--input-sequence-fasta-directory",
             input_dir / fasta_dir,
-            "--input_submission_template",
+            "--input-submission-template",
             input_dir / template,
-            "--output_sequence_data_fsa",
+            "--output-sequence-data-fsa",
             out_fasta,
-            "--output_source_metadata_table_src",
+            "--output-source-metadata-table-src",
             out_metadata,
-            "--output_submission_xml",
+            "--output-submission-xml",
             out_xml,
-            "--output_submission_zip",
+            "--output-submission-zip",
             out_zip,
-            "--output_samples_submitted_file",
+            "--output-samples-submitted-file",
             out_samples,
-            "--submit_name",
+            "--submit-name",
             name,
             "--submitter",
             submitter,
-            "--spuid_namespace",
+            "--spuid-namespace",
             namespace,
-            "--spuid_unique_value",
+            "--spuid-unique-value",
             spuid,
         ],
     )

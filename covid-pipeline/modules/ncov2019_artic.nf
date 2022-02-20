@@ -123,12 +123,13 @@ process store_ncov2019_artic_nf_output {
 }
 
 /*
- * Load ncov2019-artic-nf assembly qc data to the database
+ * Load ncov2019-artic-nf data to the database
  */
-process load_ncov_assembly_qc_to_db {
+process load_ncov_data_to_db {
   input:
     file ch_qc_ncov_result_csv_file
     file ch_qc_plot_files
+    val ch_analysis_run_name
 
   output:
     path ch_ncov_qc_load_done, emit: ch_ncov_qc_load_done
@@ -138,10 +139,10 @@ process load_ncov_assembly_qc_to_db {
     ch_ncov_qc_load_done = "load_ncov_assembly_qc_to_db.done"
 
   """
-  python /app/scripts/submit_sample_qc.py \
-    --ncov_qc_csv_file "${ch_qc_ncov_result_csv_file}" \
-    --ncov_qc_depth_directory "${directory_with_qc_depth_files}" \
-    --pipeline_version "${workflow.manifest.version}"
+  python /app/scripts/load_ncov_data_to_db.py \
+    --ncov-qc-csv-file "${ch_qc_ncov_result_csv_file}" \
+    --ncov-qc-depth-directory "${directory_with_qc_depth_files}" \
+    --analysis-run-name "${ch_analysis_run_name}"
   touch ${ch_ncov_qc_load_done}
   """
 }

@@ -4,10 +4,9 @@ import csv
 import zipfile
 
 import click
-from sqlalchemy import and_
 
 from scripts.db.database import session_handler
-from scripts.db.models import Sample
+from scripts.db.models import AnalysisRun, Sample
 from scripts.util.fasta import FASTA_FILE_HANDLE, parse_sequences, merge_fasta
 from scripts.genbank.submission import (
     Submission,
@@ -35,21 +34,30 @@ SOURCE_METADATA_ISOLATE_VIRUS = "SARS-CoV-2"
 SOURCE_METADATA_ISOLATE_HOST = (
     "human"  # common or scientific name of the host animal from which the virus was located, for example: Homo sapiens
 )
-SOURCE_METADATA_ISOLATE_COUNTRY_ABBREVIATION = "BHR"  # virus host country three letter abbreviation
+SOURCE_METADATA_ISOLATE_COUNTRY_ABBREVIATION = "GBR"  # virus host country three letter abbreviation
 SOURCE_METADATA_HOST = "Homo sapiens"
-SOURCE_METADATA_COUNTRY = "Bahrain"  # the country where the sample was isolated.
+SOURCE_METADATA_COUNTRY = "United Kingdom"  # the country where the sample was isolated.
 # See https://www.ncbi.nlm.nih.gov/genbank/collab/country/ for INSDC country list.
 # Additional locality information can be included after the colon in the country, for example: USA: Maryland
 
 SOURCE_METADATA_COLUMNS = ["sequence_ID", "organism", "isolate", "host", "collection-date", "country"]
 
 
-def get_unsubmitted_sample_names() -> List[str]:
+def get_unsubmitted_sample_names(analysis_run_name: str) -> List[str]:
     """
     Return a list of all samples names available, which are not submitted to GenBank yet
     """
     with session_handler() as session:
-        samples = session.query(Sample).filter(and_(Sample.genbank_submit_id.is_(None), Sample.metadata_loaded)).all()
+        samples = (
+            session.query(Sample)
+            .join(AnalysisRun)
+            .filter(
+                Sample.genbank_submit_id.is_(None),
+                Sample.metadata_loaded,
+                AnalysisRun.analysis_run_name == analysis_run_name,
+            )
+            .all()
+        )
         return [sample.sample_name for sample in samples]
 
 
@@ -65,12 +73,21 @@ def merge_fastas_to_sequence_fsa(fasta_files: List[Path], output_file: Path) -> 
     return output_file
 
 
-def create_metadata_table_file(sample_names: List[str], output_file: Path) -> Path:
+def create_metadata_table_file(analysis_run_name: str, sample_names: List[str], output_file: Path) -> Path:
     """
     Metadata .tsv file, describing information about sequences included in the submission
     """
     with session_handler() as session:
-        samples = session.query(Sample).filter(and_(Sample.sample_name.in_(sample_names), Sample.metadata_loaded)).all()
+        samples = (
+            session.query(Sample)
+            .join(AnalysisRun)
+            .filter(
+                Sample.sample_name.in_(sample_names),
+                Sample.metadata_loaded,
+                AnalysisRun.analysis_run_name == analysis_run_name,
+            )
+            .all()
+        )
         metadata_table = [
             {
                 "sequence_ID": sample.sample_name,
@@ -126,6 +143,7 @@ def generate_submission(
 
 
 def create_submission_archive_file(
+    analysis_run_name: str,
     sample_names: List[str],
     sample_sequence_files: List[Path],
     template: Path,
@@ -140,7 +158,9 @@ def create_submission_archive_file(
         fasta_files=sample_sequence_files, output_file=output_sequence_data
     )
     source_metadata_table_file = create_metadata_table_file(
-        sample_names=sample_names, output_file=output_source_metadata_table
+        analysis_run_name=analysis_run_name,
+        sample_names=sample_names,
+        output_file=output_source_metadata_table,
     )
     with zipfile.ZipFile(output_submission_archive, "w") as output_zip:
         output_zip.write(merged_fasta_file, arcname=SEQUENCE_FSA_FILE_NAME)
@@ -177,7 +197,7 @@ def create_submission_metadata_file(
 
 @click.command()
 @click.option(
-    "--input_sequence_fasta_directory",
+    "--input-sequence-fasta-directory",
     type=click.Path(dir_okay=True, readable=True),
     required=True,
     help="Directory, containing .fasta files. Sequence IDs must be unique for each sequence. "
@@ -186,7 +206,7 @@ def create_submission_metadata_file(
     "For more information, see: https://submit.ncbi.nlm.nih.gov/genbank/help/#fasta",
 )
 @click.option(
-    "--input_submission_template",
+    "--input-submission-template",
     type=click.Path(file_okay=True, readable=True, exists=True),
     required=True,
     help="(.sbt) Text file with submitter names and organizations, as well as publications associated with or "
@@ -195,48 +215,49 @@ def create_submission_metadata_file(
     "The saved template can be reused for multiple submissions.",
 )
 @click.option(
-    "--output_sequence_data_fsa",
+    "--output-sequence-data-fsa",
     type=click.Path(file_okay=True, writable=True),
     required=True,
     help="Nucleotide sequences in FASTA format .fst",
 )
 @click.option(
-    "--output_source_metadata_table_src",
+    "--output-source-metadata-table-src",
     type=click.Path(file_okay=True, writable=True),
     required=True,
     help="Tab-delimited text file .src, describing sequences within .fst file",
 )
 @click.option(
-    "--output_submission_xml",
+    "--output-submission-xml",
     type=click.Path(file_okay=True, writable=True),
     required=True,
     help="Output file for writing GenBank submission xml",
 )
 @click.option(
-    "--output_submission_zip",
+    "--output-submission-zip",
     type=click.Path(file_okay=True, writable=True),
     required=True,
     help="Output .zip file to put all genome information in",
 )
 @click.option(
-    "--output_samples_submitted_file",
+    "--output-samples-submitted-file",
     type=click.Path(file_okay=True, writable=True),
     required=False,
     help="Output text file, which will be populated with a list of sample names for submission to GenBank",
 )
-@click.option("--submit_name", type=str, help="Name of submission")
+@click.option("--submit-name", type=str, help="Name of submission")
 @click.option("--submitter", type=str, help="Submitter name")
 @click.option(
-    "--spuid_namespace",
+    "--spuid-namespace",
     type=str,
     help="Center/account abbreviation provided during account creation. "
     "This value remains the same for every submission",
 )
 @click.option(
-    "--spuid_unique_value",
+    "--spuid-unique-value",
     type=str,
     help="Unique submission value. Must be unique for each submission from the submitter",
 )
+@click.option("--analysis-run-name", required=True, type=str, help="The name of the analysis run")
 def generate_genbank_files(
     input_sequence_fasta_directory: str,
     input_submission_template: str,
@@ -249,11 +270,12 @@ def generate_genbank_files(
     submitter: str,
     spuid_namespace: str,
     spuid_unique_value: str,
+    analysis_run_name: str,
 ) -> None:
     """
     Create file collection, required for submitting genomes to GenBank
     """
-    unsubmitted_sample_names = get_unsubmitted_sample_names()
+    unsubmitted_sample_names = get_unsubmitted_sample_names(analysis_run_name=analysis_run_name)
     print(f"So far unsubmitted samples to GenBank: {', '.join(unsubmitted_sample_names)}")
 
     fasta_files = Path(input_sequence_fasta_directory).rglob(f"*.{FASTA_FILE_HANDLE}")
@@ -267,6 +289,7 @@ def generate_genbank_files(
     print(f"Samples files to submit: {', '.join(sample_file.name for sample_file in sample_files)}")
 
     submission_archive = create_submission_archive_file(
+        analysis_run_name=analysis_run_name,
         sample_names=samples_to_submit,
         sample_sequence_files=sample_files,
         template=Path(input_submission_template),

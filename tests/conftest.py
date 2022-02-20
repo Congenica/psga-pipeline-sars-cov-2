@@ -8,7 +8,7 @@ from pathlib import Path
 import pytest
 from pytest_socket import disable_socket
 from scripts.db.database import connect
-from scripts.db.models import Sample
+from scripts.db.models import AnalysisRun, Sample
 from sqlalchemy import event
 from sqlalchemy.orm import sessionmaker
 
@@ -123,3 +123,28 @@ def sample_generator(db_session, db_fetcher_by_name):
         )
 
     return generate_sample
+
+
+@pytest.fixture
+def populated_db_session_with_sample(db_session):
+    analysis_run_name = "just_a_name"
+    db_session.add(AnalysisRun(analysis_run_name=analysis_run_name))
+    analysis_run = (
+        db_session.query(AnalysisRun)
+        .filter(
+            AnalysisRun.analysis_run_name == analysis_run_name,
+        )
+        .one_or_none()
+    )
+
+    for sn in ["7284954", "7174693", "8039686"]:
+        db_session.add(
+            Sample(
+                sample_name=sn,
+                analysis_run_id=analysis_run.analysis_run_id,
+                metadata_loaded=True,
+            )
+        )
+
+    db_session.commit()
+    yield db_session

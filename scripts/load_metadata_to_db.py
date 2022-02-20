@@ -79,29 +79,30 @@ def write_sample_list_files(
 @click.command()
 @click.option("--file", required=True, type=click.File("r"), help="The metadata TSV input file")
 @click.option("--analysis-run-name", required=True, type=str, help="The name of the analysis run")
+@click.option("--pipeline-version", type=str, required=True, help="mapping pipeline version")
 @click.option(
-    "--output_all_samples_with_metadata",
+    "--output-all-samples-with-metadata",
     required=False,
     type=click.Path(file_okay=True, writable=True),
     help="File path to populate with all ALL sample names found historically, "
     "which have metadata loaded in the database",
 )
 @click.option(
-    "--output_current_samples_with_metadata",
+    "--output-current-samples-with-metadata",
     required=False,
     type=click.Path(file_okay=True, writable=True),
     help="File path to populate with sample names within the current metadata file, "
     "which were loaded into the database",
 )
 @click.option(
-    "--output_samples_with_qc_pass",
+    "--output-samples-with-qc-pass",
     required=False,
     type=click.Path(file_okay=True, writable=True),
     help="File path to populate with all sample names, "
     "which were processed by artic-ncov2019 pipeline and were marked as QC_PASS",
 )
 @click.option(
-    "--output_samples_updated",
+    "--output-samples-updated",
     required=False,
     type=click.Path(file_okay=True, writable=True),
     help="File path to populate with all sample names, which were re-submitted and overwritten with provided metadata",
@@ -113,6 +114,7 @@ def load_metadata(
     output_current_samples_with_metadata,
     output_samples_with_qc_pass,
     output_samples_updated,
+    pipeline_version,
 ):
     """
     Read in a TSV file of metadata and load each row into the database. Invalid rows are warned about, but
@@ -151,6 +153,7 @@ def load_metadata(
                 analysis_run_name=analysis_run_name,
             )
             session.add(analysis_run)
+        analysis_run.pipeline_version = pipeline_version
 
         for row in reader:
             try:
@@ -159,11 +162,9 @@ def load_metadata(
 
                 existing_sample = (
                     session.query(Sample)
-                    .filter(
-                        Sample.sample_name == sample_name,
-                    )
                     .join(AnalysisRun)
                     .filter(
+                        Sample.sample_name == sample_name,
                         AnalysisRun.analysis_run_name == analysis_run_name,
                     )
                     .one_or_none()

@@ -1,7 +1,7 @@
 from click.testing import CliRunner
 
 from scripts.db.models import AnalysisRun, Sample
-from scripts.load_metadata import load_metadata
+from scripts.load_metadata_to_db import load_metadata
 
 
 def test_load_good_data(db_session, test_data_path):
@@ -13,6 +13,8 @@ def test_load_good_data(db_session, test_data_path):
             test_data_path / "good_metadata.tsv",
             "--analysis-run-name",
             analysis_name,
+            "--pipeline-version",
+            "1.0.0",
         ],
     )
 
@@ -34,6 +36,8 @@ def test_load_bad_data(db_session, test_data_path):
             test_data_path / "bad_metadata.tsv",
             "--analysis-run-name",
             analysis_name,
+            "--pipeline-version",
+            "1.0.0",
         ],
     )
 

@@ -23,20 +23,20 @@ def upload_file(ftp_session: FTP, file_to_upload: Path, destination: str, binary
 # pylint: disable=unused-argument
 @click.command()
 @click.option(
-    "--input_xml",
+    "--input-xml",
     type=click.Path(file_okay=True, readable=True, exists=True),
     required=True,
     help="submission form to GenBank. File acts like an envelope to the submission and includes the "
     "necessary instructions on how to process this submission.",
 )
 @click.option(
-    "--input_zip",
+    "--input-zip",
     type=click.Path(file_okay=True, readable=True, exists=True),
     required=True,
     help="A .zip archive file containing the genome data to be uploaded to the appropriate submission folder",
 )
 @click.option(
-    "--submit_id",
+    "--submit-id",
     type=str,
     required=True,
     help="Unique identifier of the submission to GenBank",
