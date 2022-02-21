@@ -49,6 +49,11 @@ Input parameters to run the pipeline.
 | --workflow | illumina_artic (default; input file extension: .fq.gz or .bam), medaka_artic (nanopore workflow; input file extension: .fastq.gz). |
 | --filetype | fastq (default), bam . The type of input file. Currently bam is only supported by the illumina workflow |
 | --run | The name for this analysis run |
+| --scheme_repo_url | Repo to download your primer scheme from (e.g. 'https://github.com/artic-network/artic-ncov2019'). For efficiency, this repo was checked out and made available to the pipeline in the ncov docker images |
+| --scheme_dir | Directory within schemeRepoURL that contains primer schemes (Default: 'primer_schemes') |
+| --scheme | Scheme name (Default: 'nCoV-2019') |
+| --scheme_version | ARTIC scheme version (Default: 'V3') |
+
 
 Example of execution with parameter: `nextflow run . --workflow medaka_artic`
 

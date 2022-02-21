@@ -38,6 +38,10 @@ process ncov2019_artic_nf_pipeline_illumina {
   input:
     file fastq_file
     val ncov_prefix
+    val scheme_repo_url
+    val scheme_dir
+    val scheme
+    val scheme_version
 
   output:
     path "${ncov_out_directory}/*", emit: ch_all_ncov_results
@@ -56,6 +60,10 @@ process ncov2019_artic_nf_pipeline_illumina {
       --prefix ${ncov_prefix} \
       --directory `eval pwd` \
       --outdir ${ncov_out_directory} \
+      --schemeRepoURL ${scheme_repo_url} \
+      --schemeDir ${scheme_dir} \
+      --scheme ${scheme} \
+      --schemeVersion ${scheme_version} \
       -c ${COVID_PIPELINE_ROOT_PATH}/covid-pipeline/ncov-custom.config \
       -c ${COVID_PIPELINE_ROOT_PATH}/covid-pipeline/ncov-illumina-k8s.config
   """
@@ -70,6 +78,10 @@ process ncov2019_artic_nf_pipeline_medaka {
   input:
     file input_dir
     val ncov_prefix
+    val scheme_repo_url
+    val scheme_dir
+    val scheme
+    val scheme_version
 
   output:
     path "${ncov_out_directory}/*", emit: ch_all_ncov_results
@@ -96,6 +108,10 @@ process ncov2019_artic_nf_pipeline_medaka {
       --prefix ${ncov_prefix} \
       --basecalled_fastq `eval pwd` \
       --outdir ${ncov_out_directory} \
+      --schemeRepoURL ${scheme_repo_url} \
+      --schemeDir ${scheme_dir} \
+      --scheme ${scheme} \
+      --schemeVersion ${scheme_version} \
       -c ${COVID_PIPELINE_ROOT_PATH}/covid-pipeline/ncov-custom.config \
       -c ${COVID_PIPELINE_ROOT_PATH}/covid-pipeline/ncov-nanopore-k8s.config
   """
