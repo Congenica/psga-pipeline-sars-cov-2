@@ -27,6 +27,7 @@ process pangolin_pipeline {
 process load_pangolin_data_to_db {
   input:
     tuple val(sample_name), file(ch_pangolin_result_csv_file)
+    val ch_analysis_run_name
 
   output:
     path ch_pangolin_load_data_done
@@ -37,6 +38,7 @@ process load_pangolin_data_to_db {
   """
   python /app/scripts/load_pangolin_data_to_db.py \
     --pangolin-lineage-report-file "${ch_pangolin_result_csv_file}" \
+    --analysis-run-name "${ch_analysis_run_name}" \
     --sample-name "${sample_name}"
   touch ${ch_pangolin_load_data_done}
   """

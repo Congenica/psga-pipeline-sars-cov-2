@@ -1,0 +1,2 @@
+taxon,lineage,conflict,ambiguity_score,scorpio_call,scorpio_support,scorpio_conflict,version,pangolin_version,pangoLEARN_version,pango_version,status,note
+7174693,AY.98,0.0,1.0,Delta (B.1.617.2-like),1.000000,0.000000,PLEARN-v1.2.123,3.1.17,2022-01-20,v1.2.123,passed_qc,scorpio call: Alt alleles 13; Ref alleles 0; Amb alleles 0; Oth alleles 0

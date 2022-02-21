@@ -7,53 +7,53 @@ BEGIN
 
   SET LOCAL search_path = sars_cov_2;
 
-  -- area table verifications
-  ASSERT (SELECT has_table_privilege('area', 'SELECT, INSERT, UPDATE, DELETE, TRUNCATE, REFERENCES'));
+    -- analysis_run table verifications
+  ASSERT (SELECT has_table_privilege('analysis_run', 'SELECT, INSERT, UPDATE, DELETE, TRUNCATE, REFERENCES'));
   SELECT count(*) INTO column_count
   FROM information_schema.columns
-  WHERE table_schema='sars_cov_2' AND table_name='area' AND column_name IN ('name','latitude','longitude','colour');
-  ASSERT column_count = 4;
-
-  -- block table verifications
-  ASSERT (SELECT has_table_privilege('block', 'SELECT, INSERT, UPDATE, DELETE, TRUNCATE, REFERENCES'));
-  SELECT count(*) INTO column_count
-  FROM information_schema.columns
-  WHERE table_schema='sars_cov_2' AND table_name='block' AND column_name IN ('number','latitude','longitude','colour');
-  ASSERT column_count = 4;
-
-    -- comorbidity table verifications
-  ASSERT (SELECT has_table_privilege('comorbidity', 'SELECT, INSERT, UPDATE, DELETE, TRUNCATE, REFERENCES'));
-  SELECT count(*) INTO column_count
-  FROM information_schema.columns
-  WHERE table_schema='sars_cov_2' AND table_name='comorbidity' AND column_name IN ('comorbidity_id','description');
-  ASSERT column_count = 2;
+  WHERE table_schema='sars_cov_2' AND table_name='analysis_run' AND column_name IN (
+    'analysis_run_id',
+    'analysis_run_name',
+    'pipeline_version',
+    'pangolearn_version',
+    'pangolin_version',
+    'pango_version'
+  );
+  ASSERT column_count = 6;
 
     -- sample table verifications
   ASSERT (SELECT has_table_privilege('sample', 'SELECT, INSERT, UPDATE, DELETE, TRUNCATE, REFERENCES'));
   SELECT count(*) INTO column_count
   FROM information_schema.columns
-  WHERE table_schema='sars_cov_2' AND table_name='sample' AND column_name IN ('sample_id', 'lab_id', 'date_collected', 'data_sequenced', 'sequencing_run', 'gender', 'age', 'nationality', 'governorate_name', 'area_name', 'block_number', 'sample_number', 'ct_value', 'symptoms', 'travel_exposure', 'hospital_admittance', 'pangolin_lineage', 'gisaid_id', 'genome_length', 'mrn');
-  ASSERT column_count = 20;
+  WHERE table_schema='sars_cov_2' AND table_name='sample' AND column_name IN (
+    'sample_id',
+    'analysis_run_id',
+    'sample_name',
+    'date_collected',
+    'pangolin_lineage',
+    'gisaid_id',
+    'genome_length',
+    'pangolin_status',
+    'metadata_loaded',
+    'genbank_submit_id',
+    'pangolin_conflict',
+    'pangolin_ambiguity_score'
+  );
+  ASSERT column_count = 12;
 
     -- sample_qc table verifications
   ASSERT (SELECT has_table_privilege('sample_qc', 'SELECT, INSERT, UPDATE, DELETE, TRUNCATE, REFERENCES'));
   SELECT count(*) INTO column_count
   FROM information_schema.columns
-  WHERE table_schema='sars_cov_2' AND table_name='sample_qc' AND column_name IN ('sample_id', 'pct_covered_bases', 'num_aligned_reads', 'qc_pass', 'qc_plot', 'pipeline_version');
-  ASSERT column_count = 6;
-
-    -- sample_comorbidity table verifications
-  ASSERT (SELECT has_table_privilege('sample_comorbidity', 'SELECT, INSERT, UPDATE, DELETE, TRUNCATE, REFERENCES'));
-  SELECT count(*) INTO column_count
-  FROM information_schema.columns
-  WHERE table_schema='sars_cov_2' AND table_name='sample_comorbidity' AND column_name IN ('sample_id','comorbidity_id');
-  ASSERT column_count = 2;
-
-    -- governorate table verifications
-  ASSERT (SELECT has_table_privilege('governorate', 'SELECT, INSERT, UPDATE, DELETE, TRUNCATE, REFERENCES'));
-  SELECT count(*) INTO column_count
-  FROM information_schema.columns
-  WHERE table_schema='sars_cov_2' AND table_name='governorate' AND column_name IN ('name','latitude','longitude','colour');
-  ASSERT column_count = 4;
+  WHERE table_schema='sars_cov_2' AND table_name='sample_qc' AND column_name IN (
+    'sample_id',
+    'pct_n_bases',
+    'pct_covered_bases',
+    'longest_no_n_run',
+    'num_aligned_reads',
+    'qc_pass',
+    'qc_plot'
+  );
+  ASSERT column_count = 7;
 
 END $$;

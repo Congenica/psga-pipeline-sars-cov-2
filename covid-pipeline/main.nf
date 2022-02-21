@@ -38,8 +38,9 @@ log.info """\
 
     ======================
     params:
-    * ncov2019_artic_workflow               : ${params.ncov2019_artic_workflow}
-    * input_type                            : ${params.input_type}
+    * run                                   : ${params.run}
+    * workflow                              : ${params.workflow}
+    * filetype                              : ${params.filetype}
     * genbank_submitter_name                : ${params.genbank_submitter_name}
     * genbank_submitter_account_namespace   : ${params.genbank_submitter_account_namespace}
     * genbank_submission_template           : ${params.genbank_submission_template}
@@ -74,30 +75,33 @@ if( "[:]" in [
     throw new Exception("Found unset global environment variables. See '[:]' above. Abort")
 }
 
+if ( params.run == "" ) {
+    throw new Exception("Error: '--run' must be defined")
+}
 
 // Import modules
 include { load_metadata } from './modules/load_metadata.nf'
 
-if ( params.ncov2019_artic_workflow == "illumina" ) {
+if ( params.workflow == "illumina_artic" ) {
     include { ncov2019_artic_nf_pipeline_illumina as ncov2019_artic_nf_pipeline } from './modules/ncov2019_artic.nf'
-    if ( params.input_type == "fastq" ) {
+    if ( params.filetype == "fastq" ) {
         include { filter_fastq_matching_with_metadata as filter_input_files_matching_metadata } from './modules/fastq_match.nf'
-    } else if ( params.input_type == "bam" ) {
+    } else if ( params.filetype == "bam" ) {
         include { bam_to_fastq } from './modules/ncov2019_artic.nf'
         include { filter_bam_matching_with_metadata as filter_input_files_matching_metadata } from './modules/bam_match.nf'
     } else {
-        throw new Exception("Error: input_type can only be 'fastq' or 'bam'")
+        throw new Exception("Error: '--filetype' can only be 'fastq' or 'bam'")
     }
-} else if ( params.ncov2019_artic_workflow == "medaka" ) {
+} else if ( params.workflow == "medaka_artic" ) {
     include { getDirName } from './modules/utils.nf'
     include { filter_nanopore_matching_with_metadata as filter_input_files_matching_metadata } from './modules/nanopore_match.nf'
     include { ncov2019_artic_nf_pipeline_medaka as ncov2019_artic_nf_pipeline } from './modules/ncov2019_artic.nf'
 } else {
-    throw new Exception("Error: ncov2019_artic_workflow can only be 'illumina' or 'medaka'")
+    throw new Exception("Error: '--workflow' can only be 'illumina_artic' or 'medaka_artic'")
 }
 
 include { store_ncov2019_artic_nf_output } from './modules/ncov2019_artic.nf'
-include { load_ncov_assembly_qc_to_db } from './modules/ncov2019_artic.nf'
+include { load_ncov_data_to_db } from './modules/ncov2019_artic.nf'
 include { reheader_genome_fasta } from './modules/ncov2019_artic.nf'
 include { store_reheadered_fasta_passed } from './modules/ncov2019_artic.nf'
 include { store_reheadered_fasta_failed } from './modules/ncov2019_artic.nf'
@@ -117,7 +121,8 @@ workflow {
 
     // METADATA
     load_metadata(
-        "${COVID_PIPELINE_INPUT_PATH}/" + params.metadata_file_name
+        "${COVID_PIPELINE_INPUT_PATH}/" + params.metadata_file_name,
+        params.run
     )
     load_metadata.out.ch_all_samples_with_metadata_file
         .splitText().map { it.trim() }.set { ch_all_samples_with_metadata_loaded }
@@ -139,11 +144,11 @@ workflow {
     )
 
     ncov_prefix = "covid_test"
-    if ( params.ncov2019_artic_workflow == "illumina" && params.input_type == "fastq" ) {
+    if ( params.workflow == "illumina_artic" && params.filetype == "fastq" ) {
         ch_input_files = ch_input_files_prep
-    } else if ( params.ncov2019_artic_workflow == "illumina" && params.input_type == "bam" ) {
+    } else if ( params.workflow == "illumina_artic" && params.filetype == "bam" ) {
         ch_input_files = bam_to_fastq(ch_input_files_prep)
-    } else if ( params.ncov2019_artic_workflow == "medaka" && params.input_type == "fastq" ) {
+    } else if ( params.workflow == "medaka_artic" && params.filetype == "fastq" ) {
         ch_input_files = ch_input_files_prep
         // for ncov nanopore/medaka workflow this is not arbitrary. It must be the name of the full run coming from the lab.
         // This is the name of the input dir
@@ -172,9 +177,10 @@ workflow {
         ncov2019_artic_nf_pipeline.out.ch_sample_depth_ncov_results
     )
 
-    ch_ncov_qc_sample_submitted = load_ncov_assembly_qc_to_db(
+    ch_ncov_qc_sample_submitted = load_ncov_data_to_db(
         ncov2019_artic_nf_pipeline.out.ch_qc_csv_ncov_result,
-        ncov2019_artic_nf_pipeline.out.ch_sample_depth_ncov_results
+        ncov2019_artic_nf_pipeline.out.ch_sample_depth_ncov_results,
+        params.run
     )
 
     // flatten so that pipeline branches off by fasta file
@@ -205,7 +211,8 @@ workflow {
     pangolin_pipeline(ch_qc_passed_fasta)
 
     ch_pangolin_sample_submitted = load_pangolin_data_to_db(
-        pangolin_pipeline.out.ch_pangolin_lineage_csv
+        pangolin_pipeline.out.ch_pangolin_lineage_csv,
+        params.run
     )
 
     Channel
@@ -221,7 +228,8 @@ workflow {
         params.genbank_submission_comment,
         params.genbank_submitter_name,
         params.genbank_submitter_account_namespace,
-        params.genbank_submission_id_suffix
+        params.genbank_submission_id_suffix,
+        params.run
     )
 
     create_genbank_submission_files.out.ch_samples_txt
@@ -256,7 +264,8 @@ workflow {
         mark_samples_as_submitted_to_genbank(
             submit_genbank_files.out.ch_genbank_sample_names_txt,
             ch_no_samples_flag.collect(),
-            submit_genbank_files.out.ch_genbank_submission_id
+            submit_genbank_files.out.ch_genbank_submission_id,
+            params.run
         )
     }
     else {

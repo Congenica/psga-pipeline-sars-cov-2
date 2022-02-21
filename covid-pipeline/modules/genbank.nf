@@ -10,6 +10,7 @@ process create_genbank_submission_files {
     val genbank_submitter_name
     val genbank_submitter_account_namespace
     val genbank_submission_id_suffix
+    val ch_analysis_run_name
 
   output:
     path submission_xml, emit: ch_genbank_xml
@@ -34,17 +35,18 @@ process create_genbank_submission_files {
   ls -l
 
   python /app/scripts/generate_genbank_files.py \
-    --input_sequence_fasta_directory ${sequence_fasta_directory} \
-    --input_submission_template ${genbank_submission_template} \
-    --output_sequence_data_fsa ${sequence_data_fsa} \
-    --output_source_metadata_table_src ${source_metadata_table_src} \
-    --output_submission_xml ${submission_xml} \
-    --output_submission_zip ${submission_zip} \
-    --output_samples_submitted_file ${submission_samples_txt} \
-    --submit_name "${genbank_submission_comment}" \
+    --analysis-run-name "${ch_analysis_run_name}" \
+    --input-sequence-fasta-directory ${sequence_fasta_directory} \
+    --input-submission-template ${genbank_submission_template} \
+    --output-sequence-data-fsa ${sequence_data_fsa} \
+    --output-source-metadata-table-src ${source_metadata_table_src} \
+    --output-submission-xml ${submission_xml} \
+    --output-submission-zip ${submission_zip} \
+    --output-samples-submitted-file ${submission_samples_txt} \
+    --submit-name "${genbank_submission_comment}" \
     --submitter "${genbank_submitter_name}" \
-    --spuid_namespace "${genbank_submitter_account_namespace}" \
-    --spuid_unique_value "${unique_genbank_submission_identifier}"
+    --spuid-namespace "${genbank_submitter_account_namespace}" \
+    --spuid-unique-value "${unique_genbank_submission_identifier}"
   """
 }
 
@@ -79,9 +81,9 @@ process submit_genbank_files {
   echo ${no_samples_flag}
 
   python /app/scripts/submit_genbank_files.py \
-    --input_xml "${submission_xml}" \
-    --input_zip "${submission_zip}" \
-    --submit_id "${submit_id}" \
+    --input-xml "${submission_xml}" \
+    --input-zip "${submission_zip}" \
+    --submit-id "${submit_id}" \
     --url "${remote_url}" \
     --username "${remote_username}" \
     --password "${remote_password}" \
@@ -99,6 +101,7 @@ process mark_samples_as_submitted_to_genbank{
     file sample_names_txt
     val no_samples_flag
     val submit_id
+    val ch_analysis_run_name
 
   when:
     no_samples_flag != ['NO_SAMPLES']
@@ -111,8 +114,9 @@ process mark_samples_as_submitted_to_genbank{
 
   """
   python /app/scripts/mark_submitted_genbank_samples.py \
-    --sample_names_txt "${sample_names_txt}" \
-    --submit_id "${submit_id}"
+    --analysis-run-name "${ch_analysis_run_name}" \
+    --sample-names-txt "${sample_names_txt}" \
+    --submit-id "${submit_id}"
 
   touch ${mark_samples_as_submitted_to_genbank_done}
   """

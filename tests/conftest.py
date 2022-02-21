@@ -8,7 +8,7 @@ from pathlib import Path
 import pytest
 from pytest_socket import disable_socket
 from scripts.db.database import connect
-from scripts.db.models import Area, Governorate, Sample
+from scripts.db.models import AnalysisRun, Sample
 from sqlalchemy import event
 from sqlalchemy.orm import sessionmaker
 
@@ -114,16 +114,37 @@ def db_fetcher_by_name(db_session):
 
 @pytest.fixture
 def sample_generator(db_session, db_fetcher_by_name):
-    def generate_sample(governorate_name="Capital", area_name="JERDAB", lineage="B.1", date_collected=datetime.now()):
-        governorate = db_fetcher_by_name(Governorate, governorate_name) if governorate_name else None
-        area = db_fetcher_by_name(Area, area_name) if area_name else None
+    def generate_sample(lineage="B.1", date_collected=datetime.now()):
         return db_session.add(
             Sample(
-                governorate=governorate,
-                area=area,
                 date_collected=date_collected,
                 pangolin_lineage=lineage,
             )
         )
 
     return generate_sample
+
+
+@pytest.fixture
+def populated_db_session_with_sample(db_session):
+    analysis_run_name = "just_a_name"
+    db_session.add(AnalysisRun(analysis_run_name=analysis_run_name))
+    analysis_run = (
+        db_session.query(AnalysisRun)
+        .filter(
+            AnalysisRun.analysis_run_name == analysis_run_name,
+        )
+        .one_or_none()
+    )
+
+    for sn in ["7284954", "7174693", "8039686"]:
+        db_session.add(
+            Sample(
+                sample_name=sn,
+                analysis_run_id=analysis_run.analysis_run_id,
+                metadata_loaded=True,
+            )
+        )
+
+    db_session.commit()
+    yield db_session
