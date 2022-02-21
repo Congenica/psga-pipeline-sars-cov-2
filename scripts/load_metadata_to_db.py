@@ -12,16 +12,49 @@ from click import ClickException
 from scripts.db.database import session_handler
 from scripts.db.models import AnalysisRun, Sample, SampleQC
 
-EXPECTED_HEADERS = {
-    "SAMPLE ID",
-    "ASSIGN DATE",
-}
+METADATA_FILE_EXPECTED_HEADERS = {"SAMPLE ID", "ASSIGN DATE"}
+INPUT_FILE_TYPES = {"bam", "fastq"}
+WORKFLOWS = {"illumina_artic", "medaka_artic"}
+
+
+class MedakaArticWithBamError(Exception):
+    pass
+
+
+def load_analysis_run_metadata(
+    session,
+    analysis_run_name: str,
+    primer_scheme_name: str,
+    primer_scheme_version: str,
+    input_file_type: str,
+    workflow: str,
+    pipeline_version: str,
+) -> AnalysisRun:
+    analysis_run = (
+        session.query(AnalysisRun)
+        .filter(
+            AnalysisRun.analysis_run_name == analysis_run_name,
+        )
+        .one_or_none()
+    )
+    if not analysis_run:
+        analysis_run = AnalysisRun(
+            analysis_run_name=analysis_run_name,
+        )
+        session.add(analysis_run)
+    analysis_run.primer_scheme_name = primer_scheme_name
+    analysis_run.primer_scheme_version = primer_scheme_version
+    analysis_run.input_file_type = input_file_type
+    analysis_run.workflow = workflow
+    analysis_run.pipeline_version = pipeline_version
+
+    return analysis_run
 
 
 def _validate_and_normalise_row(row):
 
     # strip leading and trailing spaces from everything
-    for f in EXPECTED_HEADERS:
+    for f in METADATA_FILE_EXPECTED_HEADERS:
         row[f] = row[f].lstrip().rstrip() if row[f] is not None else ""
 
     errs = []
@@ -79,6 +112,17 @@ def write_sample_list_files(
 @click.command()
 @click.option("--file", required=True, type=click.File("r"), help="The metadata TSV input file")
 @click.option("--analysis-run-name", required=True, type=str, help="The name of the analysis run")
+@click.option("--primer-scheme-name", required=True, type=str, help="The primer scheme name")
+@click.option("--primer-scheme-version", required=True, type=str, help="The primer scheme version")
+@click.option(
+    "--input-file-type",
+    required=True,
+    type=click.Choice(INPUT_FILE_TYPES, case_sensitive=True),
+    help="The type of input files",
+)
+@click.option(
+    "--workflow", required=True, type=click.Choice(WORKFLOWS, case_sensitive=True), help="The name of the workflow"
+)
 @click.option("--pipeline-version", type=str, required=True, help="mapping pipeline version")
 @click.option(
     "--output-all-samples-with-metadata",
@@ -114,21 +158,30 @@ def load_metadata(
     output_current_samples_with_metadata,
     output_samples_with_qc_pass,
     output_samples_updated,
+    primer_scheme_name,
+    primer_scheme_version,
+    input_file_type,
+    workflow,
     pipeline_version,
 ):
     """
     Read in a TSV file of metadata and load each row into the database. Invalid rows are warned about, but
     skipped over.
     """
+
+    if input_file_type == "bam" and workflow == "medaka_artic":
+        click.echo("Error: medaka_artic workflow does not support input bam files")
+        raise MedakaArticWithBamError
+
     reader = csv.DictReader(file, delimiter="\t")
 
     headers = set(reader.fieldnames)
-    if not EXPECTED_HEADERS.issubset(headers):
+    if not METADATA_FILE_EXPECTED_HEADERS.issubset(headers):
         err = (
             "Unexpected TSV headers, got:\n"
             + ", ".join(headers)
             + "\n, but expect at least \n"
-            + ", ".join(EXPECTED_HEADERS)
+            + ", ".join(METADATA_FILE_EXPECTED_HEADERS)
         )
         raise ClickException(err)
 
@@ -140,20 +193,15 @@ def load_metadata(
     errors = set()
     with session_handler() as session:
 
-        # insert the analysis run record
-        analysis_run = (
-            session.query(AnalysisRun)
-            .filter(
-                AnalysisRun.analysis_run_name == analysis_run_name,
-            )
-            .one_or_none()
+        analysis_run = load_analysis_run_metadata(
+            session,
+            analysis_run_name,
+            primer_scheme_name,
+            primer_scheme_version,
+            input_file_type,
+            workflow,
+            pipeline_version,
         )
-        if not analysis_run:
-            analysis_run = AnalysisRun(
-                analysis_run_name=analysis_run_name,
-            )
-            session.add(analysis_run)
-        analysis_run.pipeline_version = pipeline_version
 
         for row in reader:
             try:

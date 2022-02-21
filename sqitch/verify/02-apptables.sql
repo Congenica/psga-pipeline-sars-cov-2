@@ -14,12 +14,16 @@ BEGIN
   WHERE table_schema='sars_cov_2' AND table_name='analysis_run' AND column_name IN (
     'analysis_run_id',
     'analysis_run_name',
+    'primer_scheme_name',
+    'primer_scheme_version',
+    'input_file_type',
+    'workflow',
     'pipeline_version',
     'pangolearn_version',
     'pangolin_version',
     'pango_version'
   );
-  ASSERT column_count = 6;
+  ASSERT column_count = 10;
 
     -- sample table verifications
   ASSERT (SELECT has_table_privilege('sample', 'SELECT, INSERT, UPDATE, DELETE, TRUNCATE, REFERENCES'));

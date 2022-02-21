@@ -19,6 +19,24 @@ Base = declarative_base()
 metadata = Base.metadata
 
 
+class InputFileType(PyEnum):
+    unknown = "unknown"
+    bam = "bam"
+    fastq = "fastq"
+
+    def __str__(self):
+        return str(self.name)
+
+
+class Workflow(PyEnum):
+    unknown = "unknown"
+    illumina_artic = "illumina_artic"
+    medaka_artic = "medaka_artic"
+
+    def __str__(self):
+        return str(self.name)
+
+
 class PangolinStatus(PyEnum):
     unknown = "unknown"
     fail = "fail"
@@ -39,6 +57,20 @@ class AnalysisRun(Base):  # type: ignore
         comment="Primary key, serial sequence generated in the database",
     )
     analysis_run_name = Column(String, comment="The name of this run")
+    primer_scheme_name = Column(String, comment="The primer scheme name")
+    primer_scheme_version = Column(String, comment="The primer scheme version")
+    input_file_type = Column(
+        Enum(InputFileType, name="input_file_type"),
+        nullable=False,
+        server_default=FetchedValue(),
+        comment="The type of input files",
+    )
+    workflow = Column(
+        Enum(Workflow, name="workflow"),
+        nullable=False,
+        server_default=FetchedValue(),
+        comment="The name of the workflow",
+    )
     pipeline_version = Column(String, comment="mapping pipeline version")
     pangolin_version = Column(String, comment="pangolin version")
     pangolearn_version = Column(String, comment="pangoLEARN version used by Pangolin")

@@ -7,9 +7,27 @@ BEGIN;
 
   SET LOCAL search_path = sars_cov_2;
 
+  CREATE TYPE "input_file_type" AS ENUM (
+    'unknown'
+   ,'bam'
+   ,'fastq'
+  );
+
+  CREATE TYPE "workflow" AS ENUM (
+    'unknown'
+   ,'illumina_artic'
+   ,'medaka_artic'
+  );
+
   CREATE TABLE IF NOT EXISTS "analysis_run" (
     "analysis_run_id" SERIAL PRIMARY KEY
    ,"analysis_run_name" VARCHAR
+   ,"primer_scheme_name" VARCHAR
+   ,"primer_scheme_version" VARCHAR
+   ,"input_file_type" "input_file_type"
+      NOT NULL DEFAULT 'unknown'
+   ,"workflow" "workflow"
+      NOT NULL DEFAULT 'unknown'
    ,"pipeline_version" VARCHAR
    ,"pangolearn_version" VARCHAR
    ,"pangolin_version" VARCHAR
@@ -22,6 +40,14 @@ BEGIN;
       'Primary key, serial sequence generated in the database';
     COMMENT ON COLUMN "analysis_run"."analysis_run_name" IS
       'The dir of the analysis run';
+    COMMENT ON COLUMN "analysis_run"."primer_scheme_name" IS
+      'The primer scheme name';
+    COMMENT ON COLUMN "analysis_run"."primer_scheme_version" IS
+      'The primer scheme version';
+    COMMENT ON COLUMN "analysis_run"."input_file_type" IS
+      'The type of input files';
+    COMMENT ON COLUMN "analysis_run"."workflow" IS
+      'The name of the workflow';
     COMMENT ON COLUMN "analysis_run"."pipeline_version" IS
       'The version of this pipeline';
     COMMENT ON COLUMN "analysis_run"."pangolearn_version"

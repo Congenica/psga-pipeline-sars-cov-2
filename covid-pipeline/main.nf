@@ -126,7 +126,11 @@ workflow {
     // METADATA
     load_metadata(
         "${COVID_PIPELINE_INPUT_PATH}/" + params.metadata_file_name,
-        params.run
+        params.run,
+        params.scheme,
+        params.scheme_version,
+        params.filetype,
+        params.workflow
     )
     load_metadata.out.ch_all_samples_with_metadata_file
         .splitText().map { it.trim() }.set { ch_all_samples_with_metadata_loaded }
