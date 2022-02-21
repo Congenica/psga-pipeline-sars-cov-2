@@ -5,6 +5,10 @@ process load_metadata {
   input:
     path ch_metadata_tsv_file
     val ch_analysis_run_name
+    val ch_scheme
+    val ch_scheme_version
+    val ch_filetype
+    val ch_workflow
 
   output:
     path metadata_load_done, emit: ch_metadata_load_done
@@ -29,6 +33,10 @@ process load_metadata {
   python /app/scripts/load_metadata_to_db.py \
     --file "${ch_metadata_tsv_file}" \
     --analysis-run-name "${ch_analysis_run_name}" \
+    --primer-scheme-name "${ch_scheme}" \
+    --primer-scheme-version "${ch_scheme_version}" \
+    --input-file-type "${ch_filetype}" \
+    --workflow "${ch_workflow}" \
     --output-all-samples-with-metadata "${all_samples_with_metadata}" \
     --output-current-samples-with-metadata "${current_samples_with_metadata}" \
     --output-samples-with-qc-pass "${samples_with_qc_pass}" \

@@ -12,6 +12,7 @@ from scripts.load_pangolin_data_to_db import load_pangolin_data
             "7174693",
             "just_a_name",
             {
+                "pangolin_status": "passed_qc",
                 "pangolin_lineage": "AY.98",
                 "pangolin_conflict": 0.0,
                 "pangolin_ambiguity_score": 1.0,
@@ -64,7 +65,7 @@ def test_load_pangolin_data_to_db(
     assert sample is not None
     for col_name, col_val in pangolin_sample_columns.items():
         # get column of sample from string, dynamically
-        assert getattr(sample, col_name) == col_val
+        assert str(getattr(sample, col_name)) == str(col_val)
 
     # check pangolin data in analysis_run table
     analysis_run = (

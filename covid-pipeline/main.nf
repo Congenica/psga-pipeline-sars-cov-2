@@ -41,6 +41,10 @@ log.info """\
     * run                                   : ${params.run}
     * workflow                              : ${params.workflow}
     * filetype                              : ${params.filetype}
+    * scheme_repo_url                       : ${params.scheme_repo_url}
+    * scheme_dir                            : ${params.scheme_dir}
+    * scheme                                : ${params.scheme}
+    * scheme_version                        : ${params.scheme_version}
     * genbank_submitter_name                : ${params.genbank_submitter_name}
     * genbank_submitter_account_namespace   : ${params.genbank_submitter_account_namespace}
     * genbank_submission_template           : ${params.genbank_submission_template}
@@ -122,7 +126,11 @@ workflow {
     // METADATA
     load_metadata(
         "${COVID_PIPELINE_INPUT_PATH}/" + params.metadata_file_name,
-        params.run
+        params.run,
+        params.scheme,
+        params.scheme_version,
+        params.filetype,
+        params.workflow
     )
     load_metadata.out.ch_all_samples_with_metadata_file
         .splitText().map { it.trim() }.set { ch_all_samples_with_metadata_loaded }
@@ -163,7 +171,11 @@ workflow {
     }
     ncov2019_artic_nf_pipeline(
         ch_input_files.collect(),
-        ncov_prefix
+        ncov_prefix,
+        params.scheme_repo_url,
+        params.scheme_dir,
+        params.scheme,
+        params.scheme_version
     )
 
 
