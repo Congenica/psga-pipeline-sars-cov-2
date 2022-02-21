@@ -36,7 +36,7 @@ workflow filter_nanopore_matching_with_metadata{
             .flatten()
             .set{ ch_nanopore_sample_names }
 
-        // Matching our extracted sample names with samples loaded from I-SEHA
+        // Matching our extracted sample names with samples loaded from metadata
         ch_nanopore_file_pair_matches = append_metadata_match_to_sample_file(
             ch_nanopore_files,
             ch_all_samples_with_metadata_loaded.collect()
@@ -134,7 +134,7 @@ workflow filter_nanopore_matching_with_metadata{
 
         ch_nanopore_matching_metadata.ifEmpty {
             log.error """\
-              ERROR: No nanopore fastq found matching samples, provided by I-SEHA sample metadata import.
+              ERROR: No nanopore fastq found matching samples, provided by sample metadata import.
                 This may be caused by failure in loading sample metadata from .tsv file to the database, or metadata .tsv file not matching any nanopore files provided.
                 Aborting!
             """
