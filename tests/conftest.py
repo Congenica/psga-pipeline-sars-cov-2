@@ -85,11 +85,6 @@ def scripts_test():
 
 
 @pytest.fixture
-def root_genome():
-    return Path(__file__).parent.parent / "data" / "FASTA" / "SARS-CoV-2.fasta"
-
-
-@pytest.fixture
 def test_data_path():
     return Path(__file__).parent / "test_data"
 
