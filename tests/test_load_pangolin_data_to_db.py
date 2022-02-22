@@ -12,6 +12,7 @@ from scripts.load_pangolin_data_to_db import load_pangolin_data
             "7174693",
             "just_a_name",
             {
+                "sample_name": "7174693",
                 "pangolin_status": "passed_qc",
                 "pangolin_lineage": "AY.98",
                 "pangolin_conflict": 0.0,
@@ -42,11 +43,9 @@ def test_load_pangolin_data_to_db(
         load_pangolin_data,
         [
             "--pangolin-lineage-report-file",
-            test_data_path / f"{sample_name}_lineage_report.csv",
+            test_data_path / "all_lineages_report.csv",
             "--analysis-run-name",
             analysis_run_name,
-            "--sample-name",
-            sample_name,
         ],
     )
 

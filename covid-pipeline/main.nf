@@ -112,6 +112,7 @@ include { store_reheadered_fasta_failed } from './modules/ncov2019_artic.nf'
 include { store_ncov_qc_plots } from './modules/ncov2019_artic.nf'
 
 include { pangolin_pipeline } from './modules/pangolin.nf'
+include { merge_pangolin_files } from './modules/pangolin.nf'
 include { load_pangolin_data_to_db } from './modules/pangolin.nf'
 
 include { create_genbank_submission_files } from './modules/genbank.nf'
@@ -222,8 +223,12 @@ workflow {
 
     pangolin_pipeline(ch_qc_passed_fasta)
 
+    merge_pangolin_files(
+        pangolin_pipeline.out.ch_pangolin_lineage_csv.collect()
+    )
+
     ch_pangolin_sample_submitted = load_pangolin_data_to_db(
-        pangolin_pipeline.out.ch_pangolin_lineage_csv,
+        merge_pangolin_files.out.ch_pangolin_all_lineages,
         params.run
     )
 
