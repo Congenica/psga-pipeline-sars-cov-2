@@ -35,7 +35,7 @@ The following environment variables are set internally and should not be changed
 | COVID_PIPELINE_QC_PLOTS_PATH | Path to store all ncov2019-artic qc_plots graphs in single folder |
 | COVID_PIPELINE_FASTA_PATH | Path to the re-headered ncov FASTA files. Set to: ${COVID_PIPELINE_OUTPUT_PATH}/reheadered-fasta |
 | COVID_PIPELINE_FASTA_PATH_QC_FAILED | Path to the re-headered ncov QC_FAILED FASTA files. Set to: ${COVID_PIPELINE_OUTPUT_PATH}/reheadered-fasta-qc-failed |
-| COVID_PIPELINE_PANGOLIN_PATH | Path to the results of pangolin pipeline with lineage reports. ach run will be published to unique folder |
+| COVID_PIPELINE_PANGOLIN_PATH | Path to the results of pangolin pipeline with lineage reports. Each run will be published to unique folder |
 | COVID_PIPELINE_GENBANK_PATH | Path to submission files, which were used to submit samples to GenBank programmatic interface |
 | COVID_PIPELINE_NOTIFICATIONS_PATH | Path to the pipeline notifications. Unexpected events regarding missing samples, files are reported here in text files |
 | K8S_PULL_POLICY | The Kubernetes docker image pull policy (e.g. Always, Never) |

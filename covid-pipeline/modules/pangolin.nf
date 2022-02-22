@@ -3,14 +3,12 @@
  * see: https://github.com/cov-lineages/pangolin
  */
 process pangolin_pipeline {
-  publishDir "${COVID_PIPELINE_PANGOLIN_PATH}/${workflow.sessionId}", mode: 'copy', overwrite: true
-  publishDir "${COVID_PIPELINE_PANGOLIN_PATH}/all_lineages", mode: 'copy', overwrite: true
 
   input:
     path reheadered_fasta
 
   output:
-    tuple val(sample_name), path("${pangolin_out_directory}/${output_filename}"), emit: ch_pangolin_lineage_csv
+    path "${pangolin_out_directory}/${output_filename}", emit: ch_pangolin_lineage_csv
 
   script:
     sample_name = reheadered_fasta.getSimpleName()
@@ -22,24 +20,47 @@ process pangolin_pipeline {
 }
 
 /*
+ * Merge pangolin lineages into one single file
+ */
+process merge_pangolin_files {
+  publishDir "${COVID_PIPELINE_PANGOLIN_PATH}/${workflow.sessionId}", mode: 'copy', overwrite: true
+  input:
+    file input_dir
+
+  output:
+    path "${output_path}", emit: ch_pangolin_all_lineages
+
+  script:
+    output_path = "all_lineages_report.csv"
+
+  """
+  # extract the header from a lineage report
+  a_lineage_report="\$(ls *_lineage_report.csv | head -n 1)"
+  # copy over the header only (first line)
+  awk 'FNR == 1' "\${a_lineage_report}" > ${output_path}
+  # copy over the record only from all files (second line)
+  awk 'FNR == 2' *_lineage_report.csv >> ${output_path}
+  """
+}
+
+/*
  * Load pangolin data to the database
  */
 process load_pangolin_data_to_db {
   input:
-    tuple val(sample_name), file(ch_pangolin_result_csv_file)
+    file ch_pangolin_all_lineages
     val ch_analysis_run_name
 
   output:
     path ch_pangolin_load_data_done
 
   script:
-    ch_pangolin_load_data_done = "${sample_name}.load_pangolin_data_to_db.done"
+    ch_pangolin_load_data_done = "load_pangolin_data_to_db.done"
 
   """
   python /app/scripts/load_pangolin_data_to_db.py \
-    --pangolin-lineage-report-file "${ch_pangolin_result_csv_file}" \
-    --analysis-run-name "${ch_analysis_run_name}" \
-    --sample-name "${sample_name}"
+    --pangolin-lineage-report-file "${ch_pangolin_all_lineages}" \
+    --analysis-run-name "${ch_analysis_run_name}"
   touch ${ch_pangolin_load_data_done}
   """
 }

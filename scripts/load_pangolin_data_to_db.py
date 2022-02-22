@@ -9,6 +9,7 @@ from scripts.db.database import session_handler
 from scripts.db.models import AnalysisRun, Sample, PangolinStatus
 
 EXPECTED_HEADERS = {
+    "taxon",
     "status",
     "lineage",
     "conflict",
@@ -23,7 +24,10 @@ EXPECTED_HEADERS = {
 }
 
 
-def load_pangolin_sample(session: scoped_session, analysis_run_name: str, sample_name: str, sample_from_csv: Dict):
+def load_pangolin_sample(session: scoped_session, analysis_run_name: str, sample_from_csv: Dict):
+
+    sample_name = sample_from_csv["taxon"]
+
     sample = (
         session.query(Sample)
         .join(AnalysisRun)
@@ -34,15 +38,10 @@ def load_pangolin_sample(session: scoped_session, analysis_run_name: str, sample
         .one_or_none()
     )
 
-    sample_analysis_run = (
-        session.query(AnalysisRun).filter(AnalysisRun.analysis_run_id == sample.analysis_run_id).one_or_none()
-    )
-
     if not sample:
-        raise ClickException(f"Sample name: {sample_name} was not found")
-
-    if not sample_analysis_run:
-        raise ClickException(f"No analysis run was found for sample name: {sample_name}")
+        # This should never happen as samples are expected to be loaded as part of the metadata loading
+        # if this happens, there is an error in the pipeline
+        raise ClickException(f"Sample name: {sample_name} for analysis run: {analysis_run_name} was not found")
 
     pangolin_status = PangolinStatus[sample_from_csv["status"]]
 
@@ -58,32 +57,16 @@ def load_pangolin_sample(session: scoped_session, analysis_run_name: str, sample
     sample.scorpio_conflict = sample_from_csv["scorpio_conflict"] if sample_from_csv["scorpio_conflict"] else None
     sample.note = sample_from_csv["note"] if sample_from_csv["note"] else None
 
-    # This needs refactory. We should run all pangolin data in one single process
-    # and this part should be done one time only
-    sample_analysis_run.pangolin_version = (
-        sample_from_csv["pangolin_version"] if sample_from_csv["pangolin_version"] else None
-    )
-    sample_analysis_run.pangolearn_version = (
-        sample_from_csv["pangoLEARN_version"] if sample_from_csv["pangoLEARN_version"] else None
-    )
-    sample_analysis_run.pango_version = sample_from_csv["pango_version"] if sample_from_csv["pango_version"] else None
-
 
 @click.command()
 @click.option(
     "--pangolin-lineage-report-file",
     type=click.Path(exists=True, file_okay=True, readable=True),
     required=True,
-    help="Pangolin pipeline output lineage report with pattern {sample_name}_lineage_report.csv",
-)
-@click.option(
-    "--sample-name",
-    type=str,
-    required=True,
-    help="Lab sample identifier",
+    help="A CSV report combining all samples' Pangolin pipeline output lineage reports",
 )
 @click.option("--analysis-run-name", required=True, type=str, help="The name of the analysis run")
-def load_pangolin_data(pangolin_lineage_report_file: str, sample_name: str, analysis_run_name: str) -> None:
+def load_pangolin_data(pangolin_lineage_report_file: str, analysis_run_name: str) -> None:
     """
     Load Pangolin lineage report for a certain sample to the database
     """
@@ -101,9 +84,27 @@ def load_pangolin_data(pangolin_lineage_report_file: str, sample_name: str, anal
             raise ClickException(err)
 
         with session_handler() as session:
-            # this file only has one data row
-            for sample_from_csv in sample_from_csv_reader:
-                load_pangolin_sample(session, analysis_run_name, sample_name, sample_from_csv)
+
+            # update pangolin-related data in analysis_run table
+            analysis_run = (
+                session.query(AnalysisRun).filter(AnalysisRun.analysis_run_name == analysis_run_name).one_or_none()
+            )
+            if not analysis_run:
+                raise ClickException(f"Analysis run {analysis_run_name} was not found in the database")
+
+            # grab the first record in order to get the pango- versions
+            record: Dict = None
+
+            for idx, sample_from_csv in enumerate(sample_from_csv_reader):
+                if idx == 0:
+                    record = sample_from_csv
+                load_pangolin_sample(session, analysis_run_name, sample_from_csv)
+
+            # these are the same for all samples
+            if record:
+                analysis_run.pangolin_version = record["pangolin_version"] if record["pangolin_version"] else None
+                analysis_run.pangolearn_version = record["pangoLEARN_version"] if record["pangoLEARN_version"] else None
+                analysis_run.pango_version = record["pango_version"] if record["pango_version"] else None
 
 
 if __name__ == "__main__":
