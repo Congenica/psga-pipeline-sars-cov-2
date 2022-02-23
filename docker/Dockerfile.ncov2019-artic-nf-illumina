@@ -11,7 +11,7 @@ RUN /opt/conda/bin/mamba install -y -c conda-forge -c bioconda cutadapt==3.1 dna
 
 FROM debian:buster-slim
 RUN apt-get update \
-  && apt-get install -y git procps wget \
+  && apt-get install -y git procps wget rename \
   && apt-get clean -y \
   && rm -rf /var/lib/apt/lists/*
 

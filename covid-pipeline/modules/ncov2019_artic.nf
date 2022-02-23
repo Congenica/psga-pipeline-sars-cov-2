@@ -73,6 +73,7 @@ process ncov2019_artic_nf_pipeline_illumina {
 /*
  * Run: ncov2019-artic-nf nextflow pipeline (nanopore/medaka workflow)
  * see: https://github.com/connor-lab/ncov2019-artic-nf
+ * Note: This runs as a shell block
  */
 process ncov2019_artic_nf_pipeline_medaka {
   input:
@@ -84,21 +85,28 @@ process ncov2019_artic_nf_pipeline_medaka {
     val scheme_version
 
   output:
-    path "${ncov_out_directory}/*", emit: ch_all_ncov_results
-    path "${ncov_out_directory}/articNcovNanopore_sequenceAnalysisMedaka_articMinIONMedaka/${ncov_prefix}*.consensus.fasta", emit: ch_fasta_ncov_results
-    path "${ncov_out_directory}/${ncov_prefix}.qc.csv", emit: ch_qc_csv_ncov_result
-    path "${ncov_out_directory}/qc_plots/${ncov_prefix}*.depth.png", emit: ch_sample_depth_ncov_results
+    path "ncov_output/*", emit: ch_all_ncov_results
+    path "ncov_output/articNcovNanopore_sequenceAnalysisMedaka_articMinIONMedaka/*.consensus.fasta", emit: ch_fasta_ncov_results
+    path "ncov_output/${ncov_prefix}.qc.csv", emit: ch_qc_csv_ncov_result
+    path "ncov_output/qc_plots/*.depth.png", emit: ch_sample_depth_ncov_results
 
-  script:
-    ncov_out_directory = "ncov_output"
+  shell:
+  '''
 
-  """
+  ncov_out_directory="ncov_output"
+  # convert nextflow variables to Bash so that the same format is used
+  ncov_prefix=!{ncov_prefix}
+  scheme_repo_url=!{scheme_repo_url}
+  scheme_dir=!{scheme_dir}
+  scheme=!{scheme}
+  scheme_version=!{scheme_version}
+
   # move fastq file to its specific barcode dir
   # these files are located in the nextflow workdir. We need to regenerate the barcode dir
   for fq in *.fastq; do
-      barcode="\$(echo "\$fq" | egrep -o 'barcode[[:digit:]]+' | head -n1)"
-      mkdir "\$barcode"
-      mv "\$fq" "\$barcode"
+      barcode="`echo ${fq} | egrep -o 'barcode[[:digit:]]+' | head -n1`"
+      mkdir ${barcode}
+      mv ${fq} ${barcode}
   done
 
   # note: we inject our configuration into ncov to override parameters
@@ -114,7 +122,30 @@ process ncov2019_artic_nf_pipeline_medaka {
       --schemeVersion ${scheme_version} \
       -c ${COVID_PIPELINE_ROOT_PATH}/covid-pipeline/ncov-custom.config \
       -c ${COVID_PIPELINE_ROOT_PATH}/covid-pipeline/ncov-nanopore-k8s.config
-  """
+
+
+  # this is a code correction to the nanopore medaka workflow in order to restore the correct sample names
+  # in file names and file content
+  # it is coded here in order to avoid changes to the pipeline
+  for input_path in `find barcode*/*.fastq`; do
+      barcode=`dirname ${input_path}`
+      sample_name=`basename ${input_path%.*}`
+
+      for file_to_update in `find ${ncov_out_directory} -name "${ncov_prefix}_${barcode}*" -type f \\( -name "*.csv" -o -name "*.txt" -o -name "*.fastq" -o -name "*.fasta" \\) -type f`; do
+          sed -i "s/${ncov_prefix}_${barcode}/${sample_name}/g" ${file_to_update}
+      done
+
+      sed -i "s/${ncov_prefix}_${barcode}/${sample_name}/g" ${ncov_out_directory}/${ncov_prefix}.qc.csv
+
+      for file_to_rename in `find ${ncov_out_directory} -name "${ncov_prefix}_${barcode}*" -type f`; do
+          file_dir=`dirname ${file_to_rename}`
+          file_name=`basename ${file_to_rename}`
+          cd ${file_dir}
+          rename "s/${ncov_prefix}_${barcode}/${sample_name}/" ${file_name}
+          cd - > /dev/null
+      done
+  done
+  '''
 }
 
 

@@ -32,7 +32,7 @@ def makeFastqSearchPath (illuminaPrefixes, illuminaSuffixes, fastq_exts) {
 /* make a glob for retrieving nanopore-medaka fastq files */
 def makeNanoporeSearchPath ( ) {
     // note: we need this specific extension
-    filePathGlob = params.directory.replaceAll(/\/+$/, "") + '/fastq_pass/barcode*/*.fastq'
+    filePathGlob = params.directory.replaceAll(/\/+$/, "") + '**' + '/*.fastq'
     return filePathGlob
 }
 
