@@ -79,7 +79,7 @@ jobs:
             docker build -t ${FULL_TAG} \
                          -t ${CIRCLE_TAG} \
                          -t ${LATEST_IMAGE_TAG} \
-                         -f docker/Dockerfile.covid-pipeline
+                         -f docker/Dockerfile.covid-pipeline \
                          .
             docker push ${FULL_TAG}
             docker push ${CIRCLE_TAG}
