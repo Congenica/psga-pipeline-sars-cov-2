@@ -86,7 +86,6 @@ export DOCKER_IMAGE_PREFIX=144563655722.dkr.ecr.eu-west-1.amazonaws.com/congenic
 export VERSION=1.0.0
 
 # build main images
-docker build -t ${DOCKER_IMAGE_PREFIX}/nextflow-wrapper:${VERSION} -f docker/Dockerfile.nextflow .
 docker build -t ${DOCKER_IMAGE_PREFIX}/covid-pipeline:${VERSION} -f docker/Dockerfile.covid-pipeline .
 docker build -t ${DOCKER_IMAGE_PREFIX}/covid-pipeline-db:${VERSION} -f docker/Dockerfile.postgres .
 
