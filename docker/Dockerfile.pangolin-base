@@ -1,0 +1,13 @@
+FROM continuumio/miniconda3:4.10.3 AS condabuild
+COPY pangolin/environment.yml /environment.yml
+RUN /opt/conda/bin/conda update conda \
+  && /opt/conda/bin/conda install mamba -c conda-forge \
+  && /opt/conda/bin/mamba env create -f /environment.yml -n pangolin
+
+FROM debian:buster-slim
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends git procps ca-certificates \
+  && apt-get clean -y \
+  && rm -rf /var/lib/apt/lists/*
+COPY --from=condabuild /opt/conda/envs/pangolin /opt/conda/envs/pangolin
+ENV PATH=/opt/conda/envs/pangolin/bin:$PATH

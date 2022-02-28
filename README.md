@@ -83,7 +83,15 @@ eval $(minikube -p minikube docker-env)
 The next step is to build the pipeline docker images in the minikube docker environment. For simplicity, the database is stored on a pod. This is not ideal as this can be lost if the pod crashes or is deleted. However, as a proof of concept, this is fine. In the future, the database will be stored in an RDS aurora cluster, therefore outside the k8s environment.
 ```commandline
 export DOCKER_IMAGE_PREFIX=144563655722.dkr.ecr.eu-west-1.amazonaws.com/congenica/dev
+export VERSION_BASE=1.0.0
 export VERSION=1.0.0
+
+# create base images
+docker build -t ${DOCKER_IMAGE_PREFIX}/covid-pipeline-base:${VERSION_BASE} -f docker/Dockerfile.covid-pipeline-base .
+docker build -t ${DOCKER_IMAGE_PREFIX}/ncov2019-artic-nf-illumina-base:${VERSION_BASE} -f docker/Dockerfile.ncov2019-artic-nf-illumina-base .
+docker build -t ${DOCKER_IMAGE_PREFIX}/ncov2019-artic-nf-nanopore-base:${VERSION_BASE} -f docker/Dockerfile.ncov2019-artic-nf-nanopore-base .
+docker build -t ${DOCKER_IMAGE_PREFIX}/pangolin-base:${VERSION_BASE} -f docker/Dockerfile.pangolin-base .
+
 
 # build main images
 docker build -t ${DOCKER_IMAGE_PREFIX}/covid-pipeline:${VERSION} -f docker/Dockerfile.covid-pipeline .
@@ -97,8 +105,8 @@ git submodule update
 git submodule update --remote --merge
 
 # build ncov docker images
-docker build -t ${DOCKER_IMAGE_PREFIX}/ncov2019_artic_nf_illumina:${VERSION} -f docker/Dockerfile.ncov2019-artic-nf-illumina .
-docker build -t ${DOCKER_IMAGE_PREFIX}/ncov2019_artic_nf_nanopore:${VERSION} -f docker/Dockerfile.ncov2019-artic-nf-nanopore .
+docker build -t ${DOCKER_IMAGE_PREFIX}/ncov2019-artic-nf-illumina:${VERSION} -f docker/Dockerfile.ncov2019-artic-nf-illumina .
+docker build -t ${DOCKER_IMAGE_PREFIX}/ncov2019-artic-nf-nanopore:${VERSION} -f docker/Dockerfile.ncov2019-artic-nf-nanopore .
 
 # build pangolin docker image
 docker build -t ${DOCKER_IMAGE_PREFIX}/pangolin:${VERSION} -f docker/Dockerfile.pangolin .
