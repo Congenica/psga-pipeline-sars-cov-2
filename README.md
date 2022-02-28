@@ -102,6 +102,7 @@ git submodule init
 git submodule update
 
 # update pangolin, ncov2019_artic_nf to their latest commits
+# If you run this command, you need to regenerate the base images for pangolin and ncov2019
 git submodule update --remote --merge
 
 # build ncov docker images

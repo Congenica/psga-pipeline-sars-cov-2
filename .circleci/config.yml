@@ -91,7 +91,7 @@ jobs:
           docker_layer_caching: true
       - checkout
       - run:
-          name: Build and push ncov2019_artic_nf_illumina image
+          name: Build and push ncov2019-artic-nf-illumina image
           command: |
             pip install --progress-bar off awscli
             git submodule init
@@ -119,7 +119,7 @@ jobs:
           docker_layer_caching: true
       - checkout
       - run:
-          name: Build and push ncov2019_artic_nf_nanopore image
+          name: Build and push ncov2019-artic-nf-nanopore image
           command: |
             pip install --progress-bar off awscli
             git submodule init
