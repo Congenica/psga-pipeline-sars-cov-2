@@ -19,9 +19,9 @@
 - name: reset ssh connection
   meta: reset_connection
 
-- name: SARS-CoV-2 pipeline - build ncov2019_artic_nf_illumina image
+- name: SARS-CoV-2 pipeline - build ncov2019-artic-nf-illumina image
   community.general.docker_image:
-    name: ncov2019_artic_nf_illumina
+    name: ncov2019-artic-nf-illumina
     build:
       path: "{{ docker_build.path }}"
       pull: no
@@ -31,9 +31,9 @@
     tag: 1.0.0
   become: yes
 
-- name: SARS-CoV-2 pipeline - build ncov2019_artic_nf_nanopore image
+- name: SARS-CoV-2 pipeline - build ncov2019-artic-nf-nanopore image
   community.general.docker_image:
-    name: ncov2019_artic_nf_nanopore
+    name: ncov2019-artic-nf-nanopore
     build:
       path: "{{ docker_build.path }}"
       pull: no

@@ -33,6 +33,49 @@ executors:
           POSTGRES_USER: << pipeline.parameters.db_user >>
           POSTGRES_PASSWORD: << pipeline.parameters.db_password >>
 
+commands:
+  build_and_push_docker_image:
+    parameters:
+      dockerfile:
+        type: string
+      ecrpath:
+        type: string
+      gitsubmodules:
+        type: boolean
+        default: false
+    steps:
+      - setup_remote_docker:
+          version: << pipeline.parameters.docker_version >>
+          docker_layer_caching: true
+      - checkout
+      - when:
+          condition: << parameters.gitsubmodules >>
+          steps:
+            - run:
+                name: Install git submodules
+                command: |
+                  git submodule init
+                  git submodule update
+      - run:
+          name: Build docker image
+          command: |
+            pip install --progress-bar off awscli
+            eval $(aws ecr get-login --no-include-email --region eu-west-1)
+            NORMALISED_SLASHES=${CIRCLE_BRANCH//\//_}
+            DOCKER_TAG_BRANCH=${NORMALISED_SLASHES//-/_}
+            DOCKER_TAG="${DOCKER_TAG_BRANCH}_${CIRCLE_BUILD_NUM}"
+            REGISTRY_URI="${ECREPOURI}<<parameters.ecrpath>>"
+            FULL_TAG="${REGISTRY_URI}:${DOCKER_TAG}"
+            LATEST_IMAGE_TAG="${REGISTRY_URI}:${DOCKER_TAG_BRANCH}_latest"
+            CIRCLE_TAG="${REGISTRY_URI}:circleci_${CIRCLE_BUILD_NUM}"
+            docker build -t ${FULL_TAG} -t ${CIRCLE_TAG} -t ${LATEST_IMAGE_TAG} -f docker/<< parameters.dockerfile >> .
+            docker push ${FULL_TAG}
+            docker push ${CIRCLE_TAG}
+            docker push ${LATEST_IMAGE_TAG}
+            # Log out the environment vars
+            echo "CircleCI url to access"
+            echo "${FULL_TAG}"
+
 jobs:
   pre_commit_hooks:
     executor: python
@@ -44,12 +87,9 @@ jobs:
             sudo pip install pre-commit==2.8.1
             pre-commit run --all-files
 
-  test-and-build-covid-pipeline:
+  test-covid-pipeline:
     executor: python_with_db
     steps:
-      - setup_remote_docker:
-          version: << pipeline.parameters.docker_version >>
-          docker_layer_caching: true
       - checkout
       - run:
           name: Install sqitch and create database
@@ -64,128 +104,57 @@ jobs:
           command: |
             poetry install
             poetry run pytest tests/
-      - run:
-          name: Build and push covid-pipeline image
-          command: |
-            pip install --progress-bar off awscli
-            eval $(aws ecr get-login --no-include-email --region eu-west-1)
-            NORMALISED_SLASHES=${CIRCLE_BRANCH//\//_}
-            DOCKER_TAG_BRANCH=${NORMALISED_SLASHES//-/_}
-            DOCKER_TAG="${DOCKER_TAG_BRANCH}_${CIRCLE_BUILD_NUM}"
-            REGISTRY_URI="${ECREPOURI}${COVID_PIPELINE_ECREPOPATH}"
-            FULL_TAG="${REGISTRY_URI}:${DOCKER_TAG}"
-            LATEST_IMAGE_TAG="${REGISTRY_URI}:${DOCKER_TAG_BRANCH}_latest"
-            CIRCLE_TAG="${REGISTRY_URI}:circleci_${CIRCLE_BUILD_NUM}"
-            docker build -t ${FULL_TAG} -t ${CIRCLE_TAG} -t ${LATEST_IMAGE_TAG} -f docker/Dockerfile.covid-pipeline .
-            docker push ${FULL_TAG}
-            docker push ${CIRCLE_TAG}
-            docker push ${LATEST_IMAGE_TAG}
-            # Log out the environment vars
-            echo "CircleCI url to access"
-            echo "${FULL_TAG}"
+  build-covid-pipeline:
+    executor: python
+    steps:
+      - build_and_push_docker_image:
+          dockerfile: "Dockerfile.covid-pipeline"
+          ecrpath: ${COVID_PIPELINE_ECREPOPATH}
+          gitsubmodules: false
   build-ncov2019-artic-nf-illumina:
     executor: python
     steps:
-      - setup_remote_docker:
-          version: << pipeline.parameters.docker_version >>
-          docker_layer_caching: true
-      - checkout
-      - run:
-          name: Build and push ncov2019_artic_nf_illumina image
-          command: |
-            pip install --progress-bar off awscli
-            git submodule init
-            git submodule update
-            eval $(aws ecr get-login --no-include-email --region eu-west-1)
-            NORMALISED_SLASHES=${CIRCLE_BRANCH//\//_}
-            DOCKER_TAG_BRANCH=${NORMALISED_SLASHES//-/_}
-            DOCKER_TAG="${DOCKER_TAG_BRANCH}_${CIRCLE_BUILD_NUM}"
-            REGISTRY_URI="${ECREPOURI}${NCOV2019_ARTIC_NF_ILLUMINA_ECREPOPATH}"
-            FULL_TAG="${REGISTRY_URI}:${DOCKER_TAG}"
-            LATEST_IMAGE_TAG="${REGISTRY_URI}:${DOCKER_TAG_BRANCH}_latest"
-            CIRCLE_TAG="${REGISTRY_URI}:circleci_${CIRCLE_BUILD_NUM}"
-            docker build -t ${FULL_TAG} -t ${CIRCLE_TAG} -t ${LATEST_IMAGE_TAG} -f docker/Dockerfile.ncov2019-artic-nf-illumina .
-            docker push ${FULL_TAG}
-            docker push ${CIRCLE_TAG}
-            docker push ${LATEST_IMAGE_TAG}
-            # Log out the environment vars
-            echo "CircleCI url to access"
-            echo "${FULL_TAG}"
+      - build_and_push_docker_image:
+          dockerfile: "Dockerfile.ncov2019-artic-nf-illumina"
+          ecrpath: ${NCOV2019_ARTIC_NF_ILLUMINA_ECREPOPATH}
+          gitsubmodules: true
   build-ncov2019-artic-nf-nanopore:
     executor: python
     steps:
-      - setup_remote_docker:
-          version: << pipeline.parameters.docker_version >>
-          docker_layer_caching: true
-      - checkout
-      - run:
-          name: Build and push ncov2019_artic_nf_nanopore image
-          command: |
-            pip install --progress-bar off awscli
-            git submodule init
-            git submodule update
-            eval $(aws ecr get-login --no-include-email --region eu-west-1)
-            NORMALISED_SLASHES=${CIRCLE_BRANCH//\//_}
-            DOCKER_TAG_BRANCH=${NORMALISED_SLASHES//-/_}
-            DOCKER_TAG="${DOCKER_TAG_BRANCH}_${CIRCLE_BUILD_NUM}"
-            REGISTRY_URI="${ECREPOURI}${NCOV2019_ARTIC_NF_NANOPORE_ECREPOPATH}"
-            FULL_TAG="${REGISTRY_URI}:${DOCKER_TAG}"
-            LATEST_IMAGE_TAG="${REGISTRY_URI}:${DOCKER_TAG_BRANCH}_latest"
-            CIRCLE_TAG="${REGISTRY_URI}:circleci_${CIRCLE_BUILD_NUM}"
-            docker build -t ${FULL_TAG} -t ${CIRCLE_TAG} -t ${LATEST_IMAGE_TAG} -f docker/Dockerfile.ncov2019-artic-nf-nanopore .
-            docker push ${FULL_TAG}
-            docker push ${CIRCLE_TAG}
-            docker push ${LATEST_IMAGE_TAG}
-            # Log out the environment vars
-            echo "CircleCI url to access"
-            echo "${FULL_TAG}"
+      - build_and_push_docker_image:
+          dockerfile: "Dockerfile.ncov2019-artic-nf-nanopore"
+          ecrpath: ${NCOV2019_ARTIC_NF_NANOPORE_ECREPOPATH}
+          gitsubmodules: true
   build-pangolin:
     executor: python
     steps:
-      - setup_remote_docker:
-          version: << pipeline.parameters.docker_version >>
-          docker_layer_caching: true
-      - checkout
-      - run:
-          name: Build and push pangolin image
-          command: |
-            pip install --progress-bar off awscli
-            git submodule init
-            git submodule update
-            eval $(aws ecr get-login --no-include-email --region eu-west-1)
-            NORMALISED_SLASHES=${CIRCLE_BRANCH//\//_}
-            DOCKER_TAG_BRANCH=${NORMALISED_SLASHES//-/_}
-            DOCKER_TAG="${DOCKER_TAG_BRANCH}_${CIRCLE_BUILD_NUM}"
-            REGISTRY_URI="${ECREPOURI}${PANGOLIN_ECREPOPATH}"
-            FULL_TAG="${REGISTRY_URI}:${DOCKER_TAG}"
-            LATEST_IMAGE_TAG="${REGISTRY_URI}:${DOCKER_TAG_BRANCH}_latest"
-            CIRCLE_TAG="${REGISTRY_URI}:circleci_${CIRCLE_BUILD_NUM}"
-            docker build -t ${FULL_TAG} -t ${CIRCLE_TAG} -t ${LATEST_IMAGE_TAG} -f docker/Dockerfile.pangolin .
-            docker push ${FULL_TAG}
-            docker push ${CIRCLE_TAG}
-            docker push ${LATEST_IMAGE_TAG}
-            # Log out the environment vars
-            echo "CircleCI url to access"
-            echo "${FULL_TAG}"
+      - build_and_push_docker_image:
+          dockerfile: "Dockerfile.pangolin"
+          ecrpath: ${PANGOLIN_ECREPOPATH}
+          gitsubmodules: true
 
 workflows:
   version: 2
   test_and_build_all:
     jobs:
     - pre_commit_hooks
-    - test-and-build-covid-pipeline:
+    - test-covid-pipeline:
         requires:
           - pre_commit_hooks
         context: AWS_ECR_CREDENTIALS
+    - build-covid-pipeline:
+        requires:
+          - test-covid-pipeline
+        context: AWS_ECR_CREDENTIALS
     - build-ncov2019-artic-nf-illumina:
         requires:
-          - test-and-build-covid-pipeline
+          - test-covid-pipeline
         context: AWS_ECR_CREDENTIALS
     - build-ncov2019-artic-nf-nanopore:
         requires:
-          - test-and-build-covid-pipeline
+          - test-covid-pipeline
         context: AWS_ECR_CREDENTIALS
     - build-pangolin:
         requires:
-          - test-and-build-covid-pipeline
+          - test-covid-pipeline
         context: AWS_ECR_CREDENTIALS
