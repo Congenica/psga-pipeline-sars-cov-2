@@ -39,6 +39,24 @@ The following environment variables are set internally and should not be changed
 | COVID_PIPELINE_GENBANK_PATH | Path to submission files, which were used to submit samples to GenBank programmatic interface |
 | COVID_PIPELINE_NOTIFICATIONS_PATH | Path to the pipeline notifications. Unexpected events regarding missing samples, files are reported here in text files |
 | K8S_PULL_POLICY | The Kubernetes docker image pull policy (e.g. Always, Never) |
+| K8S_SERVICE_ACCOUNT | The Kubernetes service account |
+| K8S_QUEUE_SIZE | The maximum number of processes to run at the same time (default: 20) |
+| K8S_STORAGE_CLAIM_NAME | The Kubernetes PVC claim |
+| K8S_STORAGE_MOUNT_PATH | The Kubernetes mount path (default: /data) |
+| K8S_PROCESS_MAX_RETRIES | The maximum number that a process can be retried if a resource-based exit code (137-140) is raised (default: 3) |
+| K8S_PROCESS_CPU_LOW | Value for a process using little CPU. There is no need to change this as the pipeline was designed for high scalability (default: 1) |
+| K8S_PROCESS_CPU_HIGH | Value for a process using a lot of CPU. There is no need to change this as the pipeline was designed for high scalability (default: 2) |
+| K8S_PROCESS_MEMORY_VERY_LOW | Value for a process using very low memory in MB (default: 250) |
+| K8S_PROCESS_MEMORY_LOW | Value for a process using low memory in MB (default: 500) |
+| K8S_PROCESS_MEMORY_MEDIUM | Value for a process using medium memory in MB (default: 1000) |
+| K8S_PROCESS_MEMORY_HIGH | Value for a process using high memory in MB (default: 2000) |
+| K8S_PROCESS_MEMORY_VERY_HIGH | Value for a process using very high memory in MB (default: 4000) |
+
+Regarding `K8S_PROCESS_MEMORY_*` environment variables, if a process dies due to a resource-based exit code (137-140), the process is retried with memory:
+```
+new_memory = default_memory * retry_number
+```
+
 
 ### Pipeline input parameters
 
