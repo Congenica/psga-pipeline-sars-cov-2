@@ -95,12 +95,15 @@ workflow filter_fastq_matching_with_metadata{
             .set{ ch_fastq_sample_qc_pass_matches_search }
 
         ch_current_session_metadata_sample_matches_search.mismatched.map {
-            it -> log.warn """Sample ${it}, read from metadata file, has no matching fastq file in current session. Sample will not be processed further"""
+            it -> log.warn """Sample ${it}, read from metadata file, has no matching fastq file in current session."""
         }
         store_notification_no_fastq_file(
-          "${workflow.start}-no_fastq_found_for_provided_sample.txt",
+          "${workflow.start}-metadata_samples_missing_files.txt",
           ch_current_session_metadata_sample_matches_search.mismatched.collect()
-        )
+        ).subscribe onNext: {
+            log.error("ERROR: Found metadata samples with missing files. See: metadata_samples_missing_files.txt. Aborting!")
+            System.exit(1)
+        }
 
         ch_updated_samples.map {
             it -> log.info """Sample ${it} was updated with provided metadata"""
@@ -135,8 +138,8 @@ workflow filter_fastq_matching_with_metadata{
 
         ch_fasta_matching_metadata.ifEmpty {
             log.error """\
-              ERROR: No illumina fastq file pairs found matching samples, provided by sample metadata import.
-                This may be caused by failure in loading sample metadata from .tsv file to the database, or metadata .tsv file not matching any fastq files provided.
+              ERROR: No file was found for samples in metadata.
+                This may be caused by a failure in loading samples from the metadata file to the database.
                 Aborting!
             """
             System.exit(1)

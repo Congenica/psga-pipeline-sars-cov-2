@@ -80,7 +80,7 @@ process store_notification_with_values_list{
     val values_list
 
   output:
-    file notification_file
+    path notification_file, emit: ch_notification_file
 
   script:
     notification_file = file_name.replace(":", "-")
