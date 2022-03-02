@@ -4,9 +4,6 @@ include { append_match_to_values_list as append_match_to_samples }  from './util
 include { append_metadata_match_to_sample_file_pair }  from './utils.nf'
 include { append_match_to_values_list as append_qc_pass_match_to_sample_files }  from './utils.nf'
 
-include { concat_elements_to_single_string as concat_metadata_samples } from './utils.nf'
-include { concat_elements_to_single_string as concat_fastq_samples } from './utils.nf'
-
 include { store_notification_with_values_list as store_notification_missing_files } from './utils.nf'
 include { store_notification_with_values_list as store_notification_updated } from './utils.nf'
 include { store_notification_with_values_list as store_notification_sample_files_only } from './utils.nf'

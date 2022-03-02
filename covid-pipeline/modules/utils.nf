@@ -42,20 +42,6 @@ def makeBamSearchPath ( ) {
     return filePathGlob
 }
 
-process concat_elements_to_single_string{
-    input:
-      val string_value_list
-
-    output:
-      val concatenated_string
-
-    script:
-      concatenated_string = string_value_list.join(" ")
-
-    """
-    """
-}
-
 // Checks, which values in first set have matches in reference set
 process append_match_to_values_list{
   input:
