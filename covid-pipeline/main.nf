@@ -159,7 +159,7 @@ workflow {
         ch_qc_passed_samples,
         ch_updated_samples
     )
-    ch_input_files_prep = filter_input_files_matching_metadata.out.ch_files_matching_metadata
+    ch_input_files_prep = filter_input_files_matching_metadata.out.ch_selected_sample_files
 
     ncov_prefix = "covid_test"
     if ( params.workflow == "illumina_artic" && params.filetype == "fastq" ) {
