@@ -93,3 +93,50 @@ ${content}
 EOT
   """
 }
+
+// Process which acts as a workaround to append boolean value, whether the sample exists in another channel
+process append_metadata_match_to_sample_file{
+  input:
+    tuple val(sample_name), file(sample_file)
+    val samples_with_meta
+
+  output:
+    tuple val(sample_name), file(sample_file), val(has_meta)
+
+  script:
+    has_meta = samples_with_meta.contains(sample_name)
+
+  """
+  """
+}
+
+// Process which acts as a workaround to append boolean value, whether the sample exists in another channel
+process append_metadata_match_to_sample_file_pair{
+  input:
+    tuple val(sample_name), file(sample_file1), file(sample_file2)
+    val samples_with_meta
+
+  output:
+    tuple val(sample_name), file(sample_file1), file(sample_file2), val(has_meta)
+
+  script:
+    has_meta = samples_with_meta.contains(sample_name)
+
+  """
+  """
+}
+
+process store_mismatching_files{
+    publishDir COVID_PIPELINE_MISSING_METADATA_PATH, mode: 'copy', overwrite: true
+
+    input:
+      file(sample_file)
+
+    output:
+      file(sample_file)
+
+    script:
+
+    """
+    """
+}

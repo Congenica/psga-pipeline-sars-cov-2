@@ -153,12 +153,13 @@ workflow {
 
     // NCOV2019-ARTIC
     ch_input_files = Channel.empty()
-    ch_input_files_prep = filter_input_files_matching_metadata(
+    filter_input_files_matching_metadata(
         ch_all_samples_with_metadata_loaded,
         ch_current_session_samples_with_metadata_loaded,
         ch_qc_passed_samples,
         ch_updated_samples
     )
+    ch_input_files_prep = filter_input_files_matching_metadata.out.ch_files_matching_metadata
 
     ncov_prefix = "covid_test"
     if ( params.workflow == "illumina_artic" && params.filetype == "fastq" ) {
