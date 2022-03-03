@@ -75,7 +75,7 @@ spec:
         - name: K8S_SERVICE_ACCOUNT
           value: covid-pipeline-admin
         - name: K8S_QUEUE_SIZE
-          value: '20'
+          value: '5'
         - name: K8S_STORAGE_CLAIM_NAME
           value: covid-pipeline-pvc
         - name: K8S_STORAGE_MOUNT_PATH
