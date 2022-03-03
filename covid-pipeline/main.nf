@@ -25,6 +25,7 @@ log.info """\
     * NXF_WORK                             : ${NXF_WORK}
     * NXF_EXECUTOR                         : ${NXF_EXECUTOR}
     * NXF_ANSI_LOG                         : ${NXF_ANSI_LOG}
+    * NXF_OPTS                             : ${NXF_OPTS}
 
     Internal environment variables:
     * COVID_PIPELINE_MISSING_METADATA_PATH : ${COVID_PIPELINE_MISSING_METADATA_PATH}
