@@ -105,8 +105,8 @@ process ncov2019_artic_nf_pipeline_medaka {
   # these files are located in the nextflow workdir. We need to regenerate the barcode dir
   for fq in *.fastq; do
       barcode="`echo ${fq} | egrep -o 'barcode[[:digit:]]+' | head -n1`"
-      mkdir ${barcode}
-      mv ${fq} ${barcode}
+      mkdir -p ${barcode}
+      mv -f ${fq} ${barcode}
   done
 
   # note: we inject our configuration into ncov to override parameters

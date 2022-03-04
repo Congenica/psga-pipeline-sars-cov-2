@@ -25,6 +25,7 @@ log.info """\
     * NXF_WORK                             : ${NXF_WORK}
     * NXF_EXECUTOR                         : ${NXF_EXECUTOR}
     * NXF_ANSI_LOG                         : ${NXF_ANSI_LOG}
+    * NXF_OPTS                             : ${NXF_OPTS}
 
     Internal environment variables:
     * COVID_PIPELINE_MISSING_METADATA_PATH : ${COVID_PIPELINE_MISSING_METADATA_PATH}
@@ -153,12 +154,13 @@ workflow {
 
     // NCOV2019-ARTIC
     ch_input_files = Channel.empty()
-    ch_input_files_prep = filter_input_files_matching_metadata(
+    filter_input_files_matching_metadata(
         ch_all_samples_with_metadata_loaded,
         ch_current_session_samples_with_metadata_loaded,
         ch_qc_passed_samples,
         ch_updated_samples
     )
+    ch_input_files_prep = filter_input_files_matching_metadata.out.ch_selected_sample_files
 
     ncov_prefix = "covid_test"
     if ( params.workflow == "illumina_artic" && params.filetype == "fastq" ) {

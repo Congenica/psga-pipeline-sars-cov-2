@@ -48,9 +48,9 @@ The following environment variables are set internally and should not be changed
 | K8S_PROCESS_CPU_HIGH | Value for a process using a lot of CPU. There is no need to change this as the pipeline was designed for high scalability (default: 2) |
 | K8S_PROCESS_MEMORY_VERY_LOW | Value for a process using very low memory in MB (default: 250) |
 | K8S_PROCESS_MEMORY_LOW | Value for a process using low memory in MB (default: 500) |
-| K8S_PROCESS_MEMORY_MEDIUM | Value for a process using medium memory in MB (default: 1000) |
-| K8S_PROCESS_MEMORY_HIGH | Value for a process using high memory in MB (default: 2000) |
-| K8S_PROCESS_MEMORY_VERY_HIGH | Value for a process using very high memory in MB (default: 4000) |
+| K8S_PROCESS_MEMORY_MEDIUM | Value for a process using medium memory in MB (default: 1500) |
+| K8S_PROCESS_MEMORY_HIGH | Value for a process using high memory in MB (default: 3000) |
+| K8S_PROCESS_MEMORY_VERY_HIGH | Value for a process using very high memory in MB (default: 6000) |
 
 Regarding `K8S_PROCESS_MEMORY_*` environment variables, if a process dies due to a resource-based exit code (137-140), the process is retried with memory:
 ```

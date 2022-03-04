@@ -42,7 +42,7 @@ spec:
         - name: K8S_SERVICE_ACCOUNT
           value: covid-pipeline-minikube-admin
         - name: K8S_QUEUE_SIZE
-          value: '20'
+          value: '5'
         - name: K8S_STORAGE_CLAIM_NAME
           value: covid-pipeline-minikube-pvc
         - name: K8S_STORAGE_MOUNT_PATH
@@ -69,6 +69,8 @@ spec:
           value: k8s
         - name: NXF_ANSI_LOG
           value: 'false'
+        - name: NXF_OPTS
+          value: '-Xms1g -Xmx4g'
         volumeMounts:
         - name: covid-pipeline-persistent-storage
           mountPath: /data

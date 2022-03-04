@@ -27,6 +27,13 @@ spec:
       - image: 144563655722.dkr.ecr.eu-west-1.amazonaws.com/congenica/dev/covid-pipeline:1.0.0
         name: covid-pipeline
         imagePullPolicy: Always
+        resources:
+          limits:
+            cpu: "2"
+            memory: 6Gi
+          requests:
+            cpu: "2"
+            memory: 6Gi
         env:
         - name: DB_HOST
           valueFrom:
@@ -68,7 +75,7 @@ spec:
         - name: K8S_SERVICE_ACCOUNT
           value: covid-pipeline-admin
         - name: K8S_QUEUE_SIZE
-          value: '20'
+          value: '5'
         - name: K8S_STORAGE_CLAIM_NAME
           value: covid-pipeline-pvc
         - name: K8S_STORAGE_MOUNT_PATH
@@ -84,17 +91,19 @@ spec:
         - name: K8S_PROCESS_MEMORY_LOW
           value: '500'
         - name: K8S_PROCESS_MEMORY_MEDIUM
-          value: '1000'
+          value: '1500'
         - name: K8S_PROCESS_MEMORY_HIGH
-          value: '2000'
+          value: '3000'
         - name: K8S_PROCESS_MEMORY_VERY_HIGH
-          value: '4000'
+          value: '6000'
         - name: NXF_WORK
           value: /data/work
         - name: NXF_EXECUTOR
           value: k8s
         - name: NXF_ANSI_LOG
           value: 'false'
+        - name: NXF_OPTS
+          value: '-Xms1g -Xmx4g'
         volumeMounts:
         - name: covid-pipeline-persistent-storage
           mountPath: /data
