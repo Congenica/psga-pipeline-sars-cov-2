@@ -3,100 +3,18 @@
 // Enable DSL 2 syntax
 nextflow.enable.dsl = 2
 
-log.info """\
-    ======================
-    ${workflow.manifest.name} v ${workflow.manifest.version}
-    ======================
-    Global environment variables:
-    * DB_HOST                                     : ${DB_HOST}
-    * DB_PORT                                     : ${DB_PORT}
-    * DB_NAME                                     : ${DB_NAME}
-    * DB_USER                                     : ${DB_USER}
-    * COVID_PIPELINE_ROOT_PATH                    : ${COVID_PIPELINE_ROOT_PATH}
-    * COVID_PIPELINE_INPUT_PATH                   : ${COVID_PIPELINE_INPUT_PATH}
-    * COVID_PIPELINE_OUTPUT_PATH                  : ${COVID_PIPELINE_OUTPUT_PATH}
-    * DOCKER_IMAGE_PREFIX                         : ${DOCKER_IMAGE_PREFIX}
-    * COVID_PIPELINE_DOCKER_IMAGE_TAG             : ${COVID_PIPELINE_DOCKER_IMAGE_TAG}
-    * NCOV2019_ARTIC_NF_ILLUMINA_DOCKER_IMAGE_TAG : ${NCOV2019_ARTIC_NF_ILLUMINA_DOCKER_IMAGE_TAG}
-    * NCOV2019_ARTIC_NF_NANOPORE_DOCKER_IMAGE_TAG : ${NCOV2019_ARTIC_NF_NANOPORE_DOCKER_IMAGE_TAG}
-    * PANGOLIN_DOCKER_IMAGE_TAG                   : ${PANGOLIN_DOCKER_IMAGE_TAG}
-    * K8S_PULL_POLICY                             : ${K8S_PULL_POLICY}
-    * K8S_SERVICE_ACCOUNT                         : ${K8S_SERVICE_ACCOUNT}
-    * K8S_QUEUE_SIZE                              : ${K8S_QUEUE_SIZE}
-    * K8S_STORAGE_CLAIM_NAME                      : ${K8S_STORAGE_CLAIM_NAME}
-    * K8S_STORAGE_MOUNT_PATH                      : ${K8S_STORAGE_MOUNT_PATH}
-    * NXF_WORK                                    : ${NXF_WORK}
-    * NXF_EXECUTOR                                : ${NXF_EXECUTOR}
-    * NXF_ANSI_LOG                                : ${NXF_ANSI_LOG}
-    * NXF_OPTS                                    : ${NXF_OPTS}
-
-    Internal environment variables:
-    * COVID_PIPELINE_MISSING_METADATA_PATH : ${COVID_PIPELINE_MISSING_METADATA_PATH}
-    * COVID_PIPELINE_NCOV_OUTPUT_PATH      : ${COVID_PIPELINE_NCOV_OUTPUT_PATH}
-    * COVID_PIPELINE_QC_PLOTS_PATH         : ${COVID_PIPELINE_QC_PLOTS_PATH}
-    * COVID_PIPELINE_FASTA_PATH            : ${COVID_PIPELINE_FASTA_PATH}
-    * COVID_PIPELINE_FASTA_PATH_QC_FAILED  : ${COVID_PIPELINE_FASTA_PATH_QC_FAILED}
-    * COVID_PIPELINE_PANGOLIN_PATH         : ${COVID_PIPELINE_PANGOLIN_PATH}
-    * COVID_PIPELINE_GENBANK_PATH          : ${COVID_PIPELINE_GENBANK_PATH}
-    * COVID_PIPELINE_NOTIFICATIONS_PATH    : ${COVID_PIPELINE_NOTIFICATIONS_PATH}
-
-    Params:
-    * run                                   : ${params.run}
-    * workflow                              : ${params.workflow}
-    * filetype                              : ${params.filetype}
-    * scheme_repo_url                       : ${params.scheme_repo_url}
-    * scheme_dir                            : ${params.scheme_dir}
-    * scheme                                : ${params.scheme}
-    * scheme_version                        : ${params.scheme_version}
-    * genbank_submitter_name                : ${params.genbank_submitter_name}
-    * genbank_submitter_account_namespace   : ${params.genbank_submitter_account_namespace}
-    * genbank_submission_template           : ${params.genbank_submission_template}
-    * genbank_storage_remote_url            : ${params.genbank_storage_remote_url}
-    * genbank_storage_remote_username       : ${params.genbank_storage_remote_username}
-    * genbank_storage_remote_directory      : ${params.genbank_storage_remote_directory}
-    ======================
-"""
-
-// Required environment variables
-if( "[:]" in [
-    DB_HOST,
-    DB_PORT,
-    DB_NAME,
-    DB_USER,
-    DB_PASSWORD,
-    COVID_PIPELINE_ROOT_PATH,
-    COVID_PIPELINE_INPUT_PATH,
-    COVID_PIPELINE_OUTPUT_PATH,
-    DOCKER_IMAGE_PREFIX,
-    COVID_PIPELINE_DOCKER_IMAGE_TAG,
-    NCOV2019_ARTIC_NF_ILLUMINA_DOCKER_IMAGE_TAG,
-    NCOV2019_ARTIC_NF_NANOPORE_DOCKER_IMAGE_TAG,
-    PANGOLIN_DOCKER_IMAGE_TAG,
-    K8S_PULL_POLICY,
-    K8S_SERVICE_ACCOUNT,
-    K8S_QUEUE_SIZE,
-    K8S_STORAGE_CLAIM_NAME,
-    K8S_STORAGE_MOUNT_PATH,
-    K8S_PROCESS_MAX_RETRIES,
-    K8S_PROCESS_CPU_LOW,
-    K8S_PROCESS_CPU_HIGH,
-    K8S_PROCESS_MEMORY_VERY_LOW,
-    K8S_PROCESS_MEMORY_LOW,
-    K8S_PROCESS_MEMORY_MEDIUM,
-    K8S_PROCESS_MEMORY_HIGH,
-    K8S_PROCESS_MEMORY_VERY_HIGH,
-    NXF_WORK,
-    NXF_EXECUTOR,
-    NXF_ANSI_LOG
-    ]) {
-    throw new Exception("Found unset global environment variables. See '[:]' above. Abort")
-}
-
-if ( params.run == "" ) {
-    throw new Exception("Error: '--run' must be defined")
-}
-
 // Import modules
+include {printPipelineConfig} from './modules/help.nf'
+include {printHelp} from './modules/help.nf'
+if (params.print_config){
+    printPipelineConfig()
+    exit 0
+}
+if (params.help){
+    printHelp()
+    exit 0
+}
+
 include { load_metadata } from './modules/load_metadata.nf'
 
 if ( params.workflow == "illumina_artic" ) {
@@ -134,6 +52,47 @@ include { mark_samples_as_submitted_to_genbank} from './modules/genbank.nf'
 include { store_genbank_submission} from './modules/genbank.nf'
 
 include { pipeline_complete } from './modules/pipeline_complete.nf'
+
+
+// Required environment variables
+// Add new env variables to modules/help.nf
+if( "[:]" in [
+    DB_HOST,
+    DB_PORT,
+    DB_NAME,
+    DB_USER,
+    DB_PASSWORD,
+    COVID_PIPELINE_ROOT_PATH,
+    COVID_PIPELINE_INPUT_PATH,
+    COVID_PIPELINE_OUTPUT_PATH,
+    DOCKER_IMAGE_PREFIX,
+    COVID_PIPELINE_DOCKER_IMAGE_TAG,
+    NCOV2019_ARTIC_NF_ILLUMINA_DOCKER_IMAGE_TAG,
+    NCOV2019_ARTIC_NF_NANOPORE_DOCKER_IMAGE_TAG,
+    PANGOLIN_DOCKER_IMAGE_TAG,
+    K8S_PULL_POLICY,
+    K8S_SERVICE_ACCOUNT,
+    K8S_QUEUE_SIZE,
+    K8S_STORAGE_CLAIM_NAME,
+    K8S_STORAGE_MOUNT_PATH,
+    K8S_PROCESS_MAX_RETRIES,
+    K8S_PROCESS_CPU_LOW,
+    K8S_PROCESS_CPU_HIGH,
+    K8S_PROCESS_MEMORY_VERY_LOW,
+    K8S_PROCESS_MEMORY_LOW,
+    K8S_PROCESS_MEMORY_MEDIUM,
+    K8S_PROCESS_MEMORY_HIGH,
+    K8S_PROCESS_MEMORY_VERY_HIGH,
+    NXF_WORK,
+    NXF_EXECUTOR,
+    NXF_ANSI_LOG
+    ]) {
+    throw new Exception("Found unset global environment variables. See '[:]' above. Abort")
+}
+
+if ( params.run == "" ) {
+    throw new Exception("Error: '--run' must be defined")
+}
 
 workflow {
 
