@@ -11,75 +11,19 @@ The following diagram offers an overview of the pipeline execution in k8s. Each 
 ![Alt text](img/UKHSA_covid_project.png?raw=true "Covid pipeline in k8s environment")
 
 
-### Environment variables
+### Environment variables and input parameters
 
-Environment variables required to run the pipeline. They are set up in the covid-pipeline k8s deployment.
+See: covid-pipeline/modules/help.nf .
 
-| Variable | Description |
-| :---------------- | :---------------------------------------------------------------- |
-| DB_HOST | Postgres database host address (e.g. 192.168.0.33) |
-| DB_PORT | Postgres database port (e.g. 5432) |
-| DB_NAME | Postgres database name (e.g. covid_pipeline_db) |
-| DB_USER | Postgres database user name (e.g. postgres) |
-| DB_PASSWORD | Postgres database user password (e.g. postgres) |
-| COVID_PIPELINE_ROOT_PATH | Path to the pipeline code (e.g. git checkout). (e.g. /app) |
-| COVID_PIPELINE_INPUT_PATH | Path to the required input BAM/FASTQ files and TSV metadata file. (e.g. /data/input, s3://synthetic-data-dev/UKHSA/piero-test-data/illumina_fastq ) |
-| COVID_PIPELINE_OUTPUT_PATH | Path to the whole pipeline output. (e.g. /data/output) |
+The help can also be printed with the command: `nextflow run . --help`.
+The current configuration can be printed with the command: `nextflow run . --print_config`.
 
-
-The following environment variables are set internally and should not be changed
-| Variable | Description |
-| :---------------- | :---------------------------------------------------------------- |
-| COVID_PIPELINE_MISSING_METADATA_PATH | Path to the missing metadata files. Set to: ${COVID_PIPELINE_OUTPUT_PATH}/no-metadata-found-bam |
-| COVID_PIPELINE_NCOV_OUTPUT_PATH | Path to store all ncov2019-artic result files. Each run will be published to unique folder |
-| COVID_PIPELINE_QC_PLOTS_PATH | Path to store all ncov2019-artic qc_plots graphs in single folder |
-| COVID_PIPELINE_FASTA_PATH | Path to the re-headered ncov FASTA files. Set to: ${COVID_PIPELINE_OUTPUT_PATH}/reheadered-fasta |
-| COVID_PIPELINE_FASTA_PATH_QC_FAILED | Path to the re-headered ncov QC_FAILED FASTA files. Set to: ${COVID_PIPELINE_OUTPUT_PATH}/reheadered-fasta-qc-failed |
-| COVID_PIPELINE_PANGOLIN_PATH | Path to the results of pangolin pipeline with lineage reports. Each run will be published to unique folder |
-| COVID_PIPELINE_GENBANK_PATH | Path to submission files, which were used to submit samples to GenBank programmatic interface |
-| COVID_PIPELINE_NOTIFICATIONS_PATH | Path to the pipeline notifications. Unexpected events regarding missing samples, files are reported here in text files |
-| K8S_PULL_POLICY | The Kubernetes docker image pull policy (e.g. Always, Never) |
-| K8S_SERVICE_ACCOUNT | The Kubernetes service account |
-| K8S_QUEUE_SIZE | The maximum number of processes to run at the same time (default: 20) |
-| K8S_STORAGE_CLAIM_NAME | The Kubernetes PVC claim |
-| K8S_STORAGE_MOUNT_PATH | The Kubernetes mount path (default: /data) |
-| K8S_PROCESS_MAX_RETRIES | The maximum number that a process can be retried if a resource-based exit code (137-140) is raised (default: 3) |
-| K8S_PROCESS_CPU_LOW | Value for a process using little CPU. There is no need to change this as the pipeline was designed for high scalability (default: 1) |
-| K8S_PROCESS_CPU_HIGH | Value for a process using a lot of CPU. There is no need to change this as the pipeline was designed for high scalability (default: 2) |
-| K8S_PROCESS_MEMORY_VERY_LOW | Value for a process using very low memory in MB (default: 250) |
-| K8S_PROCESS_MEMORY_LOW | Value for a process using low memory in MB (default: 500) |
-| K8S_PROCESS_MEMORY_MEDIUM | Value for a process using medium memory in MB (default: 1500) |
-| K8S_PROCESS_MEMORY_HIGH | Value for a process using high memory in MB (default: 3000) |
-| K8S_PROCESS_MEMORY_VERY_HIGH | Value for a process using very high memory in MB (default: 6000) |
-
-Regarding `K8S_PROCESS_MEMORY_*` environment variables, if a process dies due to a resource-based exit code (137-140), the process is retried with memory:
-```
-new_memory = default_memory * retry_number
-```
-
-
-### Pipeline input parameters
-
-Input parameters to run the pipeline.
-
-| Argument | Value |
-| :---------------- | :---------------------------------------------------------------- |
-| --workflow | illumina_artic (default; input file extension: .fq.gz or .bam), medaka_artic (nanopore workflow; input file extension: .fastq.gz). |
-| --filetype | fastq (default), bam . The type of input file. Currently bam is only supported by the illumina workflow |
-| --run | The name for this analysis run |
-| --scheme_repo_url | Repo to download your primer scheme from (e.g. 'https://github.com/artic-network/artic-ncov2019'). For efficiency, this repo was checked out and made available to the pipeline in the ncov docker images |
-| --scheme_dir | Directory within schemeRepoURL that contains primer schemes (Default: 'primer_schemes') |
-| --scheme | Scheme name (Default: 'nCoV-2019') |
-| --scheme_version | ARTIC scheme version (Default: 'V3') |
-
-
-Example of execution with parameter: `nextflow run . --workflow medaka_artic`
 
 ### Input files stored in aws s3
 If you plan to read input files from an aws s3 bucket you will need to:
 
 - copy your aws credentials to the /root dir in the covid-pipeline pod
-- export the env var `COVID_PIPELINE_INPUT_PATH` (see section: `Environment variables`) to point to the s3 dir containing your data. For quick tests we have these three paths:
+- export the env var `COVID_PIPELINE_INPUT_PATH` (see section: `Environment variables and input parameters`) to point to the s3 dir containing your data. For quick tests we have these three paths:
 s3://synthetic-data-dev/UKHSA/piero-test-data/illumina_fastq
 s3://synthetic-data-dev/UKHSA/piero-test-data/illumina_bams
 s3://synthetic-data-dev/UKHSA/piero-test-data/medaka_fastq_fail/20200311_1427_X1_FAK72834_a3787181
@@ -101,19 +45,25 @@ eval $(minikube -p minikube docker-env)
 The next step is to build the pipeline docker images in the minikube docker environment. For simplicity, the database is stored on a pod. This is not ideal as this can be lost if the pod crashes or is deleted. However, as a proof of concept, this is fine. In the future, the database will be stored in an RDS aurora cluster, therefore outside the k8s environment.
 ```commandline
 export DOCKER_IMAGE_PREFIX=144563655722.dkr.ecr.eu-west-1.amazonaws.com/congenica/dev
-export VERSION_BASE=1.0.0
-export VERSION=1.0.0
+export COVID_PIPELINE_DOCKER_IMAGE_TAG_BASE=1.0.0
+export NCOV2019_ARTIC_NF_ILLUMINA_DOCKER_IMAGE_TAG_BASE=1.0.0
+export NCOV2019_ARTIC_NF_NANOPORE_DOCKER_IMAGE_TAG_BASE=1.0.0
+export PANGOLIN_DOCKER_IMAGE_TAG_BASE=1.0.0
+export COVID_PIPELINE_DOCKER_IMAGE_TAG=1.0.0
+export NCOV2019_ARTIC_NF_ILLUMINA_DOCKER_IMAGE_TAG=1.0.0
+export NCOV2019_ARTIC_NF_NANOPORE_DOCKER_IMAGE_TAG=1.0.0
+export PANGOLIN_DOCKER_IMAGE_TAG=1.0.0
 
 # create base images
-docker build -t ${DOCKER_IMAGE_PREFIX}/covid-pipeline-base:${VERSION_BASE} -f docker/Dockerfile.covid-pipeline-base .
-docker build -t ${DOCKER_IMAGE_PREFIX}/ncov2019-artic-nf-illumina-base:${VERSION_BASE} -f docker/Dockerfile.ncov2019-artic-nf-illumina-base .
-docker build -t ${DOCKER_IMAGE_PREFIX}/ncov2019-artic-nf-nanopore-base:${VERSION_BASE} -f docker/Dockerfile.ncov2019-artic-nf-nanopore-base .
-docker build -t ${DOCKER_IMAGE_PREFIX}/pangolin-base:${VERSION_BASE} -f docker/Dockerfile.pangolin-base .
+docker build -t ${DOCKER_IMAGE_PREFIX}/covid-pipeline-base:${COVID_PIPELINE_DOCKER_IMAGE_TAG_BASE} -f docker/Dockerfile.covid-pipeline-base .
+docker build -t ${DOCKER_IMAGE_PREFIX}/ncov2019-artic-nf-illumina-base:${NCOV2019_ARTIC_NF_ILLUMINA_DOCKER_IMAGE_TAG_BASE} -f docker/Dockerfile.ncov2019-artic-nf-illumina-base .
+docker build -t ${DOCKER_IMAGE_PREFIX}/ncov2019-artic-nf-nanopore-base:${NCOV2019_ARTIC_NF_NANOPORE_DOCKER_IMAGE_TAG_BASE} -f docker/Dockerfile.ncov2019-artic-nf-nanopore-base .
+docker build -t ${DOCKER_IMAGE_PREFIX}/pangolin-base:${PANGOLIN_DOCKER_IMAGE_TAG_BASE} -f docker/Dockerfile.pangolin-base .
 
 
 # build main images
-docker build -t ${DOCKER_IMAGE_PREFIX}/covid-pipeline:${VERSION} -f docker/Dockerfile.covid-pipeline .
-docker build -t ${DOCKER_IMAGE_PREFIX}/covid-pipeline-db:${VERSION} -f docker/Dockerfile.postgres .
+docker build -t ${DOCKER_IMAGE_PREFIX}/covid-pipeline:${COVID_PIPELINE_DOCKER_IMAGE_TAG} -f docker/Dockerfile.covid-pipeline .
+docker build -t ${DOCKER_IMAGE_PREFIX}/covid-pipeline-db:${COVID_PIPELINE_DOCKER_IMAGE_TAG} -f docker/Dockerfile.postgres .
 
 # add project submodules
 git submodule init
@@ -124,11 +74,11 @@ git submodule update
 git submodule update --remote --merge
 
 # build ncov docker images
-docker build -t ${DOCKER_IMAGE_PREFIX}/ncov2019-artic-nf-illumina:${VERSION} -f docker/Dockerfile.ncov2019-artic-nf-illumina .
-docker build -t ${DOCKER_IMAGE_PREFIX}/ncov2019-artic-nf-nanopore:${VERSION} -f docker/Dockerfile.ncov2019-artic-nf-nanopore .
+docker build -t ${DOCKER_IMAGE_PREFIX}/ncov2019-artic-nf-illumina:${NCOV2019_ARTIC_NF_ILLUMINA_DOCKER_IMAGE_TAG} -f docker/Dockerfile.ncov2019-artic-nf-illumina .
+docker build -t ${DOCKER_IMAGE_PREFIX}/ncov2019-artic-nf-nanopore:${NCOV2019_ARTIC_NF_NANOPORE_DOCKER_IMAGE_TAG} -f docker/Dockerfile.ncov2019-artic-nf-nanopore .
 
 # build pangolin docker image
-docker build -t ${DOCKER_IMAGE_PREFIX}/pangolin:${VERSION} -f docker/Dockerfile.pangolin .
+docker build -t ${DOCKER_IMAGE_PREFIX}/pangolin:${PANGOLIN_DOCKER_IMAGE_TAG} -f docker/Dockerfile.pangolin .
 ```
 
 Once all the required images are generated, the deployments can be created:
@@ -226,6 +176,8 @@ pre-commit install --install-hooks
 
 
 #### Set up the required environment variables (the following configuration is just an example)
+For a description of these environment variables, see section `Environment variables and input parameters`.
+
 ```commandline
 export DB_HOST=127.0.0.1
 export DB_PORT=5432
@@ -243,11 +195,11 @@ export COVID_PIPELINE_OUTPUT_PATH="${HOME}/covid-pipeline-output"
 A local database must be available to run the tests
 ```commandline
 export DOCKER_IMAGE_PREFIX=144563655722.dkr.ecr.eu-west-1.amazonaws.com/congenica/dev
-export VERSION=1.0.0
+export COVID_PIPELINE_DOCKER_IMAGE_TAG=1.0.0
 
-docker build -t ${DOCKER_IMAGE_PREFIX}/covid-pipeline-db:${VERSION} -f docker/Dockerfile.postgres .
+docker build -t ${DOCKER_IMAGE_PREFIX}/covid-pipeline-db:${COVID_PIPELINE_DOCKER_IMAGE_TAG} -f docker/Dockerfile.postgres .
 
-docker run -d -p ${DB_PORT}:${DB_PORT} --name my-postgres-server -e POSTGRES_PASSWORD=${DB_PASSWORD} ${DOCKER_IMAGE_PREFIX}/covid-pipeline-db:${VERSION}
+docker run -d -p ${DB_PORT}:${DB_PORT} --name my-postgres-server -e POSTGRES_PASSWORD=${DB_PASSWORD} ${DOCKER_IMAGE_PREFIX}/covid-pipeline-db:${COVID_PIPELINE_DOCKER_IMAGE_TAG}
 
 # test the connection from your local machine
 psql -h ${DB_HOST} -p ${DB_PORT} -U ${DB_USER} -W

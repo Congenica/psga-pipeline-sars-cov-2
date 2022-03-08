@@ -128,18 +128,14 @@ process ncov2019_artic_nf_pipeline_medaka {
       -c ${COVID_PIPELINE_ROOT_PATH}/covid-pipeline/ncov-custom.config \
       -c ${COVID_PIPELINE_ROOT_PATH}/covid-pipeline/ncov-nanopore-k8s.config
 
-
   mkdir -p ${output_fasta}
   mkdir -p ${output_plots}
-
   mv ${ncov_minion_medaka_out_dir}/*.fasta ${output_fasta}
   mv ${ncov_minion_medaka_out_dir}/*.png ${output_plots}
   mv ${ncov_qc_plots_dir}/*.png ${output_plots}
 
   # this is a code correction to the nanopore medaka workflow in order to restore the correct sample names
   # in file names and file content
-  # it is coded here in order to avoid changes to the pipeline
-  # use ls instead of find as ls is faster
   for input_path in `ls barcode*/*.fastq`; do
       barcode=`dirname ${input_path}`
       sample_name=`basename ${input_path%.*}`
