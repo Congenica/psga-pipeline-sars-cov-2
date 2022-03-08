@@ -8,24 +8,27 @@ log.info """\
     ${workflow.manifest.name} v ${workflow.manifest.version}
     ======================
     Global environment variables:
-    * DB_HOST                              : ${DB_HOST}
-    * DB_PORT                              : ${DB_PORT}
-    * DB_NAME                              : ${DB_NAME}
-    * DB_USER                              : ${DB_USER}
-    * COVID_PIPELINE_ROOT_PATH             : ${COVID_PIPELINE_ROOT_PATH}
-    * COVID_PIPELINE_INPUT_PATH            : ${COVID_PIPELINE_INPUT_PATH}
-    * COVID_PIPELINE_OUTPUT_PATH           : ${COVID_PIPELINE_OUTPUT_PATH}
-    * DOCKER_IMAGE_PREFIX                  : ${DOCKER_IMAGE_PREFIX}
-    * DOCKER_IMAGE_TAG                     : ${DOCKER_IMAGE_TAG}
-    * K8S_PULL_POLICY                      : ${K8S_PULL_POLICY}
-    * K8S_SERVICE_ACCOUNT                  : ${K8S_SERVICE_ACCOUNT}
-    * K8S_QUEUE_SIZE                       : ${K8S_QUEUE_SIZE}
-    * K8S_STORAGE_CLAIM_NAME               : ${K8S_STORAGE_CLAIM_NAME}
-    * K8S_STORAGE_MOUNT_PATH               : ${K8S_STORAGE_MOUNT_PATH}
-    * NXF_WORK                             : ${NXF_WORK}
-    * NXF_EXECUTOR                         : ${NXF_EXECUTOR}
-    * NXF_ANSI_LOG                         : ${NXF_ANSI_LOG}
-    * NXF_OPTS                             : ${NXF_OPTS}
+    * DB_HOST                                     : ${DB_HOST}
+    * DB_PORT                                     : ${DB_PORT}
+    * DB_NAME                                     : ${DB_NAME}
+    * DB_USER                                     : ${DB_USER}
+    * COVID_PIPELINE_ROOT_PATH                    : ${COVID_PIPELINE_ROOT_PATH}
+    * COVID_PIPELINE_INPUT_PATH                   : ${COVID_PIPELINE_INPUT_PATH}
+    * COVID_PIPELINE_OUTPUT_PATH                  : ${COVID_PIPELINE_OUTPUT_PATH}
+    * DOCKER_IMAGE_PREFIX                         : ${DOCKER_IMAGE_PREFIX}
+    * COVID_PIPELINE_DOCKER_IMAGE_TAG             : ${COVID_PIPELINE_DOCKER_IMAGE_TAG}
+    * NCOV2019_ARTIC_NF_ILLUMINA_DOCKER_IMAGE_TAG : ${NCOV2019_ARTIC_NF_ILLUMINA_DOCKER_IMAGE_TAG}
+    * NCOV2019_ARTIC_NF_NANOPORE_DOCKER_IMAGE_TAG : ${NCOV2019_ARTIC_NF_NANOPORE_DOCKER_IMAGE_TAG}
+    * PANGOLIN_DOCKER_IMAGE_TAG                   : ${PANGOLIN_DOCKER_IMAGE_TAG}
+    * K8S_PULL_POLICY                             : ${K8S_PULL_POLICY}
+    * K8S_SERVICE_ACCOUNT                         : ${K8S_SERVICE_ACCOUNT}
+    * K8S_QUEUE_SIZE                              : ${K8S_QUEUE_SIZE}
+    * K8S_STORAGE_CLAIM_NAME                      : ${K8S_STORAGE_CLAIM_NAME}
+    * K8S_STORAGE_MOUNT_PATH                      : ${K8S_STORAGE_MOUNT_PATH}
+    * NXF_WORK                                    : ${NXF_WORK}
+    * NXF_EXECUTOR                                : ${NXF_EXECUTOR}
+    * NXF_ANSI_LOG                                : ${NXF_ANSI_LOG}
+    * NXF_OPTS                                    : ${NXF_OPTS}
 
     Internal environment variables:
     * COVID_PIPELINE_MISSING_METADATA_PATH : ${COVID_PIPELINE_MISSING_METADATA_PATH}
@@ -37,8 +40,7 @@ log.info """\
     * COVID_PIPELINE_GENBANK_PATH          : ${COVID_PIPELINE_GENBANK_PATH}
     * COVID_PIPELINE_NOTIFICATIONS_PATH    : ${COVID_PIPELINE_NOTIFICATIONS_PATH}
 
-    ======================
-    params:
+    Params:
     * run                                   : ${params.run}
     * workflow                              : ${params.workflow}
     * filetype                              : ${params.filetype}
@@ -52,7 +54,6 @@ log.info """\
     * genbank_storage_remote_url            : ${params.genbank_storage_remote_url}
     * genbank_storage_remote_username       : ${params.genbank_storage_remote_username}
     * genbank_storage_remote_directory      : ${params.genbank_storage_remote_directory}
-
     ======================
 """
 
@@ -67,7 +68,10 @@ if( "[:]" in [
     COVID_PIPELINE_INPUT_PATH,
     COVID_PIPELINE_OUTPUT_PATH,
     DOCKER_IMAGE_PREFIX,
-    DOCKER_IMAGE_TAG,
+    COVID_PIPELINE_DOCKER_IMAGE_TAG,
+    NCOV2019_ARTIC_NF_ILLUMINA_DOCKER_IMAGE_TAG,
+    NCOV2019_ARTIC_NF_NANOPORE_DOCKER_IMAGE_TAG,
+    PANGOLIN_DOCKER_IMAGE_TAG,
     K8S_PULL_POLICY,
     K8S_SERVICE_ACCOUNT,
     K8S_QUEUE_SIZE,

@@ -101,19 +101,25 @@ eval $(minikube -p minikube docker-env)
 The next step is to build the pipeline docker images in the minikube docker environment. For simplicity, the database is stored on a pod. This is not ideal as this can be lost if the pod crashes or is deleted. However, as a proof of concept, this is fine. In the future, the database will be stored in an RDS aurora cluster, therefore outside the k8s environment.
 ```commandline
 export DOCKER_IMAGE_PREFIX=144563655722.dkr.ecr.eu-west-1.amazonaws.com/congenica/dev
-export VERSION_BASE=1.0.0
-export VERSION=1.0.0
+export COVID_PIPELINE_DOCKER_IMAGE_TAG_BASE=1.0.0
+export NCOV2019_ARTIC_NF_ILLUMINA_DOCKER_IMAGE_TAG_BASE=1.0.0
+export NCOV2019_ARTIC_NF_NANOPORE_DOCKER_IMAGE_TAG_BASE=1.0.0
+export PANGOLIN_DOCKER_IMAGE_TAG_BASE=1.0.0
+export COVID_PIPELINE_DOCKER_IMAGE_TAG=1.0.0
+export NCOV2019_ARTIC_NF_ILLUMINA_DOCKER_IMAGE_TAG=1.0.0
+export NCOV2019_ARTIC_NF_NANOPORE_DOCKER_IMAGE_TAG=1.0.0
+export PANGOLIN_DOCKER_IMAGE_TAG=1.0.0
 
 # create base images
-docker build -t ${DOCKER_IMAGE_PREFIX}/covid-pipeline-base:${VERSION_BASE} -f docker/Dockerfile.covid-pipeline-base .
-docker build -t ${DOCKER_IMAGE_PREFIX}/ncov2019-artic-nf-illumina-base:${VERSION_BASE} -f docker/Dockerfile.ncov2019-artic-nf-illumina-base .
-docker build -t ${DOCKER_IMAGE_PREFIX}/ncov2019-artic-nf-nanopore-base:${VERSION_BASE} -f docker/Dockerfile.ncov2019-artic-nf-nanopore-base .
-docker build -t ${DOCKER_IMAGE_PREFIX}/pangolin-base:${VERSION_BASE} -f docker/Dockerfile.pangolin-base .
+docker build -t ${DOCKER_IMAGE_PREFIX}/covid-pipeline-base:${COVID_PIPELINE_DOCKER_IMAGE_TAG_BASE} -f docker/Dockerfile.covid-pipeline-base .
+docker build -t ${DOCKER_IMAGE_PREFIX}/ncov2019-artic-nf-illumina-base:${NCOV2019_ARTIC_NF_ILLUMINA_DOCKER_IMAGE_TAG_BASE} -f docker/Dockerfile.ncov2019-artic-nf-illumina-base .
+docker build -t ${DOCKER_IMAGE_PREFIX}/ncov2019-artic-nf-nanopore-base:${NCOV2019_ARTIC_NF_NANOPORE_DOCKER_IMAGE_TAG_BASE} -f docker/Dockerfile.ncov2019-artic-nf-nanopore-base .
+docker build -t ${DOCKER_IMAGE_PREFIX}/pangolin-base:${PANGOLIN_DOCKER_IMAGE_TAG_BASE} -f docker/Dockerfile.pangolin-base .
 
 
 # build main images
-docker build -t ${DOCKER_IMAGE_PREFIX}/covid-pipeline:${VERSION} -f docker/Dockerfile.covid-pipeline .
-docker build -t ${DOCKER_IMAGE_PREFIX}/covid-pipeline-db:${VERSION} -f docker/Dockerfile.postgres .
+docker build -t ${DOCKER_IMAGE_PREFIX}/covid-pipeline:${COVID_PIPELINE_DOCKER_IMAGE_TAG} -f docker/Dockerfile.covid-pipeline .
+docker build -t ${DOCKER_IMAGE_PREFIX}/covid-pipeline-db:${COVID_PIPELINE_DOCKER_IMAGE_TAG} -f docker/Dockerfile.postgres .
 
 # add project submodules
 git submodule init
@@ -124,11 +130,11 @@ git submodule update
 git submodule update --remote --merge
 
 # build ncov docker images
-docker build -t ${DOCKER_IMAGE_PREFIX}/ncov2019-artic-nf-illumina:${VERSION} -f docker/Dockerfile.ncov2019-artic-nf-illumina .
-docker build -t ${DOCKER_IMAGE_PREFIX}/ncov2019-artic-nf-nanopore:${VERSION} -f docker/Dockerfile.ncov2019-artic-nf-nanopore .
+docker build -t ${DOCKER_IMAGE_PREFIX}/ncov2019-artic-nf-illumina:${NCOV2019_ARTIC_NF_ILLUMINA_DOCKER_IMAGE_TAG} -f docker/Dockerfile.ncov2019-artic-nf-illumina .
+docker build -t ${DOCKER_IMAGE_PREFIX}/ncov2019-artic-nf-nanopore:${NCOV2019_ARTIC_NF_NANOPORE_DOCKER_IMAGE_TAG} -f docker/Dockerfile.ncov2019-artic-nf-nanopore .
 
 # build pangolin docker image
-docker build -t ${DOCKER_IMAGE_PREFIX}/pangolin:${VERSION} -f docker/Dockerfile.pangolin .
+docker build -t ${DOCKER_IMAGE_PREFIX}/pangolin:${PANGOLIN_DOCKER_IMAGE_TAG} -f docker/Dockerfile.pangolin .
 ```
 
 Once all the required images are generated, the deployments can be created:
@@ -243,11 +249,11 @@ export COVID_PIPELINE_OUTPUT_PATH="${HOME}/covid-pipeline-output"
 A local database must be available to run the tests
 ```commandline
 export DOCKER_IMAGE_PREFIX=144563655722.dkr.ecr.eu-west-1.amazonaws.com/congenica/dev
-export VERSION=1.0.0
+export COVID_PIPELINE_DOCKER_IMAGE_TAG=1.0.0
 
-docker build -t ${DOCKER_IMAGE_PREFIX}/covid-pipeline-db:${VERSION} -f docker/Dockerfile.postgres .
+docker build -t ${DOCKER_IMAGE_PREFIX}/covid-pipeline-db:${COVID_PIPELINE_DOCKER_IMAGE_TAG} -f docker/Dockerfile.postgres .
 
-docker run -d -p ${DB_PORT}:${DB_PORT} --name my-postgres-server -e POSTGRES_PASSWORD=${DB_PASSWORD} ${DOCKER_IMAGE_PREFIX}/covid-pipeline-db:${VERSION}
+docker run -d -p ${DB_PORT}:${DB_PORT} --name my-postgres-server -e POSTGRES_PASSWORD=${DB_PASSWORD} ${DOCKER_IMAGE_PREFIX}/covid-pipeline-db:${COVID_PIPELINE_DOCKER_IMAGE_TAG}
 
 # test the connection from your local machine
 psql -h ${DB_HOST} -p ${DB_PORT} -U ${DB_USER} -W
