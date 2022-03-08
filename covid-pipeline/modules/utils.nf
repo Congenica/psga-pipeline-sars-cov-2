@@ -16,11 +16,11 @@ def makeFastqSearchPath (illuminaPrefixes, illuminaSuffixes, fastq_exts) {
         for(ext in fastq_exts) {
             if ( illuminaPrefixes ) {
                 for (prefix in illuminaPrefixes) {
-                    dirNameGlob = params.directory.replaceAll(/\/+$/, "") + '/**' +  '/' + prefix + suff + ext
+                    dirNameGlob = params.directory.replaceAll(/\/+$/, "") + '/' + prefix + suff + ext
                     fastqSearchPath.add(dirNameGlob)
                 }
             } else {
-                dirNameGlob = params.directory.replaceAll(/\/+$/, "") + '/**' +  '/' + suff + ext
+                dirNameGlob = params.directory.replaceAll(/\/+$/, "") + '/' + suff + ext
                 fastqSearchPath.add(dirNameGlob)
             }
         }
@@ -38,7 +38,7 @@ def makeNanoporeSearchPath ( ) {
 
 /* make a glob for retrieving bam files for the ncov-illumina workflow */
 def makeBamSearchPath ( ) {
-    filePathGlob = params.directory.replaceAll(/\/+$/, "") + '/**' + '/*.bam'
+    filePathGlob = params.directory.replaceAll(/\/+$/, "") + '/*.bam'
     return filePathGlob
 }
 

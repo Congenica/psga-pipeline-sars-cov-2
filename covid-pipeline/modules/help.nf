@@ -29,7 +29,6 @@ def printPipelineConfig() {
         Internal environment variables:
         * COVID_PIPELINE_MISSING_METADATA_PATH : ${COVID_PIPELINE_MISSING_METADATA_PATH}
         * COVID_PIPELINE_NCOV_OUTPUT_PATH      : ${COVID_PIPELINE_NCOV_OUTPUT_PATH}
-        * COVID_PIPELINE_QC_PLOTS_PATH         : ${COVID_PIPELINE_QC_PLOTS_PATH}
         * COVID_PIPELINE_FASTA_PATH            : ${COVID_PIPELINE_FASTA_PATH}
         * COVID_PIPELINE_FASTA_PATH_QC_FAILED  : ${COVID_PIPELINE_FASTA_PATH_QC_FAILED}
         * COVID_PIPELINE_PANGOLIN_PATH         : ${COVID_PIPELINE_PANGOLIN_PATH}
@@ -148,9 +147,7 @@ def printHelp() {
         COVID_PIPELINE_MISSING_METADATA_PATH
                                 Path to the missing metadata files. Set to: ${COVID_PIPELINE_OUTPUT_PATH}/no-metadata-found-bam
         COVID_PIPELINE_NCOV_OUTPUT_PATH
-                                Path to store all ncov2019-artic result files. Each run will be published to unique folder
-        COVID_PIPELINE_QC_PLOTS_PATH
-                                Path to store all ncov2019-artic qc_plots graphs in single folder
+                                Path to store ncov2019-artic result files. Each run will be published to unique folder
         COVID_PIPELINE_FASTA_PATH
                                 Path to the re-headered ncov FASTA files. Set to: ${COVID_PIPELINE_OUTPUT_PATH}/reheadered-fasta
         COVID_PIPELINE_FASTA_PATH_QC_FAILED

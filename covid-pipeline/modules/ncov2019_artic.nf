@@ -44,15 +44,21 @@ process ncov2019_artic_nf_pipeline_illumina {
     val scheme_version
 
   output:
-    path "${ncov_out_directory}/*", emit: ch_all_ncov_results
-    path "${ncov_out_directory}/ncovIllumina_sequenceAnalysis_makeConsensus/*.fa", emit: ch_fasta_ncov_results
-    path "${ncov_out_directory}/${ncov_prefix}.qc.csv", emit: ch_qc_csv_ncov_result
-    path "${ncov_out_directory}/qc_plots/*.depth.png", emit: ch_sample_depth_ncov_results
+    path "ncov_output/ncovIllumina_sequenceAnalysis_makeConsensus/*.fa", emit: ch_fasta_ncov_results
+    path "ncov_output/*.qc.csv", emit: ch_qc_csv_ncov_result
+    path "ncov_output/qc_plots/*.png", emit: ch_sample_depth_ncov_results
 
-  script:
-    ncov_out_directory = "ncov_output"
+  shell:
+  '''
+  ncov_out_directory="ncov_output"
 
-  """
+  # convert nextflow variables to Bash so that the same format is used
+  ncov_prefix=!{ncov_prefix}
+  scheme_repo_url=!{scheme_repo_url}
+  scheme_dir=!{scheme_dir}
+  scheme=!{scheme}
+  scheme_version=!{scheme_version}
+
   # note: we inject our configuration into ncov to override parameters
   # note: `pwd` is the workdir for this nextflow process
   nextflow run ${COVID_PIPELINE_ROOT_PATH}/ncov2019-artic-nf \
@@ -66,7 +72,11 @@ process ncov2019_artic_nf_pipeline_illumina {
       --schemeVersion ${scheme_version} \
       -c ${COVID_PIPELINE_ROOT_PATH}/covid-pipeline/ncov-custom.config \
       -c ${COVID_PIPELINE_ROOT_PATH}/covid-pipeline/ncov-illumina-k8s.config
-  """
+
+  # extract the sample name from one of the reads and rename the qc csv
+  sample_name="$(ls *.gz | head -n 1 | cut -d"_" -f1)"
+  mv ${ncov_out_directory}/${ncov_prefix}.qc.csv ${ncov_out_directory}/${sample_name}.qc.csv
+  '''
 }
 
 
@@ -85,9 +95,8 @@ process ncov2019_artic_nf_pipeline_medaka {
     val scheme_version
 
   output:
-    path "ncov_output/*", emit: ch_all_ncov_results
     path "output_fasta/*.consensus.fasta", emit: ch_fasta_ncov_results
-    path "ncov_output/${ncov_prefix}.qc.csv", emit: ch_qc_csv_ncov_result
+    path "ncov_output/*.qc.csv", emit: ch_qc_csv_ncov_result
     path "output_plots/*.png", emit: ch_sample_depth_ncov_results
 
   shell:
@@ -145,6 +154,7 @@ process ncov2019_artic_nf_pipeline_medaka {
       done
 
       sed -i "s/${ncov_prefix}_${barcode}/${sample_name}/g" ${ncov_out_directory}/${ncov_prefix}.qc.csv
+      mv ${ncov_out_directory}/${ncov_prefix}.qc.csv ${ncov_out_directory}/${sample_name}.qc.csv
 
       for file_to_rename in `find ${output_fasta} ${output_plots} -name ${ncov_prefix}_${barcode}*`; do
           file_dir=`dirname ${file_to_rename}`
@@ -160,21 +170,48 @@ process ncov2019_artic_nf_pipeline_medaka {
 
 /*
  * Store ncov2019_artic output
- * We publish only a single channel. This way multiple channels won't conflict on publish
  */
 process store_ncov2019_artic_nf_output {
   publishDir "${COVID_PIPELINE_NCOV_OUTPUT_PATH}/${workflow.sessionId}", mode: 'copy', overwrite: true
   publishDir "${COVID_PIPELINE_NCOV_OUTPUT_PATH}/latest", mode: 'copy', overwrite: true
 
   input:
-    path ch_all_ncov_results
+    path ch_ncov_fasta
+    path qc_plot_image
+    path qc_csv
 
   output:
-    path ch_all_ncov_results
+    path ch_ncov_fasta
+    path qc_plot_image
+    path qc_csv
 
   script:
 
   """
+  """
+}
+
+/*
+ * Merge ncov QC results into one single file
+ */
+process merge_ncov_qc_files {
+  publishDir "${COVID_PIPELINE_NCOV_OUTPUT_PATH}/${workflow.sessionId}", mode: 'copy', overwrite: true
+  input:
+    file input_dir
+
+  output:
+    path "${output_path}", emit: ch_ncov_qc_all_samples
+
+  script:
+    output_path = "ncov_qc.csv"
+
+  """
+  # extract the header from a lineage report
+  sample_qc="\$(ls *.qc.csv | head -n 1)"
+  # copy over the header only (first line)
+  awk 'FNR == 1' "\${sample_qc}" > ${output_path}
+  # copy over the record only from all files (second line)
+  awk 'FNR == 2' *.qc.csv >> ${output_path}
   """
 }
 
@@ -257,22 +294,6 @@ process store_reheadered_fasta_failed {
 
   script:
     matching_file = "${sample_name}.fasta"
-
-  """
-  """
-}
-
-/*
- * Storing .png images of sample qc plots in archive
- */
-process store_ncov_qc_plots  {
-  publishDir COVID_PIPELINE_QC_PLOTS_PATH, mode: 'copy', overwrite: true
-
-  input:
-    path qc_plot_image
-
-  output:
-    path qc_plot_image
 
   """
   """

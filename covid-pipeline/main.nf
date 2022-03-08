@@ -38,11 +38,11 @@ if ( params.workflow == "illumina_artic" ) {
 }
 
 include { store_ncov2019_artic_nf_output } from './modules/ncov2019_artic.nf'
+include { merge_ncov_qc_files } from './modules/ncov2019_artic.nf'
 include { load_ncov_data_to_db } from './modules/ncov2019_artic.nf'
 include { reheader_genome_fasta } from './modules/ncov2019_artic.nf'
 include { store_reheadered_fasta_passed } from './modules/ncov2019_artic.nf'
 include { store_reheadered_fasta_failed } from './modules/ncov2019_artic.nf'
-include { store_ncov_qc_plots } from './modules/ncov2019_artic.nf'
 
 include { pangolin_pipeline } from './modules/pangolin.nf'
 include { merge_pangolin_files } from './modules/pangolin.nf'
@@ -157,7 +157,7 @@ workflow {
         System.exit(1)
     }
     ncov2019_artic_nf_pipeline(
-        ch_input_files.collect(),
+        ch_input_files,
         ncov_prefix,
         params.scheme_repo_url,
         params.scheme_dir,
@@ -165,31 +165,27 @@ workflow {
         params.scheme_version
     )
 
-
-    // Taking only a single output channel and publishing output in separate process after `ncov2019_artic_nf_pipeline`
-    // Using single output channel is required to avoid publish conflicts, when two channels attempt to write same file
-    store_ncov2019_artic_nf_output(
-        ncov2019_artic_nf_pipeline.out.ch_all_ncov_results.collect()
+    merge_ncov_qc_files(
+        ncov2019_artic_nf_pipeline.out.ch_qc_csv_ncov_result.collect()
     )
 
-    store_ncov_qc_plots(
-        ncov2019_artic_nf_pipeline.out.ch_sample_depth_ncov_results
+    store_ncov2019_artic_nf_output(
+        ncov2019_artic_nf_pipeline.out.ch_fasta_ncov_results.collect(),
+        ncov2019_artic_nf_pipeline.out.ch_sample_depth_ncov_results.collect(),
+        merge_ncov_qc_files.out.ch_ncov_qc_all_samples
     )
 
     ch_ncov_qc_sample_submitted = load_ncov_data_to_db(
-        ncov2019_artic_nf_pipeline.out.ch_qc_csv_ncov_result,
-        ncov2019_artic_nf_pipeline.out.ch_sample_depth_ncov_results,
+        merge_ncov_qc_files.out.ch_ncov_qc_all_samples,
+        ncov2019_artic_nf_pipeline.out.ch_sample_depth_ncov_results.collect(),
         params.run
     )
 
-    // flatten so that pipeline branches off by fasta file
-    ncov2019_artic_nf_pipeline.out.ch_fasta_ncov_results \
-        .flatten() \
-        .set { ch_fasta_to_reheader }
-    ch_reheadered_fasta = reheader_genome_fasta(ch_fasta_to_reheader)
+    ch_reheadered_fasta = reheader_genome_fasta(ncov2019_artic_nf_pipeline.out.ch_fasta_ncov_results)
+
 
     // Samples are split to QC_PASSED and QC_FAILED
-    ncov2019_artic_nf_pipeline.out.ch_qc_csv_ncov_result
+    merge_ncov_qc_files.out.ch_ncov_qc_all_samples
         .splitCsv(header:true)
         .branch {
             qc_passed: it.qc_pass =~ /TRUE/
