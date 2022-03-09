@@ -214,6 +214,8 @@ workflow {
         params.run
     )
 
+    // TO BE REVISED.
+    // Why do we want to submitt all archived FASTAs instead of just the FASTAs of this run?
     Channel
         .fromPath( COVID_PIPELINE_FASTA_PATH )
         .set{ archived_fasta }
