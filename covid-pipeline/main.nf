@@ -214,17 +214,11 @@ workflow {
         params.run
     )
 
-    // TO BE REVISED.
-    // Why do we want to submitt all archived FASTAs instead of just the FASTAs of this run?
-    Channel
-        .fromPath( "${COVID_PIPELINE_OUTPUT_PATH}/${params.run}/reheadered-fasta" )
-        .set{ archived_fasta }
     Channel
         .fromPath( params.genbank_submission_template )
         .set{ ch_genbank_submission_template }
     create_genbank_submission_files(
         ch_qc_passed_fasta.collect(),
-        archived_fasta,
         ch_genbank_submission_template,
         params.genbank_submission_comment,
         params.genbank_submitter_name,

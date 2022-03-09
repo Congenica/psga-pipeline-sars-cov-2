@@ -4,7 +4,6 @@
 process create_genbank_submission_files {
   input:
     file reheadered_fasta
-    file archived_fasta
     file genbank_submission_template
     val genbank_submission_comment
     val genbank_submitter_name
@@ -28,9 +27,6 @@ process create_genbank_submission_files {
     unique_genbank_submission_identifier = "${workflow.sessionId}.${genbank_submission_id_suffix}"
 
   """
-  # create links in ${sequence_fasta_directory} to the archived files, so that these can be concatenated
-  python /app/scripts/link_archived_fasta.py --destination ${sequence_fasta_directory}
-
   echo "All FASTA files to submit to GenBank:"
   ls -l
 
