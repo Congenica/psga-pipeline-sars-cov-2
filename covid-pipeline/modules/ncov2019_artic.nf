@@ -172,7 +172,7 @@ process ncov2019_artic_nf_pipeline_medaka {
  * Store ncov2019_artic output
  */
 process store_ncov2019_artic_nf_output {
-  publishDir "${COVID_PIPELINE_NCOV_OUTPUT_PATH}/${params.run}", mode: 'copy', overwrite: true
+  publishDir "${COVID_PIPELINE_OUTPUT_PATH}/${params.run}/ncov2019-artic", mode: 'copy', overwrite: true
 
   input:
     path ch_ncov_fasta
@@ -261,7 +261,7 @@ process reheader_genome_fasta {
  * Process to store fastas, which were marked in ncov pipeline as QC_PASS=TRUE
  */
 process store_reheadered_fasta_passed {
-  publishDir "${COVID_PIPELINE_FASTA_PATH}/${params.run}", mode: 'copy', overwrite: true
+  publishDir "${COVID_PIPELINE_OUTPUT_PATH}/${params.run}/reheadered-fasta", mode: 'copy', overwrite: true
 
   input:
     path all_reheadered_fasta_files
@@ -281,7 +281,7 @@ process store_reheadered_fasta_passed {
  * Process to store fastas, which were marked in ncov pipeline as QC_PASS=FALSE
  */
 process store_reheadered_fasta_failed {
-  publishDir "${COVID_PIPELINE_FASTA_PATH_QC_FAILED}/${params.run}", mode: 'copy', overwrite: true
+  publishDir "${COVID_PIPELINE_OUTPUT_PATH}/${params.run}/reheadered-fasta-qc-failed", mode: 'copy', overwrite: true
 
   input:
     path all_reheadered_fasta_files
