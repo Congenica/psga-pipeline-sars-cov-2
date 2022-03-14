@@ -15,6 +15,8 @@ if (params.help){
     exit 0
 }
 
+include { pipeline_started } from './modules/pipeline_lifespan.nf'
+
 include { load_metadata } from './modules/load_metadata.nf'
 
 if ( params.workflow == "illumina_artic" ) {
@@ -51,7 +53,7 @@ include { submit_genbank_files} from './modules/genbank.nf'
 include { mark_samples_as_submitted_to_genbank} from './modules/genbank.nf'
 include { store_genbank_submission} from './modules/genbank.nf'
 
-include { pipeline_complete } from './modules/pipeline_complete.nf'
+include { pipeline_completed } from './modules/pipeline_lifespan.nf'
 
 
 // Required environment variables
@@ -95,6 +97,17 @@ if ( params.run == "" ) {
 }
 
 workflow {
+
+    // save the session_id and command
+    pipeline_started(
+        params.run,
+        params.workflow,
+        params.filetype,
+        params.scheme_repo_url,
+        params.scheme_dir,
+        params.scheme,
+        params.scheme_version
+    )
 
     // METADATA
     load_metadata(
@@ -269,7 +282,7 @@ workflow {
         """
     }
 
-    pipeline_complete(
+    pipeline_completed(
         ch_ncov_qc_sample_submitted,
         ch_pangolin_sample_submitted
     )

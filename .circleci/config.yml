@@ -17,10 +17,10 @@ parameters:
 executors:
   python:
     docker:
-      - image: circleci/python:3.8
+      - image: cimg/python:3.8
   python_with_db:
     docker:
-      - image: circleci/python:3.8
+      - image: cimg/python:3.8
         environment:
           PGHOST: localhost
           PGUSER: << pipeline.parameters.db_user >>
@@ -28,10 +28,11 @@ executors:
           DB_USER: << pipeline.parameters.db_user >>
           DB_PASSWORD: << pipeline.parameters.db_password >>
           DB_NAME: << pipeline.parameters.db_name >>
-      - image: circleci/postgres:11-ram
+      - image: cimg/postgres:11.13
         environment:
           POSTGRES_USER: << pipeline.parameters.db_user >>
           POSTGRES_PASSWORD: << pipeline.parameters.db_password >>
+          POSTGRES_HOST_AUTH_METHOD: password
 
 commands:
   build_and_push_docker_image:
@@ -84,7 +85,7 @@ jobs:
       - run:
           name: Run pre-commit checks
           command: |
-            sudo pip install pre-commit==2.8.1
+            pip install pre-commit==2.8.1
             pre-commit run --all-files
 
   test-covid-pipeline:
@@ -94,6 +95,7 @@ jobs:
       - run:
           name: Install sqitch and create database
           command: |
+            sudo apt-get update
             sudo apt-get install -qq sqitch postgresql-client
             createdb covid_pipeline_db
             cd sqitch

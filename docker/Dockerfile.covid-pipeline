@@ -9,4 +9,4 @@ RUN pip install --progress-bar=off --no-cache-dir --upgrade pip==${PIP_VERSION} 
     poetry config virtualenvs.create false && \
     poetry install --no-interaction --no-ansi --no-dev
 
-ENTRYPOINT ["/bin/bash", "-c", "while true; do sleep 100; done;"]
+ENTRYPOINT ["python", "autoresumer.py"]
