@@ -16,11 +16,11 @@ def makeFastqSearchPath (illuminaPrefixes, illuminaSuffixes, fastq_exts) {
         for(ext in fastq_exts) {
             if ( illuminaPrefixes ) {
                 for (prefix in illuminaPrefixes) {
-                    dirNameGlob = params.directory.replaceAll(/\/+$/, "") + '/**' +  '/' + prefix + suff + ext
+                    dirNameGlob = params.directory.replaceAll(/\/+$/, "") + '/' + prefix + suff + ext
                     fastqSearchPath.add(dirNameGlob)
                 }
             } else {
-                dirNameGlob = params.directory.replaceAll(/\/+$/, "") + '/**' +  '/' + suff + ext
+                dirNameGlob = params.directory.replaceAll(/\/+$/, "") + '/' + suff + ext
                 fastqSearchPath.add(dirNameGlob)
             }
         }
@@ -38,7 +38,7 @@ def makeNanoporeSearchPath ( ) {
 
 /* make a glob for retrieving bam files for the ncov-illumina workflow */
 def makeBamSearchPath ( ) {
-    filePathGlob = params.directory.replaceAll(/\/+$/, "") + '/**' + '/*.bam'
+    filePathGlob = params.directory.replaceAll(/\/+$/, "") + '/*.bam'
     return filePathGlob
 }
 
@@ -59,7 +59,7 @@ process append_match_to_values_list{
 }
 
 process store_notification_with_values_list{
-  publishDir COVID_PIPELINE_NOTIFICATIONS_PATH, mode: 'copy', overwrite: true
+  publishDir "${COVID_PIPELINE_OUTPUT_PATH}/${params.run}/notifications", mode: 'copy', overwrite: true
 
   input:
     val file_name
@@ -113,7 +113,7 @@ process append_metadata_match_to_sample_file_pair{
 }
 
 process store_mismatching_files{
-    publishDir COVID_PIPELINE_MISSING_METADATA_PATH, mode: 'copy', overwrite: true
+    publishDir "${COVID_PIPELINE_OUTPUT_PATH}/${params.run}/files-without-metadata", mode: 'copy', overwrite: true
 
     input:
       file(sample_file)

@@ -40,16 +40,13 @@ workflow filter_samples_with_one_file {
 
         ch_sample_files_grouped_by_metadata_search.matched
              .map { it -> it[1] }
-             .flatten()
              .set{ ch_files_matching_metadata }
 
         ch_sample_files_grouped_by_metadata_search.mismatched
              .map { it -> it[1] }
-             .flatten()
              .set{ ch_files_mismatching_metadata }
         ch_sample_files_grouped_by_metadata_search.mismatched
              .map { it -> it[0] }
-             .flatten()
              .set{ ch_mismatching_metadata_sample_names }
 
         store_mismatching_files(ch_files_mismatching_metadata)
@@ -122,16 +119,13 @@ workflow filter_samples_with_two_files {
 
         ch_sample_files_grouped_by_metadata_search.matched
              .map { it -> [ it[1], it[2] ] }
-             .flatten()
              .set{ ch_files_matching_metadata }
 
         ch_sample_files_grouped_by_metadata_search.mismatched
              .map { it -> [ it[1], it[2] ] }
-             .flatten()
              .set{ ch_files_mismatching_metadata }
         ch_sample_files_grouped_by_metadata_search.mismatched
              .map { it -> it[0] }
-             .flatten()
              .set{ ch_mismatching_metadata_sample_names }
 
         store_mismatching_files(ch_files_mismatching_metadata)
