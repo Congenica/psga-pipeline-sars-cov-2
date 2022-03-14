@@ -2,17 +2,17 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: covid-pipeline
+  name: psga
 spec:
   selector:
     matchLabels:
-      app: covid-pipeline
+      app: psga
   strategy:
     type: Recreate
   template:
     metadata:
       labels:
-        app: covid-pipeline
+        app: psga
     spec:
       affinity:
         nodeAffinity:
@@ -24,8 +24,8 @@ spec:
                 values:
                 - "true"
       containers:
-      - image: 144563655722.dkr.ecr.eu-west-1.amazonaws.com/congenica/dev/covid-pipeline:1.0.0
-        name: covid-pipeline
+      - image: 144563655722.dkr.ecr.eu-west-1.amazonaws.com/congenica/dev/psga:1.0.0
+        name: psga
         imagePullPolicy: Always
         resources:
           limits:
@@ -60,15 +60,15 @@ spec:
             secretKeyRef:
               key: clus_COVID_DB_USER
               name: db-config
-        - name: COVID_PIPELINE_ROOT_PATH
+        - name: PSGA_ROOT_PATH
           value: /app
-        - name: COVID_PIPELINE_INPUT_PATH
+        - name: PSGA_INPUT_PATH
           value: /data/input
-        - name: COVID_PIPELINE_OUTPUT_PATH
+        - name: PSGA_OUTPUT_PATH
           value: /data/output
         - name: DOCKER_IMAGE_PREFIX
           value: '144563655722.dkr.ecr.eu-west-1.amazonaws.com/congenica/dev'
-        - name: COVID_PIPELINE_DOCKER_IMAGE_TAG
+        - name: PSGA_DOCKER_IMAGE_TAG
           value: '1.0.0'
         - name: NCOV2019_ARTIC_NF_ILLUMINA_DOCKER_IMAGE_TAG
           value: '1.0.0'
@@ -79,11 +79,11 @@ spec:
         - name: K8S_PULL_POLICY
           value: Always
         - name: K8S_SERVICE_ACCOUNT
-          value: covid-pipeline-admin
+          value: psga-admin
         - name: K8S_QUEUE_SIZE
           value: '5'
         - name: K8S_STORAGE_CLAIM_NAME
-          value: covid-pipeline-pvc
+          value: psga-pvc
         - name: K8S_STORAGE_MOUNT_PATH
           value: /data
         - name: K8S_PROCESS_MAX_RETRIES
@@ -111,10 +111,10 @@ spec:
         - name: NXF_OPTS
           value: '-Xms1g -Xmx4g'
         volumeMounts:
-        - name: covid-pipeline-persistent-storage
+        - name: psga-persistent-storage
           mountPath: /data
-      serviceAccountName: covid-pipeline-admin
+      serviceAccountName: psga-admin
       volumes:
-      - name: covid-pipeline-persistent-storage
+      - name: psga-persistent-storage
         persistentVolumeClaim:
-          claimName: covid-pipeline-pvc
+          claimName: psga-pvc

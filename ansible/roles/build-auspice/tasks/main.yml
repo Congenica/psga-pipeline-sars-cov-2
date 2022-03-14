@@ -1,5 +1,5 @@
 ---
-- name: SARS-CoV-2 pipeline - ensure "{{ ansible_user_id }}" is in group docker
+- name: PSGA pipeline - ensure "{{ ansible_user_id }}" is in group docker
   user:
    name: "{{ ansible_user_id }}"
    groups: docker
@@ -9,7 +9,7 @@
 - name: reset ssh connection
   meta: reset_connection
 
-- name: SARS-CoV-2 pipeline - build auspice image
+- name: PSGA pipeline - build auspice image
   community.general.docker_image:
     name: auspice
     build:

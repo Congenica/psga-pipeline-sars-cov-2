@@ -64,11 +64,11 @@ if( "[:]" in [
     DB_NAME,
     DB_USER,
     DB_PASSWORD,
-    COVID_PIPELINE_ROOT_PATH,
-    COVID_PIPELINE_INPUT_PATH,
-    COVID_PIPELINE_OUTPUT_PATH,
+    PSGA_ROOT_PATH,
+    PSGA_INPUT_PATH,
+    PSGA_OUTPUT_PATH,
     DOCKER_IMAGE_PREFIX,
-    COVID_PIPELINE_DOCKER_IMAGE_TAG,
+    PSGA_DOCKER_IMAGE_TAG,
     NCOV2019_ARTIC_NF_ILLUMINA_DOCKER_IMAGE_TAG,
     NCOV2019_ARTIC_NF_NANOPORE_DOCKER_IMAGE_TAG,
     PANGOLIN_DOCKER_IMAGE_TAG,
@@ -111,7 +111,7 @@ workflow {
 
     // METADATA
     load_metadata(
-        "${COVID_PIPELINE_INPUT_PATH}/" + params.metadata_file_name,
+        "${PSGA_INPUT_PATH}/" + params.metadata_file_name,
         params.run,
         params.scheme,
         params.scheme_version,
@@ -138,7 +138,7 @@ workflow {
     )
     ch_input_files_prep = filter_input_files_matching_metadata.out.ch_selected_sample_files
 
-    ncov_prefix = "covid_test"
+    ncov_prefix = params.workflow
     if ( params.workflow == "illumina_artic" && params.filetype == "fastq" ) {
         ch_input_files = ch_input_files_prep
     } else if ( params.workflow == "illumina_artic" && params.filetype == "bam" ) {
@@ -148,7 +148,7 @@ workflow {
         // for ncov nanopore/medaka workflow this is not arbitrary. It must be the name of the full run coming from the lab.
         // This is the name of the input dir
         // e.g. 20200311_1427_X1_FAK72834_a3787181
-        ncov_prefix = getDirName("${COVID_PIPELINE_INPUT_PATH}")
+        ncov_prefix = getDirName("${PSGA_INPUT_PATH}")
     } else {
         log.error """\
             ERROR: nanopore / medaka workflow can only run with fastq input files.

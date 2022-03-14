@@ -1,5 +1,5 @@
 ---
-- name: SARS-CoV-2 pipeline - create install dir for sqitch
+- name: PSGA pipeline - create install dir for sqitch
   file:
     path: ~/sqitch
     state: directory
@@ -9,20 +9,20 @@
     path: ~/sqitch/sqitch
   register: sqitch
 
-- name: SARS-CoV-2 pipeline - install nextflow
+- name: PSGA pipeline - install nextflow
   shell: curl -L https://git.io/JJKCn -o sqitch && chmod +x sqitch
   args:
     chdir: ~/sqitch
   when: sqitch.stat.exists == False or sqitch.stat.executable == False
   register: sqitchInstalled
 
-- name: SARS-CoV-2 pipeline - add sqitch to $PATH
+- name: PSGA pipeline - add sqitch to $PATH
   lineinfile:
     path: ~/.bashrc
     line: 'export PATH=$PATH:~/sqitch/'
   when: sqitchInstalled.changed
 
-- name: SARS-CoV-2 pipeline - ensure "{{ ansible_user_id }}" is in group docker
+- name: PSGA pipeline - ensure "{{ ansible_user_id }}" is in group docker
   user:
    name: "{{ ansible_user_id }}"
    groups: docker
@@ -32,11 +32,11 @@
 - name: reset ssh connection
   meta: reset_connection
 
-- name: SARS-CoV-2 pipeline - create database
+- name: PSGA pipeline - create database
   shell: "PGPASSWORD={{ db_password }} psql --host={{ db_host }} --port={{ db_port }} --username={{ db_user }} -c 'create database {{ db_name }}'"
   ignore_errors: yes
 
-- name: SARS-CoV-2 pipeline - do sqitch deploy
+- name: PSGA pipeline - do sqitch deploy
   community.general.docker_container:
     name: sqitch
     image: sqitch/sqitch

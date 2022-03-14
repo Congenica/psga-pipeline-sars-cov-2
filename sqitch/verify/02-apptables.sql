@@ -1,17 +1,17 @@
--- Verify covid-pipeline:02-apptables on pg
+-- Verify psga:02-apptables on pg
 
 DO $$
 declare
   column_count integer;
 BEGIN
 
-  SET LOCAL search_path = sars_cov_2;
+  SET LOCAL search_path = psga;
 
     -- analysis_run table verifications
   ASSERT (SELECT has_table_privilege('analysis_run', 'SELECT, INSERT, UPDATE, DELETE, TRUNCATE, REFERENCES'));
   SELECT count(*) INTO column_count
   FROM information_schema.columns
-  WHERE table_schema='sars_cov_2' AND table_name='analysis_run' AND column_name IN (
+  WHERE table_schema='psga' AND table_name='analysis_run' AND column_name IN (
     'analysis_run_id',
     'analysis_run_name',
     'primer_scheme_name',
@@ -29,7 +29,7 @@ BEGIN
   ASSERT (SELECT has_table_privilege('sample', 'SELECT, INSERT, UPDATE, DELETE, TRUNCATE, REFERENCES'));
   SELECT count(*) INTO column_count
   FROM information_schema.columns
-  WHERE table_schema='sars_cov_2' AND table_name='sample' AND column_name IN (
+  WHERE table_schema='psga' AND table_name='sample' AND column_name IN (
     'sample_id',
     'analysis_run_id',
     'sample_name',
@@ -49,7 +49,7 @@ BEGIN
   ASSERT (SELECT has_table_privilege('sample_qc', 'SELECT, INSERT, UPDATE, DELETE, TRUNCATE, REFERENCES'));
   SELECT count(*) INTO column_count
   FROM information_schema.columns
-  WHERE table_schema='sars_cov_2' AND table_name='sample_qc' AND column_name IN (
+  WHERE table_schema='psga' AND table_name='sample_qc' AND column_name IN (
     'sample_id',
     'pct_n_bases',
     'pct_covered_bases',

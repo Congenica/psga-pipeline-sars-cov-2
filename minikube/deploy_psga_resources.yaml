@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: covid-pipeline-minikube-pvc
+  name: psga-minikube-pvc
   annotations:
     volume.beta.kubernetes.io/storage-class: standard
 spec:

@@ -8,7 +8,7 @@ from Bio.SeqRecord import SeqRecord
 
 FASTA_FILE_EXTENSION = "fa"
 FASTA_FILE_HANDLE = "fasta"
-SEQUENCE_DESCRIPTION = ""  # SARS-CoV-2. Don't add this as it causes Nextstrain to crash
+SEQUENCE_DESCRIPTION = ""  # PSGA. Don't add this as it causes Nextstrain to crash
 ASSEMBLY_LENGTHS_FILENAME = "sequence_lengths.text"
 
 
@@ -45,7 +45,7 @@ def convert_file(source_file: Path, output_dir: Path) -> None:
 # source directory to search for .fa files
 @click.argument("source")
 # directory to output. If not specified, will output to source directory
-@click.argument("destination", default="", envvar="COVID_PIPELINE_FASTA_PATH")
+@click.argument("destination", default="")
 def reheader_fasta(source: str, destination: str) -> None:
     """
     Genome sequences produce by ncov have sequence identifiers that include

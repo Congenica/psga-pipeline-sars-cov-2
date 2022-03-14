@@ -16,7 +16,7 @@
     - name: db_name
       prompt: 'Database logical name '
       private: no
-      default: "{{ lookup('env', 'DB_NAME') | default('covid_pipeline_db', True) }}"
+      default: "{{ lookup('env', 'DB_NAME') | default('psga_db', True) }}"
     - name: db_user
       prompt: 'Database username '
       private: no
@@ -29,29 +29,29 @@
       prompt: 'Database password '
       private: yes
       confirm: yes
-    - name: covid_pipeline_root_path
+    - name: psga_root_path
       prompt: 'Root dir of the pipeline '
       private: no
-      default: '${HOME}/covid-pipeline'
-    - name: covid_pipeline_input_path
+      default: '${HOME}/psga'
+    - name: psga_input_path
       prompt: 'Path to FASTQ/BAM files for pipeline '
       private: no
-      default: '${HOME}/COVID_s3_data_lite/sample_data'
-    - name: covid_pipeline_output_path
+      default: '${HOME}/psga-input'
+    - name: psga_output_path
       prompt: 'Work dir of the pipeline '
       private: no
-      default: '${HOME}/covid-pipeline-output'
-    - name: covid_pipeline_reports_path
+      default: '${HOME}/psga-output'
+    - name: psga_reports_path
       prompt: 'Report path for pipeline '
       private: no
-      default: '${HOME}/covid-pipeline-reports'
+      default: '${HOME}/psga-reports'
 
   roles:
     - { role: install-os-packages, yum_update: false, become: true }
     - { role: install-nextflow }
     - { role: build-pangolin }
     - { role: build-ncov }
-    - { role: build-covid-pipeline }
+    - { role: build-psga }
     - { role: build-nextstrain }
     - { role: build-auspice }
     - { role: run-sqitch }

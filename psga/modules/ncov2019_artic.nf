@@ -61,7 +61,7 @@ process ncov2019_artic_nf_pipeline_illumina {
 
   # note: we inject our configuration into ncov to override parameters
   # note: `pwd` is the workdir for this nextflow process
-  nextflow run ${COVID_PIPELINE_ROOT_PATH}/ncov2019-artic-nf \
+  nextflow run ${PSGA_ROOT_PATH}/ncov2019-artic-nf \
       --illumina \
       --prefix ${ncov_prefix} \
       --directory `eval pwd` \
@@ -70,8 +70,8 @@ process ncov2019_artic_nf_pipeline_illumina {
       --schemeDir ${scheme_dir} \
       --scheme ${scheme} \
       --schemeVersion ${scheme_version} \
-      -c ${COVID_PIPELINE_ROOT_PATH}/covid-pipeline/ncov-custom.config \
-      -c ${COVID_PIPELINE_ROOT_PATH}/covid-pipeline/ncov-illumina-k8s.config
+      -c ${PSGA_ROOT_PATH}/psga/ncov-custom.config \
+      -c ${PSGA_ROOT_PATH}/psga/ncov-illumina-k8s.config
 
   # extract the sample name from one of the reads and rename the qc csv
   sample_name="$(ls *.gz | head -n 1 | cut -d"_" -f1)"
@@ -125,7 +125,7 @@ process ncov2019_artic_nf_pipeline_medaka {
 
   # note: we inject our configuration into ncov to override parameters
   # note: `pwd` is the workdir for this nextflow process
-  nextflow run ${COVID_PIPELINE_ROOT_PATH}/ncov2019-artic-nf \
+  nextflow run ${PSGA_ROOT_PATH}/ncov2019-artic-nf \
       --medaka \
       --prefix ${ncov_prefix} \
       --basecalled_fastq `eval pwd` \
@@ -134,8 +134,8 @@ process ncov2019_artic_nf_pipeline_medaka {
       --schemeDir ${scheme_dir} \
       --scheme ${scheme} \
       --schemeVersion ${scheme_version} \
-      -c ${COVID_PIPELINE_ROOT_PATH}/covid-pipeline/ncov-custom.config \
-      -c ${COVID_PIPELINE_ROOT_PATH}/covid-pipeline/ncov-nanopore-k8s.config
+      -c ${PSGA_ROOT_PATH}/psga/ncov-custom.config \
+      -c ${PSGA_ROOT_PATH}/psga/ncov-nanopore-k8s.config
 
   mkdir -p ${output_fasta}
   mkdir -p ${output_plots}
@@ -172,7 +172,7 @@ process ncov2019_artic_nf_pipeline_medaka {
  * Store ncov2019_artic output
  */
 process store_ncov2019_artic_nf_output {
-  publishDir "${COVID_PIPELINE_OUTPUT_PATH}/${params.run}/ncov2019-artic", mode: 'copy', overwrite: true
+  publishDir "${PSGA_OUTPUT_PATH}/${params.run}/ncov2019-artic", mode: 'copy', overwrite: true
 
   input:
     path ch_ncov_fasta
@@ -261,7 +261,7 @@ process reheader_genome_fasta {
  * Process to store fastas, which were marked in ncov pipeline as QC_PASS=TRUE
  */
 process store_reheadered_fasta_passed {
-  publishDir "${COVID_PIPELINE_OUTPUT_PATH}/${params.run}/reheadered-fasta", mode: 'copy', overwrite: true
+  publishDir "${PSGA_OUTPUT_PATH}/${params.run}/reheadered-fasta", mode: 'copy', overwrite: true
 
   input:
     path all_reheadered_fasta_files
@@ -281,7 +281,7 @@ process store_reheadered_fasta_passed {
  * Process to store fastas, which were marked in ncov pipeline as QC_PASS=FALSE
  */
 process store_reheadered_fasta_failed {
-  publishDir "${COVID_PIPELINE_OUTPUT_PATH}/${params.run}/reheadered-fasta-qc-failed", mode: 'copy', overwrite: true
+  publishDir "${PSGA_OUTPUT_PATH}/${params.run}/reheadered-fasta-qc-failed", mode: 'copy', overwrite: true
 
   input:
     path all_reheadered_fasta_files

@@ -1,16 +1,16 @@
 ---
-- name: SARS-CoV-2 pipeline - yum update
+- name: PSGA pipeline - yum update
   yum:
     name: '*'
     state: latest
   when: yum_update == true
 
-- name: SARS-CoV-2 pipeline - add docker repo
+- name: PSGA pipeline - add docker repo
   get_url:
     url: https://download.docker.com/linux/centos/docker-ce.repo
     dest: /etc/yum.repos.d/docker-ce.repo
 
-- name: SARS-CoV-2 pipeline - install pre-requisite software
+- name: PSGA pipeline - install pre-requisite software
   package:
     name: "{{ item }}"
     state: present
@@ -31,17 +31,17 @@
     - containerd.io
     - postgresql
 
-- name: SARS-CoV-2 pipeline - pre-create docker config directory
+- name: PSGA pipeline - pre-create docker config directory
   file:
     path: /etc/docker
     state: directory
 
-- name: SARS-CoV-2 pipeline - set custom docker networking config
+- name: PSGA pipeline - set custom docker networking config
   template:
     src: docker_daemon.j2
     dest: /etc/docker/daemon.json
 
-- name: SARS-CoV-2 pipeline - enable and start docker
+- name: PSGA pipeline - enable and start docker
   systemd:
     name: docker
     state: started

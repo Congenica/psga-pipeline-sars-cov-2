@@ -59,7 +59,7 @@ process append_match_to_values_list{
 }
 
 process store_notification_with_values_list{
-  publishDir "${COVID_PIPELINE_OUTPUT_PATH}/${params.run}/notifications", mode: 'copy', overwrite: true
+  publishDir "${PSGA_OUTPUT_PATH}/${params.run}/notifications", mode: 'copy', overwrite: true
 
   input:
     val file_name
@@ -113,7 +113,7 @@ process append_metadata_match_to_sample_file_pair{
 }
 
 process store_mismatching_files{
-    publishDir "${COVID_PIPELINE_OUTPUT_PATH}/${params.run}/files-without-metadata", mode: 'copy', overwrite: true
+    publishDir "${PSGA_OUTPUT_PATH}/${params.run}/files-without-metadata", mode: 'copy', overwrite: true
 
     input:
       file(sample_file)

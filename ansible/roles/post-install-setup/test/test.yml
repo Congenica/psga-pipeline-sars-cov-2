@@ -2,11 +2,8 @@
 - hosts: all
   become: false
   vars:
-    environment_vars:
-      - key: GENOME_FASTA_PATH
-        value : '~/foo'
     start_pipeline_script:
-      path: '~/covid-pipeline/scripts/start_pipeline.sh'
+      path: '~/psga/scripts/start_pipeline.sh'
   roles:
     - { role: ../../install-os-packages, yum_update: false, become: true}
     - { role: ../../post-install-setup, db_password: "test123"}

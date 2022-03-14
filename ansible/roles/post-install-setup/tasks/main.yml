@@ -1,5 +1,5 @@
 ---
-- name: SARS-CoV-2 pipeline - set DB_HOST environment variables
+- name: PSGA pipeline - set DB_HOST environment variables
   lineinfile:
     path: ~/.bashrc
     state: present
@@ -7,7 +7,7 @@
     line: "export DB_HOST={{ db_host}}"
   register: db_host_register
 
-- name: SARS-CoV-2 pipeline - set DB_NAME environment variables
+- name: PSGA pipeline - set DB_NAME environment variables
   lineinfile:
     path: ~/.bashrc
     state: present
@@ -15,7 +15,7 @@
     line: "export DB_NAME={{ db_name}}"
   register: db_name_register
 
-- name: SARS-CoV-2 pipeline - set DB_USER environment variables
+- name: PSGA pipeline - set DB_USER environment variables
   lineinfile:
     path: ~/.bashrc
     state: present
@@ -27,7 +27,7 @@
     msg: "Must supply DB_PASSWORD"
   when: db_password is not defined
 
-- name: SARS-CoV-2 pipeline - set DB_PASSWORD environment variables
+- name: PSGA pipeline - set DB_PASSWORD environment variables
   lineinfile:
     path: ~/.bashrc
     state: present
@@ -36,7 +36,7 @@
   register: db_password_register
 
 
-- name: SARS-CoV-2 pipeline - set DB_PORT environment variables
+- name: PSGA pipeline - set DB_PORT environment variables
   lineinfile:
     path: ~/.bashrc
     state: present
@@ -44,31 +44,31 @@
     line: "export DB_PORT={{ db_port }}"
   register: db_port_register
 
-- name: SARS-CoV-2 pipeline - set COVID_PIPELINE_ROOT_PATH environment variables
+- name: PSGA pipeline - set PSGA_ROOT_PATH environment variables
   lineinfile:
     path: ~/.bashrc
     state: present
-    regexp: "^export COVID_PIPELINE_ROOT_PATH="
-    line: "export COVID_PIPELINE_ROOT_PATH={{ covid_pipeline_root_path }}"
-  register: covid_pipeline_root_path_register
+    regexp: "^export PSGA_ROOT_PATH="
+    line: "export PSGA_ROOT_PATH={{ psga_root_path }}"
+  register: psga_root_path_register
 
-- name: SARS-CoV-2 pipeline - set COVID_PIPELINE_INPUT_PATH environment variables
+- name: PSGA pipeline - set PSGA_INPUT_PATH environment variables
   lineinfile:
     path: ~/.bashrc
     state: present
-    regexp: "^export COVID_PIPELINE_INPUT_PATH="
-    line: "export COVID_PIPELINE_INPUT_PATH={{ covid_pipeline_input_path }}"
-  register: covid_pipeline_input_path_register
+    regexp: "^export PSGA_INPUT_PATH="
+    line: "export PSGA_INPUT_PATH={{ psga_input_path }}"
+  register: psga_input_path_register
 
-- name: SARS-CoV-2 pipeline - set COVID_PIPELINE_OUTPUT_PATH environment variables
+- name: PSGA pipeline - set PSGA_OUTPUT_PATH environment variables
   lineinfile:
     path: ~/.bashrc
     state: present
-    regexp: "^export COVID_PIPELINE_OUTPUT_PATH="
-    line: "export COVID_PIPELINE_OUTPUT_PATH={{ covid_pipeline_output_path }}"
-  register: covid_pipeline_output_path_register
+    regexp: "^export PSGA_OUTPUT_PATH="
+    line: "export PSGA_OUTPUT_PATH={{ psga_output_path }}"
+  register: psga_output_path_register
 
-- name: SARS-CoV-2 pipeline - set environment extra variables
+- name: PSGA pipeline - set environment extra variables
   lineinfile:
     path: ~/.bashrc
     state: present
@@ -76,16 +76,16 @@
     line: "export {{ item.key }}={{ item.value}}"
   with_items: "{{ environment_vars }}"
 
-- name: SARS-CoV-2 pipeline - source changed bashrc file
+- name: PSGA pipeline - source changed bashrc file
   shell: source ~/.bashrc
-  when: db_host_register.changed or db_name_register.changed or db_user_register.changed or db_password_register.changed or db_port_register.changed or covid_pipeline_root_path_register.changed or covid_pipeline_input_path_register.changed or covid_pipeline_output_path_register.changed
+  when: db_host_register.changed or db_name_register.changed or db_user_register.changed or db_password_register.changed or db_port_register.changed or psga_root_path_register.changed or psga_input_path_register.changed or psga_output_path_register.changed
 
-- name: SARS-CoV-2 pipeline - stat start_pipeline.sh script
+- name: PSGA pipeline - stat start_pipeline.sh script
   stat:
     path: "{{ start_pipeline_script.path }}"
   register: spscript
 
-- name: SARS-CoV-2 pipeline - run start_pipeline script cron
+- name: PSGA pipeline - run start_pipeline script cron
   cron:
     name: "run start_pipeline.sh"
     minute: "0"

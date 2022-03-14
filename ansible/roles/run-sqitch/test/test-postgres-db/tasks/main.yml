@@ -20,7 +20,7 @@
   become: true
   register: installDB
 
-- name: SARS-CoV-2 pipeline - install nextflow
+- name: PSGA pipeline - install nextflow
   shell: /usr/pgsql-11/bin/postgresql-11-setup initdb
   when: installDB.changed
   become: true

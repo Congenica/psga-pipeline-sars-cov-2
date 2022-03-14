@@ -1,7 +1,7 @@
--- Revert covid-pipeline:appschema from pg
+-- Revert psga:appschema from pg
 
 BEGIN;
 
-    DROP SCHEMA sars_cov_2;
+    DROP SCHEMA psga;
 
 COMMIT;
