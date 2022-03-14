@@ -1,4 +1,4 @@
-FROM postgres:11.14
+FROM postgres:11.13
 
 # This image is ONLY used for minikube and for local testing
 # For the actual K8S deployment, the DB is stored in RDS Aurora
