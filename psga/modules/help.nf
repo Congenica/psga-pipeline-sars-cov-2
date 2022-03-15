@@ -11,6 +11,9 @@ def printPipelineConfig() {
         * PSGA_ROOT_PATH                              : ${PSGA_ROOT_PATH}
         * PSGA_INPUT_PATH                             : ${PSGA_INPUT_PATH}
         * PSGA_OUTPUT_PATH                            : ${PSGA_OUTPUT_PATH}
+        * PSGA_INCOMPLETE_ANALYSIS_RUNS_PATH          : ${PSGA_INCOMPLETE_ANALYSIS_RUNS_PATH}
+        * PSGA_MAX_ATTEMPTS                           : ${PSGA_MAX_ATTEMPTS}
+        * PSGA_SLEEP_TIME_BETWEEN_ATTEMPTS            : ${PSGA_SLEEP_TIME_BETWEEN_ATTEMPTS}
         * DOCKER_IMAGE_PREFIX                         : ${DOCKER_IMAGE_PREFIX}
         * PSGA_DOCKER_IMAGE_TAG                       : ${PSGA_DOCKER_IMAGE_TAG}
         * NCOV2019_ARTIC_NF_ILLUMINA_DOCKER_IMAGE_TAG : ${NCOV2019_ARTIC_NF_ILLUMINA_DOCKER_IMAGE_TAG}
@@ -104,7 +107,13 @@ def printHelp() {
                                 Path to the required input BAM/FASTQ files and TSV metadata file.
                                 (e.g. /data/input, s3://data/input)
         PSGA_OUTPUT_PATH
-                                Path to the whole pipeline output. (e.g. /data/output)
+                                Path to the whole pipeline output. (e.g. /data/output, s3://data/output)
+        PSGA_INCOMPLETE_ANALYSIS_RUNS_PATH
+                                Path containing the analysis runs which are in progress or incomplete. (e.g. /data/incomplete_analysis_run)
+        PSGA_MAX_ATTEMPTS
+                                The maximum number of attempts to resume the an interrupted pipeline run
+        PSGA_SLEEP_TIME_BETWEEN_ATTEMPTS
+                                The sleep time between attempts in seconds
         DOCKER_IMAGE_PREFIX     The prefix of the docker image, excluded the image name
         PSGA_DOCKER_IMAGE_TAG
                                 The tag of the psga docker image

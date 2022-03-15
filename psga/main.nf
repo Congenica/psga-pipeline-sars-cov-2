@@ -67,6 +67,7 @@ if( "[:]" in [
     PSGA_ROOT_PATH,
     PSGA_INPUT_PATH,
     PSGA_OUTPUT_PATH,
+    PSGA_INCOMPLETE_ANALYSIS_RUNS_PATH,
     DOCKER_IMAGE_PREFIX,
     PSGA_DOCKER_IMAGE_TAG,
     NCOV2019_ARTIC_NF_ILLUMINA_DOCKER_IMAGE_TAG,
@@ -275,6 +276,7 @@ workflow {
     }
 
     pipeline_completed(
+        params.run,
         ch_ncov_qc_sample_submitted,
         ch_pangolin_sample_submitted
     )

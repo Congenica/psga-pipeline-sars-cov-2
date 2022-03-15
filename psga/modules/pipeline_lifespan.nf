@@ -11,7 +11,7 @@ process pipeline_started {
   output:
 
   script:
-    session_id_file = "${PSGA_OUTPUT_PATH}/${workflow.sessionId}"
+    session_id_file = "${PSGA_INCOMPLETE_ANALYSIS_RUNS_PATH}/${run}_${workflow.sessionId}"
 
   """
   # save the command so that we can resume it using autoresumer.py, if needed
@@ -24,6 +24,7 @@ process pipeline_started {
 
 process pipeline_completed {
   input:
+    val run
     file ncov_qc_sample_submitted_complete
     file pangolin_sample_submitted_complete
 
@@ -32,7 +33,7 @@ process pipeline_completed {
   shell:
   '''
   # use shell because we need a wildcard
-  session_id_file="!{PSGA_OUTPUT_PATH}/!{workflow.sessionId}"
+  session_id_file="!{PSGA_INCOMPLETE_ANALYSIS_RUNS_PATH}/!{run}_!{workflow.sessionId}"
   # remove file and any attempts as no longer needed
   rm ${session_id_file}*
   '''
