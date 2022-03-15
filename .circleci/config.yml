@@ -12,7 +12,7 @@ parameters:
     default: "somesecret"
   db_name:
     type: string
-    default: "covid_pipeline_db"
+    default: "psga_db"
 
 executors:
   python:
@@ -88,7 +88,7 @@ jobs:
             pip install pre-commit==2.8.1
             pre-commit run --all-files
 
-  test-covid-pipeline:
+  test-psga:
     executor: python_with_db
     steps:
       - checkout
@@ -97,7 +97,7 @@ jobs:
           command: |
             sudo apt-get update
             sudo apt-get install -qq sqitch postgresql-client
-            createdb covid_pipeline_db
+            createdb psga_db
             cd sqitch
             sqitch deploy
             sqitch verify
@@ -106,12 +106,12 @@ jobs:
           command: |
             poetry install
             poetry run pytest tests/
-  build-covid-pipeline:
+  build-psga:
     executor: python
     steps:
       - build_and_push_docker_image:
-          dockerfile: "Dockerfile.covid-pipeline"
-          ecrpath: ${COVID_PIPELINE_ECREPOPATH}
+          dockerfile: "Dockerfile.psga"
+          ecrpath: ${PSGA_ECREPOPATH}
           gitsubmodules: false
   build-ncov2019-artic-nf-illumina:
     executor: python
@@ -140,23 +140,23 @@ workflows:
   test_and_build_all:
     jobs:
     - pre_commit_hooks
-    - test-covid-pipeline:
+    - test-psga:
         requires:
           - pre_commit_hooks
         context: AWS_ECR_CREDENTIALS
-    - build-covid-pipeline:
+    - build-psga:
         requires:
-          - test-covid-pipeline
+          - test-psga
         context: AWS_ECR_CREDENTIALS
     - build-ncov2019-artic-nf-illumina:
         requires:
-          - test-covid-pipeline
+          - test-psga
         context: AWS_ECR_CREDENTIALS
     - build-ncov2019-artic-nf-nanopore:
         requires:
-          - test-covid-pipeline
+          - test-psga
         context: AWS_ECR_CREDENTIALS
     - build-pangolin:
         requires:
-          - test-covid-pipeline
+          - test-psga
         context: AWS_ECR_CREDENTIALS

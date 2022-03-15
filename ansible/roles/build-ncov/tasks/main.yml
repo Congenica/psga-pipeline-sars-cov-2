@@ -1,15 +1,15 @@
 ---
-- name: SARS-CoV-2 pipeline - init submodules
+- name: PSGA pipeline - init submodules
   command: git submodule init
   args:
     chdir: "{{ git_submod.path }}"
 
-- name: SARS-CoV-2 pipeline - update submodules
+- name: PSGA pipeline - update submodules
   command: git submodule update --remote --merge
   args:
     chdir: "{{ git_submod.path }}"
 
-- name: SARS-CoV-2 pipeline - ensure "{{ ansible_user_id }}" is in group docker
+- name: PSGA pipeline - ensure "{{ ansible_user_id }}" is in group docker
   user:
    name: "{{ ansible_user_id }}"
    groups: docker
@@ -19,7 +19,7 @@
 - name: reset ssh connection
   meta: reset_connection
 
-- name: SARS-CoV-2 pipeline - build ncov2019-artic-nf-illumina image
+- name: PSGA pipeline - build ncov2019-artic-nf-illumina image
   community.general.docker_image:
     name: ncov2019-artic-nf-illumina
     build:
@@ -31,7 +31,7 @@
     tag: 1.0.0
   become: yes
 
-- name: SARS-CoV-2 pipeline - build ncov2019-artic-nf-nanopore image
+- name: PSGA pipeline - build ncov2019-artic-nf-nanopore image
   community.general.docker_image:
     name: ncov2019-artic-nf-nanopore
     build:

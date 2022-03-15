@@ -3,9 +3,9 @@
   become: false
   vars:
     docker_build:
-      path: '~/covid-pipeline'
+      path: '~/psga'
     git_submod:
-      path: '~/covid-pipeline'
+      path: '~/psga'
   roles:
     - { role: ../../install-os-packages, yum_update: false, become: yes }
     - { role: ../../build-pangolin }

@@ -1,19 +1,19 @@
-# Covid-pipeline documentation
+# Pathogen SequencinG Analysis (PSGA) pipeline
 
 ## Operation
 
 This pipeline runs on a Kubernetes environment. For the time being, there are two k8s deployments:
-* `covid-pipeline`, which allows for the execution of the nextflow pipeline within a k8s pod
+* `psga`, which allows for the execution of the nextflow pipeline within a k8s pod
 * `psql`, which is a postgresql database accessible by the pods within the environment
 Ideally, the postgresql database should be stored in an RDS aurora system outside the cluster, but for development, the current setting is fine.
 
-The following diagram offers an overview of the pipeline execution in k8s. Each nextflow process is executed on a dedicated pod spun up by the main `covid-pipeline` pod.
-![Alt text](img/UKHSA_covid_project.png?raw=true "Covid pipeline in k8s environment")
+The following diagram offers an overview of the pipeline execution in k8s. Each nextflow process is executed on a dedicated pod spun up by the main `psga` pod.
+![Alt text](img/UKHSA_psga.png?raw=true "PSGA pipeline in k8s environment")
 
 
 ### Environment variables and input parameters
 
-See: covid-pipeline/modules/help.nf .
+See: psga/modules/help.nf .
 
 The help can also be printed with the command: `nextflow run . --help`.
 The current configuration can be printed with the command: `nextflow run . --print_config`.
@@ -22,12 +22,14 @@ The current configuration can be printed with the command: `nextflow run . --pri
 ### Input files stored in aws s3
 If you plan to read input files from an aws s3 bucket you will need to:
 
-- copy your aws credentials to the /root dir in the covid-pipeline pod
-- export the env var `COVID_PIPELINE_INPUT_PATH` (see section: `Environment variables and input parameters`) to point to the s3 dir containing your data. For quick tests we have these three paths:
+- copy your aws credentials to the /root dir in the psga pod
+- export the env var `PSGA_INPUT_PATH` (see section: `Environment variables and input parameters`) to point to the s3 dir containing your data. For quick tests we have these three paths:
 s3://synthetic-data-dev/UKHSA/piero-test-data/illumina_fastq
+s3://synthetic-data-dev/UKHSA/piero-test-data/illumina_fastq_short
 s3://synthetic-data-dev/UKHSA/piero-test-data/illumina_bams
-s3://synthetic-data-dev/UKHSA/piero-test-data/medaka_fastq_fail/20200311_1427_X1_FAK72834_a3787181
-s3://synthetic-data-dev/UKHSA/piero-test-data/medaka_fastq_pass                                     (TO BE REVIEWED)
+s3://synthetic-data-dev/UKHSA/piero-test-data/medaka_fastq
+
+For large tests, see paths in: `s3://synthetic-data-dev/UKHSA/validation/`
 
 If you intend to use your own path, do not forget to store a metadata.tsv file as well.
 
@@ -45,25 +47,25 @@ eval $(minikube -p minikube docker-env)
 The next step is to build the pipeline docker images in the minikube docker environment. For simplicity, the database is stored on a pod. This is not ideal as this can be lost if the pod crashes or is deleted. However, as a proof of concept, this is fine. In the future, the database will be stored in an RDS aurora cluster, therefore outside the k8s environment.
 ```commandline
 export DOCKER_IMAGE_PREFIX=144563655722.dkr.ecr.eu-west-1.amazonaws.com/congenica/dev
-export COVID_PIPELINE_DOCKER_IMAGE_TAG_BASE=1.0.0
+export PSGA_DOCKER_IMAGE_TAG_BASE=1.0.0
 export NCOV2019_ARTIC_NF_ILLUMINA_DOCKER_IMAGE_TAG_BASE=1.0.0
 export NCOV2019_ARTIC_NF_NANOPORE_DOCKER_IMAGE_TAG_BASE=1.0.0
 export PANGOLIN_DOCKER_IMAGE_TAG_BASE=1.0.0
-export COVID_PIPELINE_DOCKER_IMAGE_TAG=1.0.0
+export PSGA_DOCKER_IMAGE_TAG=1.0.0
 export NCOV2019_ARTIC_NF_ILLUMINA_DOCKER_IMAGE_TAG=1.0.0
 export NCOV2019_ARTIC_NF_NANOPORE_DOCKER_IMAGE_TAG=1.0.0
 export PANGOLIN_DOCKER_IMAGE_TAG=1.0.0
 
 # create base images
-docker build -t ${DOCKER_IMAGE_PREFIX}/covid-pipeline-base:${COVID_PIPELINE_DOCKER_IMAGE_TAG_BASE} -f docker/Dockerfile.covid-pipeline-base .
+docker build -t ${DOCKER_IMAGE_PREFIX}/psga-base:${PSGA_DOCKER_IMAGE_TAG_BASE} -f docker/Dockerfile.psga-base .
 docker build -t ${DOCKER_IMAGE_PREFIX}/ncov2019-artic-nf-illumina-base:${NCOV2019_ARTIC_NF_ILLUMINA_DOCKER_IMAGE_TAG_BASE} -f docker/Dockerfile.ncov2019-artic-nf-illumina-base .
 docker build -t ${DOCKER_IMAGE_PREFIX}/ncov2019-artic-nf-nanopore-base:${NCOV2019_ARTIC_NF_NANOPORE_DOCKER_IMAGE_TAG_BASE} -f docker/Dockerfile.ncov2019-artic-nf-nanopore-base .
 docker build -t ${DOCKER_IMAGE_PREFIX}/pangolin-base:${PANGOLIN_DOCKER_IMAGE_TAG_BASE} -f docker/Dockerfile.pangolin-base .
 
 
 # build main images
-docker build -t ${DOCKER_IMAGE_PREFIX}/covid-pipeline:${COVID_PIPELINE_DOCKER_IMAGE_TAG} -f docker/Dockerfile.covid-pipeline .
-docker build -t ${DOCKER_IMAGE_PREFIX}/covid-pipeline-db:${COVID_PIPELINE_DOCKER_IMAGE_TAG} -f docker/Dockerfile.postgres .
+docker build -t ${DOCKER_IMAGE_PREFIX}/psga:${PSGA_DOCKER_IMAGE_TAG} -f docker/Dockerfile.psga .
+docker build -t ${DOCKER_IMAGE_PREFIX}/psga-db:${PSGA_DOCKER_IMAGE_TAG} -f docker/Dockerfile.postgres .
 
 # add project submodules
 git submodule init
@@ -86,24 +88,24 @@ Once all the required images are generated, the deployments can be created:
 cd minikube
 ./startup.sh
 
-# input files can either be copied to the covid-pipeline pod: /data/input
+# input files can either be copied to the psga pod: /data/input
 # or fetched from S3 (see examples: https://jira.congenica.net/browse/PSG-183).
-# The env var: COVID_PIPELINE_INPUT_PATH must be set, accordingly.
+# The env var: PSGA_INPUT_PATH must be set, accordingly.
 
-# exec the covid-pipeline pod
-kubectl exec -it covid-pipeline-XXXX -- bash
+# exec the psga pod
+kubectl exec -it psga-XXXX -- bash
 
 # ------------------
 # WITHIN THE POD
 # run the pipeline within the pod (processes are spun up as pod workers by this pipeline)
-# the results will be stored in covid-pipeline pod: /data/output
+# the results will be stored in psga pod: /data/output
 # MODE 1: Fresh run, overriding the output from the previous computations
 nextflow run . <input_parameters>
 
 # MODE 2: run from the last successful process
 nextflow run . <input_parameters> -resume
 
-# The following command cleans up the previous run's work directories and cache, but retains the content of ${COVID_PIPELINE_OUTPUT_PATH}:
+# The following command cleans up the previous run's work directories and cache, but retains the content of ${PSGA_OUTPUT_PATH}:
 nextflow clean -f
 
 # once finished
@@ -118,12 +120,12 @@ exit
 ### Running the pipeline using K8s (currently in Congenica saas-dev cluster)
 Start a new shell to make sure that the standard docker environment is used and not the one dedicated to minikube.
 All the docker images mentioned in the Minikube section, except for `docker/Dockerfile.postgres` must be built and pushed to Congenica ECR.
-To redeploy the covid pipeline components:
+To redeploy PSGA pipeline components:
 ```
 cd k8s
 ./startup.sh
 ```
-The DB is stored in RDS Aurora and can be accessed via the covid-pipeline pod.
+The DB is stored in RDS Aurora and can be accessed via the psga pod.
 
 
 
@@ -132,14 +134,14 @@ The DB is stored in RDS Aurora and can be accessed via the covid-pipeline pod.
 To submit files to GenBank, appropriate files and values need to be prepared for submission:
 * Submission template. Navigate to https://submit.ncbi.nlm.nih.gov/genbank/template/submission/ and fill out the
   form. A file .sbt will be available for download. Add this file path to nextflow parameter
-  `genbank_submission_template` in configuration file  `covid-pipeline/nextflow.config`
+  `genbank_submission_template` in configuration file  `psga/nextflow.config`
 * Add Center/account abbreviation provided during account creation in MyNCBI to parameter
   `genbank_submitter_account_namespace` and `genbank_submitter_name`
-  in configuration file  `covid-pipeline/nextflow.config`
-* Provide GenBank FTP connection details in `covid-pipeline/nextflow.config`:
+  in configuration file  `psga/nextflow.config`
+* Provide GenBank FTP connection details in `psga/nextflow.config`:
   * Username `genbank_storage_remote_username`
   * Password `genbank_storage_remote_password`
-* Set the upload directory to `Production` for `genbank_storage_remote_directory` in `covid-pipeline/nextflow.config`
+* Set the upload directory to `Production` for `genbank_storage_remote_directory` in `psga/nextflow.config`
 
 Samples to GenBank are submitted once. When Sample is uploaded to GenBank, it is marked with session id. After that,
 sample won't be submitted to GenBank
@@ -181,13 +183,13 @@ For a description of these environment variables, see section `Environment varia
 ```commandline
 export DB_HOST=127.0.0.1
 export DB_PORT=5432
-export DB_NAME=covid_pipeline_db
+export DB_NAME=psga_db
 export DB_USER=postgres
 export DB_PASSWORD=postgres
 
-export COVID_PIPELINE_ROOT_PATH="${HOME}/covid-pipeline"
-export COVID_PIPELINE_INPUT_PATH="${HOME}/COVID_s3_data_lite/sample_data_0"
-export COVID_PIPELINE_OUTPUT_PATH="${HOME}/covid-pipeline-output"
+export PSGA_ROOT_PATH="/app"
+export PSGA_INPUT_PATH="/data/input"
+export PSGA_OUTPUT_PATH="/data/output"
 ```
 
 #### Set up a local postgres database
@@ -195,11 +197,11 @@ export COVID_PIPELINE_OUTPUT_PATH="${HOME}/covid-pipeline-output"
 A local database must be available to run the tests
 ```commandline
 export DOCKER_IMAGE_PREFIX=144563655722.dkr.ecr.eu-west-1.amazonaws.com/congenica/dev
-export COVID_PIPELINE_DOCKER_IMAGE_TAG=1.0.0
+export PSGA_DOCKER_IMAGE_TAG=1.0.0
 
-docker build -t ${DOCKER_IMAGE_PREFIX}/covid-pipeline-db:${COVID_PIPELINE_DOCKER_IMAGE_TAG} -f docker/Dockerfile.postgres .
+docker build -t ${DOCKER_IMAGE_PREFIX}/psga-db:${PSGA_DOCKER_IMAGE_TAG} -f docker/Dockerfile.postgres .
 
-docker run -d -p ${DB_PORT}:${DB_PORT} --name my-postgres-server -e POSTGRES_PASSWORD=${DB_PASSWORD} ${DOCKER_IMAGE_PREFIX}/covid-pipeline-db:${COVID_PIPELINE_DOCKER_IMAGE_TAG}
+docker run -d -p ${DB_PORT}:${DB_PORT} --name my-postgres-server -e POSTGRES_PASSWORD=${DB_PASSWORD} ${DOCKER_IMAGE_PREFIX}/psga-db:${PSGA_DOCKER_IMAGE_TAG}
 
 # test the connection from your local machine
 psql -h ${DB_HOST} -p ${DB_PORT} -U ${DB_USER} -W
@@ -209,8 +211,8 @@ docker stop my-postgres-server
 docker rm my-postgres-server
 ```
 
-All database schema migrations are managed using `sqitch` tool. Prerequisites for running the `sqitch`. The docker image covid-pipeline-db
-already has sqitch installed. The following commands are executed within the covid-pipeline-db docker container:
+All database schema migrations are managed using `sqitch` tool. Prerequisites for running the `sqitch`. The docker image psga-db
+already has sqitch installed. The following commands are executed within the psga-db docker container:
 
 Create a dedicated database for the project:
 ```commandline
@@ -240,7 +242,7 @@ sqitch revert ${SQITCH_URI}
 #### Run the unit tests
 Unit tests are implemented with pytest and stored in the project tests dir
 ```commandline
-cd ${COVID_PIPELINE_ROOT_PATH}/tests
+cd ${PSGA_ROOT_PATH}/tests
 pytest
 ```
 
@@ -255,7 +257,7 @@ poetry add "boto3>=1.14,<1.16"
 ```
 
 #### Upgrading libraries
-To update all libraries to their latest versions, while still matching the constraints in `${COVID_PIPELINE_ROOT_PATH}/pyproject.toml`, run:
+To update all libraries to their latest versions, while still matching the constraints in `${PSGA_ROOT_PATH}/pyproject.toml`, run:
 ```commandline
 poetry update
 ```
@@ -267,7 +269,7 @@ To update to a specific version that is not the latest version, re-run the add c
 
 
 #### Working with sqitch
-The work is done in `${COVID_PIPELINE_ROOT_PATH}/sqitch/` directory
+The work is done in `${PSGA_ROOT_PATH}/sqitch/` directory
 
 To add the new migration, use the following command:
 ```commandline

@@ -1,8 +1,8 @@
--- Revert covid-pipeline:02-apptables from pg
+-- Revert psga:02-apptables from pg
 
 BEGIN;
 
-  SET LOCAL search_path = sars_cov_2;
+  SET LOCAL search_path = psga;
 
   DROP TABLE IF EXISTS "analysis_run";
 

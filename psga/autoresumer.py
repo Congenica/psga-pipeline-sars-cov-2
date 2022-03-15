@@ -7,7 +7,7 @@ import uuid
 import click
 import psutil
 
-SESSION_ID_DIR_ENV_VAR = "COVID_PIPELINE_OUTPUT_PATH"
+SESSION_ID_DIR_ENV_VAR = "PSGA_OUTPUT_PATH"
 MAX_ATTEMPTS_ENV_VAR = "MAX_ATTEMPTS"
 MAX_ATTEMPTS = 3
 SLEEP_TIME = 60  # seconds
@@ -68,9 +68,9 @@ def resume_nextflow(session_id_dir: Path, max_attempts: int) -> None:
 @click.command()
 @click.option(
     "--session-id-dir",
-    type=click.Path(exists=True, resolve_path=True),
+    type=Path,
     envvar=SESSION_ID_DIR_ENV_VAR,
-    default="/data/input",
+    default="/data/output",
     required=True,
     help="The directory containing the session id files (if any)",
 )
@@ -87,6 +87,8 @@ def autoresumer(session_id_dir, max_attempts):
     This script attempts to resume a Nextflow session for 3 times. It runs automatically in the background.
     """
     session_id_path = Path(session_id_dir)
+    session_id_path.mkdir(parents=True, exist_ok=True)
+
     while True:
         if not is_process_running("java", "nextflow.cli.Launcher"):
             resume_nextflow(session_id_path, max_attempts)

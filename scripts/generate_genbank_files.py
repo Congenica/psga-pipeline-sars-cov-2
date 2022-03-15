@@ -30,7 +30,7 @@ SEQUENCE_FSA_FILE_NAME = "sequence.fsa"
 SOURCE_METADATA_TABLE_FILE_NAME = "source.src"
 SUBMISSION_TEMPLATE_FILE_NAME = "template.sbt"
 SOURCE_METADATA_ORGANISM = "Severe acute respiratory syndrome coronavirus 2"
-SOURCE_METADATA_ISOLATE_VIRUS = "SARS-CoV-2"
+SOURCE_METADATA_ISOLATE_VIRUS = "PSGA"
 SOURCE_METADATA_ISOLATE_HOST = (
     "human"  # common or scientific name of the host animal from which the virus was located, for example: Homo sapiens
 )

@@ -6,12 +6,12 @@ kubectl delete deployment psql-minikube
 kubectl delete service psql-minikube-host
 kubectl delete pvc psql-minikube-pvc
 
-## delete covid-pipeline-minikube
-kubectl delete deployment covid-pipeline-minikube
-kubectl delete pvc covid-pipeline-minikube-pvc
-kubectl delete rolebinding covid-pipeline-minikube-admin
-kubectl delete serviceaccount covid-pipeline-minikube-admin
-kubectl delete role covid-pipeline-minikube-admin
+## delete psga-minikube
+kubectl delete deployment psga-minikube
+kubectl delete pvc psga-minikube-pvc
+kubectl delete rolebinding psga-minikube-admin
+kubectl delete serviceaccount psga-minikube-admin
+kubectl delete role psga-minikube-admin
 kubectl delete namespace ukhsa-covid-minikube
 
 

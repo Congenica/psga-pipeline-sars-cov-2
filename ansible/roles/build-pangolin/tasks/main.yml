@@ -1,10 +1,10 @@
 ---
-- name: SARS-CoV-2 pipeline - init submodules
+- name: PSGA pipeline - init submodules
   command: git submodule init
   args:
     chdir: "{{ git_submod.path }}"
 
-- name: SARS-CoV-2 pipeline - update submodules
+- name: PSGA pipeline - update submodules
   command: git submodule update --remote --merge
   args:
     chdir: "{{ git_submod.path }}"
@@ -15,7 +15,7 @@
 - debug:
     msg: Path {{ playbook_dir }}
 
-- name: SARS-CoV-2 pipeline - ensure user is in group docker
+- name: PSGA pipeline - ensure user is in group docker
   user:
    name: "{{ ansible_user_id }}"
    groups: docker
@@ -25,7 +25,7 @@
 - name: reset ssh connection
   meta: reset_connection
 
-- name: SARS-CoV-2 pipeline - build pangolin image
+- name: PSGA pipeline - build pangolin image
   community.general.docker_image:
     name: pangolin
     build:

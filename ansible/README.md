@@ -1,4 +1,4 @@
-# Congenica SARS-CoV-2 pipeline install
+# Congenica PSGA pipeline install
 
 The anible playbook 'pipeline_install.yml' will install and configure an environment as defined in [SAP-18290](https://jira.congenica.net/browse/SAP-18290).
 
@@ -8,15 +8,15 @@ As the user who will perform the install ensure that ansible is installed and fu
 The following variables need to be set for the playbook to run. The user will be prompted to enter these when executing the ansible playbook:
 
  - `db_host` : The host of the database, default: localhost
- - `db_name` : The logical name of the database on the host, default: covid_pipeline_db
+ - `db_name` : The logical name of the database on the host, default: psga_db
  - `db_user` : The user to use to connect to the database, default: postgres
  - `db_port` : The port to use to connect to the database, default: 5432
  - `db_password` : The password to use to connect to the database. No default.
 
- - `covid_pipeline_root_path` :Path to the pipeline code (e.g. git checkout). Default: ${HOME}/covid-pipeline
- - `covid_pipeline_input_path` : Path to the input FASTQ/BAM files and TSV metadata file. Default: ${HOME}/COVID_s3_data_lite/sample_data
- - `covid_pipeline_output_path` :Path to the whole pipeline output. Default: ${HOME}/covid-pipeline-output
- - `covid_pipeline_reports_path` :   Path to the pipeline reports. Default: ${HOME}/covid-pipeline-reports
+ - `psga_root_path` :Path to the pipeline code (e.g. git checkout). Default: ${HOME}/psga
+ - `psga_input_path` : Path to the input FASTQ/BAM files and TSV metadata file. Default: ${HOME}/input_dir
+ - `psga_output_path` :Path to the whole pipeline output. Default: ${HOME}/psga-output
+ - `psga_reports_path` :   Path to the pipeline reports. Default: ${HOME}/psga-reports
 
 
 The playbook can be run against the local machine with the following command:
@@ -34,15 +34,8 @@ ansible-playbook --connection=local -i 127.0.0.1, ansible/pipeline_install.yml -
 
 Environment variables can be set for the installing user by adding them to `vars/env_vars.yml`...
 
-> Ensure that any additiona vars and values are set here before running the playbook.
+> Ensure that any additional vars and values are set here before running the playbook.
 
-```shell
-environment_vars:
-  - key: GENOME_FASTA_PATH
-    value : '~/foo'
-  - key: DIFFERENT_VAR
-    value : '~/bar'
-```
 
 ## Troubleshooting
 ### ansible-galaxy or ansible-playbook are not installed.

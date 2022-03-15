@@ -1,7 +1,7 @@
--- Deploy covid-pipeline:appschema to pg
+-- Deploy psga:appschema to pg
 
 BEGIN;
 
-    CREATE SCHEMA sars_cov_2;
+    CREATE SCHEMA psga;
 
 COMMIT;

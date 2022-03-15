@@ -8,11 +8,11 @@ def printPipelineConfig() {
         * DB_PORT                                     : ${DB_PORT}
         * DB_NAME                                     : ${DB_NAME}
         * DB_USER                                     : ${DB_USER}
-        * COVID_PIPELINE_ROOT_PATH                    : ${COVID_PIPELINE_ROOT_PATH}
-        * COVID_PIPELINE_INPUT_PATH                   : ${COVID_PIPELINE_INPUT_PATH}
-        * COVID_PIPELINE_OUTPUT_PATH                  : ${COVID_PIPELINE_OUTPUT_PATH}
+        * PSGA_ROOT_PATH                              : ${PSGA_ROOT_PATH}
+        * PSGA_INPUT_PATH                             : ${PSGA_INPUT_PATH}
+        * PSGA_OUTPUT_PATH                            : ${PSGA_OUTPUT_PATH}
         * DOCKER_IMAGE_PREFIX                         : ${DOCKER_IMAGE_PREFIX}
-        * COVID_PIPELINE_DOCKER_IMAGE_TAG             : ${COVID_PIPELINE_DOCKER_IMAGE_TAG}
+        * PSGA_DOCKER_IMAGE_TAG                       : ${PSGA_DOCKER_IMAGE_TAG}
         * NCOV2019_ARTIC_NF_ILLUMINA_DOCKER_IMAGE_TAG : ${NCOV2019_ARTIC_NF_ILLUMINA_DOCKER_IMAGE_TAG}
         * NCOV2019_ARTIC_NF_NANOPORE_DOCKER_IMAGE_TAG : ${NCOV2019_ARTIC_NF_NANOPORE_DOCKER_IMAGE_TAG}
         * PANGOLIN_DOCKER_IMAGE_TAG                   : ${PANGOLIN_DOCKER_IMAGE_TAG}
@@ -69,7 +69,7 @@ def printHelp() {
                                 GenBank submission template, which is generated
                                 at website https://submit.ncbi.nlm.nih.gov/genbank/template/submission/
                                 provided default file is an example one. Make sure to generate your own
-                                template file. Default: ${COVID_PIPELINE_ROOT_PATH}/data/GenBank/template.example.sbt".
+                                template file. Default: ${PSGA_ROOT_PATH}/data/GenBank/template.example.sbt".
         --genbank_submission_comment
                                 Comment to be added to each submission to GenBank. Default: "United Kingdom SARS-Cov-2 genome submission".
         --genbank_submitter_name
@@ -95,19 +95,19 @@ def printHelp() {
     Mandatory environment variables:
         DB_HOST                 Postgres database host address (e.g. 192.168.0.33)
         DB_PORT                 Postgres database port (e.g. 5432)
-        DB_NAME                 Postgres database name (e.g. covid_pipeline_db)
+        DB_NAME                 Postgres database name (e.g. psga_db)
         DB_USER                 Postgres database user name (e.g. postgres)
         DB_PASSWORD             Postgres database user password (e.g. postgres)
-        COVID_PIPELINE_ROOT_PATH
+        PSGA_ROOT_PATH
                                 Path to the pipeline code (e.g. git checkout). (e.g. /app) |
-        COVID_PIPELINE_INPUT_PATH
+        PSGA_INPUT_PATH
                                 Path to the required input BAM/FASTQ files and TSV metadata file.
                                 (e.g. /data/input, s3://data/input)
-        COVID_PIPELINE_OUTPUT_PATH
+        PSGA_OUTPUT_PATH
                                 Path to the whole pipeline output. (e.g. /data/output)
         DOCKER_IMAGE_PREFIX     The prefix of the docker image, excluded the image name
-        COVID_PIPELINE_DOCKER_IMAGE_TAG
-                                The tag of the covid-pipeline docker image
+        PSGA_DOCKER_IMAGE_TAG
+                                The tag of the psga docker image
         NCOV2019_ARTIC_NF_ILLUMINA_DOCKER_IMAGE_TAG
                                 The tag of the ncov2019-artic-nf-illumina docker image
         NCOV2019_ARTIC_NF_NANOPORE_DOCKER_IMAGE_TAG

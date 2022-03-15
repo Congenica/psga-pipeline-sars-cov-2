@@ -1,11 +1,11 @@
--- Deploy covid-pipeline:02-apptables to pg
+-- Deploy psga:02-apptables to pg
 -- requires: 01-appschema
 
 BEGIN;
 
   -- Create tables, enums, et al for the SARS COV2 Application
 
-  SET LOCAL search_path = sars_cov_2;
+  SET LOCAL search_path = psga;
 
   CREATE TYPE "input_file_type" AS ENUM (
     'unknown'

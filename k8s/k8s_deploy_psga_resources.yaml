@@ -2,12 +2,12 @@
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: covid-pipeline-pv
+  name: psga-pv
   labels:
-    explicitMount: covid-pipeline-pv
-    app.kubernetes.io/name: covid-pipeline-pv
+    explicitMount: psga-pv
+    app.kubernetes.io/name: psga-pv
 spec:
-  storageClassName: covid-pipeline-pv
+  storageClassName: psga-pv
   capacity:
     storage: 1000Gi
   accessModes:
@@ -20,14 +20,14 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: covid-pipeline-pvc
+  name: psga-pvc
   labels:
-    app.kubernetes.io/name: covid-pipeline-pvc
+    app.kubernetes.io/name: psga-pvc
 spec:
   selector:
     matchLabels:
-      explicitMount: covid-pipeline-pv
-  storageClassName: covid-pipeline-pv
+      explicitMount: psga-pv
+  storageClassName: psga-pv
   accessModes:
     - ReadWriteMany
   resources:

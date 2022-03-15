@@ -48,7 +48,7 @@ class PangolinStatus(PyEnum):
 
 class AnalysisRun(Base):  # type: ignore
     __tablename__ = "analysis_run"
-    __table_args__ = {"schema": "sars_cov_2", "comment": "The analysis run of samples"}
+    __table_args__ = {"schema": "psga", "comment": "The analysis run of samples"}
 
     analysis_run_id = Column(
         Integer,
@@ -79,7 +79,7 @@ class AnalysisRun(Base):  # type: ignore
 
 class Sample(Base):  # type: ignore
     __tablename__ = "sample"
-    __table_args__ = {"schema": "sars_cov_2", "comment": "Sample data"}
+    __table_args__ = {"schema": "psga", "comment": "Sample data"}
 
     sample_id = Column(
         Integer,
@@ -89,7 +89,7 @@ class Sample(Base):  # type: ignore
     )
     analysis_run_id = Column(
         Integer,
-        ForeignKey("sars_cov_2.analysis_run.analysis_run_id", deferrable=True, initially="DEFERRED"),
+        ForeignKey("psga.analysis_run.analysis_run_id", deferrable=True, initially="DEFERRED"),
         comment="Foreign key to analysis_run table",
     )
     sample_name = Column(String, comment="Lab sample identifier")
@@ -150,13 +150,13 @@ class Sample(Base):  # type: ignore
 class SampleQC(Base):  # type: ignore
     __tablename__ = "sample_qc"
     __table_args__ = {
-        "schema": "sars_cov_2",
+        "schema": "psga",
         "comment": "Sample Quality Control, QC data for a sample",
     }
 
     sample_id = Column(
         Integer,
-        ForeignKey("sars_cov_2.sample.sample_id", deferrable=True, initially="DEFERRED"),
+        ForeignKey("psga.sample.sample_id", deferrable=True, initially="DEFERRED"),
         primary_key=True,
         comment="Primary key, and foreign key to sample table",
     )

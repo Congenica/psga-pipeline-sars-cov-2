@@ -1,5 +1,5 @@
 ---
-- name: SARS-CoV-2 pipeline - create install dir for nextflow
+- name: PSGA pipeline - create install dir for nextflow
   file:
     path: ~/nextflow
     state: directory
@@ -9,14 +9,14 @@
     path: ~/nextflow/nextflow
   register: nextflow
 
-- name: SARS-CoV-2 pipeline - install nextflow
+- name: PSGA pipeline - install nextflow
   shell: wget -qO- https://get.nextflow.io | bash
   args:
     chdir: ~/nextflow
   when: nextflow.stat.exists == False or nextflow.stat.executable == False
   register: nextflowInstalled
 
-- name: SARS-CoV-2 pipeline - add nextflow to $PATH
+- name: PSGA pipeline - add nextflow to $PATH
   lineinfile:
     path: ~/.bashrc
     line: 'export PATH=$PATH:~/nextflow/'
