@@ -3,14 +3,16 @@
 import time
 from pathlib import Path
 import subprocess
+from typing import Dict
 import uuid
 import click
 import psutil
 
-SESSION_ID_DIR_ENV_VAR = "PSGA_OUTPUT_PATH"
-MAX_ATTEMPTS_ENV_VAR = "MAX_ATTEMPTS"
-MAX_ATTEMPTS = 3
-SLEEP_TIME = 60  # seconds
+SESSION_ID_DIR_ENV_VAR = "PSGA_INCOMPLETE_ANALYSIS_RUNS_PATH"
+MAX_ATTEMPTS_ENV_VAR = "PSGA_MAX_ATTEMPTS"
+SLEEP_TIME_BETWEEN_ATTEMPTS_ENV_VAR = "PSGA_SLEEP_TIME_BETWEEN_ATTEMPTS"  # seconds
+
+SESSION_ID_TYPE = Dict[str, str]
 
 
 def is_uuid(val: str) -> bool:
@@ -19,6 +21,25 @@ def is_uuid(val: str) -> bool:
         return True
     except ValueError:
         return False
+
+
+def get_session_ids(session_id_dir: Path) -> SESSION_ID_TYPE:
+    """
+    Return a dictionary of session_id, run_id.
+    <session_id> is the Nextflow session-id
+    """
+    # look for files like: <run_id>_<session_id>, where <session_id> is a uuid
+    session_ids: SESSION_ID_TYPE = {}
+    files = [f.stem for f in Path(session_id_dir).iterdir() if f.is_file() and f.stem.count("_") > 0 and not f.suffix]
+
+    for f in files:
+        # session_id does not contain underscores, but run_id could.
+        # here we split reverse and stop at the first '_' found
+        run_id, session_id = f.rsplit("_", 1)
+        if is_uuid(session_id):
+            session_ids[session_id] = run_id
+
+    return session_ids
 
 
 def is_process_running(process_name: str, program_name: str) -> bool:
@@ -40,26 +61,24 @@ def resume_nextflow(session_id_dir: Path, max_attempts: int) -> None:
     """
     Resume a nextflow session if present
     """
-    session_ids = [f.stem for f in Path(session_id_dir).iterdir() if f.is_file() and is_uuid(f.stem) and not f.suffix]
 
-    for session_id in session_ids:
+    session_ids = get_session_ids(session_id_dir)
+
+    for session_id, run_id in session_ids.items():
+        stem = f"{run_id}_{session_id}"
         attempt = max(
-            [
-                int(f.suffix[1:])
-                for f in Path(session_id_dir).iterdir()
-                if f.is_file() and f.stem == session_id and f.suffix
-            ],
+            [int(f.suffix[1:]) for f in Path(session_id_dir).iterdir() if f.is_file() and f.stem == stem and f.suffix],
             default=0,
         )
 
         if attempt < max_attempts:
             new_attempt = attempt + 1
-            print(f"Resuming Nextflow pipeline. Attempt: {new_attempt}. Session ID: {session_id}")
-            # note: <session_id>.0 does not exist
-            Path(session_id_dir / f"{session_id}.{attempt}").unlink(missing_ok=True)
-            Path(session_id_dir / f"{session_id}.{new_attempt}").touch()
+            print(f"Resuming Nextflow pipeline: run_id: {run_id}, session_id: {session_id} - attempt #: {new_attempt}")
+            # note: <run_id>_<session_id>.0 does not exist
+            Path(session_id_dir / f"{stem}.{attempt}").unlink(missing_ok=True)
+            Path(session_id_dir / f"{stem}.{new_attempt}").touch()
 
-            session_id_path = Path(session_id_dir / session_id)
+            session_id_path = Path(session_id_dir / stem)
             # run the command. If the command fails, this script does not care intentionally
             subprocess.run(["/bin/bash", str(session_id_path), session_id], check=False)
             break
@@ -70,7 +89,7 @@ def resume_nextflow(session_id_dir: Path, max_attempts: int) -> None:
     "--session-id-dir",
     type=Path,
     envvar=SESSION_ID_DIR_ENV_VAR,
-    default="/data/output",
+    default="/data",
     required=True,
     help="The directory containing the session id files (if any)",
 )
@@ -78,11 +97,19 @@ def resume_nextflow(session_id_dir: Path, max_attempts: int) -> None:
     "--max-attempts",
     type=int,
     envvar=MAX_ATTEMPTS_ENV_VAR,
-    default=MAX_ATTEMPTS,
+    default=3,
     required=True,
     help="The maximum number of attempts before discarding the pipeline resumation",
 )
-def autoresumer(session_id_dir, max_attempts):
+@click.option(
+    "--sleep-time",
+    type=int,
+    envvar=SLEEP_TIME_BETWEEN_ATTEMPTS_ENV_VAR,
+    default=60,
+    required=True,
+    help="The sleep time between attemtps in seconds",
+)
+def autoresumer(session_id_dir, max_attempts, sleep_time):
     """
     This script attempts to resume a Nextflow session for 3 times. It runs automatically in the background.
     """
@@ -92,7 +119,7 @@ def autoresumer(session_id_dir, max_attempts):
     while True:
         if not is_process_running("java", "nextflow.cli.Launcher"):
             resume_nextflow(session_id_path, max_attempts)
-        time.sleep(SLEEP_TIME)
+        time.sleep(sleep_time)
 
 
 if __name__ == "__main__":
