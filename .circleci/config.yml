@@ -17,10 +17,10 @@ parameters:
 executors:
   python:
     docker:
-      - image: cimg/python:3.8
+      - image: cimg/python:3.9
   python_with_db:
     docker:
-      - image: cimg/python:3.8
+      - image: cimg/python:3.9
         environment:
           PGHOST: localhost
           PGUSER: << pipeline.parameters.db_user >>
