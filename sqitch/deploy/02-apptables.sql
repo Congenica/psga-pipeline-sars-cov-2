@@ -8,15 +8,21 @@ BEGIN;
   SET LOCAL search_path = psga;
 
   CREATE TYPE "input_file_type" AS ENUM (
-    'unknown'
-   ,'bam'
-   ,'fastq'
+    'UNKNOWN'
+   ,'BAM'
+   ,'FASTQ'
   );
 
   CREATE TYPE "workflow" AS ENUM (
-    'unknown'
-   ,'illumina_artic'
-   ,'medaka_artic'
+    'UNKNOWN'
+   ,'ILLUMINA_ARTIC'
+   ,'MEDAKA_ARTIC'
+  );
+
+  CREATE TYPE "pangolin_status" AS ENUM (
+    'UNKNOWN',
+    'FAIL'
+   ,'PASS'
   );
 
   CREATE TABLE IF NOT EXISTS "analysis_run" (
@@ -25,13 +31,14 @@ BEGIN;
    ,"primer_scheme_name" VARCHAR
    ,"primer_scheme_version" VARCHAR
    ,"input_file_type" "input_file_type"
-      NOT NULL DEFAULT 'unknown'
+      NOT NULL DEFAULT 'UNKNOWN'
    ,"workflow" "workflow"
-      NOT NULL DEFAULT 'unknown'
+      NOT NULL DEFAULT 'UNKNOWN'
    ,"pipeline_version" VARCHAR
-   ,"pangolearn_version" VARCHAR
    ,"pangolin_version" VARCHAR
-   ,"pango_version" VARCHAR
+   ,"pangolin_data_version" VARCHAR
+   ,"constellation_version" VARCHAR
+   ,"scorpio_version" VARCHAR
   );
 
   COMMENT ON TABLE "analysis_run" IS
@@ -49,19 +56,15 @@ BEGIN;
     COMMENT ON COLUMN "analysis_run"."workflow" IS
       'The name of the workflow';
     COMMENT ON COLUMN "analysis_run"."pipeline_version" IS
-      'The version of this pipeline';
-    COMMENT ON COLUMN "analysis_run"."pangolearn_version"
-        IS 'The version of pangoLEARN used by Pangolin';
+      'PSGA pipeline version';
     COMMENT ON COLUMN "analysis_run"."pangolin_version"
-        IS 'The version of Pangolin';
-    COMMENT ON COLUMN "analysis_run"."pango_version"
-        IS 'The version of pango used by Pangolin';
-
-  CREATE TYPE "pangolin_status" AS ENUM (
-    'unknown',
-    'fail'
-   ,'passed_qc'
-  );
+        IS 'Pangolin version';
+    COMMENT ON COLUMN "analysis_run"."pangolin_data_version"
+        IS 'A version number that represents both pangolin-data version number, which as of pangolin 4.0 corresponds to the pango-designation version used to prepare the inference files. For example: (A) PANGO-1.2 indicates an identical sequence has been previously designated this lineage, and has so gone through manual curation. The number 1.2 indicates the version of pango-designation that this assignment is based on. These hashes and pango-designation version is bundled with the pangoLEARN and UShER models. (B) PLEARN-1.2 indicates that this sequence is different from any previously designated and that the pangoLEARN model was used as an inference engine to predict the most likely lineage based on the given version of pango-designation upon which the pangoLEARN model was trained. (C) PUSHER-1.2 indicates that this sequence is different from any previously designated and that UShER was used as an inference engine with fast tree placement and parsimony-based lineage assignment, based on a guide tree (protobuf) file built from the data in a given pango-designation release version.';
+    COMMENT ON COLUMN "analysis_run"."constellation_version"
+        IS 'The version of constellations that scorpio has used to curate the lineage assignment';
+    COMMENT ON COLUMN "analysis_run"."scorpio_version"
+        IS 'Scorpio version used by Pangolin';
 
   CREATE TABLE IF NOT EXISTS "sample" (
     "sample_id" SERIAL PRIMARY KEY
@@ -74,7 +77,7 @@ BEGIN;
    ,"gisaid_id" VARCHAR
    ,"genome_length" INTEGER
    ,"pangolin_status" "pangolin_status"
-      NOT NULL DEFAULT 'unknown'
+      NOT NULL DEFAULT 'UNKNOWN'
    ,"metadata_loaded" BOOLEAN
    ,"genbank_submit_id" VARCHAR
    ,"pangolin_conflict" DOUBLE PRECISION
@@ -82,6 +85,9 @@ BEGIN;
    ,"scorpio_call" VARCHAR
    ,"scorpio_support" DOUBLE PRECISION
    ,"scorpio_conflict" DOUBLE PRECISION
+   ,"scorpio_notes" VARCHAR
+   ,"is_designated" BOOLEAN
+   ,"qc_notes" VARCHAR
    ,"note" VARCHAR
   );
 
@@ -96,13 +102,13 @@ BEGIN;
     COMMENT ON COLUMN "sample"."date_collected" IS
       'timestamp of sample collection';
     COMMENT ON COLUMN "sample"."pangolin_lineage" IS
-      'Viral phylogenetic lineage';
+      'The most likely lineage assigned to a given sequence based on the inference engine used and the SARS-CoV-2 diversity designated. This assignment may be is sensitive to missing data at key sites.';
     COMMENT ON COLUMN "sample"."gisaid_id" IS
       'GISAID identifier (GISAID is a global science initiative and primary source that provides open-access to genomic data of the novel coronavirus responsible for COVID-19)';
     COMMENT ON COLUMN "sample"."genome_length" IS
       'Number of base pair in the virus genome';
     COMMENT ON COLUMN "sample"."pangolin_status"
-        IS 'Reported pangolin lineage status';
+        IS 'Indicates whether the sequence passed the QC thresholds for minimum length and maximum N content.';
     COMMENT ON COLUMN "sample"."metadata_loaded"
         IS 'Flag indicating that the metadata was loaded';
     COMMENT ON COLUMN "sample"."genbank_submit_id"
@@ -117,6 +123,12 @@ BEGIN;
         IS 'The support score is the proportion of defining variants which have the alternative allele in the sequence.';
     COMMENT ON COLUMN "sample"."scorpio_conflict"
         IS 'The conflict score is the proportion of defining variants which have the reference allele in the sequence. Ambiguous/other non-ref/alt bases at each of the variant positions contribute only to the denominators of these scores';
+    COMMENT ON COLUMN "sample"."scorpio_notes"
+        IS 'If any conflicts from the decision tree, this field will output the alternative assignments. If the sequence failed QC this field will describe why. If the sequence met the SNP thresholds for scorpio to call a constellation, it’ll describe the exact SNP counts of Alt, Ref and Amb (Alternative, reference and ambiguous) alleles for that call.';
+    COMMENT ON COLUMN "sample"."is_designated"
+        IS 'A boolean (True/False) column indicating whether that particular sequence has been offically designated a lineage.';
+    COMMENT ON COLUMN "sample"."qc_notes"
+        IS 'Notes specific to the QC checks run on the sequences.';
     COMMENT ON COLUMN "sample"."note"
         IS 'If any conflicts from the decision tree, this field will output the alternative assignments. If the sequence failed QC this field will describe why. If the sequence met the SNP thresholds for scorpio to call a constellation, it’ll describe the exact SNP counts of Alt, Ref and Amb (Alternative, reference and ambiguous) alleles for that call';
 

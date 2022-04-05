@@ -2,6 +2,6 @@
 
 BEGIN;
 
-    DROP SCHEMA psga;
+    DROP SCHEMA psga CASCADE;
 
 COMMIT;

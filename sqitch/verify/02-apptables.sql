@@ -19,11 +19,12 @@ BEGIN
     'input_file_type',
     'workflow',
     'pipeline_version',
-    'pangolearn_version',
     'pangolin_version',
-    'pango_version'
+    'pangolin_data_version',
+    'constellation_version',
+    'scorpio_version'
   );
-  ASSERT column_count = 10;
+  ASSERT column_count = 11;
 
     -- sample table verifications
   ASSERT (SELECT has_table_privilege('sample', 'SELECT, INSERT, UPDATE, DELETE, TRUNCATE, REFERENCES'));
@@ -41,9 +42,16 @@ BEGIN
     'metadata_loaded',
     'genbank_submit_id',
     'pangolin_conflict',
-    'pangolin_ambiguity_score'
+    'pangolin_ambiguity_score',
+    'scorpio_call',
+    'scorpio_support',
+    'scorpio_conflict',
+    'scorpio_notes',
+    'is_designated',
+    'qc_notes',
+    'note'
   );
-  ASSERT column_count = 12;
+  ASSERT column_count = 19;
 
     -- sample_qc table verifications
   ASSERT (SELECT has_table_privilege('sample_qc', 'SELECT, INSERT, UPDATE, DELETE, TRUNCATE, REFERENCES'));

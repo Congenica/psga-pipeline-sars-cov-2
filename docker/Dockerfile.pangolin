@@ -4,4 +4,5 @@ COPY pangolin/ /pangolin
 RUN cd /pangolin \
   && python setup.py install \
   && pip install git+https://github.com/cov-lineages/pangoLEARN.git --upgrade \
-  && pip install git+https://github.com/cov-lineages/lineages.git --upgrade
+  && pip install git+https://github.com/cov-lineages/lineages.git --upgrade \
+  && pip install git+https://github.com/cov-lineages/pangolin-data.git --upgrade

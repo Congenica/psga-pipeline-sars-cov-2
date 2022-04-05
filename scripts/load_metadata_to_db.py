@@ -44,8 +44,8 @@ def load_analysis_run_metadata(
         session.add(analysis_run)
     analysis_run.primer_scheme_name = primer_scheme_name
     analysis_run.primer_scheme_version = primer_scheme_version
-    analysis_run.input_file_type = input_file_type
-    analysis_run.workflow = workflow
+    analysis_run.input_file_type = input_file_type.upper()
+    analysis_run.workflow = workflow.upper()
     analysis_run.pipeline_version = pipeline_version
 
     return analysis_run
