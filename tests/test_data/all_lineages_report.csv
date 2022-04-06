@@ -1,2 +1,2 @@
-taxon,lineage,conflict,ambiguity_score,scorpio_call,scorpio_support,scorpio_conflict,version,pangolin_version,pangoLEARN_version,pango_version,status,note
-7174693,AY.98,0.0,1.0,Delta (B.1.617.2-like),1.000000,0.000000,PLEARN-v1.2.123,3.1.17,2022-01-20,v1.2.123,passed_qc,scorpio call: Alt alleles 13; Ref alleles 0; Amb alleles 0; Oth alleles 0
+taxon,lineage,conflict,ambiguity_score,scorpio_call,scorpio_support,scorpio_conflict,scorpio_notes,version,pangolin_version,scorpio_version,constellation_version,is_designated,qc_status,qc_notes,note
+7174693,AY.98,0.0,,Delta (B.1.617.2-like),1.0,0.0,scorpio call: Alt alleles 13; Ref alleles 0; Amb alleles 0; Oth alleles 0,PUSHER-v1.2.133,4.0.2,0.3.16,v0.1.4,False,pass,Ambiguous_content:0.08,Usher placements: AY.98(1/1)

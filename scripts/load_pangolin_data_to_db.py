@@ -1,5 +1,6 @@
 from typing import Dict
 import csv
+from distutils.util import strtobool
 
 import click
 from click import ClickException
@@ -10,17 +11,21 @@ from scripts.db.models import AnalysisRun, Sample, PangolinStatus
 
 EXPECTED_HEADERS = {
     "taxon",
-    "status",
     "lineage",
     "conflict",
     "ambiguity_score",
     "scorpio_call",
     "scorpio_support",
     "scorpio_conflict",
-    "note",
+    "scorpio_notes",
+    "version",
     "pangolin_version",
-    "pangoLEARN_version",
-    "pango_version",
+    "scorpio_version",
+    "constellation_version",
+    "is_designated",
+    "qc_status",
+    "qc_notes",
+    "note",
 }
 
 
@@ -43,9 +48,9 @@ def load_pangolin_sample(session: scoped_session, analysis_run_name: str, sample
         # if this happens, there is an error in the pipeline
         raise ClickException(f"Sample name: {sample_name} for analysis run: {analysis_run_name} was not found")
 
-    pangolin_status = PangolinStatus[sample_from_csv["status"]]
+    pangolin_status = PangolinStatus[sample_from_csv["qc_status"].upper()]
 
-    if pangolin_status == PangolinStatus.passed_qc:
+    if pangolin_status == PangolinStatus.PASS:
         sample.pangolin_lineage = sample_from_csv["lineage"]
 
     sample.pangolin_conflict = sample_from_csv["conflict"] if sample_from_csv["conflict"] else None
@@ -55,6 +60,11 @@ def load_pangolin_sample(session: scoped_session, analysis_run_name: str, sample
     sample.scorpio_call = sample_from_csv["scorpio_call"] if sample_from_csv["scorpio_call"] else None
     sample.scorpio_support = sample_from_csv["scorpio_support"] if sample_from_csv["scorpio_support"] else None
     sample.scorpio_conflict = sample_from_csv["scorpio_conflict"] if sample_from_csv["scorpio_conflict"] else None
+    sample.scorpio_notes = sample_from_csv["scorpio_notes"] if sample_from_csv["scorpio_notes"] else None
+    sample.is_designated = (
+        bool(strtobool(sample_from_csv["is_designated"])) if sample_from_csv["is_designated"] else None
+    )
+    sample.qc_notes = sample_from_csv["qc_notes"] if sample_from_csv["qc_notes"] else None
     sample.note = sample_from_csv["note"] if sample_from_csv["note"] else None
 
 
@@ -102,9 +112,12 @@ def load_pangolin_data(pangolin_lineage_report_file: str, analysis_run_name: str
 
             # these are the same for all samples
             if record:
+                analysis_run.constellation_version = (
+                    record["constellation_version"] if record["constellation_version"] else None
+                )
                 analysis_run.pangolin_version = record["pangolin_version"] if record["pangolin_version"] else None
-                analysis_run.pangolearn_version = record["pangoLEARN_version"] if record["pangoLEARN_version"] else None
-                analysis_run.pango_version = record["pango_version"] if record["pango_version"] else None
+                analysis_run.pangolin_data_version = record["version"] if record["version"] else None
+                analysis_run.scorpio_version = record["scorpio_version"] if record["scorpio_version"] else None
 
 
 if __name__ == "__main__":

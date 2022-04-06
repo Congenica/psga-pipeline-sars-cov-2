@@ -141,8 +141,11 @@ def test_load_metadata_to_db(
         )
         assert analysis_run is not None
         for col_name, col_val in analysis_run_columns.items():
+            col_val_str = str(col_val)
+            if col_name in ("input_file_type", "workflow"):
+                col_val_str = col_val_str.upper()
             # get column of sample from string, dynamically
-            assert str(getattr(analysis_run, col_name)) == str(col_val)
+            assert str(getattr(analysis_run, col_name)) == col_val_str
 
     elif exit_code == 1:
         assert len(samples) == 0

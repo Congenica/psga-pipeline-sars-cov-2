@@ -4,10 +4,10 @@ BEGIN;
 
   SET LOCAL search_path = psga;
 
-  DROP TABLE IF EXISTS "analysis_run";
+  DROP TABLE IF EXISTS "analysis_run" CASCADE;
 
-  DROP TABLE IF EXISTS "sample_qc";
+  DROP TABLE IF EXISTS "sample_qc" CASCADE;
 
-  DROP TABLE IF EXISTS "sample";
+  DROP TABLE IF EXISTS "sample" CASCADE;
 
 COMMIT;

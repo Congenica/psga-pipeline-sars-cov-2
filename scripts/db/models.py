@@ -20,27 +20,27 @@ metadata = Base.metadata
 
 
 class InputFileType(PyEnum):
-    unknown = "unknown"
-    bam = "bam"
-    fastq = "fastq"
+    UNKNOWN = "UNKNOWN"
+    BAM = "BAM"
+    FASTQ = "FASTQ"
 
     def __str__(self):
         return str(self.name)
 
 
 class Workflow(PyEnum):
-    unknown = "unknown"
-    illumina_artic = "illumina_artic"
-    medaka_artic = "medaka_artic"
+    UNKNOWN = "UNKNOWN"
+    ILLUMINA_ARTIC = "ILLUMINA_ARTIC"
+    MEDAKA_ARTIC = "MEDAKA_ARTIC"
 
     def __str__(self):
         return str(self.name)
 
 
 class PangolinStatus(PyEnum):
-    unknown = "unknown"
-    fail = "fail"
-    passed_qc = "passed_qc"
+    UNKNOWN = "UNKNOWN"
+    FAIL = "FAIL"
+    PASS = "PASS"
 
     def __str__(self):
         return str(self.name)
@@ -71,10 +71,27 @@ class AnalysisRun(Base):  # type: ignore
         server_default=FetchedValue(),
         comment="The name of the workflow",
     )
-    pipeline_version = Column(String, comment="mapping pipeline version")
-    pangolin_version = Column(String, comment="pangolin version")
-    pangolearn_version = Column(String, comment="pangoLEARN version used by Pangolin")
-    pango_version = Column(String, comment="pango version used by Pangolin")
+    pipeline_version = Column(String, comment="PSGA pipeline version")
+    pangolin_version = Column(String, comment="Pangolin version")
+    pangolin_data_version = Column(
+        String,
+        comment="A version number that represents both pangolin-data version number, which as of pangolin 4.0 "
+        "corresponds to the pango-designation version used to prepare the inference files. For example:"
+        "(A) PANGO-1.2 indicates an identical sequence has been previously designated this lineage, and has so "
+        "gone through manual curation. The number 1.2 indicates the version of pango-designation that this "
+        "assignment is based on. These hashes and pango-designation version is bundled with the pangoLEARN "
+        "and UShER models. "
+        "(B) PLEARN-1.2 indicates that this sequence is different from any previously designated and that "
+        "the pangoLEARN model was used as an inference engine to predict the most likely lineage based on "
+        "the given version of pango-designation upon which the pangoLEARN model was trained. (C) PUSHER-1.2 "
+        "indicates that this sequence is different from any previously designated and that UShER was used as "
+        "an inference engine with fast tree placement and parsimony-based lineage assignment, based on a guide "
+        "tree (protobuf) file built from the data in a given pango-designation release version.",
+    )
+    constellation_version = Column(
+        String, comment="The version of constellations that scorpio has used to curate the lineage assignment."
+    )
+    scorpio_version = Column(String, comment="Scorpio version used by Pangolin")
 
 
 class Sample(Base):  # type: ignore
@@ -94,19 +111,36 @@ class Sample(Base):  # type: ignore
     )
     sample_name = Column(String, comment="Lab sample identifier")
     date_collected = Column(DateTime, comment="timestamp of sample collection")
-    pangolin_lineage = Column(String, comment="Viral phylogenetic lineage")
-    pangolin_conflict = Column(
-        Float, comment="Positive if a sequence can fit into more than 1 category based on known diversity"
+    pangolin_lineage = Column(
+        String,
+        comment="The most likely lineage assigned to a given sequence based on the inference engine used and the "
+        "SARS-CoV-2 diversity designated. This assignment may be is sensitive to missing data at key sites.",
     )
-    pangolin_ambiguity_score = Column(Float, comment="A function of the quantity of missing data in a sequence")
+    pangolin_conflict = Column(
+        Float,
+        comment="In the pangoLEARN model, a given sequence gets assigned to the most likely category based on known "
+        "diversity. If a sequence can fit into more than one category, the conflict score will be greater "
+        "than 0 and reflect the number of categories the sequence could fit into. If the conflict score is 0, "
+        "this means that within the current decision tree there is only one category that the sequence could "
+        "be assigned to.",
+    )
+    pangolin_ambiguity_score = Column(
+        Float,
+        comment="This score is a function of the quantity of missing data in a sequence. It represents the proportion "
+        "of relevant sites in a sequnece which were imputed to the reference values. A score of 1 indicates "
+        "that no sites were imputed, while a score of 0 indicates that more sites were imputed than were not "
+        "imputed. This score only includes sites which are used by the decision tree to classify a sequence.",
+    )
     pangolin_status = Column(
         Enum(PangolinStatus, name="pangolin_status"),
         nullable=False,
         server_default=FetchedValue(),
-        comment="Reported pangolin lineage status",
+        comment="Indicates whether the sequence passed the QC thresholds for minimum length and maximum N content.",
     )
     scorpio_call = Column(
-        String, comment="If a query is assigned a constellation by scorpio this call is output in this column"
+        String,
+        comment="If a query is assigned a constellation by scorpio this call is output in this column. "
+        "The full set of constellations searched by default can be found at the constellations repository.",
     )
     scorpio_support = Column(
         Float,
@@ -118,9 +152,30 @@ class Sample(Base):  # type: ignore
     scorpio_conflict = Column(
         Float,
         comment=(
-            "The conflict score is the proportion of defining variants which have the reference allele "
-            "in the sequence.",
+            "The conflict score is the proportion of defining variants which have the reference allele in the "
+            "sequence. Ambiguous/other non-ref/alt bases at each of the variant positions contribute only to the "
+            "denominators of these scores.",
         ),
+    )
+    scorpio_notes = Column(
+        String,
+        comment=(
+            "If any conflicts from the decision tree, this field will output the alternative assignments. "
+            "If the sequence failed QC this field will describe why. If the sequence met the SNP thresholds "
+            "for scorpio to call a constellation, it’ll describe the exact SNP counts of Alt, Ref and Amb "
+            "(Alternative, reference and ambiguous) alleles for that call.",
+        ),
+    )
+    is_designated = Column(
+        Boolean,
+        comment=(
+            "A boolean (True/False) column indicating whether that particular sequence has been offically "
+            "designated a lineage."
+        ),
+    )
+    qc_notes = Column(
+        String,
+        comment=("Notes specific to the QC checks run on the sequences."),
     )
     note = Column(
         String,
@@ -128,7 +183,7 @@ class Sample(Base):  # type: ignore
             "If any conflicts from the decision tree, this field will output the alternative assignments. "
             "If the sequence failed QC this field will describe why. If the sequence met the SNP thresholds "
             "for scorpio to call a constellation, it’ll describe the exact SNP counts of Alt, Ref and Amb "
-            "(Alternative, reference and ambiguous) alleles for that call.",
+            "(Alternative, reference and ambiguous) alleles for that call."
         ),
     )
     genbank_submit_id = Column(
