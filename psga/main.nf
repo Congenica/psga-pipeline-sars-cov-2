@@ -88,7 +88,8 @@ if( "[:]" in [
     K8S_PROCESS_MEMORY_VERY_HIGH,
     NXF_WORK,
     NXF_EXECUTOR,
-    NXF_ANSI_LOG
+    NXF_ANSI_LOG,
+    NXF_OPTS
     ]) {
     throw new Exception("Found unset global environment variables. See '[:]' above. Abort")
 }

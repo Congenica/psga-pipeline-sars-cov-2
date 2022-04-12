@@ -1,0 +1,180 @@
+pipeline {
+    parameters {
+        booleanParam(name: 'VALIDATION_TEST', defaultValue: false, description: 'If true, run script for validating the results')
+        string(name: 'CLUSTER_NAME', defaultValue: 'saas-dev.k8s.congenica.net', description: 'The k8s cluster to run against')
+        string(name: 'NAMESPACE', defaultValue: 'ukhsa-covid', description: 'The k8s namespace to run against')
+        string(name: 'K8S_SERVICE_ACCOUNT', defaultValue: 'psga-admin', description: 'The serviceaccount user to run the job as. Must exist in the namespace and have cluster admin.')
+        string(name: 'SLACKCHANNEL', defaultValue: '', description: 'The slack channel to send new commits to')
+        string(name: 'PSGA_DOCKER_IMAGE_TAG', defaultValue: 'dev_latest', description: 'The docker tag for the Pathogen SequencinG Analysis (PSGA) pipeline')
+        string(name: 'NCOV2019_ARTIC_NF_ILLUMINA_DOCKER_IMAGE_TAG', defaultValue: 'dev_latest', description: 'The tag for the nCOV-2019 artic-nf illumina docker image')
+        string(name: 'NCOV2019_ARTIC_NF_NANOPORE_DOCKER_IMAGE_TAG', defaultValue: 'dev_latest', description: 'The tag for the nCOV-2019 artic-nf nanopore docker image')
+        string(name: 'PANGOLIN_DOCKER_IMAGE_TAG', defaultValue: 'dev_latest', description: 'The tag for the Pangolin docker image')
+        string(name: 'PSGA_INPUT_PATH', defaultValue: 's3://synthetic-data-dev/UKHSA/piero-test-data/illumina_fastq_short', description: 'The path containing the input files. This can be an S3 path')
+        string(name: 'PSGA_OUTPUT_PATH', defaultValue: 's3://synthetic-data-dev/UKHSA/piero-test-data/illumina_fastq_short_OUT', description: 'The path containing the output files. This can be an S3 path. In this latter case, please specify a path which does not yet exist, otherwise Nextflow will fail to publish this data due to a policy defined by Dev OPS in which pods are not allowed to delete/overwrite objects in S3.')
+        string(name: 'ANALYSIS_RUN', defaultValue: 'illumina_fastq_short', description: 'This can be the test name')
+        choice(name: 'WORKFLOW', choices: ['illumina_artic', 'medaka_artic'], description: 'The workflow to run')
+        choice(name: 'FILETYPE', choices: ['fastq', 'bam'], description: 'The input file type. The medaka_workflow only supports fastq')
+
+        // other configs
+        string(name: 'PSGA_ROOT_PATH', defaultValue: '/app', description: 'The root path of the PSGA pipeline')
+        string(name: 'PSGA_INCOMPLETE_ANALYSIS_RUNS_PATH', defaultValue: '/data/incomplete_analysis_runs', description: 'The path to the incomplete analysis run session ids')
+        string(name: 'PSGA_MAX_ATTEMPTS', defaultValue: '3', description: 'The maximum number of attempts resuming a failed pipeline')
+        string(name: 'PSGA_SLEEP_TIME_BETWEEN_ATTEMPTS', defaultValue: '60', description: 'The sleep time between attempts')
+        string(name: 'DOCKER_IMAGE_PREFIX', defaultValue: '144563655722.dkr.ecr.eu-west-1.amazonaws.com/congenica/dev', description: 'The docker image prefix to use')
+        string(name: 'K8S_PULL_POLICY', defaultValue: 'Always', description: 'The Kubernetes pull policy for docker images')
+        string(name: 'K8S_QUEUE_SIZE', defaultValue: '5', description: 'The K8S job queue size')
+        string(name: 'K8S_STORAGE_CLAIM_NAME', defaultValue: 'psga-pvc', description: 'The K8S storage claim name')
+        string(name: 'K8S_STORAGE_MOUNT_PATH', defaultValue: '/data', description: 'The K8S storage mount path')
+        string(name: 'K8S_PROCESS_MAX_RETRIES', defaultValue: '3', description: 'The number of maximum retries for pipeline jobs')
+        string(name: 'K8S_PROCESS_CPU_LOW', defaultValue: '1', description: 'The lowest number of cpus. The majority of jobs use this.')
+        string(name: 'K8S_PROCESS_CPU_HIGH', defaultValue: '2', description: 'The highest number of cpus')
+        string(name: 'K8S_PROCESS_MEMORY_VERY_LOW', defaultValue: '250', description: 'Memory setting')
+        string(name: 'K8S_PROCESS_MEMORY_LOW', defaultValue: '500', description: 'Memory setting')
+        string(name: 'K8S_PROCESS_MEMORY_MEDIUM', defaultValue: '1500', description: 'Memory setting')
+        string(name: 'K8S_PROCESS_MEMORY_HIGH', defaultValue: '3000', description: 'Memory setting')
+        string(name: 'K8S_PROCESS_MEMORY_VERY_HIGH', defaultValue: '6000', description: 'Memory setting')
+        string(name: 'NXF_WORK', defaultValue: '/data/work', description: 'Nextflow work directory')
+        string(name: 'NXF_ANSI_LOG', defaultValue: 'false', description: 'Nextflow flag')
+        string(name: 'NXF_EXECUTOR', defaultValue: 'k8s', description: 'Nextflow executor')
+        string(name: 'NXF_OPTS', defaultValue: '-Xms1g -Xmx4g', description: 'Nextflow options')
+
+    }
+    agent {
+        kubernetes {
+            cloud params.CLUSTER_NAME
+            namespace params.NAMESPACE
+            yaml """
+apiVersion: v1
+kind: Pod
+spec:
+  serviceAccount: ${params.K8S_SERVICE_ACCOUNT}
+  serviceAccountName: ${params.K8S_SERVICE_ACCOUNT}
+  containers:
+  - name: psga
+    image: ${params.DOCKER_IMAGE_PREFIX}/psga:${params.PSGA_DOCKER_IMAGE_TAG}
+    imagePullPolicy: ${params.K8S_PULL_POLICY}
+    command:
+    - "sleep"
+    args:
+    - '1d'
+    env:
+    - name: DB_HOST
+      valueFrom:
+        secretKeyRef:
+          key: clus_COVID_DB_HOST
+          name: db-config
+    - name: DB_NAME
+      valueFrom:
+        secretKeyRef:
+          key: clus_COVID_DB_NAME
+          name: db-config
+    - name: DB_PASSWORD
+      valueFrom:
+        secretKeyRef:
+          key: clus_COVID_DB_PASSWORD
+          name: db-config
+    - name: DB_PORT
+      valueFrom:
+        secretKeyRef:
+          key: clus_COVID_DB_PORT
+          name: db-config
+    - name: DB_USER
+      valueFrom:
+        secretKeyRef:
+          key: clus_COVID_DB_USER
+          name: db-config
+    resources:
+      limits:
+        cpu: "2"
+        memory: 6Gi
+      requests:
+        cpu: "2"
+        memory: 6Gi
+    volumeMounts:
+    - mountPath: ${params.K8S_STORAGE_MOUNT_PATH}
+      name: psga-persistent-storage
+    - mountPath: "/home/jenkins/agent"
+      name: "workspace-volume"
+      readOnly: false
+    workingDir: "/home/jenkins/agent"
+  dnsPolicy: ClusterFirst
+  nodeSelector:
+    farmNode: "true"
+  restartPolicy: Never
+  schedulerName: default-scheduler
+  securityContext: {}
+  volumes:
+  - name: psga-persistent-storage
+    persistentVolumeClaim:
+      claimName: ${params.K8S_STORAGE_CLAIM_NAME}
+  - emptyDir:
+      medium: ""
+    name: "workspace-volume"
+"""
+            defaultContainer 'psga'
+        }
+    }
+    environment {
+        PSGA_DOCKER_IMAGE_TAG                       = "${params.PSGA_DOCKER_IMAGE_TAG}"
+        NCOV2019_ARTIC_NF_ILLUMINA_DOCKER_IMAGE_TAG = "${params.NCOV2019_ARTIC_NF_ILLUMINA_DOCKER_IMAGE_TAG}"
+        NCOV2019_ARTIC_NF_NANOPORE_DOCKER_IMAGE_TAG = "${params.NCOV2019_ARTIC_NF_NANOPORE_DOCKER_IMAGE_TAG}"
+        PANGOLIN_DOCKER_IMAGE_TAG                   = "${params.PANGOLIN_DOCKER_IMAGE_TAG}"
+        PSGA_INPUT_PATH                             = "${params.PSGA_INPUT_PATH}"
+        PSGA_OUTPUT_PATH                            = "${params.PSGA_OUTPUT_PATH}"
+        ANALYSIS_RUN                                = "${params.ANALYSIS_RUN}"
+        WORKFLOW                                    = "${params.WORKFLOW}"
+        FILETYPE                                    = "${params.FILETYPE}"
+
+        // other configs
+        K8S_PULL_POLICY                             = "${params.K8S_PULL_POLICY}"
+        K8S_SERVICE_ACCOUNT                         = "${params.K8S_SERVICE_ACCOUNT}"
+        PSGA_ROOT_PATH                              = "${params.PSGA_ROOT_PATH}"
+        PSGA_INCOMPLETE_ANALYSIS_RUNS_PATH          = "${params.PSGA_INCOMPLETE_ANALYSIS_RUNS_PATH}"
+        PSGA_MAX_ATTEMPTS                           = "${params.PSGA_MAX_ATTEMPTS}"
+        PSGA_SLEEP_TIME_BETWEEN_ATTEMPTS            = "${params.PSGA_SLEEP_TIME_BETWEEN_ATTEMPTS}"
+        DOCKER_IMAGE_PREFIX                         = "${params.DOCKER_IMAGE_PREFIX}"
+        K8S_QUEUE_SIZE                              = "${params.K8S_QUEUE_SIZE}"
+        K8S_STORAGE_CLAIM_NAME                      = "${params.K8S_STORAGE_CLAIM_NAME}"
+        K8S_STORAGE_MOUNT_PATH                      = "${params.K8S_STORAGE_MOUNT_PATH}"
+        K8S_PROCESS_MAX_RETRIES                     = "${params.K8S_PROCESS_MAX_RETRIES}"
+        K8S_PROCESS_CPU_LOW                         = "${params.K8S_PROCESS_CPU_LOW}"
+        K8S_PROCESS_CPU_HIGH                        = "${params.K8S_PROCESS_CPU_HIGH}"
+        K8S_PROCESS_MEMORY_VERY_LOW                 = "${params.K8S_PROCESS_MEMORY_VERY_LOW}"
+        K8S_PROCESS_MEMORY_LOW                      = "${params.K8S_PROCESS_MEMORY_LOW}"
+        K8S_PROCESS_MEMORY_MEDIUM                   = "${params.K8S_PROCESS_MEMORY_MEDIUM}"
+        K8S_PROCESS_MEMORY_HIGH                     = "${params.K8S_PROCESS_MEMORY_HIGH}"
+        K8S_PROCESS_MEMORY_VERY_HIGH                = "${params.K8S_PROCESS_MEMORY_VERY_HIGH}"
+        NXF_WORK                                    = "${params.NXF_WORK}"
+        NXF_ANSI_LOG                                = "${params.NXF_ANSI_LOG}"
+        NXF_EXECUTOR                                = "${params.NXF_EXECUTOR}"
+        NXF_OPTS                                    = "${params.NXF_OPTS}"
+
+
+    }
+    stages {
+        stage('Run PSGA pipeline') {
+            steps {
+                script {
+                    // sh 'printenv'
+
+                    sh 'cd ${PSGA_ROOT_PATH}/sqitch && bash setup_db_jenkins.sh && cd -'
+
+                    // change workdir so nextflow stores its work/ dir in scratch/
+                    sh 'nextflow run ${PSGA_ROOT_PATH}/psga/main.nf --run ${ANALYSIS_RUN} --workflow ${WORKFLOW} --filetype ${FILETYPE}'
+
+                    if (params.VALIDATION_TEST) {
+                        sh 'echo "validation is not yet implemented"'
+                    }
+                }
+            }
+        }
+    }
+    post {
+        success {
+            slackSend color: '#00FF00', channel: "${params.SLACKCHANNEL}", message: "Success - psga_input_path: ${params.PSGA_INPUT_PATH}, psga_output_path: ${params.PSGA_OUTPUT_PATH}, run: ${params.ANALYSIS_RUN}, workflow: ${params.WORKFLOW}, filetype: ${params.FILETYPE} was generated, job: ${env.JOB_NAME}, build: ${env.BUILD_NUMBER}, docker_tag: ${params.PSGA_DOCKER_IMAGE_TAG} (<${env.BUILD_URL}|URL>)"
+        }
+        failure {
+            slackSend color: '#FF0000', channel: "${params.SLACKCHANNEL}", message: "FAILURE - psga_input_path: ${params.PSGA_INPUT_PATH}, psga_output_path: ${params.PSGA_OUTPUT_PATH}, run: ${params.ANALYSIS_RUN}, workflow: ${params.WORKFLOW}, filetype: ${params.FILETYPE} was generated, job: ${env.JOB_NAME}, build: ${env.BUILD_NUMBER}, docker_tag: ${params.PSGA_DOCKER_IMAGE_TAG} (<${env.BUILD_URL}|URL>)"
+        }
+    }
+}
