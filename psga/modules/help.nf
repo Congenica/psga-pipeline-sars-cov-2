@@ -14,6 +14,7 @@ def printPipelineConfig() {
         * PSGA_INCOMPLETE_ANALYSIS_RUNS_PATH          : ${PSGA_INCOMPLETE_ANALYSIS_RUNS_PATH}
         * PSGA_MAX_ATTEMPTS                           : ${PSGA_MAX_ATTEMPTS}
         * PSGA_SLEEP_TIME_BETWEEN_ATTEMPTS            : ${PSGA_SLEEP_TIME_BETWEEN_ATTEMPTS}
+        * PSGA_CLEANUP_WORKDIR                        : ${PSGA_CLEANUP_WORKDIR}
         * DOCKER_IMAGE_PREFIX                         : ${DOCKER_IMAGE_PREFIX}
         * PSGA_DOCKER_IMAGE_TAG                       : ${PSGA_DOCKER_IMAGE_TAG}
         * NCOV2019_ARTIC_NF_ILLUMINA_DOCKER_IMAGE_TAG : ${NCOV2019_ARTIC_NF_ILLUMINA_DOCKER_IMAGE_TAG}
@@ -142,5 +143,6 @@ def printHelp() {
         NXF_WORK                Set Nextflow work directory (e.g. /data/work)
         NXF_EXECUTOR            Set Nextflow executor (default: k8s)
         NXF_ANSI_LOG            Enable Nextflow ANSI log (default: false)
+        NXF_OPTS                Pass JVM options to Nextflow (default: -Xms1g -Xmx4g)
     """.stripIndent()
 }
