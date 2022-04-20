@@ -122,7 +122,7 @@ process mark_samples_as_submitted_to_genbank{
  *  Publish GenBank submission in archive directory.
  */
 process store_genbank_submission{
-  publishDir "${PSGA_OUTPUT_PATH}/${params.run}/genbank", mode: 'copy', overwrite: true
+  publishDir "${PSGA_OUTPUT_PATH}/genbank", mode: 'copy', overwrite: true
 
   input:
     path submission_xml
