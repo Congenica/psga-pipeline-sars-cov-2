@@ -1,11 +1,15 @@
+CRON_SETTINGS = BRANCH_NAME == "dev" ? '''
+    H 0 * * 1-5 %VALIDATION_TEST=true;PSGA_INPUT_PATH=s3://synthetic-data-dev/UKHSA/validation_ci/illumina_artic_fastq/;PSGA_OUTPUT_PATH=/data/output/illumina_artic_fastq/;ANALYSIS_RUN=illumina_artic_fastq;WORKFLOW=illumina_artic;FILETYPE=fastq;NXF_WORK=/data/work/illumina_artic_fastq/
+    H 8 * * 1-5 %VALIDATION_TEST=true;PSGA_INPUT_PATH=s3://synthetic-data-dev/UKHSA/validation_ci/illumina_artic_bam/;PSGA_OUTPUT_PATH=/data/output/illumina_artic_bam/;ANALYSIS_RUN=illumina_artic_bam;WORKFLOW=illumina_artic;FILETYPE=bam;NXF_WORK=/data/work/illumina_artic_bam/
+    H 16 * * 1-5 %VALIDATION_TEST=true;PSGA_INPUT_PATH=s3://synthetic-data-dev/UKHSA/validation_ci/ont_artic_fastq/;PSGA_OUTPUT_PATH=/data/output/ont_artic_fastq/;ANALYSIS_RUN=ont_artic_fastq;WORKFLOW=medaka_artic;FILETYPE=fastq;NXF_WORK=/data/work/ont_artic_fastq/
+''' : ""
+
 pipeline {
+
     triggers {
-        parameterizedCron('''
-            H 0 * * 1-5 %VALIDATION_TEST=true;PSGA_INPUT_PATH=s3://synthetic-data-dev/UKHSA/validation_ci/illumina_artic_fastq/;PSGA_OUTPUT_PATH=/data/output/illumina_artic_fastq/;ANALYSIS_RUN=illumina_artic_fastq;WORKFLOW=illumina_artic;FILETYPE=fastq;NXF_WORK=/data/work/illumina_artic_fastq/
-            H 8 * * 1-5 %VALIDATION_TEST=true;PSGA_INPUT_PATH=s3://synthetic-data-dev/UKHSA/validation_ci/illumina_artic_bam/;PSGA_OUTPUT_PATH=/data/output/illumina_artic_bam/;ANALYSIS_RUN=illumina_artic_bam;WORKFLOW=illumina_artic;FILETYPE=bam;NXF_WORK=/data/work/illumina_artic_bam/
-            H 16 * * 1-5 %VALIDATION_TEST=true;PSGA_INPUT_PATH=s3://synthetic-data-dev/UKHSA/validation_ci/ont_artic_fastq/;PSGA_OUTPUT_PATH=/data/output/ont_artic_fastq/;ANALYSIS_RUN=ont_artic_fastq;WORKFLOW=medaka_artic;FILETYPE=fastq;NXF_WORK=/data/work/ont_artic_fastq/
-        ''')
+        parameterizedCron(CRON_SETTINGS)
     }
+
     parameters {
         booleanParam(name: 'VALIDATION_TEST', defaultValue: false, description: 'If true, run script for validating the results')
         string(name: 'PSGA_DOCKER_IMAGE_TAG', defaultValue: 'dev_latest', description: 'The docker tag for the Pathogen SequencinG Analysis (PSGA) pipeline')
