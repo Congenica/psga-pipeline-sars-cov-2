@@ -1,9 +1,5 @@
 FROM python:3.9
 
-# pin the versions of pip and poetry
-ENV PIP_VERSION=22.0.4 \
-    POETRY_VERSION=1.1.13
-
 # Also install a DB client and sqitch so that we can access the DB from this image
 RUN apt-get update \
   && apt-get install --yes --no-install-recommends build-essential procps wget default-jre openjdk-11-jre-headless libpq-dev sqitch libdbd-pg-perl postgresql-client libdbd-sqlite3-perl sqlite3 rename \

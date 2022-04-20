@@ -23,7 +23,7 @@ process pangolin_pipeline {
  * Merge pangolin lineages into one single file
  */
 process merge_pangolin_files {
-  publishDir "${PSGA_OUTPUT_PATH}/${params.run}/pangolin", mode: 'copy', overwrite: true
+  publishDir "${PSGA_OUTPUT_PATH}/pangolin", mode: 'copy', overwrite: true
   input:
     file input_dir
 

@@ -40,6 +40,8 @@ spec:
           value: '3'
         - name: PSGA_SLEEP_TIME_BETWEEN_ATTEMPTS
           value: '60'
+        - name: PSGA_CLEANUP_WORKDIR
+          value: 'false'
         - name: DOCKER_IMAGE_PREFIX
           value: '144563655722.dkr.ecr.eu-west-1.amazonaws.com/congenica/dev'
         - name: PSGA_DOCKER_IMAGE_TAG
