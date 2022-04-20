@@ -1,18 +1,25 @@
 # Pathogen SequencinG Analysis (PSGA) pipeline
+The PSGA project is developed for the UK Health and Security Agency (UKHSA).
+
+Currently, the only supported pathogen is: SARS-CoV-2. For this pathogen, Congenica sequencing protocol is based on the ARTIC consortium and works as follows:
+- produce viral genome assemblies from sequence data (ncov2019-artic-nf);
+- assign epidemiological lineages (Pangolin-Scorpio)
+
+Support for other pathogens will be added.
+A diagram for this pipeline is shown below:
+![Alt text](img/psga.png?raw=true "PSGA pipeline")
 
 ## Operation
-
 This pipeline runs on a Kubernetes environment. For the time being, there are two k8s deployments:
 * `psga`, which allows for the execution of the nextflow pipeline within a k8s pod
 * `psql`, which is a postgresql database accessible by the pods within the environment
 Ideally, the postgresql database should be stored in an RDS aurora system outside the cluster, but for development, the current setting is fine.
 
 The following diagram offers an overview of the pipeline execution in k8s. Each nextflow process is executed on a dedicated pod spun up by the main `psga` pod.
-![Alt text](img/UKHSA_psga.png?raw=true "PSGA pipeline in k8s environment")
+![Alt text](img/psga_k8s.png?raw=true "PSGA pipeline in k8s environment")
 
 
 ### Environment variables and input parameters
-
 See: psga/modules/help.nf .
 
 The help can also be printed with the command: `nextflow run . --help`.
@@ -20,18 +27,28 @@ The current configuration can be printed with the command: `nextflow run . --pri
 
 
 ### Input files stored in aws s3
-If you plan to read input files from an aws s3 bucket you will need to:
+To process samples stored in s3, you need to export the env var `PSGA_INPUT_PATH` (see section: `Environment variables and input parameters`) to point to the s3 dir containing your data.
+Input paths containing test datasets can be found below:
 
-- copy your aws credentials to the /root dir in the psga pod
-- export the env var `PSGA_INPUT_PATH` (see section: `Environment variables and input parameters`) to point to the s3 dir containing your data. For quick tests we have these three paths:
-s3://synthetic-data-dev/UKHSA/piero-test-data/illumina_fastq
-s3://synthetic-data-dev/UKHSA/piero-test-data/illumina_fastq_short
-s3://synthetic-data-dev/UKHSA/piero-test-data/illumina_bams
-s3://synthetic-data-dev/UKHSA/piero-test-data/medaka_fastq
+Small size datasets (processing time: few minutes):
+- s3://synthetic-data-dev/UKHSA/piero-test-data/illumina_fastq          (3 samples)
+- s3://synthetic-data-dev/UKHSA/piero-test-data/illumina_fastq_short    (2 samples)
+- s3://synthetic-data-dev/UKHSA/piero-test-data/illumina_bams           (2 samples)
+- s3://synthetic-data-dev/UKHSA/piero-test-data/medaka_fastq            (2 samples)
 
-For large tests, see paths in: `s3://synthetic-data-dev/UKHSA/validation/`
+Medium size datasets (processing time: 1-2 hours). These datasets are used in our Jenkins CI validation (see jenkins/ dir):
+- s3://synthetic-data-dev/UKHSA/validation_ci/illumina_artic_fastq    (30 samples: 10 alpha, 10 delta, 10 omicron)
+- s3://synthetic-data-dev/UKHSA/validation_ci/illumina_artic_bam      (30 samples: 10 alpha, 10 delta, 10 omicron)
+- s3://synthetic-data-dev/UKHSA/validation_ci/ont_artic_fastq         (30 samples: mix variants)
 
-If you intend to use your own path, do not forget to store a metadata.tsv file as well.
+Large size datasets (processing time: 4-6 hours). These datasets were used as part of the validation in the UKHSA tender:
+- s3://synthetic-data-dev/UKHSA/validation/illumina_ARTIC_fastq_COG_MARCH     (100 samples, alpha variants)
+- s3://synthetic-data-dev/UKHSA/validation/illumina_ARTIC_fastq_COG_OCT2021   (100 samples, mostly delta variants)
+- s3://synthetic-data-dev/UKHSA/validation/illumina_ARTIC_fastq_COG_FEB2022   (100 samples, omicron variants)
+- s3://synthetic-data-dev/UKHSA/validation/illumina_ARTIC_bam_COG_MAR2021   (100 samples, alpha variants)
+- s3://synthetic-data-dev/UKHSA/validation/illumina_ARTIC_bam_COG_OCT2021   (100 samples, mostly delta variants)
+- s3://synthetic-data-dev/UKHSA/validation/illumina_ARTIC_bam_COG_FEB2022   (100 samples, omicron variants)
+- s3://synthetic-data-dev/UKHSA/validation/ONT_ARTIC_fastq_COG   (300 samples, mix variants)
 
 
 ### Running the pipeline using K8s Minikube (local testing)
