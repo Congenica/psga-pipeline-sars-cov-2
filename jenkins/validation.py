@@ -1,5 +1,6 @@
 from pathlib import Path
 from typing import Dict, Set, Tuple
+from math import isclose
 import click
 import pandas as pd
 
@@ -46,32 +47,45 @@ def check_columns(
     return sample_names_calc, sample_names_exp
 
 
-def compare_data_frames(df_calc, df_exp) -> pd.DataFrame:
-    """
-    Compare two Pandas dataframes and return the diff dataframe
-    """
-    try:
-        return df_calc.compare(df_exp)
-    except ValueError as ex:
-        raise ValidationError("Cannot compare dataframes due to different labels or shape.") from ex
-
-
 def validate_csv(config: Dict) -> None:
     """
     Compare the tables in the two CSV file paths
     """
     sample_name_column = config["sample_name_column"]
     coi = config["columns_of_interest"]
+    ctr = config["columns_to_round"]
 
     df_calc, df_exp = load_data_frames(config["calculated_output"], config["expected_output"], sample_name_column)
     check_columns(df_calc, df_exp, sample_name_column, set(coi))
 
-    df_calc_sub = df_calc[coi].sort_values(by=[sample_name_column]).round(config["columns_to_round"])
-    df_exp_sub = df_exp[coi].sort_values(by=[sample_name_column]).round(config["columns_to_round"])
+    df_calc_sub = df_calc[coi].sort_values(by=[sample_name_column])
+    df_exp_sub = df_exp[coi].sort_values(by=[sample_name_column])
 
-    df_diff = compare_data_frames(df_calc_sub, df_exp_sub)
-    if not df_diff.empty:
-        raise ValidationError(f"Calculated results differ from expected results:\n{df_diff}")
+    mismatch = False
+    for col_to_compare in coi:
+        col_calc = df_calc_sub[col_to_compare].fillna(0).tolist()
+        col_exp = df_exp_sub[col_to_compare].fillna(0).tolist()
+
+        col_to_round = False
+        if col_to_compare in ctr:
+            col_to_round = True
+            # use math.isclose instead of numpy.isclose because the former is symmetric in a and b ; e.g.
+            # abs(a-b) <= max(rel_tol * max(abs(a), abs(b)), abs_tol) , instead of
+            # abs(a-b) <= (atol + rtol * abs(b))
+            # Our expected dataframe is from an execution. The values are not averages
+            match = all((isclose(n1, n2, abs_tol=ctr[col_to_compare]) for n1, n2 in zip(col_calc, col_exp)))
+        else:
+            match = col_calc == col_exp
+
+        if not match:
+            mismatch = True
+            print_abstol_info = f"using abs_tol {ctr[col_to_compare]}" if col_to_round else ""
+            print(f"Column: {col_to_compare}. Calculated vs Expected values {print_abstol_info}:")
+            print(f"{col_calc}")
+            print(f"{col_exp}")
+
+    if mismatch:
+        raise ValidationError("Failed validation. See above for details.")
 
 
 validation = {
@@ -95,8 +109,13 @@ validation = {
                 "num_aligned_reads",
                 "qc_pass",
             ],
-            # columns containing floating numbers to round. <colname>: <digits_to_round>
-            "columns_to_round": {col: 3 for col in ["pct_N_bases", "pct_covered_bases"]},
+            # abs tolerances for the columns to round
+            "columns_to_round": {
+                "pct_N_bases": 0.5,
+                "pct_covered_bases": 0.5,
+                "longest_no_N_run": 25,
+                "num_aligned_reads": 200,
+            },
         },
     },
     "pangolin": {
@@ -123,9 +142,8 @@ validation = {
                 "qc_notes",
                 "note",
             ],
-            "columns_to_round": {
-                col: 3 for col in ["conflict", "ambiguity_score", "scorpio_support", "scorpio_conflict"]
-            },
+            # abs tolerances for the columns to round
+            "columns_to_round": {"conflict": 0.1, "scorpio_support": 0.05, "scorpio_conflict": 0.05},
         },
     },
 }
