@@ -17,7 +17,7 @@ if (params.help){
 
 include { pipeline_started } from './modules/pipeline_lifespan.nf'
 
-include { load_metadata } from './modules/load_metadata.nf'
+include { check_metadata } from './modules/check_metadata.nf'
 
 if ( params.workflow == "illumina_artic" ) {
     include { ncov2019_artic_nf_pipeline_illumina as ncov2019_artic_nf_pipeline } from './modules/ncov2019_artic.nf'
@@ -113,7 +113,8 @@ workflow {
     )
 
     // METADATA
-    load_metadata(
+    check_metadata(
+        params.load_missing_samples,
         "${PSGA_INPUT_PATH}/" + params.metadata_file_name,
         params.run,
         params.scheme,
@@ -121,14 +122,12 @@ workflow {
         params.filetype,
         params.workflow
     )
-    load_metadata.out.ch_all_samples_with_metadata_file
+    check_metadata.out.ch_all_samples_with_metadata_file
         .splitText().map { it.trim() }.set { ch_all_samples_with_metadata_loaded }
-    load_metadata.out.ch_current_session_samples_with_metadata_file
+    check_metadata.out.ch_current_session_samples_with_metadata_file
         .splitText().map { it.trim() }.set { ch_current_session_samples_with_metadata_loaded }
-    load_metadata.out.ch_all_samples_ncov2019_artic_qc_passed_file
+    check_metadata.out.ch_all_samples_ncov2019_artic_qc_passed_file
         .splitText().map { it.trim() }.set { ch_qc_passed_samples }
-    load_metadata.out.ch_current_session_updated_samples_file
-        .splitText().map { it.trim() }.set { ch_updated_samples }
 
 
     // NCOV2019-ARTIC
@@ -136,8 +135,7 @@ workflow {
     filter_input_files_matching_metadata(
         ch_all_samples_with_metadata_loaded,
         ch_current_session_samples_with_metadata_loaded,
-        ch_qc_passed_samples,
-        ch_updated_samples
+        ch_qc_passed_samples
     )
     ch_input_files_prep = filter_input_files_matching_metadata.out.ch_selected_sample_files
 

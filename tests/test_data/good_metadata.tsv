@@ -1,7 +1,3 @@
-SAMPLE ID	ASSIGN DATE
-ERR44444444	01/12/2020
-ERR23173251_barcode001	15/05/2020
-23195539	01/06/2020
-23200519	04/06/2020
-63754654	04/06/2020
-6742411	04/06/2020
+sample_id;file_1;file_2;md5_1;md5_2
+37a36d1c-5985-4836-87b5-b36bac75d81b;s3://synthetic-data-dev/UKHSA/small_tests/illumina_fastq/ERR7150151_1.fastq.gz;s3://synthetic-data-dev/UKHSA/small_tests/illumina_fastq/ERR7150151_2.fastq.gz;997a4ce8160c76a4977755c41c3a4f03;b999b178a283781a395b3ed805194c93
+985347c5-ff6a-454c-ac34-bc353d05dd70;s3://synthetic-data-dev/UKHSA/small_tests/illumina_fastq/ERR7150243_1.fastq.gz;s3://synthetic-data-dev/UKHSA/small_tests/illumina_fastq/ERR7150243_2.fastq.gz;c34157c554a0b6225a7ed9680da5c2f3;48abf0d57bfbe85fba8806d185c8ffcc

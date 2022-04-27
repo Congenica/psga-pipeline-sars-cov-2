@@ -2,11 +2,11 @@ import pytest
 from click.testing import CliRunner
 
 from scripts.db.models import AnalysisRun, Sample
-from scripts.load_metadata_to_db import load_metadata
+from scripts.check_metadata import check_metadata
 
 
 @pytest.mark.parametrize(
-    "metadata_file,analysis_run_name,analysis_run_columns,exit_code,exception_msg",
+    "metadata_file,analysis_run_name,analysis_run_columns,load_missing_samples,exit_code,exception_msg",
     [
         (
             "good_metadata.tsv",
@@ -18,6 +18,7 @@ from scripts.load_metadata_to_db import load_metadata
                 "workflow": "illumina_artic",
                 "pipeline_version": "1.0.0",
             },
+            True,
             0,
             None,
         ),
@@ -31,6 +32,7 @@ from scripts.load_metadata_to_db import load_metadata
                 "workflow": "illumina_artic",
                 "pipeline_version": "1.0.0",
             },
+            True,
             0,
             None,
         ),
@@ -44,8 +46,27 @@ from scripts.load_metadata_to_db import load_metadata
                 "workflow": "medaka_artic",
                 "pipeline_version": "1.0.0",
             },
+            True,
             0,
             None,
+        ),
+        (
+            "good_metadata.tsv",
+            "just_a_name",
+            {
+                "primer_scheme_name": "nCoV-2019",
+                "primer_scheme_version": "V3",
+                "input_file_type": "fastq",
+                "workflow": "illumina_artic",
+                "pipeline_version": "1.0.0",
+            },
+            False,
+            1,
+            "Invalid row for sample ID 37a36d1c-5985-4836-87b5-b36bac75d81b:\n"
+            + "Sample 37a36d1c-5985-4836-87b5-b36bac75d81b not found in the database, but listed in pipeline metadata\n"
+            + "Invalid row for sample ID 985347c5-ff6a-454c-ac34-bc353d05dd70:\n"
+            + "Sample 985347c5-ff6a-454c-ac34-bc353d05dd70 not found in the database, but listed in pipeline metadata\n"
+            + "Error: Errors encountered: 37a36d1c-5985-4836-87b5-b36bac75d81b, 985347c5-ff6a-454c-ac34-bc353d05dd70\n",
         ),
         (
             "good_metadata.tsv",
@@ -57,6 +78,7 @@ from scripts.load_metadata_to_db import load_metadata
                 "workflow": "medaka_artic",
                 "pipeline_version": "1.0.0",
             },
+            False,
             1,
             "Error: medaka_artic workflow does not support input bam files\n",
         ),
@@ -70,6 +92,7 @@ from scripts.load_metadata_to_db import load_metadata
                 "workflow": "illumina_artic",
                 "pipeline_version": "1.0.0",
             },
+            False,
             2,
             "Error: Invalid value for '--input-file-type'",
         ),
@@ -83,6 +106,7 @@ from scripts.load_metadata_to_db import load_metadata
                 "workflow": "fake_workflow",
                 "pipeline_version": "1.0.0",
             },
+            False,
             2,
             "Error: Invalid value for '--workflow'",
         ),
@@ -96,41 +120,67 @@ from scripts.load_metadata_to_db import load_metadata
                 "workflow": "illumina_artic",
                 "pipeline_version": "1.0.0",
             },
+            False,
             1,
-            "Invalid row for sample ID HAM44444:\n"
-            + 'ASSIGN DATE "32/02/2020" is not a valid date: day is out of range for month\n'
-            + "Error: Errors encountered: HAM44444\n",
+            "Invalid row for sample ID :\n"
+            + "sample_id not available\n"
+            + "Invalid row for sample ID #()aadd:\n"
+            + 'sample_id "#()aadd" is not a UUID\n'
+            + "Invalid row for sample ID 185347c5-ff6a-454c-ac34-bc353d05dd70:\n"
+            + "file_1 for 185347c5-ff6a-454c-ac34-bc353d05dd70 not available\n"
+            + "Invalid row for sample ID 27a36d1c-5985-4836-87b5-b36bac75d81b:\n"
+            + "file_2 for 27a36d1c-5985-4836-87b5-b36bac75d81b not available\n"
+            + "Invalid row for sample ID 385347c5-ff6a-454c-ac34-bc353d05dd70:\n"
+            + "md5_1 for 385347c5-ff6a-454c-ac34-bc353d05dd70 not available\n"
+            + "Invalid row for sample ID 485347c5-ff6a-454c-ac34-bc353d05dd70:\n"
+            + "md5_2 for 485347c5-ff6a-454c-ac34-bc353d05dd70 not available\n"
+            + "Error: Errors encountered: , #()aadd, 185347c5-ff6a-454c-ac34-bc353d05dd70, "
+            + "27a36d1c-5985-4836-87b5-b36bac75d81b, 385347c5-ff6a-454c-ac34-bc353d05dd70, "
+            + "485347c5-ff6a-454c-ac34-bc353d05dd70\n",
         ),
     ],
 )
-def test_load_metadata_to_db(
-    db_session, test_data_path, metadata_file, analysis_run_name, analysis_run_columns, exit_code, exception_msg
+def test_check_metadata(
+    db_session,
+    test_data_path,
+    metadata_file,
+    analysis_run_name,
+    analysis_run_columns,
+    load_missing_samples,
+    exit_code,
+    exception_msg,
 ):
+
+    cmd_config = [
+        "--file",
+        test_data_path / metadata_file,
+        "--analysis-run-name",
+        analysis_run_name,
+        "--pipeline-version",
+        analysis_run_columns["pipeline_version"],
+        "--primer-scheme-name",
+        analysis_run_columns["primer_scheme_name"],
+        "--primer-scheme-version",
+        analysis_run_columns["primer_scheme_version"],
+        "--input-file-type",
+        analysis_run_columns["input_file_type"],
+        "--workflow",
+        analysis_run_columns["workflow"],
+    ]
+
+    if load_missing_samples:
+        cmd_config.append("--load-missing-samples")
+
     rv = CliRunner().invoke(
-        load_metadata,
-        [
-            "--file",
-            test_data_path / metadata_file,
-            "--analysis-run-name",
-            analysis_run_name,
-            "--pipeline-version",
-            analysis_run_columns["pipeline_version"],
-            "--primer-scheme-name",
-            analysis_run_columns["primer_scheme_name"],
-            "--primer-scheme-version",
-            analysis_run_columns["primer_scheme_version"],
-            "--input-file-type",
-            analysis_run_columns["input_file_type"],
-            "--workflow",
-            analysis_run_columns["workflow"],
-        ],
+        check_metadata,
+        cmd_config,
     )
 
     assert rv.exit_code == exit_code
     samples = db_session.query(Sample).all()
 
     if exit_code == 0:
-        assert len(samples) == 6
+        assert len(samples) == 2
 
         analysis_run = (
             db_session.query(AnalysisRun)

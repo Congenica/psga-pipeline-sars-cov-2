@@ -8,7 +8,6 @@ workflow filter_fastq_matching_with_metadata{
         ch_all_samples_with_metadata_loaded
         ch_samples_with_metadata_loaded
         ch_qc_passed_samples
-        ch_updated_samples
     main:
         // Original usage of grouping illumina fastq file pairs and extracting sample name
         ch_file_paths = makeFastqSearchPath(
@@ -30,7 +29,6 @@ workflow filter_fastq_matching_with_metadata{
 
         notifications(
           filter_samples_with_two_files.out.ch_metadata_sample_mismatch_search,
-          ch_updated_samples,
           filter_samples_with_two_files.out.ch_mismatching_metadata_sample_names,
           filter_samples_with_two_files.out.ch_sample_qc_pass_matches_search,
           filter_samples_with_two_files.out.ch_files_matching_metadata
