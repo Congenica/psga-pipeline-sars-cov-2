@@ -31,10 +31,9 @@ To process samples stored in s3, you need to export the env var `PSGA_INPUT_PATH
 Input paths containing test datasets can be found below:
 
 Small size datasets (processing time: few minutes):
-- s3://synthetic-data-dev/UKHSA/piero-test-data/illumina_fastq          (3 samples)
-- s3://synthetic-data-dev/UKHSA/piero-test-data/illumina_fastq_short    (2 samples)
-- s3://synthetic-data-dev/UKHSA/piero-test-data/illumina_bams           (2 samples)
-- s3://synthetic-data-dev/UKHSA/piero-test-data/medaka_fastq            (2 samples)
+- s3://synthetic-data-dev/UKHSA/small_tests/illumina_fastq          (2 samples)
+- s3://synthetic-data-dev/UKHSA/small_tests/illumina_bams           (2 samples)
+- s3://synthetic-data-dev/UKHSA/small_tests/medaka_fastq            (2 samples)
 
 Medium size datasets (processing time: 1-2 hours). These datasets are used in our Jenkins CI validation (see jenkins/ dir):
 - s3://synthetic-data-dev/UKHSA/validation_ci/illumina_artic_fastq    (30 samples: 10 alpha, 10 delta, 10 omicron)
