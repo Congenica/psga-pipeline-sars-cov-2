@@ -5,7 +5,6 @@ include { append_metadata_match_to_sample_file_pair }  from './utils.nf'
 include { append_match_to_values_list as append_qc_pass_match_to_sample_files }  from './utils.nf'
 
 include { store_notification_with_values_list as store_notification_missing_files } from './utils.nf'
-include { store_notification_with_values_list as store_notification_updated } from './utils.nf'
 include { store_notification_with_values_list as store_notification_sample_files_only } from './utils.nf'
 include { store_notification_with_values_list as store_notification_processed_already } from './utils.nf'
 
@@ -171,7 +170,6 @@ workflow filter_samples_with_two_files {
 workflow notifications {
     take:
         ch_metadata_sample_mismatch_search
-        ch_updated_samples
         ch_mismatching_metadata_sample_names
         ch_sample_qc_pass_matches_search
         ch_files_matching_metadata
@@ -183,13 +181,6 @@ workflow notifications {
         ).subscribe onNext: {
             log.error("ERROR: Found samples with missing files. See notification file: samples_missing_files.txt. Abort!")
             System.exit(1)
-        }
-
-        store_notification_updated(
-          "${workflow.start}-updated_samples.txt",
-          ch_updated_samples.collect()
-        ).subscribe onNext: {
-            log.warn("Found samples with updated metadata. See notification file: updated_samples.txt.")
         }
 
         store_notification_sample_files_only(
