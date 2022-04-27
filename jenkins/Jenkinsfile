@@ -16,7 +16,7 @@ pipeline {
         string(name: 'NCOV2019_ARTIC_NF_ILLUMINA_DOCKER_IMAGE_TAG', defaultValue: 'dev_latest', description: 'The tag for the nCOV-2019 artic-nf illumina docker image')
         string(name: 'NCOV2019_ARTIC_NF_NANOPORE_DOCKER_IMAGE_TAG', defaultValue: 'dev_latest', description: 'The tag for the nCOV-2019 artic-nf nanopore docker image')
         string(name: 'PANGOLIN_DOCKER_IMAGE_TAG', defaultValue: 'dev_latest', description: 'The tag for the Pangolin docker image')
-        string(name: 'PSGA_INPUT_PATH', defaultValue: 's3://synthetic-data-dev/UKHSA/piero-test-data/illumina_fastq_short', description: 'The path containing the input files. This can be an S3 path')
+        string(name: 'PSGA_INPUT_PATH', defaultValue: 's3://synthetic-data-dev/UKHSA/small_tests/illumina_fastq', description: 'The path containing the input files. This can be an S3 path')
         string(name: 'PSGA_OUTPUT_PATH', defaultValue: '/data/output/illumina_fastq_short', description: 'The path containing the output files. This can be an S3 path. In this latter case, please specify a path which does not yet exist, otherwise Nextflow will fail to publish this data due to a policy defined by Dev OPS in which pods are not allowed to delete/overwrite objects in S3.')
         string(name: 'ANALYSIS_RUN', defaultValue: 'illumina_fastq_short', description: 'This can be the test name')
         choice(name: 'WORKFLOW', choices: ['illumina_artic', 'medaka_artic'], description: 'The workflow to run')
