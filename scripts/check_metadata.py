@@ -183,7 +183,7 @@ def check_metadata(
         click.echo("Error: medaka_artic workflow does not support input bam files")
         raise MedakaArticWithBamError
 
-    reader = csv.DictReader(file, delimiter=";")
+    reader = csv.DictReader(file, delimiter=",")
 
     headers = set(reader.fieldnames)
     if not METADATA_FILE_EXPECTED_HEADERS.issubset(headers):
