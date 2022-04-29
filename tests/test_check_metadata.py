@@ -66,7 +66,8 @@ from scripts.check_metadata import check_metadata
             + "Sample 37a36d1c-5985-4836-87b5-b36bac75d81b not found in the database, but listed in pipeline metadata\n"
             + "Invalid row for sample ID 985347c5-ff6a-454c-ac34-bc353d05dd70:\n"
             + "Sample 985347c5-ff6a-454c-ac34-bc353d05dd70 not found in the database, but listed in pipeline metadata\n"
-            + "Error: Errors encountered: 37a36d1c-5985-4836-87b5-b36bac75d81b, 985347c5-ff6a-454c-ac34-bc353d05dd70\n",
+            + "Error: Errors encountered for sample ids: 37a36d1c-5985-4836-87b5-b36bac75d81b, "
+            + "985347c5-ff6a-454c-ac34-bc353d05dd70\n",
         ),
         (
             "good_metadata.tsv",
@@ -134,7 +135,7 @@ from scripts.check_metadata import check_metadata
             + "md5_1 for 385347c5-ff6a-454c-ac34-bc353d05dd70 not available\n"
             + "Invalid row for sample ID 485347c5-ff6a-454c-ac34-bc353d05dd70:\n"
             + "md5_2 for 485347c5-ff6a-454c-ac34-bc353d05dd70 not available\n"
-            + "Error: Errors encountered: , #()aadd, 185347c5-ff6a-454c-ac34-bc353d05dd70, "
+            + "Error: Errors encountered for sample ids: , #()aadd, 185347c5-ff6a-454c-ac34-bc353d05dd70, "
             + "27a36d1c-5985-4836-87b5-b36bac75d81b, 385347c5-ff6a-454c-ac34-bc353d05dd70, "
             + "485347c5-ff6a-454c-ac34-bc353d05dd70\n",
         ),
