@@ -15,7 +15,7 @@ if (params.help){
     exit 0
 }
 
-include { pipeline_started } from './modules/pipeline_lifespan.nf'
+include { pipeline_start } from './modules/pipeline_lifespan.nf'
 include { check_metadata } from './modules/check_metadata.nf'
 include { store_notification } from './modules/utils.nf'
 
@@ -52,7 +52,7 @@ include { submit_genbank_files} from './modules/genbank.nf'
 include { mark_samples_as_submitted_to_genbank} from './modules/genbank.nf'
 include { store_genbank_submission} from './modules/genbank.nf'
 
-include { pipeline_completed } from './modules/pipeline_lifespan.nf'
+include { pipeline_end } from './modules/pipeline_lifespan.nf'
 
 
 // Required environment variables
@@ -64,7 +64,6 @@ if( "[:]" in [
     DB_USER,
     DB_PASSWORD,
     PSGA_ROOT_PATH,
-    PSGA_INPUT_PATH,
     PSGA_OUTPUT_PATH,
     PSGA_INCOMPLETE_ANALYSIS_RUNS_PATH,
     PSGA_CLEANUP_WORKDIR,
@@ -105,7 +104,8 @@ if ( params.metadata == "" ) {
 workflow {
 
     // save the session_id and command
-    pipeline_started(
+    pipeline_start(
+        params.metadata,
         params.run,
         params.workflow,
         params.filetype,
@@ -276,7 +276,7 @@ workflow {
         """
     }
 
-    pipeline_completed(
+    pipeline_end(
         params.run,
         ch_ncov_qc_sample_submitted,
         ch_pangolin_sample_submitted

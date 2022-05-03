@@ -32,7 +32,6 @@ kubectl exec -it ${db_pod} -- bash -c './setup_db.sh'
 kubectl apply -f deploy_psga.yaml
 pipeline_pod="$( kubectl get pods -l app=psga-minikube --no-headers -o custom-columns=':metadata.name' )"
 wait_for_pod "${pipeline_pod}"
-# you will need to copy files to the /data/input or change PSGA_INPUT_PATH to point to an s3 location
-kubectl exec -it ${pipeline_pod} -- bash -c 'mkdir -p /data/input'
+# set up a metadata.csv file containing the sample file paths
 # copy your aws credentials so that you can fetch files from s3 within the pod
 kubectl cp ${HOME}/.aws ${pipeline_pod}:/root/
