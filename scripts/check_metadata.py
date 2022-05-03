@@ -10,7 +10,7 @@ import click
 from click import ClickException
 
 from scripts.db.database import session_handler
-from scripts.db.models import AnalysisRun, Sample, SampleQC
+from scripts.db.models import AnalysisRun, Sample
 
 METADATA_FILE_EXPECTED_HEADERS = {"sample_id", "file_1", "file_2", "md5_1", "md5_2"}
 INPUT_FILE_TYPES = {"bam", "fastq"}
@@ -99,24 +99,10 @@ def write_list_to_file(out_file: Path, elements: List[str]) -> None:
 
 def write_sample_list_files(
     valid_samples: List[str],
-    file_all_samples: str,
     file_current_samples: str,
-    file_qc_pass_samples: str,
 ) -> None:
-    if file_all_samples:
-        with session_handler() as session:
-            all_samples_with_metadata = session.query(Sample.sample_name).filter(Sample.metadata_loaded).all()
-            all_samples_with_metadata = [x[0] for x in all_samples_with_metadata]
-            write_list_to_file(Path(file_all_samples), all_samples_with_metadata)
     if file_current_samples:
         write_list_to_file(Path(file_current_samples), valid_samples)
-    if file_qc_pass_samples:
-        with session_handler() as session:
-            samples_with_qc_pass = (
-                session.query(Sample.sample_name).join(Sample.sample_qc).filter(SampleQC.qc_pass).all()
-            )
-            samples_with_qc_pass = [x[0] for x in samples_with_qc_pass]
-            write_list_to_file(Path(file_qc_pass_samples), samples_with_qc_pass)
 
 
 @click.command()
@@ -135,24 +121,10 @@ def write_sample_list_files(
 )
 @click.option("--pipeline-version", type=str, required=True, help="mapping pipeline version")
 @click.option(
-    "--output-all-samples-with-metadata",
-    required=False,
-    type=click.Path(file_okay=True, writable=True),
-    help="File path to populate with ALL sample names found historically, "
-    "which have metadata loaded in the database",
-)
-@click.option(
     "--output-current-samples-with-metadata",
     required=False,
     type=click.Path(file_okay=True, writable=True),
     help="File path to populate with sample names within the current metadata file",
-)
-@click.option(
-    "--output-samples-with-qc-pass",
-    required=False,
-    type=click.Path(file_okay=True, writable=True),
-    help="File path to populate with all sample names, "
-    "which were processed by artic-ncov2019 pipeline and were marked as QC_PASS",
 )
 @click.option(
     "--load-missing-samples",
@@ -163,9 +135,7 @@ def write_sample_list_files(
 def check_metadata(
     file,
     analysis_run_name,
-    output_all_samples_with_metadata,
     output_current_samples_with_metadata,
-    output_samples_with_qc_pass,
     primer_scheme_name,
     primer_scheme_version,
     input_file_type,
@@ -183,7 +153,7 @@ def check_metadata(
         click.echo("Error: medaka_artic workflow does not support input bam files")
         raise MedakaArticWithBamError
 
-    reader = csv.DictReader(file, delimiter=";")
+    reader = csv.DictReader(file, delimiter=",")
 
     headers = set(reader.fieldnames)
     if not METADATA_FILE_EXPECTED_HEADERS.issubset(headers):
@@ -253,13 +223,11 @@ def check_metadata(
 
     write_sample_list_files(
         valid_samples=file_samples_with_valid_meta,
-        file_all_samples=output_all_samples_with_metadata,
         file_current_samples=output_current_samples_with_metadata,
-        file_qc_pass_samples=output_samples_with_qc_pass,
     )
 
     if errors:
-        raise ClickException("Errors encountered: " + ", ".join(map(str, sorted(errors))))
+        raise ClickException("Errors encountered for sample ids: " + ", ".join(map(str, sorted(errors))))
 
     if load_missing_samples:
         click.echo("Inserted samples: " + ", ".join(map(str, inserted)))

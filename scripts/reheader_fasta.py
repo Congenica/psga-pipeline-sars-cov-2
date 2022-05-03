@@ -20,7 +20,7 @@ def convert_file(source_file: Path, output_dir: Path) -> None:
         # >Consensus_ERR4157960.primertrimmed.consensus_threshold_0.75_quality_20
         # ncov-nanopore workflow
         # >20200311_1427_X1_FAK72834_a3787181_barcode07/ARTIC/medaka
-        sample_name = re.search(r"^(Consensus_)?(\w+)", record.id)
+        sample_name = re.search(r"^(Consensus_)?[\w-]+", record.id)
 
         if not sample_name:
             click.echo(f'sample name not found in {source_file} in header "{record.id}" skipping')

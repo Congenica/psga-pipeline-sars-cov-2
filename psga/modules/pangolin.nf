@@ -3,6 +3,7 @@
  * see: https://github.com/cov-lineages/pangolin
  */
 process pangolin_pipeline {
+  tag "${task.index} - ${reheadered_fasta}"
 
   input:
     path reheadered_fasta

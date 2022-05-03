@@ -31,6 +31,7 @@ def printPipelineConfig() {
         * NXF_OPTS                                    : ${NXF_OPTS}
 
         Params:
+        * metadata                              : ${params.metadata}
         * run                                   : ${params.run}
         * workflow                              : ${params.workflow}
         * filetype                              : ${params.filetype}
@@ -59,6 +60,7 @@ def printHelp() {
         - Pangolin: pangolin (https://github.com/cov-lineages/pangolin)
 
     Mandatory workflow options:
+        --metadata              The path to the metadata file.
         --workflow              The workflow to run: 'illumina_artic' (default; input file extension: .fastq.gz or .bam) or 'medaka_artic' (input file extension: .fastq).
         --filetype              The type of input file: 'fastq' or 'bam'. 'bam' is only available for the illumina_artic workflow.
         --run                   A (unique) string identifying the analysis run (batch).

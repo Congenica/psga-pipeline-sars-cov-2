@@ -16,23 +16,22 @@ if (params.help){
 }
 
 include { pipeline_started } from './modules/pipeline_lifespan.nf'
-
 include { check_metadata } from './modules/check_metadata.nf'
+include { store_notification } from './modules/utils.nf'
 
 if ( params.workflow == "illumina_artic" ) {
     include { ncov2019_artic_nf_pipeline_illumina as ncov2019_artic_nf_pipeline } from './modules/ncov2019_artic.nf'
     if ( params.filetype == "fastq" ) {
-        include { filter_fastq_matching_with_metadata as filter_input_files_matching_metadata } from './modules/fastq_match.nf'
+        include { select_sample_file_pair as get_sample_files } from './modules/fetch_sample_files.nf'
     } else if ( params.filetype == "bam" ) {
         include { bam_to_fastq } from './modules/ncov2019_artic.nf'
-        include { filter_bam_matching_with_metadata as filter_input_files_matching_metadata } from './modules/bam_match.nf'
+        include { select_sample_file as get_sample_files } from './modules/fetch_sample_files.nf'
     } else {
         throw new Exception("Error: '--filetype' can only be 'fastq' or 'bam'")
     }
 } else if ( params.workflow == "medaka_artic" ) {
-    include { getDirName } from './modules/utils.nf'
-    include { filter_nanopore_matching_with_metadata as filter_input_files_matching_metadata } from './modules/nanopore_match.nf'
     include { ncov2019_artic_nf_pipeline_medaka as ncov2019_artic_nf_pipeline } from './modules/ncov2019_artic.nf'
+    include { select_sample_file as get_sample_files } from './modules/fetch_sample_files.nf'
 } else {
     throw new Exception("Error: '--workflow' can only be 'illumina_artic' or 'medaka_artic'")
 }
@@ -99,6 +98,10 @@ if ( params.run == "" ) {
     throw new Exception("Error: '--run' must be defined")
 }
 
+if ( params.metadata == "" ) {
+    throw new Exception("Error: '--metadata' must be defined")
+}
+
 workflow {
 
     // save the session_id and command
@@ -115,41 +118,37 @@ workflow {
     // METADATA
     check_metadata(
         params.load_missing_samples,
-        "${PSGA_INPUT_PATH}/" + params.metadata_file_name,
+        params.metadata,
         params.run,
         params.scheme,
         params.scheme_version,
         params.filetype,
         params.workflow
     )
-    check_metadata.out.ch_all_samples_with_metadata_file
-        .splitText().map { it.trim() }.set { ch_all_samples_with_metadata_loaded }
-    check_metadata.out.ch_current_session_samples_with_metadata_file
-        .splitText().map { it.trim() }.set { ch_current_session_samples_with_metadata_loaded }
-    check_metadata.out.ch_all_samples_ncov2019_artic_qc_passed_file
-        .splitText().map { it.trim() }.set { ch_qc_passed_samples }
 
+    store_notification(
+        check_metadata.out.ch_current_session_samples_with_metadata_file
+    )
 
     // NCOV2019-ARTIC
     ch_input_files = Channel.empty()
-    filter_input_files_matching_metadata(
-        ch_all_samples_with_metadata_loaded,
-        ch_current_session_samples_with_metadata_loaded,
-        ch_qc_passed_samples
-    )
-    ch_input_files_prep = filter_input_files_matching_metadata.out.ch_selected_sample_files
 
-    ncov_prefix = params.workflow
     if ( params.workflow == "illumina_artic" && params.filetype == "fastq" ) {
-        ch_input_files = ch_input_files_prep
+        ch_input_files = get_sample_files(
+            check_metadata.out.ch_metadata,
+            ".fastq.gz"
+        )
     } else if ( params.workflow == "illumina_artic" && params.filetype == "bam" ) {
+        ch_input_files_prep = get_sample_files(
+            check_metadata.out.ch_metadata,
+            ".bam"
+        )
         ch_input_files = bam_to_fastq(ch_input_files_prep)
     } else if ( params.workflow == "medaka_artic" && params.filetype == "fastq" ) {
-        ch_input_files = ch_input_files_prep
-        // for ncov nanopore/medaka workflow this is not arbitrary. It must be the name of the full run coming from the lab.
-        // This is the name of the input dir
-        // e.g. 20200311_1427_X1_FAK72834_a3787181
-        ncov_prefix = getDirName("${PSGA_INPUT_PATH}")
+        ch_input_files = get_sample_files(
+            check_metadata.out.ch_metadata,
+            ".fastq"
+        )
     } else {
         log.error """\
             ERROR: nanopore / medaka workflow can only run with fastq input files.
@@ -157,9 +156,10 @@ workflow {
         """
         System.exit(1)
     }
+
     ncov2019_artic_nf_pipeline(
         ch_input_files,
-        ncov_prefix,
+        params.run,
         params.scheme_repo_url,
         params.scheme_dir,
         params.scheme,
@@ -195,6 +195,7 @@ workflow {
                 return it.sample_name
         }
         .set{ ch_sample_row_by_qc }
+
     ch_qc_passed_fasta = store_reheadered_fasta_passed(
         ch_reheadered_fasta.collect(),
         ch_sample_row_by_qc.qc_passed.flatten()
@@ -280,5 +281,4 @@ workflow {
         ch_ncov_qc_sample_submitted,
         ch_pangolin_sample_submitted
     )
-
 }
