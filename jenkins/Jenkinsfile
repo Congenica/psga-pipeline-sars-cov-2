@@ -133,6 +133,11 @@ spec:
         PANGOLIN_DOCKER_IMAGE_TAG                   = "${params.PANGOLIN_DOCKER_IMAGE_TAG}"
         PSGA_OUTPUT_PATH                            = "${params.PSGA_OUTPUT_PATH}"
 
+        ANALYSIS_RUN                                = "${params.ANALYSIS_RUN}"
+        WORKFLOW                                    = "${params.WORKFLOW}"
+        FILETYPE                                    = "${params.FILETYPE}"
+        METADATA                                    = "${params.METADATA}"
+
         // other configs
         K8S_PULL_POLICY                             = "${params.K8S_PULL_POLICY}"
         K8S_SERVICE_ACCOUNT                         = "${params.K8S_SERVICE_ACCOUNT}"
@@ -176,14 +181,14 @@ spec:
 
                     // change workdir so nextflow stores its work/ dir in scratch/
                     // the argument `--load_missing_samples true` enables us to integration test the pipeline in isolation
-                    sh 'nextflow run ${PSGA_ROOT_PATH}/psga/main.nf --run ${params.ANALYSIS_RUN} --workflow ${params.WORKFLOW} --filetype ${params.FILETYPE} --metadata ${params.METADATA} --load_missing_samples true'
+                    sh 'nextflow run ${PSGA_ROOT_PATH}/psga/main.nf --run ${ANALYSIS_RUN} --workflow ${WORKFLOW} --filetype ${FILETYPE} --metadata ${METADATA} --load_missing_samples true'
 
                     if (params.VALIDATION_TEST) {
                         // validate ncov2019-artic-nf
-                        sh 'cd ${PSGA_ROOT_PATH}/jenkins && python validation.py --result-path ${PSGA_OUTPUT_PATH}/ncov2019-artic/ncov_qc.csv  --expected-result-path expected_output/${params.ANALYSIS_RUN}/ncov2019-artic/ncov_qc.csv --tool ncov2019_artic_nf'
+                        sh 'cd ${PSGA_ROOT_PATH}/jenkins && python validation.py --result-path ${PSGA_OUTPUT_PATH}/ncov2019-artic/ncov_qc.csv  --expected-result-path expected_output/${ANALYSIS_RUN}/ncov2019-artic/ncov_qc.csv --tool ncov2019_artic_nf'
 
                         // validate pangolin
-                        sh 'cd ${PSGA_ROOT_PATH}/jenkins && python validation.py --result-path ${PSGA_OUTPUT_PATH}/pangolin/all_lineages_report.csv  --expected-result-path expected_output/${params.ANALYSIS_RUN}/pangolin/all_lineages_report.csv --tool pangolin'
+                        sh 'cd ${PSGA_ROOT_PATH}/jenkins && python validation.py --result-path ${PSGA_OUTPUT_PATH}/pangolin/all_lineages_report.csv  --expected-result-path expected_output/${ANALYSIS_RUN}/pangolin/all_lineages_report.csv --tool pangolin'
                     }
 
                     if (params.PSGA_CLEANUP_WORKDIR) {
