@@ -23,36 +23,6 @@ process stage_sample_file {
 }
 
 /*
- * As before, but Medaka-specific process handling the barcode.
- * THIS MIGHT NOT BE NECESSARY AT ALL if we store the barcode next to the sample UUID
- * KEEP IT FOR NOW
- */
-process stage_sample_file_medaka {
-    tag "${task.index} - ${sample_id}"
-    input:
-      val(file_extension)
-      tuple val(sample_id), path(file_1), val(md5_1)
-
-    output:
-      path "${sample_id}*${file_extension}", emit: ch_sample_files
-
-    shell:
-    '''
-    # convert variables to BASH syntax
-    file_extension=!{file_extension}
-    sample_id=!{sample_id}
-    file_1=!{file_1}
-    md5_1=!{md5_1}
-
-    barcode="`echo ${file_1} | egrep -o 'barcode[[:digit:]]+' | head -n1`"
-    staged_file_1="${sample_id}_${barcode}${file_extension}"
-    ln -s ${file_1} ${staged_file_1}
-
-    python /app/scripts/check_file_integrity.py --input-path ${staged_file_1} --expected-md5 ${md5_1}
-    '''
-}
-
-/*
  * Stage the sample file pair and check file integrity.
  * The returned files are renamed using the sample_id.
  * An error is raised if the integrity check fails.
@@ -100,7 +70,6 @@ workflow select_sample_file {
     take:
         ch_metadata
         file_extension
-        workflow_type
     main:
 
         ch_metadata
@@ -115,26 +84,6 @@ workflow select_sample_file {
             file_extension,
             ch_sample_filepaths
         )
-
-        /*
-        TODO:
-        keep this for now, but it is not necessary if we store the barcode next to the sample UUID.
-        If this block is removed, remove workflow_type too.
-        the barcode is expected by the ncov-medaka workflow.
-        I cannot generate it sequentially because processes are called in parallel.
-
-        if ( workflow_type == "illumina_artic" ) {
-            ch_sample_files = stage_sample_file(
-                file_extension,
-                ch_sample_filepaths
-            )
-        } else if ( workflow_type == "medaka_artic" ) {
-            ch_sample_files = stage_sample_file_medaka(
-                file_extension,
-                ch_sample_filepaths
-            )
-        }
-        */
 
         ch_sample_files
              .map { it -> [ it ] }
@@ -152,7 +101,6 @@ workflow select_sample_file_pair {
     take:
         ch_metadata
         file_extension
-        workflow_type
     main:
 
         ch_metadata

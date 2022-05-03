@@ -30,9 +30,8 @@ if ( params.workflow == "illumina_artic" ) {
         throw new Exception("Error: '--filetype' can only be 'fastq' or 'bam'")
     }
 } else if ( params.workflow == "medaka_artic" ) {
-    include { getDirName } from './modules/utils.nf'
-    include { select_sample_file as get_sample_files } from './modules/fetch_sample_files.nf'
     include { ncov2019_artic_nf_pipeline_medaka as ncov2019_artic_nf_pipeline } from './modules/ncov2019_artic.nf'
+    include { select_sample_file as get_sample_files } from './modules/fetch_sample_files.nf'
 } else {
     throw new Exception("Error: '--workflow' can only be 'illumina_artic' or 'medaka_artic'")
 }
@@ -134,30 +133,22 @@ workflow {
     // NCOV2019-ARTIC
     ch_input_files = Channel.empty()
 
-    ncov_prefix = params.workflow
     if ( params.workflow == "illumina_artic" && params.filetype == "fastq" ) {
         ch_input_files = get_sample_files(
             check_metadata.out.ch_metadata,
-            ".fastq.gz",
-            params.workflow
+            ".fastq.gz"
         )
     } else if ( params.workflow == "illumina_artic" && params.filetype == "bam" ) {
         ch_input_files_prep = get_sample_files(
             check_metadata.out.ch_metadata,
-            ".bam",
-            params.workflow
+            ".bam"
         )
         ch_input_files = bam_to_fastq(ch_input_files_prep)
     } else if ( params.workflow == "medaka_artic" && params.filetype == "fastq" ) {
         ch_input_files = get_sample_files(
             check_metadata.out.ch_metadata,
-            ".fastq",
-            params.workflow
+            ".fastq"
         )
-        // for ncov nanopore/medaka workflow this is not arbitrary. It must be the name of the full run coming from the lab.
-        // This is the name of the input dir
-        // e.g. 20200311_1427_X1_FAK72834_a3787181
-        ncov_prefix = getDirName("${PSGA_INPUT_PATH}")
     } else {
         log.error """\
             ERROR: nanopore / medaka workflow can only run with fastq input files.
@@ -168,7 +159,7 @@ workflow {
 
     ncov2019_artic_nf_pipeline(
         ch_input_files,
-        ncov_prefix,
+        params.run,
         params.scheme_repo_url,
         params.scheme_dir,
         params.scheme,
