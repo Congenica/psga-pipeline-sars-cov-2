@@ -18,7 +18,7 @@ process stage_sample_file {
     """
     ln -s ${file_1} ${staged_file_1}
 
-    python /app/scripts/check_file_integrity.py --input-path ${staged_file_1} --expected-md5 ${md5_1}
+    python ${PSGA_ROOT_PATH}/scripts/check_file_integrity.py --input-path ${staged_file_1} --expected-md5 ${md5_1}
     """
 }
 
@@ -44,8 +44,8 @@ process stage_sample_file_pair {
     ln -s ${file_1} ${staged_file_1}
     ln -s ${file_2} ${staged_file_2}
 
-    python /app/scripts/check_file_integrity.py --input-path ${staged_file_1} --expected-md5 ${md5_1}
-    python /app/scripts/check_file_integrity.py --input-path ${staged_file_2} --expected-md5 ${md5_2}
+    python ${PSGA_ROOT_PATH}/scripts/check_file_integrity.py --input-path ${staged_file_1} --expected-md5 ${md5_1}
+    python ${PSGA_ROOT_PATH}/scripts/check_file_integrity.py --input-path ${staged_file_2} --expected-md5 ${md5_2}
     """
 }
 

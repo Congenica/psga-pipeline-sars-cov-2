@@ -230,7 +230,7 @@ process load_ncov_data_to_db {
     ch_ncov_qc_load_done = "load_ncov_assembly_qc_to_db.done"
 
   """
-  python /app/scripts/load_ncov_data_to_db.py \
+  python ${PSGA_ROOT_PATH}/scripts/load_ncov_data_to_db.py \
     --ncov-qc-csv-file "${ch_qc_ncov_result_csv_file}" \
     --ncov-qc-depth-directory "${directory_with_qc_depth_files}" \
     --analysis-run-name "${ch_analysis_run_name}"
@@ -254,7 +254,7 @@ process reheader_genome_fasta {
     output_dir = "./"
 
   """
-  python /app/scripts/reheader_fasta.py ${files_dir} ${output_dir}
+  python ${PSGA_ROOT_PATH}/scripts/reheader_fasta.py ${files_dir} ${output_dir}
   """
 }
 

@@ -52,14 +52,6 @@
     line: "export PSGA_ROOT_PATH={{ psga_root_path }}"
   register: psga_root_path_register
 
-- name: PSGA pipeline - set PSGA_INPUT_PATH environment variables
-  lineinfile:
-    path: ~/.bashrc
-    state: present
-    regexp: "^export PSGA_INPUT_PATH="
-    line: "export PSGA_INPUT_PATH={{ psga_input_path }}"
-  register: psga_input_path_register
-
 - name: PSGA pipeline - set PSGA_OUTPUT_PATH environment variables
   lineinfile:
     path: ~/.bashrc

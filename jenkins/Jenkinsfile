@@ -1,7 +1,7 @@
 CRON_SETTINGS = BRANCH_NAME == "dev" ? '''
-    H 0 * * 1-5 %VALIDATION_TEST=true;PSGA_INPUT_PATH=s3://synthetic-data-dev/UKHSA/validation_ci/illumina_artic_fastq/;PSGA_OUTPUT_PATH=/data/output/illumina_artic_fastq/;ANALYSIS_RUN=illumina_artic_fastq;WORKFLOW=illumina_artic;FILETYPE=fastq;NXF_WORK=/data/work/illumina_artic_fastq/
-    H 8 * * 1-5 %VALIDATION_TEST=true;PSGA_INPUT_PATH=s3://synthetic-data-dev/UKHSA/validation_ci/illumina_artic_bam/;PSGA_OUTPUT_PATH=/data/output/illumina_artic_bam/;ANALYSIS_RUN=illumina_artic_bam;WORKFLOW=illumina_artic;FILETYPE=bam;NXF_WORK=/data/work/illumina_artic_bam/
-    H 16 * * 1-5 %VALIDATION_TEST=true;PSGA_INPUT_PATH=s3://synthetic-data-dev/UKHSA/validation_ci/ont_artic_fastq/;PSGA_OUTPUT_PATH=/data/output/ont_artic_fastq/;ANALYSIS_RUN=ont_artic_fastq;WORKFLOW=medaka_artic;FILETYPE=fastq;NXF_WORK=/data/work/ont_artic_fastq/
+    H 0 * * 1-5 %VALIDATION_TEST=true;METADATA=s3://synthetic-data-dev/UKHSA/validation_ci/illumina_artic_fastq/metadata.csv;PSGA_OUTPUT_PATH=/data/output/illumina_artic_fastq/;ANALYSIS_RUN=illumina_artic_fastq;WORKFLOW=illumina_artic;FILETYPE=fastq;NXF_WORK=/data/work/illumina_artic_fastq/
+    H 8 * * 1-5 %VALIDATION_TEST=true;METADATA=s3://synthetic-data-dev/UKHSA/validation_ci/illumina_artic_bam/metadata.csv;PSGA_OUTPUT_PATH=/data/output/illumina_artic_bam/;ANALYSIS_RUN=illumina_artic_bam;WORKFLOW=illumina_artic;FILETYPE=bam;NXF_WORK=/data/work/illumina_artic_bam/
+    H 16 * * 1-5 %VALIDATION_TEST=true;METADATA=s3://synthetic-data-dev/UKHSA/validation_ci/ont_artic_fastq/metadata.csv;PSGA_OUTPUT_PATH=/data/output/ont_artic_fastq/;ANALYSIS_RUN=ont_artic_fastq;WORKFLOW=medaka_artic;FILETYPE=fastq;NXF_WORK=/data/work/ont_artic_fastq/
 ''' : ""
 
 pipeline {
@@ -16,7 +16,7 @@ pipeline {
         string(name: 'NCOV2019_ARTIC_NF_ILLUMINA_DOCKER_IMAGE_TAG', defaultValue: 'dev_latest', description: 'The tag for the nCOV-2019 artic-nf illumina docker image')
         string(name: 'NCOV2019_ARTIC_NF_NANOPORE_DOCKER_IMAGE_TAG', defaultValue: 'dev_latest', description: 'The tag for the nCOV-2019 artic-nf nanopore docker image')
         string(name: 'PANGOLIN_DOCKER_IMAGE_TAG', defaultValue: 'dev_latest', description: 'The tag for the Pangolin docker image')
-        string(name: 'PSGA_INPUT_PATH', defaultValue: 's3://synthetic-data-dev/UKHSA/small_tests/illumina_fastq', description: 'The path containing the input files. This can be an S3 path')
+        string(name: 'METADATA', defaultValue: 's3://synthetic-data-dev/UKHSA/small_tests/illumina_fastq/metadata.csv', description: 'The path to the metadata CSV file containing the input file paths of the samples to process. This can be an S3 path')
         string(name: 'PSGA_OUTPUT_PATH', defaultValue: '/data/output/illumina_fastq_short', description: 'The path containing the output files. This can be an S3 path. In this latter case, please specify a path which does not yet exist, otherwise Nextflow will fail to publish this data due to a policy defined by Dev OPS in which pods are not allowed to delete/overwrite objects in S3.')
         string(name: 'ANALYSIS_RUN', defaultValue: 'illumina_fastq_short', description: 'This can be the test name')
         choice(name: 'WORKFLOW', choices: ['illumina_artic', 'medaka_artic'], description: 'The workflow to run')
@@ -131,11 +131,7 @@ spec:
         NCOV2019_ARTIC_NF_ILLUMINA_DOCKER_IMAGE_TAG = "${params.NCOV2019_ARTIC_NF_ILLUMINA_DOCKER_IMAGE_TAG}"
         NCOV2019_ARTIC_NF_NANOPORE_DOCKER_IMAGE_TAG = "${params.NCOV2019_ARTIC_NF_NANOPORE_DOCKER_IMAGE_TAG}"
         PANGOLIN_DOCKER_IMAGE_TAG                   = "${params.PANGOLIN_DOCKER_IMAGE_TAG}"
-        PSGA_INPUT_PATH                             = "${params.PSGA_INPUT_PATH}"
         PSGA_OUTPUT_PATH                            = "${params.PSGA_OUTPUT_PATH}"
-        ANALYSIS_RUN                                = "${params.ANALYSIS_RUN}"
-        WORKFLOW                                    = "${params.WORKFLOW}"
-        FILETYPE                                    = "${params.FILETYPE}"
 
         // other configs
         K8S_PULL_POLICY                             = "${params.K8S_PULL_POLICY}"
@@ -179,14 +175,15 @@ spec:
                     sh 'cd ${PSGA_ROOT_PATH}/sqitch && bash setup_db_jenkins.sh && cd -'
 
                     // change workdir so nextflow stores its work/ dir in scratch/
-                    sh 'nextflow run ${PSGA_ROOT_PATH}/psga/main.nf --run ${ANALYSIS_RUN} --workflow ${WORKFLOW} --filetype ${FILETYPE}'
+                    // the argument `--load_missing_samples true` enables us to integration test the pipeline in isolation
+                    sh 'nextflow run ${PSGA_ROOT_PATH}/psga/main.nf --run ${params.ANALYSIS_RUN} --workflow ${params.WORKFLOW} --filetype ${params.FILETYPE} --metadata ${params.METADATA} --load_missing_samples true'
 
                     if (params.VALIDATION_TEST) {
                         // validate ncov2019-artic-nf
-                        sh 'cd ${PSGA_ROOT_PATH}/jenkins && python validation.py --result-path ${PSGA_OUTPUT_PATH}/ncov2019-artic/ncov_qc.csv  --expected-result-path expected_output/${ANALYSIS_RUN}/ncov2019-artic/ncov_qc.csv --tool ncov2019_artic_nf'
+                        sh 'cd ${PSGA_ROOT_PATH}/jenkins && python validation.py --result-path ${PSGA_OUTPUT_PATH}/ncov2019-artic/ncov_qc.csv  --expected-result-path expected_output/${params.ANALYSIS_RUN}/ncov2019-artic/ncov_qc.csv --tool ncov2019_artic_nf'
 
                         // validate pangolin
-                        sh 'cd ${PSGA_ROOT_PATH}/jenkins && python validation.py --result-path ${PSGA_OUTPUT_PATH}/pangolin/all_lineages_report.csv  --expected-result-path expected_output/${ANALYSIS_RUN}/pangolin/all_lineages_report.csv --tool pangolin'
+                        sh 'cd ${PSGA_ROOT_PATH}/jenkins && python validation.py --result-path ${PSGA_OUTPUT_PATH}/pangolin/all_lineages_report.csv  --expected-result-path expected_output/${params.ANALYSIS_RUN}/pangolin/all_lineages_report.csv --tool pangolin'
                     }
 
                     if (params.PSGA_CLEANUP_WORKDIR) {
@@ -202,10 +199,10 @@ spec:
     }
     post {
         success {
-            slackSend color: '#00FF00', channel: "${params.SLACKCHANNEL}", message: "Success - psga_input_path: ${params.PSGA_INPUT_PATH}, psga_output_path: ${params.PSGA_OUTPUT_PATH}, run: ${params.ANALYSIS_RUN}, workflow: ${params.WORKFLOW}, filetype: ${params.FILETYPE}, validation test: ${params.VALIDATION_TEST}, job: ${env.JOB_NAME}, build: ${env.BUILD_NUMBER}, psga_docker_tag: ${params.PSGA_DOCKER_IMAGE_TAG}, ncov_illumina_docker_tag: ${params.NCOV2019_ARTIC_NF_ILLUMINA_DOCKER_IMAGE_TAG}, ncov_nanopore_docker_tag: ${params.NCOV2019_ARTIC_NF_NANOPORE_DOCKER_IMAGE_TAG}, pangolin_docker_tag: ${params.PANGOLIN_DOCKER_IMAGE_TAG} (<${env.BUILD_URL}|URL>)"
+            slackSend color: '#00FF00', channel: "${params.SLACKCHANNEL}", message: "Success - metadata: ${params.METADATA}, psga_output_path: ${params.PSGA_OUTPUT_PATH}, run: ${params.ANALYSIS_RUN}, workflow: ${params.WORKFLOW}, filetype: ${params.FILETYPE}, validation test: ${params.VALIDATION_TEST}, job: ${env.JOB_NAME}, build: ${env.BUILD_NUMBER}, psga_docker_tag: ${params.PSGA_DOCKER_IMAGE_TAG}, ncov_illumina_docker_tag: ${params.NCOV2019_ARTIC_NF_ILLUMINA_DOCKER_IMAGE_TAG}, ncov_nanopore_docker_tag: ${params.NCOV2019_ARTIC_NF_NANOPORE_DOCKER_IMAGE_TAG}, pangolin_docker_tag: ${params.PANGOLIN_DOCKER_IMAGE_TAG} (<${env.BUILD_URL}|URL>)"
         }
         failure {
-            slackSend color: '#FF0000', channel: "${params.SLACKCHANNEL}", message: "FAILURE - psga_input_path: ${params.PSGA_INPUT_PATH}, psga_output_path: ${params.PSGA_OUTPUT_PATH}, run: ${params.ANALYSIS_RUN}, workflow: ${params.WORKFLOW}, filetype: ${params.FILETYPE}, validation test: ${params.VALIDATION_TEST}, job: ${env.JOB_NAME}, build: ${env.BUILD_NUMBER}, psga_docker_tag: ${params.PSGA_DOCKER_IMAGE_TAG}, ncov_illumina_docker_tag: ${params.NCOV2019_ARTIC_NF_ILLUMINA_DOCKER_IMAGE_TAG}, ncov_nanopore_docker_tag: ${params.NCOV2019_ARTIC_NF_NANOPORE_DOCKER_IMAGE_TAG}, pangolin_docker_tag: ${params.PANGOLIN_DOCKER_IMAGE_TAG} (<${env.BUILD_URL}|URL>)"
+            slackSend color: '#FF0000', channel: "${params.SLACKCHANNEL}", message: "FAILURE - metadata: ${params.METADATA}, psga_output_path: ${params.PSGA_OUTPUT_PATH}, run: ${params.ANALYSIS_RUN}, workflow: ${params.WORKFLOW}, filetype: ${params.FILETYPE}, validation test: ${params.VALIDATION_TEST}, job: ${env.JOB_NAME}, build: ${env.BUILD_NUMBER}, psga_docker_tag: ${params.PSGA_DOCKER_IMAGE_TAG}, ncov_illumina_docker_tag: ${params.NCOV2019_ARTIC_NF_ILLUMINA_DOCKER_IMAGE_TAG}, ncov_nanopore_docker_tag: ${params.NCOV2019_ARTIC_NF_NANOPORE_DOCKER_IMAGE_TAG}, pangolin_docker_tag: ${params.PANGOLIN_DOCKER_IMAGE_TAG} (<${env.BUILD_URL}|URL>)"
         }
     }
 }
