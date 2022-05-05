@@ -162,7 +162,7 @@ workflow {
 
     // run fastqc for all sample files
     fastqc(ch_input_files)
-    store_fastqc_reports(
+    ch_fastqc_submitted = store_fastqc_reports(
         fastqc.out.ch_fastqc_html_report.collect(),
         fastqc.out.ch_fastqc_zip_report.collect(),
     )
@@ -289,6 +289,7 @@ workflow {
 
     pipeline_end(
         params.run,
+        ch_fastqc_submitted,
         ch_ncov_qc_sample_submitted,
         ch_pangolin_sample_submitted
     )
