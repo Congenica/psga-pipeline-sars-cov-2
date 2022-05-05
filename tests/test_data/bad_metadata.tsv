@@ -1,2 +1,7 @@
-SAMPLE ID	ASSIGN DATE
-HAM44444	32/02/2020
+sample_id,file_1,file_2,md5_1,md5_2
+,s3://synthetic-data-dev/UKHSA/small_tests/illumina_fastq/ERR7150151_1.fastq.gz,s3://synthetic-data-dev/UKHSA/small_tests/illumina_fastq/ERR7150151_2.fastq.gz,997a4ce8160c76a4977755c41c3a4f03,b999b178a283781a395b3ed805194c93
+#()aadd,s3://synthetic-data-dev/UKHSA/small_tests/illumina_fastq/ERR7150151_1.fastq.gz,s3://synthetic-data-dev/UKHSA/small_tests/illumina_fastq/ERR7150151_2.fastq.gz,997a4ce8160c76a4977755c41c3a4f03,b999b178a283781a395b3ed805194c93
+185347c5-ff6a-454c-ac34-bc353d05dd70,,s3://synthetic-data-dev/UKHSA/small_tests/illumina_fastq/ERR7150243_2.fastq.gz,c34157c554a0b6225a7ed9680da5c2f3,48abf0d57bfbe85fba8806d185c8ffcc
+27a36d1c-5985-4836-87b5-b36bac75d81b,s3://synthetic-data-dev/UKHSA/small_tests/illumina_fastq/ERR7150151_1.fastq.gz,,997a4ce8160c76a4977755c41c3a4f03,b999b178a283781a395b3ed805194c93
+385347c5-ff6a-454c-ac34-bc353d05dd70,s3://synthetic-data-dev/UKHSA/small_tests/illumina_fastq/ERR7150243_1.fastq.gz,s3://synthetic-data-dev/UKHSA/small_tests/illumina_fastq/ERR7150243_2.fastq.gz,,48abf0d57bfbe85fba8806d185c8ffcc
+485347c5-ff6a-454c-ac34-bc353d05dd70,s3://synthetic-data-dev/UKHSA/small_tests/illumina_fastq/ERR7150243_1.fastq.gz,s3://synthetic-data-dev/UKHSA/small_tests/illumina_fastq/ERR7150243_2.fastq.gz,c34157c554a0b6225a7ed9680da5c2f3,,

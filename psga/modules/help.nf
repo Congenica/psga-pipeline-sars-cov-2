@@ -9,7 +9,6 @@ def printPipelineConfig() {
         * DB_NAME                                     : ${DB_NAME}
         * DB_USER                                     : ${DB_USER}
         * PSGA_ROOT_PATH                              : ${PSGA_ROOT_PATH}
-        * PSGA_INPUT_PATH                             : ${PSGA_INPUT_PATH}
         * PSGA_OUTPUT_PATH                            : ${PSGA_OUTPUT_PATH}
         * PSGA_INCOMPLETE_ANALYSIS_RUNS_PATH          : ${PSGA_INCOMPLETE_ANALYSIS_RUNS_PATH}
         * PSGA_MAX_ATTEMPTS                           : ${PSGA_MAX_ATTEMPTS}
@@ -31,6 +30,7 @@ def printPipelineConfig() {
         * NXF_OPTS                                    : ${NXF_OPTS}
 
         Params:
+        * metadata                              : ${params.metadata}
         * run                                   : ${params.run}
         * workflow                              : ${params.workflow}
         * filetype                              : ${params.filetype}
@@ -59,6 +59,7 @@ def printHelp() {
         - Pangolin: pangolin (https://github.com/cov-lineages/pangolin)
 
     Mandatory workflow options:
+        --metadata              The path to the metadata file. This can be an s3 path.
         --workflow              The workflow to run: 'illumina_artic' (default; input file extension: .fastq.gz or .bam) or 'medaka_artic' (input file extension: .fastq).
         --filetype              The type of input file: 'fastq' or 'bam'. 'bam' is only available for the illumina_artic workflow.
         --run                   A (unique) string identifying the analysis run (batch).
@@ -104,9 +105,6 @@ def printHelp() {
         DB_PASSWORD             Postgres database user password (e.g. postgres)
         PSGA_ROOT_PATH
                                 Path to the pipeline code (e.g. git checkout). (e.g. /app) |
-        PSGA_INPUT_PATH
-                                Path to the required input BAM/FASTQ files and TSV metadata file.
-                                (e.g. /data/input, s3://data/input)
         PSGA_OUTPUT_PATH
                                 Path to the whole pipeline output. (e.g. /data/output, s3://data/output)
         PSGA_INCOMPLETE_ANALYSIS_RUNS_PATH

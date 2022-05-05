@@ -1,4 +1,5 @@
 process bam_to_fastq {
+  tag "${task.index} - ${bam}"
   input:
     file bam
 
@@ -10,8 +11,8 @@ process bam_to_fastq {
     fastq_preproc = "fastq_preproc"
     fastq_directory = "fastq_files"
     // illumina suffix format
-    fastq_suffix_1 = "S01_L001_R1_001"
-    fastq_suffix_2 = "S01_L001_R2_001"
+    fastq_suffix_1 = "_1.fastq"
+    fastq_suffix_2 = "_2.fastq"
 
   """
   mkdir -p ${fastq_preproc}
@@ -22,10 +23,10 @@ process bam_to_fastq {
 
   # Starting from a coordinate sorted file, output paired reads to separate files, discarding singletons, supplementary and secondary reads. The resulting files can be used with, for example, the bwa aligner.
   # see: http://www.htslib.org/doc/samtools-fasta.html
-  samtools collate -u -O ${fastq_preproc}/${sample_name}.sorted.bam | samtools fastq -1 ${fastq_directory}/${sample_name}_${fastq_suffix_1}.fq -2  ${fastq_directory}/${sample_name}_${fastq_suffix_2}.fq -0 /dev/null -s /dev/null -n
+  samtools collate -u -O ${fastq_preproc}/${sample_name}.sorted.bam | samtools fastq -1 ${fastq_directory}/${sample_name}${fastq_suffix_1} -2  ${fastq_directory}/${sample_name}${fastq_suffix_2} -0 /dev/null -s /dev/null -n
 
-  bgzip ${fastq_directory}/${sample_name}_${fastq_suffix_1}.fq
-  bgzip ${fastq_directory}/${sample_name}_${fastq_suffix_2}.fq
+  bgzip ${fastq_directory}/${sample_name}${fastq_suffix_1}
+  bgzip ${fastq_directory}/${sample_name}${fastq_suffix_2}
   """
 }
 
@@ -35,6 +36,7 @@ process bam_to_fastq {
  * see: https://github.com/connor-lab/ncov2019-artic-nf
  */
 process ncov2019_artic_nf_pipeline_illumina {
+  tag "${task.index} - ${fastq_file}"
   input:
     file fastq_file
     val ncov_prefix
@@ -86,8 +88,9 @@ process ncov2019_artic_nf_pipeline_illumina {
  * Note: This runs as a shell block
  */
 process ncov2019_artic_nf_pipeline_medaka {
+  tag "${task.index} - ${fastq_file}"
   input:
-    file input_dir
+    file fastq_file
     val ncov_prefix
     val scheme_repo_url
     val scheme_dir
@@ -101,7 +104,6 @@ process ncov2019_artic_nf_pipeline_medaka {
 
   shell:
   '''
-
   ncov_out_directory="ncov_output"
   ncov_minion_medaka_out_dir="${ncov_out_directory}/articNcovNanopore_sequenceAnalysisMedaka_articMinIONMedaka"
   ncov_qc_plots_dir="${ncov_out_directory}/qc_plots"
@@ -109,26 +111,29 @@ process ncov2019_artic_nf_pipeline_medaka {
   output_plots="output_plots"
 
   # convert nextflow variables to Bash so that the same format is used
+  fastq_file=!{fastq_file}
   ncov_prefix=!{ncov_prefix}
   scheme_repo_url=!{scheme_repo_url}
   scheme_dir=!{scheme_dir}
   scheme=!{scheme}
   scheme_version=!{scheme_version}
 
-  # move fastq file to its specific barcode dir
-  # these files are located in the nextflow workdir. We need to regenerate the barcode dir
-  for fq in *.fastq; do
-      barcode="`echo ${fq} | egrep -o 'barcode[[:digit:]]+' | head -n1`"
-      mkdir -p ${barcode}
-      mv -f ${fq} ${barcode}
-  done
+  # move fastq file to a specific directory so that the output files will have the filename pattern:
+  # <analysis_run>_<sample_id>
+  # where analysis_run is ncov_prefix, and
+  # sample_id is the sample UUID (=file name of the fastq file)
+
+  # there is only one input fastq file here as ncov is executed per sample
+  sample_name=`basename ${fastq_file%.*}`
+  mkdir -p ${sample_name}
+  mv -f ${fastq_file} ${sample_name}
 
   # note: we inject our configuration into ncov to override parameters
-  # note: `pwd` is the workdir for this nextflow process
+  # note: --basecalled_fastq is the directory containing the barcodes or the fastq files
   nextflow run ${PSGA_ROOT_PATH}/ncov2019-artic-nf \
       --medaka \
       --prefix ${ncov_prefix} \
-      --basecalled_fastq `eval pwd` \
+      --basecalled_fastq ${sample_name} \
       --outdir ${ncov_out_directory} \
       --schemeRepoURL ${scheme_repo_url} \
       --schemeDir ${scheme_dir} \
@@ -145,24 +150,19 @@ process ncov2019_artic_nf_pipeline_medaka {
 
   # this is a code correction to the nanopore medaka workflow in order to restore the correct sample names
   # in file names and file content
-  for input_path in `ls barcode*/*.fastq`; do
-      barcode=`dirname ${input_path}`
-      sample_name=`basename ${input_path%.*}`
+  for file_to_update in `ls ${output_fasta}/${ncov_prefix}_${sample_name}*.fasta`; do
+      sed -i "s/${ncov_prefix}_${sample_name}/${sample_name}/" ${file_to_update}
+  done
 
-      for file_to_update in `ls ${output_fasta}/${ncov_prefix}_${barcode}*.fasta`; do
-          sed -i "s/${ncov_prefix}_${barcode}/${sample_name}/" ${file_to_update}
-      done
+  sed -i "s/${ncov_prefix}_${sample_name}/${sample_name}/g" ${ncov_out_directory}/${ncov_prefix}.qc.csv
+  mv ${ncov_out_directory}/${ncov_prefix}.qc.csv ${ncov_out_directory}/${sample_name}.qc.csv
 
-      sed -i "s/${ncov_prefix}_${barcode}/${sample_name}/g" ${ncov_out_directory}/${ncov_prefix}.qc.csv
-      mv ${ncov_out_directory}/${ncov_prefix}.qc.csv ${ncov_out_directory}/${sample_name}.qc.csv
-
-      for file_to_rename in `find ${output_fasta} ${output_plots} -name ${ncov_prefix}_${barcode}*`; do
-          file_dir=`dirname ${file_to_rename}`
-          file_name=`basename ${file_to_rename}`
-          cd ${file_dir}
-          rename "s/${ncov_prefix}_${barcode}/${sample_name}/" ${file_name}
-          cd - > /dev/null
-      done
+  for file_to_rename in `find ${output_fasta} ${output_plots} -name ${ncov_prefix}_${sample_name}*`; do
+      file_dir=`dirname ${file_to_rename}`
+      file_name=`basename ${file_to_rename}`
+      cd ${file_dir}
+      rename "s/${ncov_prefix}_${sample_name}/${sample_name}/" ${file_name}
+      cd - > /dev/null
   done
   '''
 }
@@ -230,7 +230,7 @@ process load_ncov_data_to_db {
     ch_ncov_qc_load_done = "load_ncov_assembly_qc_to_db.done"
 
   """
-  python /app/scripts/load_ncov_data_to_db.py \
+  python ${PSGA_ROOT_PATH}/scripts/load_ncov_data_to_db.py \
     --ncov-qc-csv-file "${ch_qc_ncov_result_csv_file}" \
     --ncov-qc-depth-directory "${directory_with_qc_depth_files}" \
     --analysis-run-name "${ch_analysis_run_name}"
@@ -242,6 +242,7 @@ process load_ncov_data_to_db {
  * Reheader the genome fasta files generated by ncov2019-artic-nf
  */
 process reheader_genome_fasta {
+  tag "${task.index} - ${ncov_fasta}"
   input:
     path ncov_fasta
 
@@ -253,7 +254,7 @@ process reheader_genome_fasta {
     output_dir = "./"
 
   """
-  python /app/scripts/reheader_fasta.py ${files_dir} ${output_dir}
+  python ${PSGA_ROOT_PATH}/scripts/reheader_fasta.py ${files_dir} ${output_dir}
   """
 }
 
@@ -261,10 +262,11 @@ process reheader_genome_fasta {
  * Process to store fastas, which were marked in ncov pipeline as QC_PASS=TRUE
  */
 process store_reheadered_fasta_passed {
+  tag "${task.index} - ${reheadered_fasta_file}"
   publishDir "${PSGA_OUTPUT_PATH}/reheadered-fasta", mode: 'copy', overwrite: true
 
   input:
-    path all_reheadered_fasta_files
+    path reheadered_fasta_file
     val sample_name
 
   output:
@@ -281,10 +283,11 @@ process store_reheadered_fasta_passed {
  * Process to store fastas, which were marked in ncov pipeline as QC_PASS=FALSE
  */
 process store_reheadered_fasta_failed {
+  tag "${task.index} - ${reheadered_fasta_file}"
   publishDir "${PSGA_OUTPUT_PATH}/reheadered-fasta-qc-failed", mode: 'copy', overwrite: true
 
   input:
-    path all_reheadered_fasta_files
+    path reheadered_fasta_file
     val sample_name
 
   output:

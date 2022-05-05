@@ -2,23 +2,31 @@
 
 from typing import List
 import csv
-from datetime import date
-import re
+from datetime import datetime
 from pathlib import Path
+from uuid import UUID
 
 import click
 from click import ClickException
 
 from scripts.db.database import session_handler
-from scripts.db.models import AnalysisRun, Sample, SampleQC
+from scripts.db.models import AnalysisRun, Sample
 
-METADATA_FILE_EXPECTED_HEADERS = {"SAMPLE ID", "ASSIGN DATE"}
+METADATA_FILE_EXPECTED_HEADERS = {"sample_id", "file_1", "file_2", "md5_1", "md5_2"}
 INPUT_FILE_TYPES = {"bam", "fastq"}
 WORKFLOWS = {"illumina_artic", "medaka_artic"}
 
 
 class MedakaArticWithBamError(Exception):
     pass
+
+
+def is_valid_uuid(uuid_str: str) -> bool:
+    try:
+        UUID(uuid_str)
+        return True
+    except ValueError:
+        return False
 
 
 def load_analysis_run_metadata(
@@ -51,7 +59,7 @@ def load_analysis_run_metadata(
     return analysis_run
 
 
-def _validate_and_normalise_row(row):
+def _validate_and_normalise_row(row, workflow, input_file_type):
 
     # strip leading and trailing spaces from everything
     for f in METADATA_FILE_EXPECTED_HEADERS:
@@ -59,17 +67,23 @@ def _validate_and_normalise_row(row):
 
     errs = []
 
-    # ASSIGN DATE should be dd/mm/yyyy
-    assign_date_match = re.match(r"(\d{2})/(\d{2})/(\d{4})$", row["ASSIGN DATE"])
-    if assign_date_match:
-        try:
-            row["ASSIGN DATE"] = date(
-                int(assign_date_match.group(3)), int(assign_date_match.group(2)), int(assign_date_match.group(1))
-            )
-        except ValueError as e:
-            errs.append(f"ASSIGN DATE \"{row['ASSIGN DATE']}\" is not a valid date: {e}")
-    else:
-        errs.append(f"ASSIGN DATE \"{row['ASSIGN DATE']}\" doesn't look like a date")
+    # add validations here
+    sample_id = row["sample_id"]
+    if not sample_id:
+        errs.append("sample_id not available")
+    elif not is_valid_uuid(sample_id):
+        errs.append(f'sample_id "{sample_id}" is not a UUID')
+
+    if not row["file_1"]:
+        errs.append(f"file_1 for {sample_id} not available")
+    if not row["md5_1"]:
+        errs.append(f"md5_1 for {sample_id} not available")
+
+    if workflow == "illumina_artic" and input_file_type == "fastq":
+        if not row["file_2"]:
+            errs.append(f"file_2 for {sample_id} not available")
+        if not row["md5_2"]:
+            errs.append(f"md5_2 for {sample_id} not available")
 
     if errs:
         raise ValueError("\n".join(errs))
@@ -84,33 +98,15 @@ def write_list_to_file(out_file: Path, elements: List[str]) -> None:
 
 
 def write_sample_list_files(
-    updated_samples: List[str],
     valid_samples: List[str],
-    file_all_samples: str,
     file_current_samples: str,
-    file_updated_samples: str,
-    file_qc_pass_samples: str,
 ) -> None:
-    if file_all_samples:
-        with session_handler() as session:
-            all_samples_with_metadata = session.query(Sample.sample_name).filter(Sample.metadata_loaded).all()
-            all_samples_with_metadata = [x[0] for x in all_samples_with_metadata]
-            write_list_to_file(Path(file_all_samples), all_samples_with_metadata)
     if file_current_samples:
         write_list_to_file(Path(file_current_samples), valid_samples)
-    if file_qc_pass_samples:
-        with session_handler() as session:
-            samples_with_qc_pass = (
-                session.query(Sample.sample_name).join(Sample.sample_qc).filter(SampleQC.qc_pass).all()
-            )
-            samples_with_qc_pass = [x[0] for x in samples_with_qc_pass]
-            write_list_to_file(Path(file_qc_pass_samples), samples_with_qc_pass)
-    if file_updated_samples:
-        write_list_to_file(Path(file_updated_samples), updated_samples)
 
 
 @click.command()
-@click.option("--file", required=True, type=click.File("r"), help="The metadata TSV input file")
+@click.option("--file", required=True, type=click.File("r"), help="The metadata CSV input file")
 @click.option("--analysis-run-name", required=True, type=str, help="The name of the analysis run")
 @click.option("--primer-scheme-name", required=True, type=str, help="The primer scheme name")
 @click.option("--primer-scheme-version", required=True, type=str, help="The primer scheme version")
@@ -125,60 +121,44 @@ def write_sample_list_files(
 )
 @click.option("--pipeline-version", type=str, required=True, help="mapping pipeline version")
 @click.option(
-    "--output-all-samples-with-metadata",
-    required=False,
-    type=click.Path(file_okay=True, writable=True),
-    help="File path to populate with all ALL sample names found historically, "
-    "which have metadata loaded in the database",
-)
-@click.option(
     "--output-current-samples-with-metadata",
     required=False,
     type=click.Path(file_okay=True, writable=True),
-    help="File path to populate with sample names within the current metadata file, "
-    "which were loaded into the database",
+    help="File path to populate with sample names within the current metadata file",
 )
 @click.option(
-    "--output-samples-with-qc-pass",
-    required=False,
-    type=click.Path(file_okay=True, writable=True),
-    help="File path to populate with all sample names, "
-    "which were processed by artic-ncov2019 pipeline and were marked as QC_PASS",
+    "--load-missing-samples",
+    is_flag=True,
+    help="This flag is only used for testing the pipeline in isolation."
+    "In a non-testing execution, an error is raised if a sample is missing",
 )
-@click.option(
-    "--output-samples-updated",
-    required=False,
-    type=click.Path(file_okay=True, writable=True),
-    help="File path to populate with all sample names, which were re-submitted and overwritten with provided metadata",
-)
-def load_metadata(
+def check_metadata(
     file,
     analysis_run_name,
-    output_all_samples_with_metadata,
     output_current_samples_with_metadata,
-    output_samples_with_qc_pass,
-    output_samples_updated,
     primer_scheme_name,
     primer_scheme_version,
     input_file_type,
     workflow,
     pipeline_version,
+    load_missing_samples,
 ):
     """
-    Read in a TSV file of metadata and load each row into the database. Invalid rows are warned about, but
-    skipped over.
+    Read in a CSV file of metadata and check that samples are present in the database.
+    If a sample in metadata is not found in the database, an error is raised,
+    unless the flag --load-missing-samples is used.
     """
 
     if input_file_type == "bam" and workflow == "medaka_artic":
         click.echo("Error: medaka_artic workflow does not support input bam files")
         raise MedakaArticWithBamError
 
-    reader = csv.DictReader(file, delimiter="\t")
+    reader = csv.DictReader(file, delimiter=",")
 
     headers = set(reader.fieldnames)
     if not METADATA_FILE_EXPECTED_HEADERS.issubset(headers):
         err = (
-            "Unexpected TSV headers, got:\n"
+            "Unexpected CSV headers, got:\n"
             + ", ".join(headers)
             + "\n, but expect at least \n"
             + ", ".join(METADATA_FILE_EXPECTED_HEADERS)
@@ -186,10 +166,10 @@ def load_metadata(
         raise ClickException(err)
 
     file_samples_with_valid_meta = []
-    file_samples_updated = []
 
+    # only if --load-missing-samples is used
     inserted = set()
-    updated = set()
+
     errors = set()
     with session_handler() as session:
 
@@ -205,8 +185,8 @@ def load_metadata(
 
         for row in reader:
             try:
-                row = _validate_and_normalise_row(row)
-                sample_name = row["SAMPLE ID"]
+                row = _validate_and_normalise_row(row, workflow, input_file_type)
+                sample_name = row["sample_id"]
 
                 existing_sample = (
                     session.query(Sample)
@@ -220,40 +200,39 @@ def load_metadata(
 
                 if existing_sample:
                     existing_sample.analysis_run_id = analysis_run.analysis_run_id
-                    existing_sample.date_collected = row["ASSIGN DATE"]
-                    existing_sample.metadata_loaded = True
-                    updated.add(sample_name)
-                    file_samples_updated.append(sample_name)
-                else:
+                elif load_missing_samples:
+                    # the pipeline metadata does not contain the date_collected field
+                    yesterday = datetime.strftime(datetime.now(), "%Y-%m-%d")
                     sample = Sample(
                         analysis_run_id=analysis_run.analysis_run_id,
                         sample_name=sample_name,
-                        date_collected=row["ASSIGN DATE"],
+                        date_collected=yesterday,
                         metadata_loaded=True,
                     )
                     session.add(sample)
                     inserted.add(sample_name)
+                else:
+                    raise ValueError(f"Sample {sample_name} not found in the database, but listed in pipeline metadata")
+
                 session.commit()
                 file_samples_with_valid_meta.append(sample_name)
+
             except ValueError as e:
-                click.echo(f"Invalid row for sample ID {row['SAMPLE ID']}:\n{e}", err=True)
-                errors.add(row["SAMPLE ID"])
+                click.echo(f"Invalid row for sample ID {row['sample_id']}:\n{e}", err=True)
+                errors.add(row["sample_id"])
 
     write_sample_list_files(
-        updated_samples=file_samples_updated,
         valid_samples=file_samples_with_valid_meta,
-        file_all_samples=output_all_samples_with_metadata,
         file_current_samples=output_current_samples_with_metadata,
-        file_updated_samples=output_samples_updated,
-        file_qc_pass_samples=output_samples_with_qc_pass,
     )
 
     if errors:
-        raise ClickException("Errors encountered: " + ", ".join(map(str, errors)))
-    click.echo("Inserted samples: " + ", ".join(map(str, inserted)))
-    click.echo("Updated samples: " + ", ".join(map(str, updated)))
+        raise ClickException("Errors encountered for sample ids: " + ", ".join(map(str, sorted(errors))))
+
+    if load_missing_samples:
+        click.echo("Inserted samples: " + ", ".join(map(str, inserted)))
 
 
 if __name__ == "__main__":
     # pylint: disable=no-value-for-parameter
-    load_metadata()
+    check_metadata()

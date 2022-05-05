@@ -27,8 +27,8 @@ The current configuration can be printed with the command: `nextflow run . --pri
 
 
 ### Input files stored in aws s3
-To process samples stored in s3, you need to export the env var `PSGA_INPUT_PATH` (see section: `Environment variables and input parameters`) to point to the s3 dir containing your data.
-Input paths containing test datasets can be found below:
+To process samples stored in s3, to set up a metadata CSV file (see tests/test_data/good_metadata.csv for reference) including the paths to the sample input files. Two files are required for running illumina fastq samples. 1 file is required for running illumina bam or nanopore medaka fastq samples.
+Analysis runs containing test datasets can be found below. Each set contains a metadata.csv file. Sample files are stored in the same directory for convenience, but this is not mandatory.
 
 Small size datasets (processing time: few minutes):
 - s3://synthetic-data-dev/UKHSA/small_tests/illumina_fastq          (2 samples)
@@ -103,10 +103,6 @@ Once all the required images are generated, the deployments can be created:
 ```commandline
 cd minikube
 ./startup.sh
-
-# input files can either be copied to the psga pod: /data/input
-# or fetched from S3 (see examples: https://jira.congenica.net/browse/PSG-183).
-# The env var: PSGA_INPUT_PATH must be set, accordingly.
 
 # exec the psga pod
 kubectl exec -it psga-XXXX -- bash
@@ -204,7 +200,6 @@ export DB_USER=postgres
 export DB_PASSWORD=postgres
 
 export PSGA_ROOT_PATH="/app"
-export PSGA_INPUT_PATH="/data/input"
 export PSGA_OUTPUT_PATH="/data/output"
 ```
 

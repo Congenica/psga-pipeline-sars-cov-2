@@ -30,7 +30,7 @@ process create_genbank_submission_files {
   echo "All FASTA files to submit to GenBank:"
   ls -l
 
-  python /app/scripts/generate_genbank_files.py \
+  python ${PSGA_ROOT_PATH}/scripts/generate_genbank_files.py \
     --analysis-run-name "${ch_analysis_run_name}" \
     --input-sequence-fasta-directory ${sequence_fasta_directory} \
     --input-submission-template ${genbank_submission_template} \
@@ -76,7 +76,7 @@ process submit_genbank_files {
   """
   echo ${no_samples_flag}
 
-  python /app/scripts/submit_genbank_files.py \
+  python ${PSGA_ROOT_PATH}/scripts/submit_genbank_files.py \
     --input-xml "${submission_xml}" \
     --input-zip "${submission_zip}" \
     --submit-id "${submit_id}" \
@@ -109,7 +109,7 @@ process mark_samples_as_submitted_to_genbank{
     mark_samples_as_submitted_to_genbank_done = "mark_samples_as_submitted_to_genbank.done"
 
   """
-  python /app/scripts/mark_submitted_genbank_samples.py \
+  python ${PSGA_ROOT_PATH}/scripts/mark_submitted_genbank_samples.py \
     --analysis-run-name "${ch_analysis_run_name}" \
     --sample-names-txt "${sample_names_txt}" \
     --submit-id "${submit_id}"

@@ -3,6 +3,7 @@
  * see: https://github.com/cov-lineages/pangolin
  */
 process pangolin_pipeline {
+  tag "${task.index} - ${reheadered_fasta}"
 
   input:
     path reheadered_fasta
@@ -58,7 +59,7 @@ process load_pangolin_data_to_db {
     ch_pangolin_load_data_done = "load_pangolin_data_to_db.done"
 
   """
-  python /app/scripts/load_pangolin_data_to_db.py \
+  python ${PSGA_ROOT_PATH}/scripts/load_pangolin_data_to_db.py \
     --pangolin-lineage-report-file "${ch_pangolin_all_lineages}" \
     --analysis-run-name "${ch_analysis_run_name}"
   touch ${ch_pangolin_load_data_done}
