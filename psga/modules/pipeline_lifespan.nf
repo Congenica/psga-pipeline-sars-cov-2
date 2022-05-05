@@ -25,6 +25,8 @@ process pipeline_start {
 process pipeline_end {
   input:
     val run
+    file fastq_html
+    file fastq_zip
     file ncov_qc_sample_submitted_complete
     file pangolin_sample_submitted_complete
 

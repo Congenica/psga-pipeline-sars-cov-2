@@ -1,6 +1,6 @@
 FROM python:3.9
 
-# Also install a DB client and sqitch so that we can access the DB from this image
+# DB client and sqitch are also installed so that we can access the DB from this image
 RUN apt-get update \
   && apt-get install --yes --no-install-recommends build-essential procps wget default-jre openjdk-11-jre-headless libpq-dev sqitch libdbd-pg-perl postgresql-client libdbd-sqlite3-perl sqlite3 rename \
   && apt-get clean -y \
@@ -8,3 +8,14 @@ RUN apt-get update \
 
 # fetch a version of nextflow including the nf-amazon plugin
 RUN wget -qO- https://github.com/nextflow-io/nextflow/releases/download/v21.10.6/nextflow-21.10.6-all | bash && chmod +x nextflow && mv nextflow /usr/bin
+
+# install fastqc
+ENV FASTQC_VERSION="0.11.9"
+RUN cd /usr/local \
+  && wget https://www.bioinformatics.babraham.ac.uk/projects/fastqc/fastqc_v${FASTQC_VERSION}.zip \
+  && unzip fastqc_v${FASTQC_VERSION}.zip \
+  && chmod 755 FastQC/fastqc \
+  && ln -s /usr/local/FastQC/fastqc /usr/local/bin/fastqc \
+  && rm fastqc_v${FASTQC_VERSION}.zip
+# overwrite fastqc configuration so that we only run the QC tests we need
+COPY data/fastqc_config_limits.txt /usr/local/FastQC/Configuration/limits.txt

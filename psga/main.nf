@@ -17,7 +17,10 @@ if (params.help){
 
 include { pipeline_start } from './modules/pipeline_lifespan.nf'
 include { check_metadata } from './modules/check_metadata.nf'
-include { store_notification } from './modules/utils.nf'
+include { store_notification as store_metadata_notification } from './modules/utils.nf'
+
+include { fastqc } from './modules/fastqc.nf'
+include { store_fastqc_reports } from './modules/fastqc.nf'
 
 if ( params.workflow == "illumina_artic" ) {
     include { ncov2019_artic_nf_pipeline_illumina as ncov2019_artic_nf_pipeline } from './modules/ncov2019_artic.nf'
@@ -126,7 +129,7 @@ workflow {
         params.workflow
     )
 
-    store_notification(
+    store_metadata_notification(
         check_metadata.out.ch_current_session_samples_with_metadata_file
     )
 
@@ -157,7 +160,15 @@ workflow {
         System.exit(1)
     }
 
+    // run fastqc for all sample files
+    fastqc(ch_input_files)
+    ch_fastqc_submitted = store_fastqc_reports(
+        fastqc.out.ch_fastqc_html_report.collect(),
+        fastqc.out.ch_fastqc_zip_report.collect(),
+    )
+
     ncov2019_artic_nf_pipeline(
+        fastqc.out.ch_fastqc_done,
         ch_input_files,
         params.run,
         params.scheme_repo_url,
@@ -278,6 +289,7 @@ workflow {
 
     pipeline_end(
         params.run,
+        ch_fastqc_submitted,
         ch_ncov_qc_sample_submitted,
         ch_pangolin_sample_submitted
     )

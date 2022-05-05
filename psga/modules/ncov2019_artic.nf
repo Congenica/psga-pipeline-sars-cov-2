@@ -38,6 +38,7 @@ process bam_to_fastq {
 process ncov2019_artic_nf_pipeline_illumina {
   tag "${task.index} - ${fastq_file}"
   input:
+    path fastqc_done
     file fastq_file
     val ncov_prefix
     val scheme_repo_url
@@ -90,6 +91,7 @@ process ncov2019_artic_nf_pipeline_illumina {
 process ncov2019_artic_nf_pipeline_medaka {
   tag "${task.index} - ${fastq_file}"
   input:
+    path fastqc_done
     file fastq_file
     val ncov_prefix
     val scheme_repo_url
