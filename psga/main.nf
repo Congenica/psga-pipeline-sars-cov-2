@@ -17,7 +17,7 @@ if (params.help){
 
 include { pipeline_start } from './modules/pipeline_lifespan.nf'
 include { check_metadata } from './modules/check_metadata.nf'
-include { store_notification } from './modules/utils.nf'
+include { store_notification as store_metadata_notification } from './modules/utils.nf'
 
 include { fastqc } from './modules/fastqc.nf'
 include { store_fastqc_reports } from './modules/fastqc.nf'
@@ -129,7 +129,7 @@ workflow {
         params.workflow
     )
 
-    store_notification(
+    store_metadata_notification(
         check_metadata.out.ch_current_session_samples_with_metadata_file
     )
 
