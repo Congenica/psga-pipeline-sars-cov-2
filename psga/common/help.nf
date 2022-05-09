@@ -31,6 +31,7 @@ def printPipelineConfig() {
 
         Params:
         * metadata                              : ${params.metadata}
+        * pathogen                              : ${params.pathogen}
         * run                                   : ${params.run}
         * workflow                              : ${params.workflow}
         * filetype                              : ${params.filetype}
@@ -50,9 +51,9 @@ def printPipelineConfig() {
 def printHelp() {
     log.info"""
     Usage:
-      nextflow run . --run [analysis_run] --workflow [workflow] --filetype [filetype] [workflow-options]
+      nextflow run . --pathogen [pathogen] --run [analysis_run] --workflow [workflow] --filetype [filetype] [workflow-options]
 
-    Description:
+    Description for pathogen SARS-CoV-2:
       Map sequencing reads to consensus sequences to phylogenetic lineages.
         - Nanopore: ARTIC (https://github.com/artic-network/fieldbioinformatics)
         - Illumina: iVar (https://github.com/andersen-lab/ivar)
@@ -60,6 +61,7 @@ def printHelp() {
 
     Mandatory workflow options:
         --metadata              The path to the metadata file. This can be an s3 path.
+        --pathogen              The type of pathogen for this analysis run (e.g. sars_cov_2).
         --workflow              The workflow to run: 'illumina_artic' (default; input file extension: .fastq.gz or .bam) or 'medaka_artic' (input file extension: .fastq).
         --filetype              The type of input file: 'fastq' or 'bam'. 'bam' is only available for the illumina_artic workflow.
         --run                   A (unique) string identifying the analysis run (batch).

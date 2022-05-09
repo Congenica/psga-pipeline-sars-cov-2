@@ -3,7 +3,7 @@
 /*
  * Merge ncov QC results into one single file
  */
-process merge_ncov_qc_files {
+process merge_ncov2019_artic_qc_sample_files {
   input:
     file input_dir
 
@@ -26,7 +26,7 @@ process merge_ncov_qc_files {
 /*
  * Store ncov2019_artic output
  */
-process store_ncov2019_artic_nf_output {
+process store_ncov2019_artic_output {
   publishDir "${PSGA_OUTPUT_PATH}/ncov2019-artic", mode: 'copy', overwrite: true
 
   input:
@@ -48,7 +48,7 @@ process store_ncov2019_artic_nf_output {
 /*
  * Merge pangolin lineages into one single file
  */
-process merge_pangolin_files {
+process merge_pangolin_sample_files {
   input:
     file input_dir
 
@@ -132,25 +132,25 @@ workflow submit_analysis_run_results {
         ch_pangolin_csvs
     main:
 
-        merge_ncov_qc_files(ch_ncov_qc_csvs)
+        merge_ncov2019_artic_qc_sample_files(ch_ncov_qc_csvs)
 
-        merge_pangolin_files(ch_pangolin_csvs)
+        merge_pangolin_sample_files(ch_pangolin_csvs)
 
-        store_ncov2019_artic_nf_output(
+        store_ncov2019_artic_output(
             ch_ncov_fastas,
             ch_ncov_qc_plots,
-            merge_ncov_qc_files.out.ch_ncov_qc_all_samples
+            merge_ncov2019_artic_qc_sample_files.out.ch_ncov_qc_all_samples
         )
 
         store_pangolin_output(
-            merge_pangolin_files.out.ch_pangolin_all_lineages
+            merge_pangolin_sample_files.out.ch_pangolin_all_lineages
         )
 
         ch_analysis_run_results_submitted = load_results_to_db(
             analysis_run,
-            merge_ncov_qc_files.out.ch_ncov_qc_all_samples,
+            merge_ncov2019_artic_qc_sample_files.out.ch_ncov_qc_all_samples,
             ch_ncov_qc_plots,
-            merge_pangolin_files.out.ch_pangolin_all_lineages
+            merge_pangolin_sample_files.out.ch_pangolin_all_lineages
         )
 
     emit:

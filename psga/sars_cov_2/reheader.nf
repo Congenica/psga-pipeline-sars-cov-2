@@ -23,7 +23,7 @@ process reheader_fasta {
 /*
  * Process to store fastas, which were marked in ncov pipeline as QC_PASS=TRUE
  */
-process store_qc_passed_fasta {
+process store_ncov2019_artic_qc_passed_fasta {
   tag "${task.index} - ${reheadered_fasta_file}"
   publishDir "${PSGA_OUTPUT_PATH}/reheadered-fasta", mode: 'copy', overwrite: true
 
@@ -44,7 +44,7 @@ process store_qc_passed_fasta {
 /*
  * Process to store fastas, which were marked in ncov pipeline as QC_PASS=FALSE
  */
-process store_qc_failed_fasta {
+process store_ncov2019_artic_qc_failed_fasta {
   tag "${task.index} - ${reheadered_fasta_file}"
   publishDir "${PSGA_OUTPUT_PATH}/reheadered-fasta-qc-failed", mode: 'copy', overwrite: true
 
@@ -84,11 +84,11 @@ workflow reheader {
             }
             .set{ ch_sample_row_by_qc }
 
-        ch_qc_passed_fasta = store_qc_passed_fasta(
+        ch_qc_passed_fasta = store_ncov2019_artic_qc_passed_fasta(
             ch_reheadered_fasta,
             ch_sample_row_by_qc.qc_passed.flatten()
         )
-        store_qc_failed_fasta(
+        store_ncov2019_artic_qc_failed_fasta(
             ch_reheadered_fasta,
             ch_sample_row_by_qc.qc_failed.flatten()
         )
