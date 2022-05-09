@@ -42,9 +42,7 @@ if ( params.workflow == "illumina_artic" ) {
 include { store_ncov2019_artic_nf_output } from './modules/ncov2019_artic.nf'
 include { merge_ncov_qc_files } from './modules/ncov2019_artic.nf'
 include { load_ncov_data_to_db } from './modules/ncov2019_artic.nf'
-include { reheader_genome_fasta } from './modules/ncov2019_artic.nf'
-include { store_reheadered_fasta_passed } from './modules/ncov2019_artic.nf'
-include { store_reheadered_fasta_failed } from './modules/ncov2019_artic.nf'
+include { reheader } from './modules/reheader.nf'
 
 include { pangolin_pipeline } from './modules/pangolin.nf'
 include { merge_pangolin_files } from './modules/pangolin.nf'
@@ -193,27 +191,9 @@ workflow {
         params.run
     )
 
-    ch_reheadered_fasta = reheader_genome_fasta(ncov2019_artic_nf_pipeline.out.ch_fasta_ncov_results)
-
-
-    // Samples are split to QC_PASSED and QC_FAILED
-    merge_ncov_qc_files.out.ch_ncov_qc_all_samples
-        .splitCsv(header:true)
-        .branch {
-            qc_passed: it.qc_pass =~ /TRUE/
-                return it.sample_name
-            qc_failed: true
-                return it.sample_name
-        }
-        .set{ ch_sample_row_by_qc }
-
-    ch_qc_passed_fasta = store_reheadered_fasta_passed(
-        ch_reheadered_fasta.collect(),
-        ch_sample_row_by_qc.qc_passed.flatten()
-    )
-    store_reheadered_fasta_failed(
-        ch_reheadered_fasta.collect(),
-        ch_sample_row_by_qc.qc_failed.flatten()
+    ch_qc_passed_fasta = reheader(
+        ncov2019_artic_nf_pipeline.out.ch_qc_csv_ncov_result,
+        ncov2019_artic_nf_pipeline.out.ch_fasta_ncov_results
     )
 
     pangolin_pipeline(ch_qc_passed_fasta)
