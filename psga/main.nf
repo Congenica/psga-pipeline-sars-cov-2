@@ -39,20 +39,16 @@ if ( params.workflow == "illumina_artic" ) {
     throw new Exception("Error: '--workflow' can only be 'illumina_artic' or 'medaka_artic'")
 }
 
-include { store_ncov2019_artic_nf_output } from './modules/ncov2019_artic.nf'
-include { merge_ncov_qc_files } from './modules/ncov2019_artic.nf'
-include { load_ncov_data_to_db } from './modules/ncov2019_artic.nf'
 include { reheader } from './modules/reheader.nf'
 
 include { pangolin_pipeline } from './modules/pangolin.nf'
-include { merge_pangolin_files } from './modules/pangolin.nf'
-include { load_pangolin_data_to_db } from './modules/pangolin.nf'
 
 include { create_genbank_submission_files } from './modules/genbank.nf'
 include { submit_genbank_files} from './modules/genbank.nf'
 include { mark_samples_as_submitted_to_genbank} from './modules/genbank.nf'
 include { store_genbank_submission} from './modules/genbank.nf'
 
+include { submit_analysis_run_results } from './modules/submit_analysis_run_results.nf'
 include { pipeline_end } from './modules/pipeline_lifespan.nf'
 
 
@@ -175,22 +171,6 @@ workflow {
         params.scheme_version
     )
 
-    merge_ncov_qc_files(
-        ncov2019_artic_nf_pipeline.out.ch_qc_csv_ncov_result.collect()
-    )
-
-    store_ncov2019_artic_nf_output(
-        ncov2019_artic_nf_pipeline.out.ch_fasta_ncov_results.collect(),
-        ncov2019_artic_nf_pipeline.out.ch_sample_depth_ncov_results.collect(),
-        merge_ncov_qc_files.out.ch_ncov_qc_all_samples
-    )
-
-    ch_ncov_qc_sample_submitted = load_ncov_data_to_db(
-        merge_ncov_qc_files.out.ch_ncov_qc_all_samples,
-        ncov2019_artic_nf_pipeline.out.ch_sample_depth_ncov_results.collect(),
-        params.run
-    )
-
     ch_qc_passed_fasta = reheader(
         ncov2019_artic_nf_pipeline.out.ch_qc_csv_ncov_result,
         ncov2019_artic_nf_pipeline.out.ch_fasta_ncov_results
@@ -198,13 +178,12 @@ workflow {
 
     pangolin_pipeline(ch_qc_passed_fasta)
 
-    merge_pangolin_files(
+    ch_analysis_run_results_submitted = submit_analysis_run_results(
+        params.run,
+        ncov2019_artic_nf_pipeline.out.ch_qc_csv_ncov_result.collect(),
+        ncov2019_artic_nf_pipeline.out.ch_fasta_ncov_results.collect(),
+        ncov2019_artic_nf_pipeline.out.ch_sample_depth_ncov_results.collect(),
         pangolin_pipeline.out.ch_pangolin_lineage_csv.collect()
-    )
-
-    ch_pangolin_sample_submitted = load_pangolin_data_to_db(
-        merge_pangolin_files.out.ch_pangolin_all_lineages,
-        params.run
     )
 
     Channel
@@ -270,7 +249,6 @@ workflow {
     pipeline_end(
         params.run,
         ch_fastqc_submitted,
-        ch_ncov_qc_sample_submitted,
-        ch_pangolin_sample_submitted
+        ch_analysis_run_results_submitted
     )
 }
