@@ -5,7 +5,7 @@
  */
 process merge_ncov2019_artic_qc_sample_files {
   input:
-    file input_dir
+    path ncov_all_sample_results
 
   output:
     path "${output_path}", emit: ch_ncov_qc_all_samples
@@ -30,14 +30,12 @@ process store_ncov2019_artic_output {
   publishDir "${PSGA_OUTPUT_PATH}/ncov2019-artic", mode: 'copy', overwrite: true
 
   input:
-    path ch_ncov_fasta
-    path qc_plot_image
-    path qc_csv
+    path ncov_all_sample_results
+    path all_sample_qc_csv
 
   output:
-    path ch_ncov_fasta
-    path qc_plot_image
-    path qc_csv
+    path ncov_all_sample_results
+    path all_sample_qc_csv
 
   script:
 
@@ -93,9 +91,9 @@ process store_pangolin_output {
 process load_results_to_db {
   input:
     val ch_analysis_run_name
-    file ch_qc_ncov_result_csv_file
-    file ch_qc_plot_files
-    file ch_pangolin_all_lineages
+    path ncov_all_sample_results
+    path ch_qc_ncov_result_csv_file
+    path ch_pangolin_all_lineages
 
   output:
     path ch_load_results_to_db_done
@@ -125,20 +123,27 @@ process load_results_to_db {
  */
 workflow submit_analysis_run_results {
     take:
-        analysis_run
-        ch_ncov_qc_csvs
-        ch_ncov_fastas
-        ch_ncov_qc_plots
+        ch_ncov_all_samples_results
         ch_pangolin_csvs
     main:
 
-        merge_ncov2019_artic_qc_sample_files(ch_ncov_qc_csvs)
+        // split by qc_csv so that only the relevant files are passed to the downstream processes
+        ch_ncov_all_samples_results
+            .flatten()
+            .branch {
+                qc_csv_only: it =~ /^.*\.qc\.csv$/
+                    return it
+                filter_out_qc_csv: true
+                    return it
+            }
+            .set{ ch_ncov_all_samples_results_branch }
+
+        merge_ncov2019_artic_qc_sample_files(ch_ncov_all_samples_results_branch.qc_csv_only.collect())
 
         merge_pangolin_sample_files(ch_pangolin_csvs)
 
         store_ncov2019_artic_output(
-            ch_ncov_fastas,
-            ch_ncov_qc_plots,
+            ch_ncov_all_samples_results_branch.filter_out_qc_csv.collect(),
             merge_ncov2019_artic_qc_sample_files.out.ch_ncov_qc_all_samples
         )
 
@@ -147,9 +152,9 @@ workflow submit_analysis_run_results {
         )
 
         ch_analysis_run_results_submitted = load_results_to_db(
-            analysis_run,
+            params.run,
+            ch_ncov_all_samples_results_branch.filter_out_qc_csv.collect(),
             merge_ncov2019_artic_qc_sample_files.out.ch_ncov_qc_all_samples,
-            ch_ncov_qc_plots,
             merge_pangolin_sample_files.out.ch_pangolin_all_lineages
         )
 

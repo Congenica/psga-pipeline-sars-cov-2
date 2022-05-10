@@ -28,8 +28,7 @@ process store_ncov2019_artic_qc_passed_fasta {
   publishDir "${PSGA_OUTPUT_PATH}/reheadered-fasta", mode: 'copy', overwrite: true
 
   input:
-    path reheadered_fasta_file
-    val sample_name
+    tuple val(sample_name), path(reheadered_fasta_file)
 
   output:
     path matching_file, emit: ch_qc_passed_fasta
@@ -49,8 +48,7 @@ process store_ncov2019_artic_qc_failed_fasta {
   publishDir "${PSGA_OUTPUT_PATH}/reheadered-fasta-qc-failed", mode: 'copy', overwrite: true
 
   input:
-    path reheadered_fasta_file
-    val sample_name
+    tuple val(sample_name), path(reheadered_fasta_file)
 
   output:
     path matching_file, emit: ch_qc_failed_fasta
@@ -63,18 +61,22 @@ process store_ncov2019_artic_qc_failed_fasta {
 }
 
 /*
- * Reheader a fasta file and store it based on ncov QC
+ * Reheader a fasta file and store it based on ncov QC.
+ * Return the reheadered fasta with QC status: PASSED
  */
 workflow reheader {
     take:
-        ch_ncov_qc
-        ch_ncov_fasta
+       // a tuple channel: (qc, fasta)
+       ch_ncov_sample_fasta
     main:
 
-        ch_reheadered_fasta = reheader_fasta(ch_ncov_fasta)
+        ch_reheadered_fasta = reheader_fasta(ch_ncov_sample_fasta)
 
         // define whether sample is QC_PASSED or QC_FAILED
-        ch_ncov_qc
+        // the ncov qc file contains 1 record only
+        ch_ncov_sample_fasta
+            .flatten()
+            .filter { /^.*\.qc\.csv$/ }
             .splitCsv(header:true)
             .branch {
                 qc_passed: it.qc_pass =~ /TRUE/
@@ -82,16 +84,26 @@ workflow reheader {
                 qc_failed: true
                     return it.sample_name
             }
-            .set{ ch_sample_row_by_qc }
+            .set{ ch_sample_name_by_qc }
 
-        ch_qc_passed_fasta = store_ncov2019_artic_qc_passed_fasta(
-            ch_reheadered_fasta,
-            ch_sample_row_by_qc.qc_passed.flatten()
-        )
-        store_ncov2019_artic_qc_failed_fasta(
-            ch_reheadered_fasta,
-            ch_sample_row_by_qc.qc_failed.flatten()
-        )
+        // extend the ncov sample results channel with the sample name
+        // [sample_name, fasta]
+        ch_reheadered_fasta
+	    .map{ file -> tuple( file.baseName, file ) }
+            .set{ ch_reheadered_fasta_with_sample_name }
+
+        // join the tuples by sample_name so that ncov results are organised by QC
+        ch_reheadered_fasta_with_sample_name
+            .join(ch_sample_name_by_qc.qc_passed)
+            .set{ ch_reheadered_fasta_qc_passed }
+
+        ch_reheadered_fasta_with_sample_name
+            .join(ch_sample_name_by_qc.qc_failed)
+            .set{ ch_reheadered_fasta_qc_failed }
+
+
+        ch_qc_passed_fasta = store_ncov2019_artic_qc_passed_fasta(ch_reheadered_fasta_qc_passed)
+        store_ncov2019_artic_qc_failed_fasta(ch_reheadered_fasta_qc_failed)
 
     emit:
         ch_qc_passed_fasta

@@ -5,8 +5,7 @@
 process ncov2019_artic_nf_pipeline_illumina {
   tag "${task.index} - ${fastq_file}"
   input:
-    path fastqc_done
-    file fastq_file
+    path fastq_file
     val ncov_prefix
     val scheme_repo_url
     val scheme_dir
@@ -14,13 +13,17 @@ process ncov2019_artic_nf_pipeline_illumina {
     val scheme_version
 
   output:
-    path "ncov_output/ncovIllumina_sequenceAnalysis_makeConsensus/*.fa", emit: ch_fasta_ncov_results
-    path "ncov_output/*.qc.csv", emit: ch_qc_csv_ncov_result
-    path "ncov_output/qc_plots/*.png", emit: ch_sample_depth_ncov_results
+    // retain the qc csv intentionally
+    tuple path("ncov_output/*.qc.csv"), path("output_fasta/*.consensus.fa"), emit: ch_ncov_sample_fasta
+    tuple path("ncov_output/*.qc.csv"), path("output_fasta/*.fa"), path("output_plots/*.png"), emit: ch_ncov_sample_all_results
 
   shell:
   '''
-  ncov_out_directory="ncov_output"
+  ncov_out_dir="ncov_output"
+  ncov_fasta_out_dir="${ncov_out_dir}/ncovIllumina_sequenceAnalysis_makeConsensus"
+  ncov_qc_plots_dir="${ncov_out_dir}/qc_plots"
+  output_fasta="output_fasta"
+  output_plots="output_plots"
 
   # convert nextflow variables to Bash so that the same format is used
   ncov_prefix=!{ncov_prefix}
@@ -35,7 +38,7 @@ process ncov2019_artic_nf_pipeline_illumina {
       --illumina \
       --prefix ${ncov_prefix} \
       --directory `eval pwd` \
-      --outdir ${ncov_out_directory} \
+      --outdir ${ncov_out_dir} \
       --schemeRepoURL ${scheme_repo_url} \
       --schemeDir ${scheme_dir} \
       --scheme ${scheme} \
@@ -43,9 +46,14 @@ process ncov2019_artic_nf_pipeline_illumina {
       -c ${PSGA_ROOT_PATH}/psga/ncov-custom.config \
       -c ${PSGA_ROOT_PATH}/psga/ncov-illumina-k8s.config
 
+  mkdir -p ${output_fasta}
+  mkdir -p ${output_plots}
+  mv ${ncov_fasta_out_dir}/*.fa ${output_fasta}
+  mv ${ncov_qc_plots_dir}/*.png ${output_plots}
+
   # extract the sample name from one of the reads and rename the qc csv
   sample_name="$(ls *.gz | head -n 1 | cut -d"_" -f1)"
-  mv ${ncov_out_directory}/${ncov_prefix}.qc.csv ${ncov_out_directory}/${sample_name}.qc.csv
+  mv ${ncov_out_dir}/${ncov_prefix}.qc.csv ${ncov_out_dir}/${sample_name}.qc.csv
   '''
 }
 
@@ -58,8 +66,7 @@ process ncov2019_artic_nf_pipeline_illumina {
 process ncov2019_artic_nf_pipeline_medaka {
   tag "${task.index} - ${fastq_file}"
   input:
-    path fastqc_done
-    file fastq_file
+    path fastq_file
     val ncov_prefix
     val scheme_repo_url
     val scheme_dir
@@ -67,15 +74,15 @@ process ncov2019_artic_nf_pipeline_medaka {
     val scheme_version
 
   output:
-    path "output_fasta/*.consensus.fasta", emit: ch_fasta_ncov_results
-    path "ncov_output/*.qc.csv", emit: ch_qc_csv_ncov_result
-    path "output_plots/*.png", emit: ch_sample_depth_ncov_results
+    // retain the qc csv intentionally
+    tuple path("ncov_output/*.qc.csv"), path("output_fasta/*.consensus.fa"), emit: ch_ncov_sample_fasta
+    tuple path("ncov_output/*.qc.csv"), path("output_fasta/*.fa"), path("output_plots/*.png"), emit: ch_ncov_sample_all_results
 
   shell:
   '''
-  ncov_out_directory="ncov_output"
-  ncov_minion_medaka_out_dir="${ncov_out_directory}/articNcovNanopore_sequenceAnalysisMedaka_articMinIONMedaka"
-  ncov_qc_plots_dir="${ncov_out_directory}/qc_plots"
+  ncov_out_dir="ncov_output"
+  ncov_fasta_out_dir="${ncov_out_dir}/articNcovNanopore_sequenceAnalysisMedaka_articMinIONMedaka"
+  ncov_qc_plots_dir="${ncov_out_dir}/qc_plots"
   output_fasta="output_fasta"
   output_plots="output_plots"
 
@@ -103,7 +110,7 @@ process ncov2019_artic_nf_pipeline_medaka {
       --medaka \
       --prefix ${ncov_prefix} \
       --basecalled_fastq ${sample_name} \
-      --outdir ${ncov_out_directory} \
+      --outdir ${ncov_out_dir} \
       --schemeRepoURL ${scheme_repo_url} \
       --schemeDir ${scheme_dir} \
       --scheme ${scheme} \
@@ -113,18 +120,20 @@ process ncov2019_artic_nf_pipeline_medaka {
 
   mkdir -p ${output_fasta}
   mkdir -p ${output_plots}
-  mv ${ncov_minion_medaka_out_dir}/*.fasta ${output_fasta}
-  mv ${ncov_minion_medaka_out_dir}/*.png ${output_plots}
+  mv ${ncov_fasta_out_dir}/*.fasta ${output_fasta}
+  mv ${ncov_fasta_out_dir}/*.png ${output_plots}
   mv ${ncov_qc_plots_dir}/*.png ${output_plots}
 
   # this is a code correction to the nanopore medaka workflow in order to restore the correct sample names
   # in file names and file content
   for file_to_update in `ls ${output_fasta}/${ncov_prefix}_${sample_name}*.fasta`; do
       sed -i "s/${ncov_prefix}_${sample_name}/${sample_name}/" ${file_to_update}
+      # use .fa extension so that this is the same as for the ncov illumina workflow
+      mv ${file_to_update} ${file_to_update%.*}.fa
   done
 
-  sed -i "s/${ncov_prefix}_${sample_name}/${sample_name}/g" ${ncov_out_directory}/${ncov_prefix}.qc.csv
-  mv ${ncov_out_directory}/${ncov_prefix}.qc.csv ${ncov_out_directory}/${sample_name}.qc.csv
+  sed -i "s/${ncov_prefix}_${sample_name}/${sample_name}/g" ${ncov_out_dir}/${ncov_prefix}.qc.csv
+  mv ${ncov_out_dir}/${ncov_prefix}.qc.csv ${ncov_out_dir}/${sample_name}.qc.csv
 
   for file_to_rename in `find ${output_fasta} ${output_plots} -name ${ncov_prefix}_${sample_name}*`; do
       file_dir=`dirname ${file_to_rename}`

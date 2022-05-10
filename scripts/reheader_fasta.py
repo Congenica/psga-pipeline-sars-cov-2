@@ -54,12 +54,6 @@ def reheader_fasta(source: str, destination: str) -> None:
     """
     destination = destination or source
 
-    # ncov returns consensus *.fa files when executed with the illumina workflow, but
-    # it returns consensus *.fasta files when executed with the nanopore workflow
-    # Here we rename any *.fasta to *.fa as 'fasta' is the extension of our output files
-    for path in Path(source).rglob(f"*.consensus.{FASTA_FILE_HANDLE}"):
-        path.rename(path.with_suffix(f".{FASTA_FILE_EXTENSION}"))
-
     for path in Path(source).rglob(f"*.consensus.{FASTA_FILE_EXTENSION}"):
         click.echo(f"processing file {path}")
         convert_file(path, Path(destination))

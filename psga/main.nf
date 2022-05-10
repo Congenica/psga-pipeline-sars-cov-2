@@ -158,15 +158,7 @@ workflow {
     )
 
     if ( params.pathogen == "sars_cov_2" ) {
-        psga_workflow = sars_cov_2(
-            fastqc.out.ch_fastqc_done,
-            ch_input_files,
-            params.run,
-            params.scheme_repo_url,
-            params.scheme_dir,
-            params.scheme,
-            params.scheme_version
-        )
+        psga_workflow = sars_cov_2(fastqc.out.ch_input_files)
     } else {
         log.error """\
             ERROR: Unsupported pathogen.
@@ -175,19 +167,7 @@ workflow {
         System.exit(1)
     }
 
-    genbank_submission(
-        psga_workflow.ch_qc_passed_fasta.collect(),
-        params.genbank_submission_template,
-        params.genbank_submission_comment,
-        params.genbank_submitter_name,
-        params.genbank_submitter_account_namespace,
-        params.genbank_submission_id_suffix,
-        params.genbank_storage_remote_url,
-        params.genbank_storage_remote_username,
-        params.genbank_storage_remote_password,
-        params.genbank_storage_remote_directory,
-        params.run
-    )
+    genbank_submission(psga_workflow.ch_qc_passed_fasta.collect())
 
     pipeline_end(
         params.run,
