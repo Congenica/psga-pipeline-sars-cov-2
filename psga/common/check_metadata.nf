@@ -2,6 +2,8 @@
  * Check the metadata in the database
  */
 process check_metadata {
+  tag "${metadata}"
+
   input:
     val load_missing_samples
     path metadata

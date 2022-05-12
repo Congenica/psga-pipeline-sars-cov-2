@@ -2,13 +2,13 @@
  * Run: fastqc
  */
 process fastqc {
-  tag "${task.index} - ${fastq_file}"
+  tag "${task.index} - ${ch_input_files}"
 
   input:
-    path fastq_file
+    path ch_input_files
 
   output:
-    path "fastqc.done", emit: ch_fastqc_done
+    path ch_input_files, emit: ch_input_files
     path "*_fastqc.html", emit: ch_fastqc_html_report
     path "*_fastqc.zip", emit: ch_fastqc_zip_report
 
@@ -18,8 +18,6 @@ process fastqc {
   for fq in `ls *.fastq*`; do
       fastqc ${fq}
   done
-
-  touch "fastqc.done"
   '''
 }
 

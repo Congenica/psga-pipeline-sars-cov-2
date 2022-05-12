@@ -148,30 +148,20 @@ process store_genbank_submission{
 workflow genbank_submission {
     take:
         ch_qc_passed_fastas
-        genbank_submission_template
-        genbank_submission_comment
-        genbank_submitter_name
-        genbank_submitter_account_namespace
-        genbank_submission_id_suffix
-        genbank_storage_remote_url
-        genbank_storage_remote_username
-        genbank_storage_remote_password
-        genbank_storage_remote_directory
-        analysis_run
     main:
 
         Channel
-            .fromPath( genbank_submission_template )
+            .fromPath( params.genbank_submission_template )
             .set{ ch_genbank_submission_template }
 
         create_genbank_submission_files(
             ch_qc_passed_fastas,
             ch_genbank_submission_template,
-            genbank_submission_comment,
-            genbank_submitter_name,
-            genbank_submitter_account_namespace,
-            genbank_submission_id_suffix,
-            analysis_run
+            params.genbank_submission_comment,
+            params.genbank_submitter_name,
+            params.genbank_submitter_account_namespace,
+            params.genbank_submission_id_suffix,
+            params.run
         )
 
         create_genbank_submission_files.out.ch_samples_txt
@@ -190,10 +180,10 @@ workflow genbank_submission {
             create_genbank_submission_files.out.ch_genbank_submission_id
         )
 
-        if ( genbank_storage_remote_url
-          && genbank_storage_remote_username
-          && genbank_storage_remote_password
-          && genbank_storage_remote_directory) {
+        if ( params.genbank_storage_remote_url
+          && params.genbank_storage_remote_username
+          && params.genbank_storage_remote_password
+          && params.genbank_storage_remote_directory) {
 
             submit_genbank_files(
                 create_genbank_submission_files.out.ch_genbank_xml,
@@ -201,17 +191,17 @@ workflow genbank_submission {
                 create_genbank_submission_files.out.ch_samples_txt,
                 create_genbank_submission_files.out.ch_genbank_submission_id,
                 ch_no_samples_flag.collect(),
-                genbank_storage_remote_url,
-                genbank_storage_remote_username,
-                genbank_storage_remote_password,
-                genbank_storage_remote_directory
+                params.genbank_storage_remote_url,
+                params.genbank_storage_remote_username,
+                params.genbank_storage_remote_password,
+                params.genbank_storage_remote_directory
             )
 
             mark_samples_as_submitted_to_genbank(
                 submit_genbank_files.out.ch_genbank_sample_names_txt,
                 ch_no_samples_flag.collect(),
                 submit_genbank_files.out.ch_genbank_submission_id,
-                analysis_run
+                params.run
             )
         }
         else {

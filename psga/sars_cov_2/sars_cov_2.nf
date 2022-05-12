@@ -5,6 +5,7 @@ if ( params.workflow == "illumina_artic" ) {
 } else {
     throw new Exception("Error: '--workflow' can only be 'illumina_artic' or 'medaka_artic'")
 }
+
 include { reheader } from './reheader.nf'
 include { pangolin_pipeline as pangolin } from './pangolin.nf'
 include { submit_analysis_run_results } from './submit_analysis_run_results.nf'
@@ -16,38 +17,28 @@ include { submit_analysis_run_results } from './submit_analysis_run_results.nf'
 workflow sars_cov_2 {
 
     take:
-        ch_fastqc_done
         ch_input_files
-        analysis_run
-        scheme_repo_url
-        scheme_dir
-        scheme
-        scheme_version
 
     main:
 
         ncov2019_artic(
-            ch_fastqc_done,
             ch_input_files,
-            analysis_run,
-            scheme_repo_url,
-            scheme_dir,
-            scheme,
-            scheme_version
+            params.run,
+            params.scheme_repo_url,
+            params.scheme_dir,
+            params.scheme,
+            params.scheme_version
         )
 
-        ch_qc_passed_fasta = reheader(
-            ncov2019_artic.out.ch_qc_csv_ncov_result,
-            ncov2019_artic.out.ch_fasta_ncov_results
-        )
+        ch_qc_passed_fasta = reheader(ncov2019_artic.out.ch_ncov_sample_fasta)
 
         pangolin(ch_qc_passed_fasta)
 
+        // flatten the ncov results to make sure we deal with a flat list.
+        // E.g. [qc.csv, [fa1, fa2], [png1, png2,..]] => [qc.csv, fa1, fa2, png1, png2]
+        // note: flatten() before collect() to execute one single process
         ch_analysis_run_results_submitted = submit_analysis_run_results(
-            params.run,
-            ncov2019_artic.out.ch_qc_csv_ncov_result.collect(),
-            ncov2019_artic.out.ch_fasta_ncov_results.collect(),
-            ncov2019_artic.out.ch_sample_depth_ncov_results.collect(),
+            ncov2019_artic.out.ch_ncov_sample_all_results.flatten().collect(),
             pangolin.out.ch_pangolin_lineage_csv.collect()
         )
 

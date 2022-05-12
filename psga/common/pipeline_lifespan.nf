@@ -36,6 +36,6 @@ process pipeline_end {
   # use shell because we need a wildcard
   session_id_file="!{PSGA_INCOMPLETE_ANALYSIS_RUNS_PATH}/!{run}_!{workflow.sessionId}"
   # remove file and any attempts as no longer needed
-  rm ${session_id_file}*
+  rm -f ${session_id_file}*
   '''
 }
