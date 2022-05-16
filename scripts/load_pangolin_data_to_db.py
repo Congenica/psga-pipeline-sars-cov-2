@@ -1,4 +1,5 @@
-from typing import Dict
+from typing import Dict, List
+from pathlib import Path
 import csv
 from distutils.util import strtobool
 
@@ -8,6 +9,7 @@ from sqlalchemy.orm import scoped_session
 
 from scripts.db.database import session_handler
 from scripts.db.models import AnalysisRun, Sample, PangolinStatus
+from scripts.util.data_dumping import write_list_to_file
 
 EXPECTED_HEADERS = {
     "taxon",
@@ -68,6 +70,19 @@ def load_pangolin_sample(session: scoped_session, analysis_run_name: str, sample
     sample.note = sample_from_csv["note"] if sample_from_csv["note"] else None
 
 
+def get_samples_with_unknown_pangolin_status(session: scoped_session, analysis_run_name: str) -> List[str]:
+    """
+    Return the list of samples with unknown pangolin status.
+    """
+    samples = session.query(Sample).join(AnalysisRun).filter(AnalysisRun.analysis_run_name == analysis_run_name).all()
+
+    samples_with_unknown_pangolin_status = [
+        s.sample_name for s in samples if s.pangolin_status == PangolinStatus.UNKNOWN
+    ]
+
+    return samples_with_unknown_pangolin_status
+
+
 @click.command()
 @click.option(
     "--pangolin-lineage-report-file",
@@ -75,25 +90,33 @@ def load_pangolin_sample(session: scoped_session, analysis_run_name: str, sample
     required=True,
     help="A CSV report combining all samples' Pangolin pipeline output lineage reports",
 )
+@click.option(
+    "--samples-with-unknown-pangolin-status",
+    type=click.Path(dir_okay=False, writable=True),
+    required=True,
+    help="output file storing the names of samples for this analysis run which have UNKNOWN pangolin status",
+)
 @click.option("--analysis-run-name", required=True, type=str, help="The name of the analysis run")
-def load_pangolin_data(pangolin_lineage_report_file: str, analysis_run_name: str) -> None:
+def load_pangolin_data(
+    pangolin_lineage_report_file: str, samples_with_unknown_pangolin_status: str, analysis_run_name: str
+) -> None:
     """
     Load Pangolin lineage report for a certain sample to the database
     """
-    with open(pangolin_lineage_report_file) as csv_file:
-        sample_from_csv_reader = csv.DictReader(csv_file)
+    with session_handler() as session:
 
-        headers = set(sample_from_csv_reader.fieldnames)
-        if not EXPECTED_HEADERS.issubset(headers):
-            err = (
-                "Unexpected CSV headers, got:\n"
-                + ", ".join(headers)
-                + "\n, but expect at least \n"
-                + ", ".join(EXPECTED_HEADERS)
-            )
-            raise ClickException(err)
+        with open(pangolin_lineage_report_file) as csv_file:
+            sample_from_csv_reader = csv.DictReader(csv_file)
 
-        with session_handler() as session:
+            headers = set(sample_from_csv_reader.fieldnames)
+            if not EXPECTED_HEADERS.issubset(headers):
+                err = (
+                    "Unexpected CSV headers, got:\n"
+                    + ", ".join(headers)
+                    + "\n, but expect at least \n"
+                    + ", ".join(EXPECTED_HEADERS)
+                )
+                raise ClickException(err)
 
             # update pangolin-related data in analysis_run table
             analysis_run = (
@@ -118,6 +141,9 @@ def load_pangolin_data(pangolin_lineage_report_file: str, analysis_run_name: str
                 analysis_run.pangolin_version = record["pangolin_version"] if record["pangolin_version"] else None
                 analysis_run.pangolin_data_version = record["version"] if record["version"] else None
                 analysis_run.scorpio_version = record["scorpio_version"] if record["scorpio_version"] else None
+
+            samples_with_no_pangolin = get_samples_with_unknown_pangolin_status(session, analysis_run_name)
+            write_list_to_file(samples_with_no_pangolin, Path(samples_with_unknown_pangolin_status))
 
 
 if __name__ == "__main__":

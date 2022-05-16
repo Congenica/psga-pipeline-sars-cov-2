@@ -132,7 +132,7 @@ def populated_db_session_with_sample(db_session):
         .one_or_none()
     )
 
-    for sn in ["7284954", "7174693", "8039686"]:
+    for sn in ["7284954", "7174693", "8039686", "failed_ncov_qc", "failed_pangolin"]:
         db_session.add(
             Sample(
                 sample_name=sn,

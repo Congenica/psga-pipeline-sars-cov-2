@@ -37,10 +37,12 @@ workflow sars_cov_2 {
         // flatten the ncov results to make sure we deal with a flat list.
         // E.g. [qc.csv, [fa1, fa2], [png1, png2,..]] => [qc.csv, fa1, fa2, png1, png2]
         // note: flatten() before collect() to execute one single process
-        ch_analysis_run_results_submitted = submit_analysis_run_results(
+        submit_analysis_run_results(
             ncov2019_artic.out.ch_ncov_sample_all_results.flatten().collect(),
             pangolin.out.ch_pangolin_lineage_csv.collect()
         )
+
+        ch_analysis_run_results_submitted = submit_analysis_run_results.out.ch_analysis_run_results_submitted
 
     emit:
         ch_qc_passed_fasta

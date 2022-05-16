@@ -11,6 +11,7 @@ from click import ClickException
 
 from scripts.db.database import session_handler
 from scripts.db.models import AnalysisRun, Sample
+from scripts.util.data_dumping import write_list_to_file
 
 METADATA_FILE_EXPECTED_HEADERS = {"sample_id", "file_1", "file_2", "md5_1", "md5_2"}
 INPUT_FILE_TYPES = {"bam", "fastq"}
@@ -91,18 +92,12 @@ def _validate_and_normalise_row(row, workflow, input_file_type):
     return row
 
 
-def write_list_to_file(out_file: Path, elements: List[str]) -> None:
-    with open(out_file, "w") as f:
-        for element in elements:
-            f.write(f"{element}\n")
-
-
 def write_sample_list_files(
     valid_samples: List[str],
     file_current_samples: str,
 ) -> None:
     if file_current_samples:
-        write_list_to_file(Path(file_current_samples), valid_samples)
+        write_list_to_file(valid_samples, Path(file_current_samples))
 
 
 @click.command()
