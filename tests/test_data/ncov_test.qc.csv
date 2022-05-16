@@ -1,4 +1,4 @@
 sample_name,pct_N_bases,pct_covered_bases,longest_no_N_run,num_aligned_reads,fasta,bam,qc_pass
 7284954,0.30,99.67,29798,2406868,7284954.primertrimmed.consensus.fa,7284954.mapped.primertrimmed.sorted.bam,TRUE
 7174693,0.12,99.86,29822,2989521,7174693.primertrimmed.consensus.fa,7174693.mapped.primertrimmed.sorted.bam,TRUE
-8039686,0.30,99.65,29783,3805878,8039686.primertrimmed.consensus.fa,8039686.mapped.primertrimmed.sorted.bam,TRUE
+8039686,0.30,99.65,29783,3805878,8039686.primertrimmed.consensus.fa,8039686.mapped.primertrimmed.sorted.bam,FALSE

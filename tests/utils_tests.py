@@ -20,3 +20,8 @@ def get_analysis_run_samples(db_session, analysis_run_name):
     )
 
     return samples
+
+
+def read_samples_from_file(input_path):
+    with open(input_path, "r") as ifr:
+        return ifr.read().splitlines()

@@ -70,17 +70,12 @@ def load_pangolin_sample(session: scoped_session, analysis_run_name: str, sample
     sample.note = sample_from_csv["note"] if sample_from_csv["note"] else None
 
 
-def get_samples_with_unknown_pangolin_status(session: scoped_session, analysis_run_name: str) -> List[str]:
+def get_analysis_run_samples(session: scoped_session, analysis_run_name: str) -> List[Sample]:
     """
-    Return the list of samples with unknown pangolin status.
+    Return all the samples for this analysis run
     """
     samples = session.query(Sample).join(AnalysisRun).filter(AnalysisRun.analysis_run_name == analysis_run_name).all()
-
-    samples_with_unknown_pangolin_status = [
-        s.sample_name for s in samples if s.pangolin_status == PangolinStatus.UNKNOWN
-    ]
-
-    return samples_with_unknown_pangolin_status
+    return samples
 
 
 @click.command()
@@ -91,14 +86,30 @@ def get_samples_with_unknown_pangolin_status(session: scoped_session, analysis_r
     help="A CSV report combining all samples' Pangolin pipeline output lineage reports",
 )
 @click.option(
-    "--samples-with-unknown-pangolin-status",
+    "--samples-with-unknown-pangolin-status-file",
     type=click.Path(dir_okay=False, writable=True),
     required=True,
     help="output file storing the names of samples for this analysis run which have UNKNOWN pangolin status",
 )
+@click.option(
+    "--samples-with-failed-pangolin-status-file",
+    type=click.Path(dir_okay=False, writable=True),
+    required=True,
+    help="output file storing the names of samples for this analysis run which have FAIL pangolin status",
+)
+@click.option(
+    "--samples-with-passed-pangolin-status-file",
+    type=click.Path(dir_okay=False, writable=True),
+    required=True,
+    help="output file storing the names of samples for this analysis run which have PASS pangolin status",
+)
 @click.option("--analysis-run-name", required=True, type=str, help="The name of the analysis run")
 def load_pangolin_data(
-    pangolin_lineage_report_file: str, samples_with_unknown_pangolin_status: str, analysis_run_name: str
+    pangolin_lineage_report_file: str,
+    samples_with_unknown_pangolin_status_file: str,
+    samples_with_failed_pangolin_status_file: str,
+    samples_with_passed_pangolin_status_file: str,
+    analysis_run_name: str,
 ) -> None:
     """
     Load Pangolin lineage report for a certain sample to the database
@@ -142,8 +153,23 @@ def load_pangolin_data(
                 analysis_run.pangolin_data_version = record["version"] if record["version"] else None
                 analysis_run.scorpio_version = record["scorpio_version"] if record["scorpio_version"] else None
 
-            samples_with_no_pangolin = get_samples_with_unknown_pangolin_status(session, analysis_run_name)
-            write_list_to_file(samples_with_no_pangolin, Path(samples_with_unknown_pangolin_status))
+        samples = get_analysis_run_samples(session, analysis_run_name)
+        samples_with_unknown_pangolin_status = []
+        samples_with_failed_pangolin_status = []
+        samples_with_passed_pangolin_status = []
+        for s in samples:
+            name = s.sample_name
+            if s.pangolin_status == PangolinStatus.UNKNOWN:
+                samples_with_unknown_pangolin_status.append(name)
+            elif s.pangolin_status == PangolinStatus.FAIL:
+                samples_with_failed_pangolin_status.append(name)
+            elif s.pangolin_status == PangolinStatus.PASS:
+                samples_with_passed_pangolin_status.append(name)
+            else:
+                raise ValueError(f"Unknown pangolin status: {s.pangolin_status} for sample: {name}")
+        write_list_to_file(samples_with_unknown_pangolin_status, Path(samples_with_unknown_pangolin_status_file))
+        write_list_to_file(samples_with_failed_pangolin_status, Path(samples_with_failed_pangolin_status_file))
+        write_list_to_file(samples_with_passed_pangolin_status, Path(samples_with_passed_pangolin_status_file))
 
 
 if __name__ == "__main__":

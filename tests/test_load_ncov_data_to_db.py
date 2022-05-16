@@ -4,7 +4,13 @@ from pathlib import Path
 
 from scripts.db.models import Sample, SampleQC
 from scripts.load_ncov_data_to_db import load_ncov_data
-from utils_tests import get_analysis_run_samples
+from utils_tests import get_analysis_run_samples, read_samples_from_file
+
+
+def check_ncov_qc(input_path, samples, status):
+    processed_samples = read_samples_from_file(input_path)
+    expected_samples = [k for k, v in samples.items() if v["qc_pass"] == status]
+    assert sorted(expected_samples) == sorted(processed_samples)
 
 
 @pytest.mark.parametrize(
@@ -34,21 +40,13 @@ from utils_tests import get_analysis_run_samples
                     "pct_covered_bases": 99.65,
                     "longest_no_n_run": 29783,
                     "num_aligned_reads": 3805878,
-                    "qc_pass": True,
+                    "qc_pass": False,
                 },
                 "failed_ncov_qc": {
-                    "pct_n_bases": 0.30,
-                    "pct_covered_bases": 99.65,
-                    "longest_no_n_run": 92725,
-                    "num_aligned_reads": 9805873,
-                    "qc_pass": False,
+                    "qc_pass": None,
                 },
                 "failed_pangolin": {
-                    "pct_n_bases": 0.10,
-                    "pct_covered_bases": 95.65,
-                    "longest_no_n_run": 21443,
-                    "num_aligned_reads": 5851578,
-                    "qc_pass": False,
+                    "qc_pass": None,
                 },
             },
         ),
@@ -65,7 +63,9 @@ def test_load_pangolin_data_to_db(
     expected_values,
 ):
 
-    samples_with_no_ncov_qc = Path(tmp_path / "failed_samples.txt")
+    samples_with_no_ncov_qc = Path(tmp_path / "no_ncov_qc_samples.txt")
+    samples_with_failed_ncov_qc = Path(tmp_path / "failed_ncov_qc_samples.txt")
+    samples_with_passed_ncov_qc = Path(tmp_path / "passed_ncov_qc_samples.txt")
 
     rv = CliRunner().invoke(
         load_ncov_data,
@@ -76,8 +76,12 @@ def test_load_pangolin_data_to_db(
             analysis_run_name,
             "--ncov-qc-depth-directory",
             test_data_path / ncov_qc_depth_dir,
-            "--samples-without-qc-file",
+            "--samples-without-ncov-qc-file",
             samples_with_no_ncov_qc,
+            "--samples-with-failed-ncov-qc-file",
+            samples_with_failed_ncov_qc,
+            "--samples-with-passed-ncov-qc-file",
+            samples_with_passed_ncov_qc,
         ],
     )
 
@@ -100,8 +104,6 @@ def test_load_pangolin_data_to_db(
                 # get column of sample from string, dynamically
                 assert getattr(sample_qc, col_name) == col_val
 
-    # check failed samples. These are samples where ncov crashed.
-    expected_failed_samples = [k for k, v in expected_values.items() if not v["qc_pass"]]
-    with open(samples_with_no_ncov_qc, "r") as ifr:
-        failed_samples = ifr.read().splitlines()
-    assert sorted(expected_failed_samples) == sorted(failed_samples)
+    check_ncov_qc(samples_with_no_ncov_qc, expected_values, None)
+    check_ncov_qc(samples_with_failed_ncov_qc, expected_values, False)
+    check_ncov_qc(samples_with_passed_ncov_qc, expected_values, True)

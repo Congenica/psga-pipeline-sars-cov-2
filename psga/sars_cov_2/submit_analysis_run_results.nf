@@ -1,7 +1,11 @@
 /* This workflow runs per sample analysis run */
 
-include { store_notification as store_ncov_notification } from '../common/utils.nf'
-include { store_notification as store_pangolin_notification } from '../common/utils.nf'
+include { store_notification as store_missing_ncov_qc_notification } from '../common/utils.nf'
+include { store_notification as store_failed_ncov_qc_notification } from '../common/utils.nf'
+include { store_notification as store_passed_ncov_qc_notification } from '../common/utils.nf'
+include { store_notification as store_unknown_pangolin_notification } from '../common/utils.nf'
+include { store_notification as store_failed_pangolin_notification } from '../common/utils.nf'
+include { store_notification as store_passed_pangolin_notification } from '../common/utils.nf'
 
 /*
  * Merge ncov QC results into one single file
@@ -101,13 +105,21 @@ process load_results_to_db {
   output:
     path ch_load_results_to_db_done, emit: ch_load_results_to_db_done
     path ch_samples_without_ncov_qc, emit: ch_samples_without_ncov_qc
+    path ch_samples_with_failed_ncov_qc, emit: ch_samples_with_failed_ncov_qc
+    path ch_samples_with_passed_ncov_qc, emit: ch_samples_with_passed_ncov_qc
     path ch_samples_with_unknown_pangolin_status, emit: ch_samples_with_unknown_pangolin_status
+    path ch_samples_with_failed_pangolin_status, emit: ch_samples_with_failed_pangolin_status
+    path ch_samples_with_passed_pangolin_status, emit: ch_samples_with_passed_pangolin_status
 
   script:
     directory_with_qc_depth_files = "./"
     ch_load_results_to_db_done = "load_results_to_db.done"
     ch_samples_without_ncov_qc = "samples_without_ncov_qc.txt"
+    ch_samples_with_failed_ncov_qc = "samples_with_failed_ncov_qc.txt"
+    ch_samples_with_passed_ncov_qc = "samples_with_passed_ncov_qc.txt"
     ch_samples_with_unknown_pangolin_status = "samples_with_unknown_pangolin_status.txt"
+    ch_samples_with_failed_pangolin_status = "samples_with_failed_pangolin_status.txt"
+    ch_samples_with_passed_pangolin_status = "samples_with_passed_pangolin_status.txt"
 
   """
   # Note: the samples in load_pangolin could be a subset of the samples in load_ncov.
@@ -116,12 +128,16 @@ process load_results_to_db {
   python ${PSGA_ROOT_PATH}/scripts/load_ncov_data_to_db.py \
     --ncov-qc-csv-file "${ch_qc_ncov_result_csv_file}" \
     --ncov-qc-depth-directory "${directory_with_qc_depth_files}" \
-    --samples-without-qc-file "${ch_samples_without_ncov_qc}" \
+    --samples-without-ncov-qc-file "${ch_samples_without_ncov_qc}" \
+    --samples-with-failed-ncov-qc-file "${ch_samples_with_failed_ncov_qc}" \
+    --samples-with-passed-ncov-qc-file "${ch_samples_with_passed_ncov_qc}" \
     --analysis-run-name "${ch_analysis_run_name}"
 
   python ${PSGA_ROOT_PATH}/scripts/load_pangolin_data_to_db.py \
     --pangolin-lineage-report-file "${ch_pangolin_all_lineages}" \
-    --samples-with-unknown-pangolin-status "${ch_samples_with_unknown_pangolin_status}" \
+    --samples-with-unknown-pangolin-status-file "${ch_samples_with_unknown_pangolin_status}" \
+    --samples-with-failed-pangolin-status-file "${ch_samples_with_failed_pangolin_status}" \
+    --samples-with-passed-pangolin-status-file "${ch_samples_with_passed_pangolin_status}" \
     --analysis-run-name "${ch_analysis_run_name}"
 
   touch ${ch_load_results_to_db_done}
@@ -172,15 +188,31 @@ workflow submit_analysis_run_results {
 
         ch_analysis_run_results_submitted = load_results_to_db.out.ch_load_results_to_db_done
 
-        ch_ncov_notification_submitted = store_ncov_notification(
+        ch_missing_ncov_notification_submitted = store_missing_ncov_qc_notification(
             load_results_to_db.out.ch_samples_without_ncov_qc
         )
-        ch_pangolin_notification_submitted = store_pangolin_notification(
+        ch_failed_ncov_notification_submitted = store_failed_ncov_qc_notification(
+            load_results_to_db.out.ch_samples_with_failed_ncov_qc
+        )
+        ch_passed_ncov_notification_submitted = store_passed_ncov_qc_notification(
+            load_results_to_db.out.ch_samples_with_passed_ncov_qc
+        )
+        ch_unknown_pangolin_notification_submitted = store_unknown_pangolin_notification(
             load_results_to_db.out.ch_samples_with_unknown_pangolin_status
+        )
+        ch_failed_pangolin_notification_submitted = store_failed_pangolin_notification(
+            load_results_to_db.out.ch_samples_with_failed_pangolin_status
+        )
+        ch_passed_pangolin_notification_submitted = store_passed_pangolin_notification(
+            load_results_to_db.out.ch_samples_with_passed_pangolin_status
         )
 
     emit:
         ch_analysis_run_results_submitted
-        ch_ncov_notification_submitted
-        ch_pangolin_notification_submitted
+        ch_missing_ncov_notification_submitted
+        ch_failed_ncov_notification_submitted
+        ch_passed_ncov_notification_submitted
+        ch_unknown_pangolin_notification_submitted
+        ch_failed_pangolin_notification_submitted
+        ch_passed_pangolin_notification_submitted
 }

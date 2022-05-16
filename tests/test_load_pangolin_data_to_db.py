@@ -4,7 +4,13 @@ from click.testing import CliRunner
 
 from scripts.db.models import AnalysisRun
 from scripts.load_pangolin_data_to_db import load_pangolin_data
-from utils_tests import get_analysis_run_samples
+from utils_tests import get_analysis_run_samples, read_samples_from_file
+
+
+def check_pangolin_status(input_path, samples, status):
+    processed_samples = read_samples_from_file(input_path)
+    expected_samples = [k for k, v in samples.items() if v["pangolin_status"] == status]
+    assert sorted(expected_samples) == sorted(processed_samples)
 
 
 @pytest.mark.parametrize(
@@ -28,8 +34,8 @@ from utils_tests import get_analysis_run_samples
                     "qc_notes": "Ambiguous_content:0.08",
                     "note": "Usher placements: AY.98(1/1)",
                 },
-                "78039686": {
-                    "sample_name": "78039686",
+                "8039686": {
+                    "sample_name": "8039686",
                     "pangolin_status": "FAIL",
                 },
                 "7284954": {
@@ -38,9 +44,11 @@ from utils_tests import get_analysis_run_samples
                 },
                 "failed_ncov_qc": {
                     "sample_name": "failed_ncov_qc",
+                    "pangolin_status": "UNKNOWN",
                 },
                 "failed_pangolin": {
                     "sample_name": "failed_pangolin",
+                    "pangolin_status": "UNKNOWN",
                 },
             },
             {
@@ -64,6 +72,8 @@ def test_load_pangolin_data_to_db(
 ):
 
     samples_with_unknown_pangolin_status = Path(tmp_path / "unknown_pangolin.txt")
+    samples_with_failed_pangolin_status = Path(tmp_path / "failed_pangolin.txt")
+    samples_with_passed_pangolin_status = Path(tmp_path / "passed_pangolin.txt")
 
     rv = CliRunner().invoke(
         load_pangolin_data,
@@ -72,8 +82,12 @@ def test_load_pangolin_data_to_db(
             test_data_path / test_file,
             "--analysis-run-name",
             analysis_run_name,
-            "--samples-with-unknown-pangolin-status",
+            "--samples-with-unknown-pangolin-status-file",
             samples_with_unknown_pangolin_status,
+            "--samples-with-failed-pangolin-status-file",
+            samples_with_failed_pangolin_status,
+            "--samples-with-passed-pangolin-status-file",
+            samples_with_passed_pangolin_status,
         ],
     )
 
@@ -81,8 +95,6 @@ def test_load_pangolin_data_to_db(
 
     # check samples
     samples = get_analysis_run_samples(db_session, analysis_run_name)
-    with open(samples_with_unknown_pangolin_status, "r") as ifr:
-        failed_samples = ifr.read().splitlines()
     for sample in samples:
         sample_name = sample.sample_name
         if sample_name in pangolin_sample_columns:
@@ -91,11 +103,10 @@ def test_load_pangolin_data_to_db(
                 # get column of sample from string, dynamically
                 assert str(getattr(sample, col_name)) == str(col_val)
 
-    # check samples which do not have pangolin status (e.g. pangolin failed to run)
-    expected_samples_with_unknown_status = [
-        k for k, v in pangolin_sample_columns.items() if "pangolin_status" not in v or v["pangolin_status"] == "UNKNOWN"
-    ]
-    assert sorted(expected_samples_with_unknown_status) == sorted(failed_samples)
+    # check notification files
+    check_pangolin_status(samples_with_unknown_pangolin_status, pangolin_sample_columns, "UNKNOWN")
+    check_pangolin_status(samples_with_failed_pangolin_status, pangolin_sample_columns, "FAIL")
+    check_pangolin_status(samples_with_passed_pangolin_status, pangolin_sample_columns, "PASS")
 
     # check pangolin data in analysis_run table
     analysis_run = (
