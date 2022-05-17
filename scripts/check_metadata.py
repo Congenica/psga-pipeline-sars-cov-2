@@ -9,8 +9,10 @@ from uuid import UUID
 import click
 from click import ClickException
 
+from sqlalchemy.orm import scoped_session
 from scripts.db.database import session_handler
 from scripts.db.models import AnalysisRun, Sample
+from scripts.util.notifications import Notification
 
 METADATA_FILE_EXPECTED_HEADERS = {"sample_id", "file_1", "file_2", "md5_1", "md5_2"}
 INPUT_FILE_TYPES = {"bam", "fastq"}
@@ -91,22 +93,127 @@ def _validate_and_normalise_row(row, workflow, input_file_type):
     return row
 
 
-def write_list_to_file(out_file: Path, elements: List[str]) -> None:
-    with open(out_file, "w") as f:
-        for element in elements:
-            f.write(f"{element}\n")
+def validate(
+    session: scoped_session,
+    metadata_path: str,
+    analysis_run_name: str,
+    primer_scheme_name: str,
+    primer_scheme_version: str,
+    input_file_type: str,
+    workflow: str,
+    pipeline_version: str,
+    load_missing_samples: bool,
+) -> tuple[List[str], List[str]]:
+    """
+    Validate metadata and input parameters
+    """
+    if input_file_type == "bam" and workflow == "medaka_artic":
+        click.echo("Error: medaka_artic workflow does not support input bam files")
+        raise MedakaArticWithBamError
+
+    reader = csv.DictReader(metadata_path, delimiter=",")
+
+    headers = set(reader.fieldnames)
+    if not METADATA_FILE_EXPECTED_HEADERS.issubset(headers):
+        err = (
+            "Unexpected CSV headers, got:\n"
+            + ", ".join(headers)
+            + "\n, but expect at least \n"
+            + ", ".join(METADATA_FILE_EXPECTED_HEADERS)
+        )
+        raise ClickException(err)
+
+    valid_samples = []
+    invalid_samples = []
+    # only if --load-missing-samples is used
+    loaded_samples = []
+
+    analysis_run = load_analysis_run_metadata(
+        session,
+        analysis_run_name,
+        primer_scheme_name,
+        primer_scheme_version,
+        input_file_type,
+        workflow,
+        pipeline_version,
+    )
+
+    for row in reader:
+        try:
+            row = _validate_and_normalise_row(row, workflow, input_file_type)
+            sample_name = row["sample_id"]
+
+            existing_sample = (
+                session.query(Sample)
+                .join(AnalysisRun)
+                .filter(
+                    Sample.sample_name == sample_name,
+                    AnalysisRun.analysis_run_name == analysis_run_name,
+                )
+                .one_or_none()
+            )
+
+            if existing_sample:
+                existing_sample.analysis_run_id = analysis_run.analysis_run_id
+            elif load_missing_samples:
+                # the pipeline metadata does not contain the date_collected field
+                yesterday = datetime.strftime(datetime.now(), "%Y-%m-%d")
+                sample = Sample(
+                    analysis_run_id=analysis_run.analysis_run_id,
+                    sample_name=sample_name,
+                    date_collected=yesterday,
+                    metadata_loaded=True,
+                )
+                session.add(sample)
+                loaded_samples.append(sample_name)
+            else:
+                raise ValueError(f"Sample {sample_name} not found in the database, but listed in pipeline metadata")
+
+            session.commit()
+            valid_samples.append(sample_name)
+
+        except ValueError as e:
+            sample_name = row["sample_id"]
+            click.echo(f"Invalid row for sample {sample_name}:\n{e}", err=True)
+            invalid_samples.append(sample_name)
+
+    if load_missing_samples:
+        click.echo("Inserted samples: " + ", ".join(map(str, loaded_samples)))
+
+    return valid_samples, invalid_samples
 
 
-def write_sample_list_files(
+def generate_notifications(
     valid_samples: List[str],
-    file_current_samples: str,
+    invalid_samples: List[str],
+    failed_qc_path: Path,
+    passed_qc_path: Path,
 ) -> None:
-    if file_current_samples:
-        write_list_to_file(Path(file_current_samples), valid_samples)
+    """
+    Generate and publish the notifications for ncov
+    """
+    notifications = Notification(
+        events={
+            "failed_qc": {
+                "path": failed_qc_path,
+                "level": "ERROR",
+                "event": "metadata validation failed",
+                "samples": invalid_samples,
+            },
+            "passed_qc": {
+                "path": passed_qc_path,
+                "level": "INFO",
+                "event": "metadata validation passed",
+                "samples": valid_samples,
+            },
+        }
+    )
+
+    notifications.publish()
 
 
 @click.command()
-@click.option("--file", required=True, type=click.File("r"), help="The metadata CSV input file")
+@click.option("--metadata-path", required=True, type=click.File("r"), help="The metadata CSV input file")
 @click.option("--analysis-run-name", required=True, type=str, help="The name of the analysis run")
 @click.option("--primer-scheme-name", required=True, type=str, help="The primer scheme name")
 @click.option("--primer-scheme-version", required=True, type=str, help="The primer scheme version")
@@ -121,10 +228,16 @@ def write_sample_list_files(
 )
 @click.option("--pipeline-version", type=str, required=True, help="mapping pipeline version")
 @click.option(
-    "--output-current-samples-with-metadata",
-    required=False,
+    "--samples-with-valid-metadata-file",
+    required=True,
     type=click.Path(file_okay=True, writable=True),
-    help="File path to populate with sample names within the current metadata file",
+    help="Output file path which will contain the samples with valid metadata",
+)
+@click.option(
+    "--samples-with-invalid-metadata-file",
+    required=True,
+    type=click.Path(file_okay=True, writable=True),
+    help="Output file path which will contain the samples with invalid metadata",
 )
 @click.option(
     "--load-missing-samples",
@@ -133,14 +246,15 @@ def write_sample_list_files(
     "In a non-testing execution, an error is raised if a sample is missing",
 )
 def check_metadata(
-    file,
+    metadata_path,
     analysis_run_name,
-    output_current_samples_with_metadata,
     primer_scheme_name,
     primer_scheme_version,
     input_file_type,
     workflow,
     pipeline_version,
+    samples_with_valid_metadata_file,
+    samples_with_invalid_metadata_file,
     load_missing_samples,
 ):
     """
@@ -149,88 +263,28 @@ def check_metadata(
     unless the flag --load-missing-samples is used.
     """
 
-    if input_file_type == "bam" and workflow == "medaka_artic":
-        click.echo("Error: medaka_artic workflow does not support input bam files")
-        raise MedakaArticWithBamError
-
-    reader = csv.DictReader(file, delimiter=",")
-
-    headers = set(reader.fieldnames)
-    if not METADATA_FILE_EXPECTED_HEADERS.issubset(headers):
-        err = (
-            "Unexpected CSV headers, got:\n"
-            + ", ".join(headers)
-            + "\n, but expect at least \n"
-            + ", ".join(METADATA_FILE_EXPECTED_HEADERS)
-        )
-        raise ClickException(err)
-
-    file_samples_with_valid_meta = []
-
-    # only if --load-missing-samples is used
-    inserted = set()
-
-    errors = set()
     with session_handler() as session:
-
-        analysis_run = load_analysis_run_metadata(
+        valid_samples, invalid_samples = validate(
             session,
+            metadata_path,
             analysis_run_name,
             primer_scheme_name,
             primer_scheme_version,
             input_file_type,
             workflow,
             pipeline_version,
+            load_missing_samples,
         )
 
-        for row in reader:
-            try:
-                row = _validate_and_normalise_row(row, workflow, input_file_type)
-                sample_name = row["sample_id"]
-
-                existing_sample = (
-                    session.query(Sample)
-                    .join(AnalysisRun)
-                    .filter(
-                        Sample.sample_name == sample_name,
-                        AnalysisRun.analysis_run_name == analysis_run_name,
-                    )
-                    .one_or_none()
-                )
-
-                if existing_sample:
-                    existing_sample.analysis_run_id = analysis_run.analysis_run_id
-                elif load_missing_samples:
-                    # the pipeline metadata does not contain the date_collected field
-                    yesterday = datetime.strftime(datetime.now(), "%Y-%m-%d")
-                    sample = Sample(
-                        analysis_run_id=analysis_run.analysis_run_id,
-                        sample_name=sample_name,
-                        date_collected=yesterday,
-                        metadata_loaded=True,
-                    )
-                    session.add(sample)
-                    inserted.add(sample_name)
-                else:
-                    raise ValueError(f"Sample {sample_name} not found in the database, but listed in pipeline metadata")
-
-                session.commit()
-                file_samples_with_valid_meta.append(sample_name)
-
-            except ValueError as e:
-                click.echo(f"Invalid row for sample ID {row['sample_id']}:\n{e}", err=True)
-                errors.add(row["sample_id"])
-
-    write_sample_list_files(
-        valid_samples=file_samples_with_valid_meta,
-        file_current_samples=output_current_samples_with_metadata,
+    generate_notifications(
+        valid_samples,
+        invalid_samples,
+        Path(samples_with_invalid_metadata_file),
+        Path(samples_with_valid_metadata_file),
     )
 
-    if errors:
-        raise ClickException("Errors encountered for sample ids: " + ", ".join(map(str, sorted(errors))))
-
-    if load_missing_samples:
-        click.echo("Inserted samples: " + ", ".join(map(str, inserted)))
+    if invalid_samples:
+        raise ClickException("Errors encountered for sample ids: " + ", ".join(map(str, sorted(invalid_samples))))
 
 
 if __name__ == "__main__":
