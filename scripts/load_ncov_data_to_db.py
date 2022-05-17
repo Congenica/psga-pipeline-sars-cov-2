@@ -8,7 +8,7 @@ from sqlalchemy.orm import scoped_session, joinedload
 
 from scripts.db.database import session_handler
 from scripts.db.models import AnalysisRun, Sample, SampleQC
-from scripts.util.data_dumping import write_list_to_file
+from scripts.util.notifications import Notification
 
 
 def load_ncov_sample(
@@ -63,6 +63,44 @@ def get_analysis_run_samples(session: scoped_session, analysis_run_name: str) ->
     return samples
 
 
+def generate_notifications(
+    session: scoped_session,
+    analysis_run_name: str,
+    no_qc_path: Path,
+    failed_qc_path: Path,
+    passed_qc_path: Path,
+) -> None:
+    """
+    Generate and publish the notifications for ncov
+    """
+    samples = get_analysis_run_samples(session, analysis_run_name)
+
+    notifications = Notification(
+        events={
+            "no_qc": {
+                "path": no_qc_path,
+                "level": "ERROR",
+                "message": "ncov did not terminate successfully for this sample",
+                "samples": [s.sample_name for s in samples if not s.sample_qc],
+            },
+            "failed_qc": {
+                "path": failed_qc_path,
+                "level": "WARNING",
+                "event": "ncov qc failed",
+                "samples": [s.sample_name for s in samples if s.sample_qc and not s.sample_qc.qc_pass],
+            },
+            "passed_qc": {
+                "path": passed_qc_path,
+                "level": "INFO",
+                "event": "ncov qc passed",
+                "samples": [s.sample_name for s in samples if s.sample_qc and s.sample_qc.qc_pass],
+            },
+        }
+    )
+
+    notifications.publish()
+
+
 @click.command()
 @click.option(
     "--ncov-qc-csv-file",
@@ -112,21 +150,13 @@ def load_ncov_data(
             for sample_from_csv in sample_from_csv_reader:
                 load_ncov_sample(session, analysis_run_name, sample_from_csv, ncov_qc_depth_directory)
 
-        samples = get_analysis_run_samples(session, analysis_run_name)
-        samples_without_qc = []
-        samples_with_failed_ncov_qc = []
-        samples_with_passed_ncov_qc = []
-        for s in samples:
-            name = s.sample_name
-            if not s.sample_qc:
-                samples_without_qc.append(name)
-            elif not s.sample_qc.qc_pass:
-                samples_with_failed_ncov_qc.append(name)
-            else:
-                samples_with_passed_ncov_qc.append(name)
-        write_list_to_file(samples_without_qc, Path(samples_without_ncov_qc_file))
-        write_list_to_file(samples_with_failed_ncov_qc, Path(samples_with_failed_ncov_qc_file))
-        write_list_to_file(samples_with_passed_ncov_qc, Path(samples_with_passed_ncov_qc_file))
+        generate_notifications(
+            session,
+            analysis_run_name,
+            Path(samples_without_ncov_qc_file),
+            Path(samples_with_failed_ncov_qc_file),
+            Path(samples_with_passed_ncov_qc_file),
+        )
 
 
 if __name__ == "__main__":

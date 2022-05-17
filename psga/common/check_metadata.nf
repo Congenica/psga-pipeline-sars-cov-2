@@ -16,7 +16,8 @@ process check_metadata {
   output:
     path metadata, emit: ch_metadata
     path "check_metadata.done", emit: ch_metadata_checked
-    path "current_samples_with_metadata.txt", emit: ch_current_session_samples_with_metadata_file
+    path "samples_with_invalid_metadata.txt", emit: ch_samples_with_invalid_metadata_file
+    path "samples_with_valid_metadata.txt", emit: ch_samples_with_valid_metadata_file
 
   shell:
   '''
@@ -32,20 +33,20 @@ process check_metadata {
   pipeline_version=!{workflow.manifest.version}
 
   metadata_checked="check_metadata.done"
-  current_samples_with_metadata="current_samples_with_metadata.txt"
-
-  touch ${current_samples_with_metadata}
+  samples_with_invalid_metadata_file="samples_with_invalid_metadata.txt"
+  samples_with_valid_metadata_file="samples_with_valid_metadata.txt"
 
   [[ "${load_missing_samples}" == "true" ]] && load_samples_flag="--load-missing-samples" || load_samples_flag=""
 
   python ${PSGA_ROOT_PATH}/scripts/check_metadata.py \
-    --file "${metadata}" \
+    --metadata-path "${metadata}" \
     --analysis-run-name "${analysis_run_name}" \
     --primer-scheme-name "${scheme}" \
     --primer-scheme-version "${scheme_version}" \
     --input-file-type "${filetype}" \
     --workflow "${ncov_workflow}" \
-    --output-current-samples-with-metadata "${current_samples_with_metadata}" \
+    --samples-with-invalid-metadata-file "${samples_with_invalid_metadata_file}" \
+    --samples-with-valid-metadata-file "${samples_with_valid_metadata_file}" \
     --pipeline-version "${pipeline_version}" \
     ${load_samples_flag}
 

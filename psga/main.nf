@@ -17,7 +17,8 @@ if (params.help){
 
 include { pipeline_start } from './common/pipeline_lifespan.nf'
 include { check_metadata } from './common/check_metadata.nf'
-include { store_notification as store_metadata_notification } from './common/utils.nf'
+include { store_notification as store_invalid_samples_metadata_notification } from './common/utils.nf'
+include { store_notification as store_valid_samples_metadata_notification } from './common/utils.nf'
 
 include { fastqc } from './common/fastqc.nf'
 include { store_fastqc_reports } from './common/fastqc.nf'
@@ -120,8 +121,11 @@ workflow {
         params.workflow
     )
 
-    store_metadata_notification(
-        check_metadata.out.ch_current_session_samples_with_metadata_file
+    store_valid_samples_metadata_notification(
+        check_metadata.out.ch_samples_with_valid_metadata_file
+    )
+    store_invalid_samples_metadata_notification(
+        check_metadata.out.ch_samples_with_invalid_metadata_file
     )
 
     ch_input_files = Channel.empty()
