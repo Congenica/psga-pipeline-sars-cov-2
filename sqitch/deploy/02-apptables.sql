@@ -11,6 +11,7 @@ BEGIN;
     'UNKNOWN'
    ,'BAM'
    ,'FASTQ'
+   ,'FASTA'
   );
 
   CREATE TYPE "workflow" AS ENUM (

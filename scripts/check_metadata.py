@@ -15,7 +15,7 @@ from scripts.db.models import AnalysisRun, Sample
 from scripts.util.notifications import Notification
 
 METADATA_FILE_EXPECTED_HEADERS = {"sample_id", "file_1", "file_2", "md5_1", "md5_2"}
-INPUT_FILE_TYPES = {"bam", "fastq"}
+INPUT_FILE_TYPES = {"bam", "fastq", "fasta"}
 WORKFLOWS = {"illumina_artic", "medaka_artic"}
 
 

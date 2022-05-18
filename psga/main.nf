@@ -20,24 +20,6 @@ include { check_metadata } from './common/check_metadata.nf'
 include { store_notification as store_invalid_samples_metadata_notification } from './common/utils.nf'
 include { store_notification as store_valid_samples_metadata_notification } from './common/utils.nf'
 
-include { fastqc } from './common/fastqc.nf'
-include { store_fastqc_reports } from './common/fastqc.nf'
-
-if ( params.workflow == "illumina_artic" ) {
-    if ( params.filetype == "fastq" ) {
-        include { select_sample_file_pair as get_sample_files } from './common/fetch_sample_files.nf'
-    } else if ( params.filetype == "bam" ) {
-        include { bam_to_fastq } from './common/utils.nf'
-        include { select_sample_file as get_sample_files } from './common/fetch_sample_files.nf'
-    } else {
-        throw new Exception("Error: '--filetype' can only be 'fastq' or 'bam'")
-    }
-} else if ( params.workflow == "medaka_artic" ) {
-    include { select_sample_file as get_sample_files } from './common/fetch_sample_files.nf'
-} else {
-    throw new Exception("Error: '--workflow' can only be 'illumina_artic' or 'medaka_artic'")
-}
-
 /* supported pathogens */
 if ( params.pathogen == "sars_cov_2" ) {
     include { sars_cov_2 } from './sars_cov_2/sars_cov_2.nf'
@@ -128,41 +110,8 @@ workflow {
         check_metadata.out.ch_samples_with_invalid_metadata_file
     )
 
-    ch_input_files = Channel.empty()
-
-    if ( params.workflow == "illumina_artic" && params.filetype == "fastq" ) {
-        ch_input_files = get_sample_files(
-            check_metadata.out.ch_metadata,
-            ".fastq.gz"
-        )
-    } else if ( params.workflow == "illumina_artic" && params.filetype == "bam" ) {
-        ch_input_files_prep = get_sample_files(
-            check_metadata.out.ch_metadata,
-            ".bam"
-        )
-        ch_input_files = bam_to_fastq(ch_input_files_prep)
-    } else if ( params.workflow == "medaka_artic" && params.filetype == "fastq" ) {
-        ch_input_files = get_sample_files(
-            check_metadata.out.ch_metadata,
-            ".fastq"
-        )
-    } else {
-        log.error """\
-            ERROR: nanopore / medaka workflow can only run with fastq input files.
-            Aborting!
-        """
-        System.exit(1)
-    }
-
-    // run fastqc for all sample files
-    fastqc(ch_input_files)
-    ch_fastqc_submitted = store_fastqc_reports(
-        fastqc.out.ch_fastqc_html_report.collect(),
-        fastqc.out.ch_fastqc_zip_report.collect(),
-    )
-
     if ( params.pathogen == "sars_cov_2" ) {
-        psga_workflow = sars_cov_2(fastqc.out.ch_input_files)
+        psga_workflow = sars_cov_2(check_metadata.out.ch_metadata)
     } else {
         log.error """\
             ERROR: Unsupported pathogen.
@@ -175,7 +124,6 @@ workflow {
 
     pipeline_end(
         params.run,
-        ch_fastqc_submitted,
         psga_workflow.ch_analysis_run_results_submitted
     )
 }
