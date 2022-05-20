@@ -15,13 +15,11 @@ from scripts.db.models import AnalysisRun, Sample
 from scripts.util.notifications import Notification
 
 METADATA_FILE_EXPECTED_HEADERS = {"sample_id", "file_1", "file_2", "md5_1", "md5_2"}
-INPUT_FILE_TYPES = {"bam", "fastq", "fasta"}
-WORKFLOWS = {"none", "illumina_artic", "medaka_artic"}
 
-WORKFLOW_FILE_TYPE_COMBINATIONS = {
+NCOV_WORKFLOW_FILE_TYPE_VALID_COMBINATIONS = {
     "illumina_artic": {"fastq", "bam"},
     "medaka_artic": {"fastq"},
-    "none": {"fasta"},
+    "no_ncov": {"fasta"},
 }
 
 
@@ -39,7 +37,7 @@ def load_analysis_run_metadata(
     primer_scheme_name: str,
     primer_scheme_version: str,
     input_file_type: str,
-    workflow: str,
+    ncov_workflow: str,
     pipeline_version: str,
 ) -> AnalysisRun:
     analysis_run = (
@@ -57,13 +55,13 @@ def load_analysis_run_metadata(
     analysis_run.primer_scheme_name = primer_scheme_name
     analysis_run.primer_scheme_version = primer_scheme_version
     analysis_run.input_file_type = input_file_type.upper()
-    analysis_run.workflow = workflow.upper()
+    analysis_run.ncov_workflow = ncov_workflow.upper()
     analysis_run.pipeline_version = pipeline_version
 
     return analysis_run
 
 
-def validate_and_normalise_row(row, workflow, input_file_type):
+def validate_and_normalise_row(row, ncov_workflow, input_file_type):
 
     # strip leading and trailing spaces from everything
     for f in METADATA_FILE_EXPECTED_HEADERS:
@@ -83,7 +81,7 @@ def validate_and_normalise_row(row, workflow, input_file_type):
     if not row["md5_1"]:
         errs.append(f"md5_1 for {sample_id} not available")
 
-    if workflow == "illumina_artic" and input_file_type == "fastq":
+    if ncov_workflow == "illumina_artic" and input_file_type == "fastq":
         if not row["file_2"]:
             errs.append(f"file_2 for {sample_id} not available")
         if not row["md5_2"]:
@@ -102,7 +100,7 @@ def validate(
     primer_scheme_name: str,
     primer_scheme_version: str,
     input_file_type: str,
-    workflow: str,
+    ncov_workflow: str,
     pipeline_version: str,
     load_missing_samples: bool,
 ) -> tuple[List[str], List[str]]:
@@ -110,8 +108,8 @@ def validate(
     Validate metadata and input parameters
     """
 
-    if input_file_type not in WORKFLOW_FILE_TYPE_COMBINATIONS[workflow]:
-        raise ClickException(f"workflow {workflow} does not support input file type {input_file_type}")
+    if input_file_type not in NCOV_WORKFLOW_FILE_TYPE_VALID_COMBINATIONS[ncov_workflow]:
+        raise ClickException(f"ncov workflow '{ncov_workflow}' does not support input file type '{input_file_type}'")
 
     reader = csv.DictReader(metadata_path, delimiter=",")
 
@@ -136,13 +134,13 @@ def validate(
         primer_scheme_name,
         primer_scheme_version,
         input_file_type,
-        workflow,
+        ncov_workflow,
         pipeline_version,
     )
 
     for row in reader:
         try:
-            row = validate_and_normalise_row(row, workflow, input_file_type)
+            row = validate_and_normalise_row(row, ncov_workflow, input_file_type)
             sample_name = row["sample_id"]
 
             existing_sample = (
@@ -222,11 +220,17 @@ def generate_notifications(
 @click.option(
     "--input-file-type",
     required=True,
-    type=click.Choice(INPUT_FILE_TYPES, case_sensitive=True),
+    type=click.Choice(
+        {ft for file_types in NCOV_WORKFLOW_FILE_TYPE_VALID_COMBINATIONS.values() for ft in file_types},
+        case_sensitive=True,
+    ),
     help="The type of input files",
 )
 @click.option(
-    "--workflow", required=True, type=click.Choice(WORKFLOWS, case_sensitive=True), help="The name of the workflow"
+    "--ncov-workflow",
+    required=True,
+    type=click.Choice(set(NCOV_WORKFLOW_FILE_TYPE_VALID_COMBINATIONS), case_sensitive=True),
+    help="The name of the ncov workflow",
 )
 @click.option("--pipeline-version", type=str, required=True, help="mapping pipeline version")
 @click.option(
@@ -253,7 +257,7 @@ def check_metadata(
     primer_scheme_name,
     primer_scheme_version,
     input_file_type,
-    workflow,
+    ncov_workflow,
     pipeline_version,
     samples_with_valid_metadata_file,
     samples_with_invalid_metadata_file,
@@ -273,7 +277,7 @@ def check_metadata(
             primer_scheme_name,
             primer_scheme_version,
             input_file_type,
-            workflow,
+            ncov_workflow,
             pipeline_version,
             load_missing_samples,
         )

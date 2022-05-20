@@ -16,125 +16,8 @@ from utils_tests import read_samples_from_file
             {
                 "primer_scheme_name": "nCoV-2019",
                 "primer_scheme_version": "V3",
-                "input_file_type": "fastq",
-                "workflow": "illumina_artic",
-                "pipeline_version": "1.0.0",
-            },
-            True,
-            ["37a36d1c-5985-4836-87b5-b36bac75d81b", "985347c5-ff6a-454c-ac34-bc353d05dd70"],
-            [],
-            0,
-            None,
-        ),
-        (
-            "good_metadata_illumina_bam.tsv",
-            "just_a_name",
-            {
-                "primer_scheme_name": "nCoV-2019",
-                "primer_scheme_version": "V3",
-                "input_file_type": "bam",
-                "workflow": "illumina_artic",
-                "pipeline_version": "1.0.0",
-            },
-            True,
-            ["37a36d1c-5985-4836-87b5-b36bac75d81b", "985347c5-ff6a-454c-ac34-bc353d05dd70"],
-            [],
-            0,
-            None,
-        ),
-        (
-            "good_metadata_fasta.tsv",
-            "just_a_name",
-            {
-                "primer_scheme_name": "nCoV-2019",
-                "primer_scheme_version": "V3",
-                "input_file_type": "fasta",
-                "workflow": "none",
-                "pipeline_version": "1.0.0",
-            },
-            True,
-            ["37a36d1c-5985-4836-87b5-b36bac75d81b", "985347c5-ff6a-454c-ac34-bc353d05dd70"],
-            [],
-            0,
-            None,
-        ),
-        (
-            "good_metadata_medaka_fastq.tsv",
-            "just_a_name",
-            {
-                "primer_scheme_name": "nCoV-2019",
-                "primer_scheme_version": "V3",
-                "input_file_type": "fastq",
-                "workflow": "medaka_artic",
-                "pipeline_version": "1.0.0",
-            },
-            True,
-            ["37a36d1c-5985-4836-87b5-b36bac75d81b", "985347c5-ff6a-454c-ac34-bc353d05dd70"],
-            [],
-            0,
-            None,
-        ),
-        (
-            "good_metadata_fasta.tsv",
-            "just_a_name",
-            {
-                "primer_scheme_name": "nCoV-2019",
-                "primer_scheme_version": "V3",
-                "input_file_type": "fasta",
-                "workflow": "medaka_artic",
-                "pipeline_version": "1.0.0",
-            },
-            True,
-            [],
-            ["37a36d1c-5985-4836-87b5-b36bac75d81b", "985347c5-ff6a-454c-ac34-bc353d05dd70"],
-            1,
-            "Error: workflow medaka_artic does not support input file type fasta\n",
-        ),
-        (
-            "good_metadata_illumina_fastq.tsv",
-            "just_a_name",
-            {
-                "primer_scheme_name": "nCoV-2019",
-                "primer_scheme_version": "V3",
-                "input_file_type": "fastq",
-                "workflow": "illumina_artic",
-                "pipeline_version": "1.0.0",
-            },
-            False,
-            [],
-            ["37a36d1c-5985-4836-87b5-b36bac75d81b", "985347c5-ff6a-454c-ac34-bc353d05dd70"],
-            1,
-            "Invalid row for sample 37a36d1c-5985-4836-87b5-b36bac75d81b:\n"
-            + "Sample 37a36d1c-5985-4836-87b5-b36bac75d81b not found in the database, but listed in pipeline metadata\n"
-            + "Invalid row for sample 985347c5-ff6a-454c-ac34-bc353d05dd70:\n"
-            + "Sample 985347c5-ff6a-454c-ac34-bc353d05dd70 not found in the database, but listed in pipeline metadata\n"
-            + "Error: Errors encountered for sample ids: 37a36d1c-5985-4836-87b5-b36bac75d81b, "
-            + "985347c5-ff6a-454c-ac34-bc353d05dd70\n",
-        ),
-        (
-            "good_metadata_medaka_fastq.tsv",
-            "just_a_name",
-            {
-                "primer_scheme_name": "nCoV-2019",
-                "primer_scheme_version": "V3",
-                "input_file_type": "bam",
-                "workflow": "medaka_artic",
-                "pipeline_version": "1.0.0",
-            },
-            False,
-            [],
-            [],
-            1,
-            "Error: workflow medaka_artic does not support input file type bam\n",
-        ),
-        (
-            "good_metadata_illumina_fastq.tsv",
-            "just_a_name",
-            {
-                "primer_scheme_name": "nCoV-2019",
-                "primer_scheme_version": "V3",
                 "input_file_type": "unknown",
-                "workflow": "illumina_artic",
+                "ncov_workflow": "illumina_artic",
                 "pipeline_version": "1.0.0",
             },
             False,
@@ -150,14 +33,179 @@ from utils_tests import read_samples_from_file
                 "primer_scheme_name": "nCoV-2019",
                 "primer_scheme_version": "V3",
                 "input_file_type": "fastq",
-                "workflow": "fake_workflow",
+                "ncov_workflow": "fake_workflow",
                 "pipeline_version": "1.0.0",
             },
             False,
             [],
             [],
             2,
-            "Error: Invalid value for '--workflow'",
+            "Error: Invalid value for '--ncov-workflow'",
+        ),
+        (
+            "good_metadata_illumina_fastq.tsv",
+            "just_a_name",
+            {
+                "primer_scheme_name": "nCoV-2019",
+                "primer_scheme_version": "V3",
+                "input_file_type": "fastq",
+                "ncov_workflow": "illumina_artic",
+                "pipeline_version": "1.0.0",
+            },
+            True,
+            ["37a36d1c-5985-4836-87b5-b36bac75d81b", "985347c5-ff6a-454c-ac34-bc353d05dd70"],
+            [],
+            0,
+            None,
+        ),
+        (
+            "good_metadata_illumina_bam.tsv",
+            "just_a_name",
+            {
+                "primer_scheme_name": "nCoV-2019",
+                "primer_scheme_version": "V3",
+                "input_file_type": "bam",
+                "ncov_workflow": "illumina_artic",
+                "pipeline_version": "1.0.0",
+            },
+            True,
+            ["37a36d1c-5985-4836-87b5-b36bac75d81b", "985347c5-ff6a-454c-ac34-bc353d05dd70"],
+            [],
+            0,
+            None,
+        ),
+        (
+            "good_metadata_medaka_fastq.tsv",
+            "just_a_name",
+            {
+                "primer_scheme_name": "nCoV-2019",
+                "primer_scheme_version": "V3",
+                "input_file_type": "fastq",
+                "ncov_workflow": "medaka_artic",
+                "pipeline_version": "1.0.0",
+            },
+            True,
+            ["37a36d1c-5985-4836-87b5-b36bac75d81b", "985347c5-ff6a-454c-ac34-bc353d05dd70"],
+            [],
+            0,
+            None,
+        ),
+        (
+            "good_metadata_fasta.tsv",
+            "just_a_name",
+            {
+                "primer_scheme_name": "nCoV-2019",
+                "primer_scheme_version": "V3",
+                "input_file_type": "fasta",
+                "ncov_workflow": "no_ncov",
+                "pipeline_version": "1.0.0",
+            },
+            True,
+            ["37a36d1c-5985-4836-87b5-b36bac75d81b", "985347c5-ff6a-454c-ac34-bc353d05dd70"],
+            [],
+            0,
+            None,
+        ),
+        (
+            "good_metadata_illumina_fastq.tsv",
+            "just_a_name",
+            {
+                "primer_scheme_name": "nCoV-2019",
+                "primer_scheme_version": "V3",
+                "input_file_type": "fasta",
+                "ncov_workflow": "illumina_artic",
+                "pipeline_version": "1.0.0",
+            },
+            False,
+            [],
+            [],
+            1,
+            "Error: ncov workflow 'illumina_artic' does not support input file type 'fasta'\n",
+        ),
+        (
+            "good_metadata_medaka_fastq.tsv",
+            "just_a_name",
+            {
+                "primer_scheme_name": "nCoV-2019",
+                "primer_scheme_version": "V3",
+                "input_file_type": "bam",
+                "ncov_workflow": "medaka_artic",
+                "pipeline_version": "1.0.0",
+            },
+            False,
+            [],
+            [],
+            1,
+            "Error: ncov workflow 'medaka_artic' does not support input file type 'bam'\n",
+        ),
+        (
+            "good_metadata_medaka_fastq.tsv",
+            "just_a_name",
+            {
+                "primer_scheme_name": "nCoV-2019",
+                "primer_scheme_version": "V3",
+                "input_file_type": "fasta",
+                "ncov_workflow": "medaka_artic",
+                "pipeline_version": "1.0.0",
+            },
+            False,
+            [],
+            [],
+            1,
+            "Error: ncov workflow 'medaka_artic' does not support input file type 'fasta'\n",
+        ),
+        (
+            "good_metadata_fasta.tsv",
+            "just_a_name",
+            {
+                "primer_scheme_name": "nCoV-2019",
+                "primer_scheme_version": "V3",
+                "input_file_type": "fastq",
+                "ncov_workflow": "no_ncov",
+                "pipeline_version": "1.0.0",
+            },
+            True,
+            [],
+            [],
+            1,
+            "Error: ncov workflow 'no_ncov' does not support input file type 'fastq'\n",
+        ),
+        (
+            "good_metadata_fasta.tsv",
+            "just_a_name",
+            {
+                "primer_scheme_name": "nCoV-2019",
+                "primer_scheme_version": "V3",
+                "input_file_type": "bam",
+                "ncov_workflow": "no_ncov",
+                "pipeline_version": "1.0.0",
+            },
+            True,
+            [],
+            [],
+            1,
+            "Error: ncov workflow 'no_ncov' does not support input file type 'bam'\n",
+        ),
+        (
+            "good_metadata_illumina_fastq.tsv",
+            "just_a_name",
+            {
+                "primer_scheme_name": "nCoV-2019",
+                "primer_scheme_version": "V3",
+                "input_file_type": "fastq",
+                "ncov_workflow": "illumina_artic",
+                "pipeline_version": "1.0.0",
+            },
+            False,
+            [],
+            ["37a36d1c-5985-4836-87b5-b36bac75d81b", "985347c5-ff6a-454c-ac34-bc353d05dd70"],
+            1,
+            "Invalid row for sample 37a36d1c-5985-4836-87b5-b36bac75d81b:\n"
+            + "Sample 37a36d1c-5985-4836-87b5-b36bac75d81b not found in the database, but listed in pipeline metadata\n"
+            + "Invalid row for sample 985347c5-ff6a-454c-ac34-bc353d05dd70:\n"
+            + "Sample 985347c5-ff6a-454c-ac34-bc353d05dd70 not found in the database, but listed in pipeline metadata\n"
+            + "Error: Errors encountered for sample ids: 37a36d1c-5985-4836-87b5-b36bac75d81b, "
+            + "985347c5-ff6a-454c-ac34-bc353d05dd70\n",
         ),
         (
             "bad_metadata.tsv",
@@ -166,7 +214,7 @@ from utils_tests import read_samples_from_file
                 "primer_scheme_name": "nCoV-2019",
                 "primer_scheme_version": "V3",
                 "input_file_type": "fastq",
-                "workflow": "illumina_artic",
+                "ncov_workflow": "illumina_artic",
                 "pipeline_version": "1.0.0",
             },
             False,
@@ -228,8 +276,8 @@ def test_check_metadata(
         analysis_run_columns["primer_scheme_version"],
         "--input-file-type",
         analysis_run_columns["input_file_type"],
-        "--workflow",
-        analysis_run_columns["workflow"],
+        "--ncov-workflow",
+        analysis_run_columns["ncov_workflow"],
         "--samples-with-valid-metadata-file",
         valid_samples_path,
         "--samples-with-invalid-metadata-file",
@@ -266,7 +314,7 @@ def test_check_metadata(
             assert analysis_run is not None
             for col_name, col_val in analysis_run_columns.items():
                 col_val_str = str(col_val)
-                if col_name in ("input_file_type", "workflow"):
+                if col_name in ("input_file_type", "ncov_workflow"):
                     col_val_str = col_val_str.upper()
                 # get column of sample from string, dynamically
                 assert str(getattr(analysis_run, col_name)) == col_val_str
@@ -275,12 +323,11 @@ def test_check_metadata(
             assert len(samples) == 0
             assert rv.output == exception_msg
 
-        if analysis_run_columns["workflow"] != "medaka_artic" and analysis_run_columns["input_file_type"] != "bam":
-            # these files are not generated for medaka_artic + bam, as this combination is not currently supported
-
+        if valid_samples:
             # check lists of valid and invalid samples
             processed_valid_samples = read_samples_from_file(valid_samples_path)
             assert sorted(valid_samples) == sorted(processed_valid_samples)
 
+        if invalid_samples:
             processed_invalid_samples = read_samples_from_file(invalid_samples_path)
             assert sorted(invalid_samples) == sorted(processed_invalid_samples)

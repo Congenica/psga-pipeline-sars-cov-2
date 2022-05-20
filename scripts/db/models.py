@@ -29,9 +29,9 @@ class InputFileType(PyEnum):
         return str(self.name)
 
 
-class Workflow(PyEnum):
+class NCoVWorkflow(PyEnum):
     UNKNOWN = "UNKNOWN"
-    NONE = "NONE"
+    NO_NCOV = "NO_NCOV"
     ILLUMINA_ARTIC = "ILLUMINA_ARTIC"
     MEDAKA_ARTIC = "MEDAKA_ARTIC"
 
@@ -67,11 +67,11 @@ class AnalysisRun(Base):  # type: ignore
         server_default=FetchedValue(),
         comment="The type of input files",
     )
-    workflow = Column(
-        Enum(Workflow, name="workflow"),
+    ncov_workflow = Column(
+        Enum(NCoVWorkflow, name="ncov_workflow"),
         nullable=False,
         server_default=FetchedValue(),
-        comment="The name of the workflow",
+        comment="The name of the ncov workflow",
     )
     pipeline_version = Column(String, comment="PSGA pipeline version")
     pangolin_version = Column(String, comment="Pangolin version")
