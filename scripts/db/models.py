@@ -31,6 +31,7 @@ class InputFileType(PyEnum):
 
 class Workflow(PyEnum):
     UNKNOWN = "UNKNOWN"
+    NONE = "NONE"
     ILLUMINA_ARTIC = "ILLUMINA_ARTIC"
     MEDAKA_ARTIC = "MEDAKA_ARTIC"
 

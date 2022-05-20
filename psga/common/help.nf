@@ -63,7 +63,7 @@ def printHelp() {
         --metadata              The path to the metadata file. This can be an s3 path.
         --pathogen              The type of pathogen for this analysis run (e.g. sars_cov_2).
         --workflow              The workflow to run: 'illumina_artic' (default; input file extension: .fastq.gz or .bam) or 'medaka_artic' (input file extension: .fastq).
-        --filetype              The type of input file: 'fastq' or 'bam'. 'bam' is only available for the illumina_artic workflow.
+        --filetype              The type of input file: 'fasta', 'fastq' or 'bam'. 'bam' is only available for the illumina_artic workflow.
         --run                   A (unique) string identifying the analysis run (batch).
 
       Optional:

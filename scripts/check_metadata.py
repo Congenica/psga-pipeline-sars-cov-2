@@ -16,11 +16,13 @@ from scripts.util.notifications import Notification
 
 METADATA_FILE_EXPECTED_HEADERS = {"sample_id", "file_1", "file_2", "md5_1", "md5_2"}
 INPUT_FILE_TYPES = {"bam", "fastq", "fasta"}
-WORKFLOWS = {"illumina_artic", "medaka_artic"}
+WORKFLOWS = {"none", "illumina_artic", "medaka_artic"}
 
-
-class MedakaArticWithBamError(Exception):
-    pass
+WORKFLOW_FILE_TYPE_COMBINATIONS = {
+    "illumina_artic": {"fastq", "bam"},
+    "medaka_artic": {"fastq"},
+    "none": {"fasta"},
+}
 
 
 def is_valid_uuid(uuid_str: str) -> bool:
@@ -61,7 +63,7 @@ def load_analysis_run_metadata(
     return analysis_run
 
 
-def _validate_and_normalise_row(row, workflow, input_file_type):
+def validate_and_normalise_row(row, workflow, input_file_type):
 
     # strip leading and trailing spaces from everything
     for f in METADATA_FILE_EXPECTED_HEADERS:
@@ -107,9 +109,9 @@ def validate(
     """
     Validate metadata and input parameters
     """
-    if input_file_type == "bam" and workflow == "medaka_artic":
-        click.echo("Error: medaka_artic workflow does not support input bam files")
-        raise MedakaArticWithBamError
+
+    if input_file_type not in WORKFLOW_FILE_TYPE_COMBINATIONS[workflow]:
+        raise ClickException(f"workflow {workflow} does not support input file type {input_file_type}")
 
     reader = csv.DictReader(metadata_path, delimiter=",")
 
@@ -140,7 +142,7 @@ def validate(
 
     for row in reader:
         try:
-            row = _validate_and_normalise_row(row, workflow, input_file_type)
+            row = validate_and_normalise_row(row, workflow, input_file_type)
             sample_name = row["sample_id"]
 
             existing_sample = (

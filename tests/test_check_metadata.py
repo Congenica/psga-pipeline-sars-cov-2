@@ -43,13 +43,13 @@ from utils_tests import read_samples_from_file
             None,
         ),
         (
-            "good_metadata_illumina_fasta.tsv",
+            "good_metadata_fasta.tsv",
             "just_a_name",
             {
                 "primer_scheme_name": "nCoV-2019",
                 "primer_scheme_version": "V3",
                 "input_file_type": "fasta",
-                "workflow": "illumina_artic",
+                "workflow": "none",
                 "pipeline_version": "1.0.0",
             },
             True,
@@ -75,7 +75,7 @@ from utils_tests import read_samples_from_file
             None,
         ),
         (
-            "good_metadata_medaka_fasta.tsv",
+            "good_metadata_fasta.tsv",
             "just_a_name",
             {
                 "primer_scheme_name": "nCoV-2019",
@@ -85,10 +85,10 @@ from utils_tests import read_samples_from_file
                 "pipeline_version": "1.0.0",
             },
             True,
-            ["37a36d1c-5985-4836-87b5-b36bac75d81b", "985347c5-ff6a-454c-ac34-bc353d05dd70"],
             [],
-            0,
-            None,
+            ["37a36d1c-5985-4836-87b5-b36bac75d81b", "985347c5-ff6a-454c-ac34-bc353d05dd70"],
+            1,
+            "Error: workflow medaka_artic does not support input file type fasta\n",
         ),
         (
             "good_metadata_illumina_fastq.tsv",
@@ -125,7 +125,7 @@ from utils_tests import read_samples_from_file
             [],
             [],
             1,
-            "Error: medaka_artic workflow does not support input bam files\n",
+            "Error: workflow medaka_artic does not support input file type bam\n",
         ),
         (
             "good_metadata_illumina_fastq.tsv",

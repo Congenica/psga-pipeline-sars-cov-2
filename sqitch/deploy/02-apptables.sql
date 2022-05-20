@@ -16,6 +16,7 @@ BEGIN;
 
   CREATE TYPE "workflow" AS ENUM (
     'UNKNOWN'
+   ,'NONE'
    ,'ILLUMINA_ARTIC'
    ,'MEDAKA_ARTIC'
   );
