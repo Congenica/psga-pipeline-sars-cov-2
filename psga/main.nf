@@ -84,7 +84,7 @@ workflow {
     pipeline_start(
         params.metadata,
         params.run,
-        params.workflow,
+        params.ncov_workflow,
         params.filetype,
         params.scheme_repo_url,
         params.scheme_dir,
@@ -100,7 +100,7 @@ workflow {
         params.scheme,
         params.scheme_version,
         params.filetype,
-        params.workflow
+        params.ncov_workflow
     )
 
     store_valid_samples_metadata_notification(

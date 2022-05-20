@@ -17,7 +17,7 @@ BEGIN
     'primer_scheme_name',
     'primer_scheme_version',
     'input_file_type',
-    'workflow',
+    'ncov_workflow',
     'pipeline_version',
     'pangolin_version',
     'pangolin_data_version',

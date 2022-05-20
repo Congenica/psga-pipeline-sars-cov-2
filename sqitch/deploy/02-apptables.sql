@@ -14,8 +14,9 @@ BEGIN;
    ,'FASTA'
   );
 
-  CREATE TYPE "workflow" AS ENUM (
+  CREATE TYPE "ncov_workflow" AS ENUM (
     'UNKNOWN'
+   ,'NO_NCOV'
    ,'ILLUMINA_ARTIC'
    ,'MEDAKA_ARTIC'
   );
@@ -33,7 +34,7 @@ BEGIN;
    ,"primer_scheme_version" VARCHAR
    ,"input_file_type" "input_file_type"
       NOT NULL DEFAULT 'UNKNOWN'
-   ,"workflow" "workflow"
+   ,"ncov_workflow" "ncov_workflow"
       NOT NULL DEFAULT 'UNKNOWN'
    ,"pipeline_version" VARCHAR
    ,"pangolin_version" VARCHAR
@@ -54,8 +55,8 @@ BEGIN;
       'The primer scheme version';
     COMMENT ON COLUMN "analysis_run"."input_file_type" IS
       'The type of input files';
-    COMMENT ON COLUMN "analysis_run"."workflow" IS
-      'The name of the workflow';
+    COMMENT ON COLUMN "analysis_run"."ncov_workflow" IS
+      'The name of the ncov workflow';
     COMMENT ON COLUMN "analysis_run"."pipeline_version" IS
       'PSGA pipeline version';
     COMMENT ON COLUMN "analysis_run"."pangolin_version"

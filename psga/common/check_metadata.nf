@@ -44,7 +44,7 @@ process check_metadata {
     --primer-scheme-name "${scheme}" \
     --primer-scheme-version "${scheme_version}" \
     --input-file-type "${filetype}" \
-    --workflow "${ncov_workflow}" \
+    --ncov-workflow "${ncov_workflow}" \
     --samples-with-invalid-metadata-file "${samples_with_invalid_metadata_file}" \
     --samples-with-valid-metadata-file "${samples_with_valid_metadata_file}" \
     --pipeline-version "${pipeline_version}" \

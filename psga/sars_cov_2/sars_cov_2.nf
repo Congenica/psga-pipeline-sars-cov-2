@@ -1,29 +1,31 @@
 include { fastqc } from '../common/fastqc.nf'
 include { store_fastqc_reports } from '../common/fastqc.nf'
 
-if ( params.workflow == "illumina_artic" ) {
+if ( params.ncov_workflow == "illumina_artic" ) {
     include { ncov2019_artic_nf_pipeline_illumina as ncov2019_artic } from './ncov2019_artic.nf'
     if ( params.filetype == "fastq" ) {
         include { select_sample_file_pair as get_sample_files } from '../common/fetch_sample_files.nf'
     } else if ( params.filetype == "bam" ) {
         include { bam_to_fastq } from '../common/utils.nf'
         include { select_sample_file as get_sample_files } from '../common/fetch_sample_files.nf'
-    } else if ( params.filetype == "fasta" ) {
-        include { select_sample_file as get_sample_files } from '../common/fetch_sample_files.nf'
     } else {
-        throw new Exception("Error: '--filetype' can only be 'fasta', 'fastq' or 'bam' for 'illumina_artic' workflow")
+        throw new Exception("Error: '--filetype' can only be 'fastq' or 'bam' for 'illumina_artic' workflow")
     }
-} else if ( params.workflow == "medaka_artic" ) {
+} else if ( params.ncov_workflow == "medaka_artic" ) {
     include { ncov2019_artic_nf_pipeline_medaka as ncov2019_artic } from './ncov2019_artic.nf'
     if ( params.filetype == "fastq" ) {
         include { select_sample_file as get_sample_files } from '../common/fetch_sample_files.nf'
-    } else if ( params.filetype == "fasta" ) {
+    } else {
+        throw new Exception("Error: '--filetype' can only be 'fastq' for 'medaka_artic' workflow")
+    }
+} else if ( params.ncov_workflow == "no_ncov" ) {
+    if ( params.filetype == "fasta" ) {
         include { select_sample_file as get_sample_files } from '../common/fetch_sample_files.nf'
     } else {
-        throw new Exception("Error: '--filetype' can only be 'fasta' or 'fastq' for 'medaka_artic' workflow")
+        throw new Exception("Error: '--filetype' can only be 'fasta' for 'no_ncov' workflow")
     }
 } else {
-    throw new Exception("Error: '--workflow' can only be 'illumina_artic' or 'medaka_artic'")
+    throw new Exception("Error: '--ncov_workflow' can only be 'illumina_artic', 'medaka_artic' or 'no_ncov'")
 }
 
 include { reheader } from './reheader.nf'
@@ -54,18 +56,18 @@ workflow sars_cov_2 {
         } else {
 
             ch_input_files_fastq = Channel.empty()
-            if ( params.workflow == "illumina_artic" && params.filetype == "fastq" ) {
+            if ( params.ncov_workflow == "illumina_artic" && params.filetype == "fastq" ) {
                 ch_input_files_fastq = get_sample_files(
                     ch_metadata,
                     ".fastq.gz"
                 )
-            } else if ( params.workflow == "illumina_artic" && params.filetype == "bam" ) {
+            } else if ( params.ncov_workflow == "illumina_artic" && params.filetype == "bam" ) {
                 ch_input_files_bam = get_sample_files(
                     ch_metadata,
                     ".bam"
                 )
                 ch_input_files_fastq = bam_to_fastq(ch_input_files_bam)
-            } else if ( params.workflow == "medaka_artic" && params.filetype == "fastq" ) {
+            } else if ( params.ncov_workflow == "medaka_artic" && params.filetype == "fastq" ) {
                 ch_input_files_fastq = get_sample_files(
                     ch_metadata,
                     ".fastq"
