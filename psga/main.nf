@@ -15,20 +15,13 @@ if (params.help){
     exit 0
 }
 
-include { pipeline_start } from './common/pipeline_lifespan.nf'
-include { check_metadata } from './common/check_metadata.nf'
-include { store_notification as store_invalid_samples_metadata_notification } from './common/utils.nf'
-include { store_notification as store_valid_samples_metadata_notification } from './common/utils.nf'
-
-/* supported pathogens */
+/* Add supported pathogens here */
 if ( params.pathogen == "sars_cov_2" ) {
-    include { sars_cov_2 } from './sars_cov_2/sars_cov_2.nf'
+    include { sars_cov_2 as psga } from './sars_cov_2/sars_cov_2.nf'
 } else {
-    throw new Exception("Error: '--pathogen' can only be 'sars_cov_2'")
+    throw new Exception("Error: unrecognised pathogen configuration")
 }
-
 include { genbank_submission } from './common/genbank.nf'
-
 include { pipeline_end } from './common/pipeline_lifespan.nf'
 
 
@@ -46,9 +39,6 @@ if( "[:]" in [
     PSGA_CLEANUP_WORKDIR,
     DOCKER_IMAGE_PREFIX,
     PSGA_DOCKER_IMAGE_TAG,
-    NCOV2019_ARTIC_NF_ILLUMINA_DOCKER_IMAGE_TAG,
-    NCOV2019_ARTIC_NF_NANOPORE_DOCKER_IMAGE_TAG,
-    PANGOLIN_DOCKER_IMAGE_TAG,
     K8S_PULL_POLICY,
     K8S_SERVICE_ACCOUNT,
     K8S_QUEUE_SIZE,
@@ -80,45 +70,7 @@ if ( params.metadata == "" ) {
 
 workflow {
 
-    // save the session_id and command
-    pipeline_start(
-        params.metadata,
-        params.run,
-        params.ncov_workflow,
-        params.filetype,
-        params.scheme_repo_url,
-        params.scheme_dir,
-        params.scheme,
-        params.scheme_version
-    )
-
-    // METADATA
-    check_metadata(
-        params.load_missing_samples,
-        params.metadata,
-        params.run,
-        params.scheme,
-        params.scheme_version,
-        params.filetype,
-        params.ncov_workflow
-    )
-
-    store_valid_samples_metadata_notification(
-        check_metadata.out.ch_samples_with_valid_metadata_file
-    )
-    store_invalid_samples_metadata_notification(
-        check_metadata.out.ch_samples_with_invalid_metadata_file
-    )
-
-    if ( params.pathogen == "sars_cov_2" ) {
-        psga_workflow = sars_cov_2(check_metadata.out.ch_metadata)
-    } else {
-        log.error """\
-            ERROR: Unsupported pathogen.
-            Aborting!
-        """
-        System.exit(1)
-    }
+    psga_workflow = psga()
 
     genbank_submission(psga_workflow.ch_qc_passed_fasta.collect())
 
