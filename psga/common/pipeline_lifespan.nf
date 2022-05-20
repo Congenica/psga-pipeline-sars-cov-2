@@ -25,9 +25,7 @@ process pipeline_start {
 process pipeline_end {
   input:
     val run
-    file fastq_html
-    file fastq_zip
-    file ch_sample_results_submitted
+    path ch_sample_results_submitted
 
   output:
 

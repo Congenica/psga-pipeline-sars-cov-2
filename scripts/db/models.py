@@ -23,6 +23,7 @@ class InputFileType(PyEnum):
     UNKNOWN = "UNKNOWN"
     BAM = "BAM"
     FASTQ = "FASTQ"
+    FASTA = "FASTA"
 
     def __str__(self):
         return str(self.name)

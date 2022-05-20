@@ -11,7 +11,7 @@ from utils_tests import read_samples_from_file
     "load_missing_samples,valid_samples,invalid_samples,exit_code,exception_msg",
     [
         (
-            "good_metadata.tsv",
+            "good_metadata_illumina_fastq.tsv",
             "just_a_name",
             {
                 "primer_scheme_name": "nCoV-2019",
@@ -27,7 +27,7 @@ from utils_tests import read_samples_from_file
             None,
         ),
         (
-            "good_metadata.tsv",
+            "good_metadata_illumina_bam.tsv",
             "just_a_name",
             {
                 "primer_scheme_name": "nCoV-2019",
@@ -43,7 +43,23 @@ from utils_tests import read_samples_from_file
             None,
         ),
         (
-            "good_metadata.tsv",
+            "good_metadata_illumina_fasta.tsv",
+            "just_a_name",
+            {
+                "primer_scheme_name": "nCoV-2019",
+                "primer_scheme_version": "V3",
+                "input_file_type": "fasta",
+                "workflow": "illumina_artic",
+                "pipeline_version": "1.0.0",
+            },
+            True,
+            ["37a36d1c-5985-4836-87b5-b36bac75d81b", "985347c5-ff6a-454c-ac34-bc353d05dd70"],
+            [],
+            0,
+            None,
+        ),
+        (
+            "good_metadata_medaka_fastq.tsv",
             "just_a_name",
             {
                 "primer_scheme_name": "nCoV-2019",
@@ -59,7 +75,23 @@ from utils_tests import read_samples_from_file
             None,
         ),
         (
-            "good_metadata.tsv",
+            "good_metadata_medaka_fasta.tsv",
+            "just_a_name",
+            {
+                "primer_scheme_name": "nCoV-2019",
+                "primer_scheme_version": "V3",
+                "input_file_type": "fasta",
+                "workflow": "medaka_artic",
+                "pipeline_version": "1.0.0",
+            },
+            True,
+            ["37a36d1c-5985-4836-87b5-b36bac75d81b", "985347c5-ff6a-454c-ac34-bc353d05dd70"],
+            [],
+            0,
+            None,
+        ),
+        (
+            "good_metadata_illumina_fastq.tsv",
             "just_a_name",
             {
                 "primer_scheme_name": "nCoV-2019",
@@ -80,7 +112,7 @@ from utils_tests import read_samples_from_file
             + "985347c5-ff6a-454c-ac34-bc353d05dd70\n",
         ),
         (
-            "good_metadata.tsv",
+            "good_metadata_medaka_fastq.tsv",
             "just_a_name",
             {
                 "primer_scheme_name": "nCoV-2019",
@@ -96,7 +128,7 @@ from utils_tests import read_samples_from_file
             "Error: medaka_artic workflow does not support input bam files\n",
         ),
         (
-            "good_metadata.tsv",
+            "good_metadata_illumina_fastq.tsv",
             "just_a_name",
             {
                 "primer_scheme_name": "nCoV-2019",
@@ -112,7 +144,7 @@ from utils_tests import read_samples_from_file
             "Error: Invalid value for '--input-file-type'",
         ),
         (
-            "good_metadata.tsv",
+            "good_metadata_illumina_fastq.tsv",
             "just_a_name",
             {
                 "primer_scheme_name": "nCoV-2019",
@@ -212,6 +244,8 @@ def test_check_metadata(
         cmd_config,
     )
 
+    print(rv.output)
+    print(rv.exception)
     assert rv.exit_code == exit_code
     samples = db_session.query(Sample).all()
 
@@ -242,7 +276,7 @@ def test_check_metadata(
             assert rv.output == exception_msg
 
         if analysis_run_columns["workflow"] != "medaka_artic" and analysis_run_columns["input_file_type"] != "bam":
-            # these files are not generated for medaka_artic + bam as an exception is raised by the script
+            # these files are not generated for medaka_artic + bam, as this combination is not currently supported
 
             # check lists of valid and invalid samples
             processed_valid_samples = read_samples_from_file(valid_samples_path)
