@@ -4,7 +4,6 @@ from typing import List
 import csv
 from datetime import datetime
 from pathlib import Path
-from uuid import UUID
 
 import click
 from click import ClickException
@@ -12,23 +11,14 @@ from click import ClickException
 from sqlalchemy.orm import scoped_session
 from scripts.db.database import session_handler
 from scripts.db.models import AnalysisRun, Sample
-from scripts.util.notifications import Notification
+from scripts.util.metadata import METADATA_FILE_EXPECTED_HEADERS, generate_notifications, is_valid_uuid
 
-METADATA_FILE_EXPECTED_HEADERS = {"sample_id", "file_1", "file_2", "md5_1", "md5_2"}
 
 NCOV_WORKFLOW_FILE_TYPE_VALID_COMBINATIONS = {
     "illumina_artic": {"fastq", "bam"},
     "medaka_artic": {"fastq"},
     "no_ncov": {"fasta"},
 }
-
-
-def is_valid_uuid(uuid_str: str) -> bool:
-    try:
-        UUID(uuid_str)
-        return True
-    except ValueError:
-        return False
 
 
 def load_analysis_run_metadata(
@@ -183,35 +173,6 @@ def validate(
     return valid_samples, invalid_samples
 
 
-def generate_notifications(
-    valid_samples: List[str],
-    invalid_samples: List[str],
-    failed_qc_path: Path,
-    passed_qc_path: Path,
-) -> None:
-    """
-    Generate and publish the notifications for ncov
-    """
-    notifications = Notification(
-        events={
-            "failed_qc": {
-                "path": failed_qc_path,
-                "level": "ERROR",
-                "event": "metadata validation failed",
-                "samples": invalid_samples,
-            },
-            "passed_qc": {
-                "path": passed_qc_path,
-                "level": "INFO",
-                "event": "metadata validation passed",
-                "samples": valid_samples,
-            },
-        }
-    )
-
-    notifications.publish()
-
-
 @click.command()
 @click.option("--metadata-path", required=True, type=click.File("r"), help="The metadata CSV input file")
 @click.option("--analysis-run-name", required=True, type=str, help="The name of the analysis run")
@@ -284,9 +245,9 @@ def check_metadata(
 
     generate_notifications(
         valid_samples,
+        Path(samples_with_valid_metadata_file),
         invalid_samples,
         Path(samples_with_invalid_metadata_file),
-        Path(samples_with_valid_metadata_file),
     )
 
     if invalid_samples:

@@ -31,7 +31,7 @@ process reheader_fasta {
 
   script:
   """
-  python ${PSGA_ROOT_PATH}/scripts/reheader_fasta.py --input-dir . --output-dir .
+  python ${PSGA_ROOT_PATH}/scripts/sars_cov_2/reheader_fasta.py --input-dir . --output-dir .
   """
 }
 

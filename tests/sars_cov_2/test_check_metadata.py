@@ -2,7 +2,7 @@ import pytest
 from click.testing import CliRunner
 
 from scripts.db.models import AnalysisRun, Sample
-from scripts.check_metadata import check_metadata
+from scripts.sars_cov_2.check_metadata import check_metadata
 from utils_tests import read_samples_from_file
 
 

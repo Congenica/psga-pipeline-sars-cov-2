@@ -3,7 +3,7 @@ import pytest
 from click.testing import CliRunner
 
 from scripts.db.models import AnalysisRun
-from scripts.load_pangolin_data_to_db import load_pangolin_data
+from scripts.sars_cov_2.load_pangolin_data_to_db import load_pangolin_data
 from utils_tests import get_analysis_run_samples, read_samples_from_file
 
 

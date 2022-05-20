@@ -48,10 +48,10 @@ if( "[:]" in [
 
 
 /*
- * Run the SARS-CoV-2 workflow.
+ * Main workflow for the pathogen: SARS-CoV-2.
  * This workflow is based on ncov2019-artic and Pangolin pipelines.
  */
-workflow sars_cov_2 {
+workflow psga {
 
     main:
 

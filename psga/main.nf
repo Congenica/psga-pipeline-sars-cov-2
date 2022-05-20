@@ -3,24 +3,32 @@
 // Enable DSL 2 syntax
 nextflow.enable.dsl = 2
 
-// Import common
-include {printPipelineConfig} from './common/help.nf'
-include {printHelp} from './common/help.nf'
-if (params.print_config){
-    printPipelineConfig()
-    exit 0
-}
-if (params.help){
-    printHelp()
-    exit 0
+// List of supported pathogens (edit as required)
+supported_pathogens = ["sars_cov_2"]
+
+// include help and workflow for all available pathogens
+if (supported_pathogens.contains(params.pathogen)) {
+    if (params.print_config){
+        include {printMainConfig} from './common/help.nf'
+        include { printPathogenConfig } from "./${params.pathogen}/help.nf"
+        printMainConfig()
+        printPathogenConfig()
+        exit 0
+    }
+
+    if (params.help){
+        include {printMainHelp} from './common/help.nf'
+        include { printPathogenHelp } from "./${params.pathogen}/help.nf"
+        printMainHelp()
+        printPathogenHelp()
+        exit 0
+    }
+
+    include { psga } from "./${params.pathogen}/psga"
+} else {
+    throw new Exception("Error: unrecognised configuration for pathogen '${params.pathogen}'")
 }
 
-/* Add supported pathogens here */
-if ( params.pathogen == "sars_cov_2" ) {
-    include { sars_cov_2 as psga } from './sars_cov_2/sars_cov_2.nf'
-} else {
-    throw new Exception("Error: unrecognised pathogen configuration")
-}
 include { genbank_submission } from './common/genbank.nf'
 include { pipeline_end } from './common/pipeline_lifespan.nf'
 

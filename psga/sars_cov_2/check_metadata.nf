@@ -38,7 +38,7 @@ process check_metadata {
 
   [[ "${load_missing_samples}" == "true" ]] && load_samples_flag="--load-missing-samples" || load_samples_flag=""
 
-  python ${PSGA_ROOT_PATH}/scripts/check_metadata.py \
+  python ${PSGA_ROOT_PATH}/scripts/sars_cov_2/check_metadata.py \
     --metadata-path "${metadata}" \
     --analysis-run-name "${analysis_run_name}" \
     --primer-scheme-name "${scheme}" \

@@ -3,7 +3,7 @@ from click.testing import CliRunner
 from pathlib import Path
 
 from scripts.db.models import Sample, SampleQC
-from scripts.load_ncov_data_to_db import load_ncov_data
+from scripts.sars_cov_2.load_ncov_data_to_db import load_ncov_data
 from utils_tests import get_analysis_run_samples, read_samples_from_file
 
 
