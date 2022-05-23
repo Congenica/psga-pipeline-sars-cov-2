@@ -293,6 +293,16 @@ Important - `verify` scripts only fail, if `.sql` query raises an exception. Cre
 accordingly to throw exceptions in case of failed verification
 
 
+#### Adding new pathogens
+To add the pathogen `pathogenX` to the pipeline, you need to:
+1. add `pathogenX` to the list of supported pathogens in: `psga/main.nf`
+2. create the directory: `psga/pathogenX`. This folder will contain the Nextflow scripts for analysing this new pathogen
+3. create the Nextflow main workflow: `psga/pathogenX/psga.nf`. Name the workflow as `psga`
+4. create the Nextflow configuration file: `psga/pathogenX.config`. Set the parameter `pathogen` to `pathogenX`
+5. create the Python scripts in: `scripts/pathogenX`
+6. have fun!
+
+
 ## Troubleshootings
 
 ### Sqitch

@@ -2,7 +2,7 @@ import pytest
 from click.testing import CliRunner
 
 from scripts.db.models import AnalysisRun, Sample
-from scripts.mark_submitted_genbank_samples import mark_submitted_genbank_samples
+from scripts.genbank.mark_submitted_genbank_samples import mark_submitted_genbank_samples
 
 ANALYSIS_RUN_NAME = "just_a_name"
 

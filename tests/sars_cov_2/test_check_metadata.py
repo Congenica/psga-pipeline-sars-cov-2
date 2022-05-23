@@ -1,8 +1,9 @@
 import pytest
 from click.testing import CliRunner
 
-from scripts.db.models import AnalysisRun, Sample
-from scripts.check_metadata import check_metadata
+from scripts.db.models import Sample
+from scripts.db.queries import get_analysis_run
+from scripts.sars_cov_2.check_metadata import check_metadata
 from utils_tests import read_samples_from_file
 
 
@@ -292,8 +293,6 @@ def test_check_metadata(
         cmd_config,
     )
 
-    print(rv.output)
-    print(rv.exception)
     assert rv.exit_code == exit_code
     samples = db_session.query(Sample).all()
 
@@ -304,13 +303,7 @@ def test_check_metadata(
         if exit_code == 0:
             assert len(samples) == 2
 
-            analysis_run = (
-                db_session.query(AnalysisRun)
-                .filter(
-                    AnalysisRun.analysis_run_name == analysis_run_name,
-                )
-                .one_or_none()
-            )
+            analysis_run = get_analysis_run(db_session, analysis_run_name)
             assert analysis_run is not None
             for col_name, col_val in analysis_run_columns.items():
                 col_val_str = str(col_val)

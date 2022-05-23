@@ -9,7 +9,9 @@ from sqlalchemy.orm import scoped_session
 
 from scripts.db.database import session_handler
 from scripts.db.models import AnalysisRun, Sample, PangolinStatus
+from scripts.db.queries import get_analysis_run, get_analysis_run_sample
 from scripts.util.notifications import Notification
+from scripts.validation.check_csv_columns import check_csv_columns
 
 EXPECTED_HEADERS = {
     "taxon",
@@ -35,15 +37,7 @@ def load_pangolin_sample(session: scoped_session, analysis_run_name: str, sample
 
     sample_name = sample_from_csv["taxon"]
 
-    sample = (
-        session.query(Sample)
-        .join(AnalysisRun)
-        .filter(
-            Sample.sample_name == sample_name,
-            AnalysisRun.analysis_run_name == analysis_run_name,
-        )
-        .one_or_none()
-    )
+    sample = get_analysis_run_sample(session, analysis_run_name, sample_name)
 
     if not sample:
         # This should never happen as samples are expected to be loaded as part of the metadata loading
@@ -78,20 +72,14 @@ def load_pangolin_lineages(session: scoped_session, pangolin_lineage_report_file
     with open(pangolin_lineage_report_file) as csv_file:
         sample_from_csv_reader = csv.DictReader(csv_file)
 
-        headers = set(sample_from_csv_reader.fieldnames)
-        if not EXPECTED_HEADERS.issubset(headers):
-            err = (
-                "Unexpected CSV headers, got:\n"
-                + ", ".join(headers)
-                + "\n, but expect at least \n"
-                + ", ".join(EXPECTED_HEADERS)
-            )
-            raise ClickException(err)
+        check_csv_columns(
+            set(sample_from_csv_reader.fieldnames),
+            EXPECTED_HEADERS,
+        )
 
         # update pangolin-related data in analysis_run table
-        analysis_run = (
-            session.query(AnalysisRun).filter(AnalysisRun.analysis_run_name == analysis_run_name).one_or_none()
-        )
+        analysis_run = get_analysis_run(session, analysis_run_name)
+
         if not analysis_run:
             raise ClickException(f"Analysis run {analysis_run_name} was not found in the database")
 

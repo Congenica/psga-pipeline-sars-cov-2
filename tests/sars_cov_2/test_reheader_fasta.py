@@ -1,7 +1,7 @@
 import pytest
 from click.testing import CliRunner
 
-from scripts.reheader_fasta import reheader_fasta, FASTA_FILE_EXTENSION, FASTA_FILE_HANDLE
+from scripts.sars_cov_2.reheader_fasta import reheader_fasta, FASTA_FILE_EXTENSION, FASTA_FILE_HANDLE
 
 
 @pytest.mark.parametrize(

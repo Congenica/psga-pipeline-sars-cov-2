@@ -1,3 +1,7 @@
+include { pipeline_start } from './pipeline_lifespan.nf'
+include { check_metadata } from './check_metadata.nf'
+include { store_notification as store_invalid_samples_metadata_notification } from '../common/utils.nf'
+include { store_notification as store_valid_samples_metadata_notification } from '../common/utils.nf'
 include { fastqc } from '../common/fastqc.nf'
 include { store_fastqc_reports } from '../common/fastqc.nf'
 
@@ -32,16 +36,55 @@ include { reheader } from './reheader.nf'
 include { pangolin_pipeline as pangolin } from './pangolin.nf'
 include { submit_analysis_run_results } from './submit_analysis_run_results.nf'
 
+
+// Required environment variables
+if( "[:]" in [
+    NCOV2019_ARTIC_NF_ILLUMINA_DOCKER_IMAGE_TAG,
+    NCOV2019_ARTIC_NF_NANOPORE_DOCKER_IMAGE_TAG,
+    PANGOLIN_DOCKER_IMAGE_TAG,
+    ]) {
+    throw new Exception("Found unset environment variables specific to the sars_cov_2 pathoge. See '[:]' above. Abort")
+}
+
+
 /*
- * Run the SARS-CoV-2 workflow.
+ * Main workflow for the pathogen: SARS-CoV-2.
  * This workflow is based on ncov2019-artic and Pangolin pipelines.
  */
-workflow sars_cov_2 {
-
-    take:
-        ch_metadata
+workflow psga {
 
     main:
+
+        // save the session_id and command
+        pipeline_start(
+            params.metadata,
+            params.run,
+            params.ncov_workflow,
+            params.filetype,
+            params.scheme_repo_url,
+            params.scheme_dir,
+            params.scheme,
+            params.scheme_version
+        )
+
+        check_metadata(
+            params.load_missing_samples,
+            params.metadata,
+            params.run,
+            params.scheme,
+            params.scheme_version,
+            params.filetype,
+            params.ncov_workflow
+        )
+
+        store_valid_samples_metadata_notification(
+            check_metadata.out.ch_samples_with_valid_metadata_file
+        )
+        store_invalid_samples_metadata_notification(
+            check_metadata.out.ch_samples_with_invalid_metadata_file
+        )
+
+        ch_metadata = check_metadata.out.ch_metadata
 
         if ( params.filetype == "fasta" ) {
 
@@ -120,4 +163,3 @@ workflow sars_cov_2 {
         ch_qc_passed_fasta
         ch_analysis_run_results_submitted
 }
-

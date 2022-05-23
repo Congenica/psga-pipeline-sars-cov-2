@@ -1,7 +1,7 @@
 import pytest
 from click.testing import CliRunner
 
-from scripts.check_file_integrity import check_file_integrity, FileIntegrityError
+from scripts.validation.check_file_integrity import check_file_integrity, FileIntegrityError
 
 
 @pytest.mark.parametrize(

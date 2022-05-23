@@ -8,7 +8,7 @@ from click.testing import CliRunner
 
 from utils_tests import assert_files_are_equal
 from scripts.db.models import AnalysisRun, Sample
-from scripts.generate_genbank_files import generate_genbank_files
+from scripts.genbank.generate_genbank_files import generate_genbank_files
 
 ANALYSIS_RUN_NAME = "just_a_name"
 

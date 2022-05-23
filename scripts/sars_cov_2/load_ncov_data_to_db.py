@@ -9,6 +9,16 @@ from sqlalchemy.orm import scoped_session, joinedload
 from scripts.db.database import session_handler
 from scripts.db.models import AnalysisRun, Sample, SampleQC
 from scripts.util.notifications import Notification
+from scripts.validation.check_csv_columns import check_csv_columns
+
+EXPECTED_HEADERS = {
+    "sample_name",
+    "pct_N_bases",
+    "pct_covered_bases",
+    "longest_no_N_run",
+    "num_aligned_reads",
+    "qc_pass",
+}
 
 
 def load_ncov_sample(
@@ -147,6 +157,10 @@ def load_ncov_data(
     with session_handler() as session:
         with open(ncov_qc_csv_file) as csv_file:
             sample_from_csv_reader = csv.DictReader(csv_file)
+            check_csv_columns(
+                set(sample_from_csv_reader.fieldnames),
+                EXPECTED_HEADERS,
+            )
             for sample_from_csv in sample_from_csv_reader:
                 load_ncov_sample(session, analysis_run_name, sample_from_csv, ncov_qc_depth_directory)
 

@@ -114,7 +114,7 @@ process load_ncov_results_to_db {
     ch_samples_with_passed_ncov_qc = "samples_with_passed_ncov_qc.txt"
 
   """
-  python ${PSGA_ROOT_PATH}/scripts/load_ncov_data_to_db.py \
+  python ${PSGA_ROOT_PATH}/scripts/sars_cov_2/load_ncov_data_to_db.py \
     --ncov-qc-csv-file "${ch_qc_ncov_result_csv_file}" \
     --ncov-qc-depth-directory "${directory_with_qc_depth_files}" \
     --samples-without-ncov-qc-file "${ch_samples_without_ncov_qc}" \
@@ -150,7 +150,7 @@ process load_pangolin_results_to_db {
     ch_samples_with_passed_pangolin_status = "samples_with_passed_pangolin_status.txt"
 
   """
-  python ${PSGA_ROOT_PATH}/scripts/load_pangolin_data_to_db.py \
+  python ${PSGA_ROOT_PATH}/scripts/sars_cov_2/load_pangolin_data_to_db.py \
     --pangolin-lineage-report-file "${ch_pangolin_all_lineages}" \
     --samples-with-unknown-pangolin-status-file "${ch_samples_with_unknown_pangolin_status}" \
     --samples-with-failed-pangolin-status-file "${ch_samples_with_failed_pangolin_status}" \

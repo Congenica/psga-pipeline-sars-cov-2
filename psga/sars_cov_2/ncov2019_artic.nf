@@ -43,8 +43,7 @@ process ncov2019_artic_nf_pipeline_illumina {
       --schemeDir ${scheme_dir} \
       --scheme ${scheme} \
       --schemeVersion ${scheme_version} \
-      -c ${PSGA_ROOT_PATH}/psga/ncov-custom.config \
-      -c ${PSGA_ROOT_PATH}/psga/ncov-illumina-k8s.config
+      -c ${PSGA_ROOT_PATH}/psga/sars_cov_2/ncov-illumina.config
 
   mkdir -p ${output_fasta}
   mkdir -p ${output_plots}
@@ -115,8 +114,7 @@ process ncov2019_artic_nf_pipeline_medaka {
       --schemeDir ${scheme_dir} \
       --scheme ${scheme} \
       --schemeVersion ${scheme_version} \
-      -c ${PSGA_ROOT_PATH}/psga/ncov-custom.config \
-      -c ${PSGA_ROOT_PATH}/psga/ncov-nanopore-k8s.config
+      -c ${PSGA_ROOT_PATH}/psga/sars_cov_2/ncov-nanopore.config
 
   mkdir -p ${output_fasta}
   mkdir -p ${output_plots}
