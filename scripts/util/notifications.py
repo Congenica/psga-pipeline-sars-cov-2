@@ -1,6 +1,6 @@
-from dataclasses import dataclass, field
-from typing import Dict, List
 from pathlib import Path
+from typing import Dict, List
+from dataclasses import dataclass, field
 from marshmallow import validate
 
 from scripts.util.data_dumping import write_list_to_file
