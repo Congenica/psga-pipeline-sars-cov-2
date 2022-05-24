@@ -7,7 +7,7 @@ Currently, the only supported pathogen is: SARS-CoV-2. For this pathogen, Congen
 
 Support for other pathogens will be added.
 A diagram for this pipeline is shown below:
-![Alt text](img/psga.png?raw=true "PSGA pipeline")
+![Alt text](img/PSGA_pipeline_sars_cov_2.png?raw=true "PSGA pipeline for SARS-CoV-2")
 
 ## Operation
 This pipeline runs on a Kubernetes environment. For the time being, there are two k8s deployments:
@@ -16,7 +16,7 @@ This pipeline runs on a Kubernetes environment. For the time being, there are tw
 Ideally, the postgresql database should be stored in an RDS aurora system outside the cluster, but for development, the current setting is fine.
 
 The following diagram offers an overview of the pipeline execution in k8s. Each nextflow process is executed on a dedicated pod spun up by the main `psga` pod.
-![Alt text](img/psga_k8s.png?raw=true "PSGA pipeline in k8s environment")
+![Alt text](img/PSGA_k8s.png?raw=true "PSGA pipeline in k8s environment")
 
 
 ### Environment variables and input parameters
@@ -111,13 +111,9 @@ kubectl exec -it psga-XXXX -- bash
 
 # ------------------
 # WITHIN THE POD
-# run the pipeline within the pod (processes are spun up as pod workers by this pipeline)
-# the results will be stored in psga pod: /data/output
-# MODE 1: Fresh run, overriding the output from the previous computations
-nextflow run . <input_parameters>
-
-# MODE 2: run from the last successful process
-nextflow run . <input_parameters> -resume
+# run the pipeline within the pod (processes are spun up as pod workers by this pipeline). The results will be stored in psga pod: /data/output
+# use `-resume` flag to resume the previous pipeline execution
+nextflow run . -c <pathogen>.config <input_parameters>
 
 # The following command cleans up the previous run's work directories and cache, but retains the content of ${PSGA_OUTPUT_PATH}:
 nextflow clean -f
