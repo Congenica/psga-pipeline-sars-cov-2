@@ -188,9 +188,9 @@ spec:
 
                     if (params.VALIDATION_TEST) {
 
-                        if (${PATHOGEN_CONFIG} == "sars_cov_2") {
+                        if ("${PATHOGEN_CONFIG}" == "sars_cov_2.config") {
 
-                            if (${FILETYPE} != "fasta") {
+                            if ("${FILETYPE}" != "fasta") {
                                 // validate ncov2019-artic-nf for non-fasta samples.
                                 // for fasta samples ncov is not executed
                                 sh 'cd ${PSGA_ROOT_PATH}/jenkins && python validation.py --result-path ${PSGA_OUTPUT_PATH}/ncov2019-artic/ncov_qc.csv  --expected-result-path expected_output/${ANALYSIS_RUN}/ncov2019-artic/ncov_qc.csv --tool ncov2019_artic_nf'
