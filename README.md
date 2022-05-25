@@ -74,6 +74,14 @@ export NCOV2019_ARTIC_NF_ILLUMINA_DOCKER_IMAGE_TAG=1.0.0
 export NCOV2019_ARTIC_NF_NANOPORE_DOCKER_IMAGE_TAG=1.0.0
 export PANGOLIN_DOCKER_IMAGE_TAG=1.0.0
 
+# add project submodules
+git submodule init
+git submodule update
+
+# update pangolin, ncov2019_artic_nf to their latest commits
+# If you run this command, you need to regenerate the base images for pangolin and ncov2019
+git submodule update --remote --merge
+
 # create base images
 docker build -t ${DOCKER_IMAGE_PREFIX}/psga-base:${PSGA_DOCKER_IMAGE_TAG_BASE} -f docker/Dockerfile.psga-base .
 docker build -t ${DOCKER_IMAGE_PREFIX}/ncov2019-artic-nf-illumina-base:${NCOV2019_ARTIC_NF_ILLUMINA_DOCKER_IMAGE_TAG_BASE} -f docker/Dockerfile.ncov2019-artic-nf-illumina-base .
@@ -84,14 +92,6 @@ docker build -t ${DOCKER_IMAGE_PREFIX}/pangolin-base:${PANGOLIN_DOCKER_IMAGE_TAG
 # build main images
 docker build -t ${DOCKER_IMAGE_PREFIX}/psga:${PSGA_DOCKER_IMAGE_TAG} -f docker/Dockerfile.psga .
 docker build -t ${DOCKER_IMAGE_PREFIX}/psga-db:${PSGA_DOCKER_IMAGE_TAG} -f docker/Dockerfile.postgres .
-
-# add project submodules
-git submodule init
-git submodule update
-
-# update pangolin, ncov2019_artic_nf to their latest commits
-# If you run this command, you need to regenerate the base images for pangolin and ncov2019
-git submodule update --remote --merge
 
 # build ncov docker images
 docker build -t ${DOCKER_IMAGE_PREFIX}/ncov2019-artic-nf-illumina:${NCOV2019_ARTIC_NF_ILLUMINA_DOCKER_IMAGE_TAG} -f docker/Dockerfile.ncov2019-artic-nf-illumina .
