@@ -65,7 +65,7 @@ eval $(minikube -p minikube docker-env)
 The next step is to build the pipeline docker images in the minikube docker environment. For simplicity, the database is stored on a pod. This is not ideal as this can be lost if the pod crashes or is deleted. However, as a proof of concept, this is fine. In the future, the database will be stored in an RDS aurora cluster, therefore outside the k8s environment.
 ```commandline
 export DOCKER_IMAGE_PREFIX=144563655722.dkr.ecr.eu-west-1.amazonaws.com/congenica/dev
-export PSGA_DOCKER_IMAGE_TAG_BASE=1.0.0
+export PSGA_DOCKER_IMAGE_TAG_BASE=1.0.1
 export NCOV2019_ARTIC_NF_ILLUMINA_DOCKER_IMAGE_TAG_BASE=1.0.0
 export NCOV2019_ARTIC_NF_NANOPORE_DOCKER_IMAGE_TAG_BASE=1.0.0
 export PANGOLIN_DOCKER_IMAGE_TAG_BASE=1.0.0

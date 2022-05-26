@@ -9,7 +9,7 @@ import click
 
 from scripts.db.models import AnalysisRun, Sample
 from scripts.db.queries import get_analysis_run_sample
-from scripts.util.notifications import Notification
+from scripts.util.notifications import Event, Notification
 from scripts.validation.check_csv_columns import check_csv_columns
 
 EXPECTED_HEADERS = {"sample_id", "file_1", "file_2", "md5_1", "md5_2"}
@@ -62,6 +62,7 @@ def validate_and_normalise_row(row, sample_with_two_reads: bool):
 
 
 def generate_notifications(
+    analysis_run_name: str,
     valid_samples: List[str],
     passed_qc_path: Path,
     invalid_samples: List[str],
@@ -72,18 +73,20 @@ def generate_notifications(
     """
     notifications = Notification(
         events={
-            "failed_qc": {
-                "path": failed_qc_path,
-                "level": "ERROR",
-                "event": "metadata validation failed",
-                "samples": invalid_samples,
-            },
-            "passed_qc": {
-                "path": passed_qc_path,
-                "level": "INFO",
-                "event": "metadata validation passed",
-                "samples": valid_samples,
-            },
+            "failed_qc": Event(
+                analysis_run=analysis_run_name,
+                path=failed_qc_path,
+                level="ERROR",
+                message="metadata validation failed",
+                samples=invalid_samples,
+            ),
+            "passed_qc": Event(
+                analysis_run=analysis_run_name,
+                path=passed_qc_path,
+                level="INFO",
+                message="metadata validation passed",
+                samples=valid_samples,
+            ),
         }
     )
 
