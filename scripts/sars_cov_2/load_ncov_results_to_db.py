@@ -149,7 +149,7 @@ def generate_notifications(
     help="output file storing the names of samples for this analysis run which have passed ncov qc",
 )
 @click.option("--analysis-run-name", required=True, type=str, help="The name of the analysis run")
-def load_ncov_data(
+def load_ncov_results_to_db(
     ncov_qc_csv_file: str,
     ncov_qc_depth_directory: str,
     samples_without_ncov_qc_file: str,
@@ -181,4 +181,4 @@ def load_ncov_data(
 
 if __name__ == "__main__":
     # pylint: disable=no-value-for-parameter
-    load_ncov_data()
+    load_ncov_results_to_db()

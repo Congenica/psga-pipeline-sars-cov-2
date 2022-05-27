@@ -2,6 +2,8 @@
  * Check the metadata in the database
  */
 process check_metadata {
+  publishDir "${PSGA_OUTPUT_PATH}/notifications", mode: 'copy', overwrite: true, pattern: 'samples_with_{invalid,valid}_metadata.txt'
+
   tag "${metadata}"
 
   input:

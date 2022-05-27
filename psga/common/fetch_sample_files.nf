@@ -5,22 +5,22 @@
  * Set the error strategy for this process if the pipeline should ignore this sample.
  */
 process stage_sample_file {
-    tag "${task.index} - ${staged_file_1}"
-    input:
-      val(analysis_run)
-      val(file_extension)
-      tuple val(sample_id), path(file_1), val(md5_1)
+  tag "${task.index} - ${staged_file_1}"
+  input:
+    val(analysis_run)
+    val(file_extension)
+    tuple val(sample_id), path(file_1), val(md5_1)
 
-    output:
-      path(staged_file_1), emit: ch_sample_files
+  output:
+    path(staged_file_1), emit: ch_sample_files
 
-    script:
-      staged_file_1 = "${sample_id}${file_extension}"
-    """
-    ln -s ${file_1} ${staged_file_1}
+  script:
+    staged_file_1 = "${sample_id}${file_extension}"
+  """
+  ln -s ${file_1} ${staged_file_1}
 
-    python ${PSGA_ROOT_PATH}/scripts/validation/check_file_integrity.py --analysis-run-name ${analysis_run} --sample-name ${sample_id} --input-path ${staged_file_1} --expected-md5 ${md5_1}
-    """
+  python ${PSGA_ROOT_PATH}/scripts/validation/check_file_integrity.py --analysis-run-name ${analysis_run} --sample-name ${sample_id} --input-path ${staged_file_1} --expected-md5 ${md5_1}
+  """
 }
 
 /*

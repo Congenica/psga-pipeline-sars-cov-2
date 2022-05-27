@@ -1,9 +1,6 @@
 include { pipeline_start } from './pipeline_lifespan.nf'
 include { check_metadata } from './check_metadata.nf'
-include { store_notification as store_invalid_samples_metadata_notification } from '../common/utils.nf'
-include { store_notification as store_valid_samples_metadata_notification } from '../common/utils.nf'
 include { fastqc } from '../common/fastqc.nf'
-include { store_fastqc_reports } from '../common/fastqc.nf'
 
 if ( params.ncov_workflow == "illumina_artic" ) {
     include { ncov2019_artic_nf_pipeline_illumina as ncov2019_artic } from './ncov2019_artic.nf'
@@ -77,13 +74,6 @@ workflow psga {
             params.ncov_workflow
         )
 
-        store_valid_samples_metadata_notification(
-            check_metadata.out.ch_samples_with_valid_metadata_file
-        )
-        store_invalid_samples_metadata_notification(
-            check_metadata.out.ch_samples_with_invalid_metadata_file
-        )
-
         ch_metadata = check_metadata.out.ch_metadata
 
         if ( params.filetype == "fasta" ) {
@@ -127,11 +117,6 @@ workflow psga {
             fastqc(ch_input_files_fastq)
 
             ch_input_files = fastqc.out.ch_input_files
-
-            ch_fastqc_submitted = store_fastqc_reports(
-                fastqc.out.ch_fastqc_html_report.collect(),
-                fastqc.out.ch_fastqc_zip_report.collect(),
-            )
 
             ncov2019_artic(
                 ch_input_files,

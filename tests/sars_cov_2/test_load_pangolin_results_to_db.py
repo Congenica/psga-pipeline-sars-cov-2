@@ -3,7 +3,7 @@ import pytest
 from click.testing import CliRunner
 
 from scripts.db.models import AnalysisRun
-from scripts.sars_cov_2.load_pangolin_data_to_db import load_pangolin_data
+from scripts.sars_cov_2.load_pangolin_results_to_db import load_pangolin_results_to_db
 from utils_tests import get_analysis_run_samples, read_samples_from_file
 
 
@@ -76,7 +76,7 @@ def test_load_pangolin_data_to_db(
     samples_with_passed_pangolin_status = Path(tmp_path / "passed_pangolin.txt")
 
     rv = CliRunner().invoke(
-        load_pangolin_data,
+        load_pangolin_results_to_db,
         [
             "--pangolin-lineage-report-file",
             test_data_path / test_file,

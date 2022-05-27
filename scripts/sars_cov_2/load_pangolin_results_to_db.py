@@ -179,7 +179,7 @@ def generate_notifications(
     help="output file storing the names of samples for this analysis run which have PASS pangolin status",
 )
 @click.option("--analysis-run-name", required=True, type=str, help="The name of the analysis run")
-def load_pangolin_data(
+def load_pangolin_results_to_db(
     pangolin_lineage_report_file: str,
     samples_with_unknown_pangolin_status_file: str,
     samples_with_failed_pangolin_status_file: str,
@@ -203,4 +203,4 @@ def load_pangolin_data(
 
 if __name__ == "__main__":
     # pylint: disable=no-value-for-parameter
-    load_pangolin_data()
+    load_pangolin_results_to_db()
