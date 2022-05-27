@@ -24,26 +24,6 @@ process merge_ncov2019_artic_qc_sample_files {
 }
 
 /*
- * Store ncov2019_artic output
- */
-process store_ncov2019_artic_output {
-  publishDir "${PSGA_OUTPUT_PATH}/ncov2019-artic", mode: 'copy', overwrite: true
-
-  input:
-    path ncov_all_sample_results
-    path all_sample_qc_csv
-
-  output:
-    path ncov_all_sample_results
-    path all_sample_qc_csv
-
-  script:
-
-  """
-  """
-}
-
-/*
  * Merge pangolin lineages into one single file
  */
 process merge_pangolin_sample_files {
@@ -67,27 +47,11 @@ process merge_pangolin_sample_files {
 }
 
 /*
- * Store pangolin output
+ * Submit ncov sample results
  */
-process store_pangolin_output {
-  publishDir "${PSGA_OUTPUT_PATH}/pangolin", mode: 'copy', overwrite: true
+process submit_ncov_results {
+  publishDir "${PSGA_OUTPUT_PATH}/ncov2019-artic", mode: 'copy', overwrite: true, pattern: '*.{fa,png,csv}'
 
-  input:
-    path ch_pangolin_csv
-
-  output:
-    path ch_pangolin_csv
-
-  script:
-
-  """
-  """
-}
-
-/*
- * Load ncov sample results to the database.
- */
-process load_ncov_results_to_db {
   publishDir "${PSGA_OUTPUT_PATH}/notifications", mode: 'copy', overwrite: true, pattern: 'samples_{without,with_failed,with_passed}_ncov_qc.txt'
   publishDir "${PSGA_OUTPUT_PATH}/logs", mode: 'copy', overwrite: true, pattern: '*.log'
   input:
@@ -100,7 +64,9 @@ process load_ncov_results_to_db {
     path ch_samples_without_ncov_qc, emit: ch_samples_without_ncov_qc
     path ch_samples_with_failed_ncov_qc, emit: ch_samples_with_failed_ncov_qc
     path ch_samples_with_passed_ncov_qc, emit: ch_samples_with_passed_ncov_qc
-    path "*.log", emit: ch_load_ncov_results_to_db_log
+    path ncov_all_sample_results
+    path ch_qc_ncov_result_csv_file
+    path "*.log"
 
   script:
     directory_with_qc_depth_files = "./"
@@ -124,12 +90,14 @@ process load_ncov_results_to_db {
 
 
 /*
- * Load pangolin sample results to the database.
+ * Submit pangolin sample results
  * This process executes after loading ncov data to the DB
  */
-process load_pangolin_results_to_db {
+process submit_pangolin_results {
+  publishDir "${PSGA_OUTPUT_PATH}/pangolin", mode: 'copy', overwrite: true, pattern: 'all_lineages_report.csv'
   publishDir "${PSGA_OUTPUT_PATH}/notifications", mode: 'copy', overwrite: true, pattern: 'samples_with_{unknown,failed,passed}_pangolin_status.txt'
   publishDir "${PSGA_OUTPUT_PATH}/logs", mode: 'copy', overwrite: true, pattern: '*.log'
+
   input:
     path ch_ncov_submitted
     val ch_analysis_run_name
@@ -140,7 +108,8 @@ process load_pangolin_results_to_db {
     path ch_samples_with_unknown_pangolin_status, emit: ch_samples_with_unknown_pangolin_status
     path ch_samples_with_failed_pangolin_status, emit: ch_samples_with_failed_pangolin_status
     path ch_samples_with_passed_pangolin_status, emit: ch_samples_with_passed_pangolin_status
-    path "*.log", emit: ch_load_pangolin_results_to_db_log
+    path ch_pangolin_all_lineages
+    path "*.log"
 
   script:
     ch_load_results_to_db_done = "load_pangolin_results_to_db.done"
@@ -210,28 +179,19 @@ workflow submit_analysis_run_results {
 
             merge_ncov2019_artic_qc_sample_files(ch_ncov_all_samples_results_branch.qc_csv_only.collect())
 
-            store_ncov2019_artic_output(
-                ch_ncov_all_samples_results_branch.filter_out_qc_csv.collect(),
-                merge_ncov2019_artic_qc_sample_files.out.ch_ncov_qc_all_samples
-            )
-
-            load_ncov_results_to_db(
+            submit_ncov_results(
                 params.run,
                 ch_ncov_all_samples_results_branch.filter_out_qc_csv.collect(),
                 merge_ncov2019_artic_qc_sample_files.out.ch_ncov_qc_all_samples
             )
 
-            ch_ncov_submitted = load_ncov_results_to_db.out.ch_load_results_to_db_done
+            ch_ncov_submitted = submit_ncov_results.out.ch_load_results_to_db_done
 
         }
 
         merge_pangolin_sample_files(ch_pangolin_csvs)
 
-        store_pangolin_output(
-            merge_pangolin_sample_files.out.ch_pangolin_all_lineages
-        )
-
-        load_pangolin_results_to_db(
+        submit_pangolin_results(
             ch_ncov_submitted,
             params.run,
             merge_pangolin_sample_files.out.ch_pangolin_all_lineages
@@ -239,7 +199,7 @@ workflow submit_analysis_run_results {
 
         ch_analysis_run_results_submitted = results_submitted(
             ch_ncov_submitted,
-            load_pangolin_results_to_db.out.ch_load_results_to_db_done,
+            submit_pangolin_results.out.ch_load_results_to_db_done,
         )
 
     emit:
