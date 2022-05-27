@@ -2,6 +2,8 @@
  * Run: fastqc
  */
 process fastqc {
+  publishDir "${PSGA_OUTPUT_PATH}/fastqc", mode: 'copy', overwrite: true, pattern: '*_fastqc.{html,zip}'
+
   tag "${task.index} - ${ch_input_files}"
 
   input:
@@ -18,24 +20,5 @@ process fastqc {
   for fq in `ls *.fastq*`; do
       fastqc ${fq}
   done
-  '''
-}
-
-/*
- * Process to store all fastq_reports
- */
-process store_fastqc_reports {
-  publishDir "${PSGA_OUTPUT_PATH}/fastqc", mode: 'copy', overwrite: true
-
-  input:
-    path ch_fastqc_html_reports
-    path ch_fastqc_zip_reports
-
-  output:
-    path ch_fastqc_html_reports, emit: ch_fastq_html_reports
-    path ch_fastqc_zip_reports, emit: ch_fastq_zip_reports
-
-  shell:
-  '''
   '''
 }

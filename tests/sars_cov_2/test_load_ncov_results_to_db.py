@@ -3,7 +3,7 @@ from click.testing import CliRunner
 from pathlib import Path
 
 from scripts.db.models import Sample, SampleQC
-from scripts.sars_cov_2.load_ncov_data_to_db import load_ncov_data
+from scripts.sars_cov_2.load_ncov_results_to_db import load_ncov_results_to_db
 from utils_tests import get_analysis_run_samples, read_samples_from_file
 
 
@@ -68,7 +68,7 @@ def test_load_pangolin_data_to_db(
     samples_with_passed_ncov_qc = Path(tmp_path / "passed_ncov_qc_samples.txt")
 
     rv = CliRunner().invoke(
-        load_ncov_data,
+        load_ncov_results_to_db,
         [
             "--ncov-qc-csv-file",
             test_data_path / test_file,

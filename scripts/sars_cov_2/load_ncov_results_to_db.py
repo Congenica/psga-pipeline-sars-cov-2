@@ -8,9 +8,12 @@ from sqlalchemy.orm import scoped_session, joinedload
 
 from scripts.db.database import session_handler
 from scripts.db.models import AnalysisRun, Sample, SampleQC
-from scripts.util.notifications import Notification
+from scripts.util.logging import get_structlog_logger
+from scripts.util.notifications import Event, Notification
 from scripts.validation.check_csv_columns import check_csv_columns
 
+log_file = f"{Path(__file__).stem}.log"
+logger = get_structlog_logger(log_file=log_file)
 EXPECTED_HEADERS = {
     "sample_name",
     "pct_N_bases",
@@ -87,24 +90,27 @@ def generate_notifications(
 
     notifications = Notification(
         events={
-            "no_qc": {
-                "path": no_qc_path,
-                "level": "ERROR",
-                "message": "ncov did not terminate successfully for this sample",
-                "samples": [s.sample_name for s in samples if not s.sample_qc],
-            },
-            "failed_qc": {
-                "path": failed_qc_path,
-                "level": "WARNING",
-                "event": "ncov qc failed",
-                "samples": [s.sample_name for s in samples if s.sample_qc and not s.sample_qc.qc_pass],
-            },
-            "passed_qc": {
-                "path": passed_qc_path,
-                "level": "INFO",
-                "event": "ncov qc passed",
-                "samples": [s.sample_name for s in samples if s.sample_qc and s.sample_qc.qc_pass],
-            },
+            "no_qc": Event(
+                analysis_run=analysis_run_name,
+                path=no_qc_path,
+                level="ERROR",
+                message="ncov did not terminate successfully",
+                samples=[s.sample_name for s in samples if not s.sample_qc],
+            ),
+            "failed_qc": Event(
+                analysis_run=analysis_run_name,
+                path=failed_qc_path,
+                level="WARNING",
+                message="ncov qc failed",
+                samples=[s.sample_name for s in samples if s.sample_qc and not s.sample_qc.qc_pass],
+            ),
+            "passed_qc": Event(
+                analysis_run=analysis_run_name,
+                path=passed_qc_path,
+                level="INFO",
+                message="ncov qc passed",
+                samples=[s.sample_name for s in samples if s.sample_qc and s.sample_qc.qc_pass],
+            ),
         }
     )
 
@@ -143,7 +149,7 @@ def generate_notifications(
     help="output file storing the names of samples for this analysis run which have passed ncov qc",
 )
 @click.option("--analysis-run-name", required=True, type=str, help="The name of the analysis run")
-def load_ncov_data(
+def load_ncov_results_to_db(
     ncov_qc_csv_file: str,
     ncov_qc_depth_directory: str,
     samples_without_ncov_qc_file: str,
@@ -175,4 +181,4 @@ def load_ncov_data(
 
 if __name__ == "__main__":
     # pylint: disable=no-value-for-parameter
-    load_ncov_data()
+    load_ncov_results_to_db()

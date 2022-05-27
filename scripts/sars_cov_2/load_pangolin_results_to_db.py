@@ -10,9 +10,12 @@ from sqlalchemy.orm import scoped_session
 from scripts.db.database import session_handler
 from scripts.db.models import AnalysisRun, Sample, PangolinStatus
 from scripts.db.queries import get_analysis_run, get_analysis_run_sample
-from scripts.util.notifications import Notification
+from scripts.util.logging import get_structlog_logger
+from scripts.util.notifications import Event, Notification
 from scripts.validation.check_csv_columns import check_csv_columns
 
+log_file = f"{Path(__file__).stem}.log"
+logger = get_structlog_logger(log_file=log_file)
 EXPECTED_HEADERS = {
     "taxon",
     "lineage",
@@ -123,24 +126,27 @@ def generate_notifications(
 
     notifications = Notification(
         events={
-            "no_qc": {
-                "path": no_qc_path,
-                "level": "ERROR",
-                "message": "pangolin did not terminate successfully for this sample",
-                "samples": [s.sample_name for s in samples if s.pangolin_status == PangolinStatus.UNKNOWN],
-            },
-            "failed_qc": {
-                "path": failed_qc_path,
-                "level": "WARNING",
-                "event": "pangolin failed",
-                "samples": [s.sample_name for s in samples if s.pangolin_status == PangolinStatus.FAIL],
-            },
-            "passed_qc": {
-                "path": passed_qc_path,
-                "level": "INFO",
-                "event": "pangolin qc passed",
-                "samples": [s.sample_name for s in samples if s.pangolin_status == PangolinStatus.PASS],
-            },
+            "no_qc": Event(
+                analysis_run=analysis_run_name,
+                path=no_qc_path,
+                level="ERROR",
+                message="pangolin did not terminate successfully",
+                samples=[s.sample_name for s in samples if s.pangolin_status == PangolinStatus.UNKNOWN],
+            ),
+            "failed_qc": Event(
+                analysis_run=analysis_run_name,
+                path=failed_qc_path,
+                level="WARNING",
+                message="pangolin failed",
+                samples=[s.sample_name for s in samples if s.pangolin_status == PangolinStatus.FAIL],
+            ),
+            "passed_qc": Event(
+                analysis_run=analysis_run_name,
+                path=passed_qc_path,
+                level="INFO",
+                message="pangolin qc passed",
+                samples=[s.sample_name for s in samples if s.pangolin_status == PangolinStatus.PASS],
+            ),
         }
     )
 
@@ -173,7 +179,7 @@ def generate_notifications(
     help="output file storing the names of samples for this analysis run which have PASS pangolin status",
 )
 @click.option("--analysis-run-name", required=True, type=str, help="The name of the analysis run")
-def load_pangolin_data(
+def load_pangolin_results_to_db(
     pangolin_lineage_report_file: str,
     samples_with_unknown_pangolin_status_file: str,
     samples_with_failed_pangolin_status_file: str,
@@ -197,4 +203,4 @@ def load_pangolin_data(
 
 if __name__ == "__main__":
     # pylint: disable=no-value-for-parameter
-    load_pangolin_data()
+    load_pangolin_results_to_db()

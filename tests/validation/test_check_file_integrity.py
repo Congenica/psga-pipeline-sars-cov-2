@@ -33,6 +33,10 @@ def test_check_metadata(
 ):
 
     cmd_config = [
+        "--analysis-run-name",
+        "just_a_run",
+        "--sample-name",
+        "what_a_sample",
         "--input-path",
         test_data_path / input_path,
         "--expected-md5",

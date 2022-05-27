@@ -8,8 +8,11 @@ from click import ClickException
 from scripts.db.database import session_handler
 from scripts.db.models import AnalysisRun
 from scripts.db.queries import get_analysis_run
+from scripts.util.logging import get_structlog_logger
 from scripts.util.metadata import generate_notifications, inspect_metadata_file, ProcessedSamples
 
+log_file = f"{Path(__file__).stem}.log"
+logger = get_structlog_logger(log_file=log_file)
 
 NCOV_WORKFLOW_FILE_TYPE_VALID_COMBINATIONS = {
     "illumina_artic": {"fastq", "bam"},
@@ -153,6 +156,7 @@ def check_metadata(
     )
 
     generate_notifications(
+        analysis_run_name,
         samples.valid,
         Path(samples_with_valid_metadata_file),
         samples.invalid,

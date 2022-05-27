@@ -5,21 +5,22 @@
  * Set the error strategy for this process if the pipeline should ignore this sample.
  */
 process stage_sample_file {
-    tag "${task.index} - ${staged_file_1}"
-    input:
-      val(file_extension)
-      tuple val(sample_id), path(file_1), val(md5_1)
+  tag "${task.index} - ${staged_file_1}"
+  input:
+    val(analysis_run)
+    val(file_extension)
+    tuple val(sample_id), path(file_1), val(md5_1)
 
-    output:
-      path(staged_file_1), emit: ch_sample_files
+  output:
+    path(staged_file_1), emit: ch_sample_files
 
-    script:
-      staged_file_1 = "${sample_id}${file_extension}"
-    """
-    ln -s ${file_1} ${staged_file_1}
+  script:
+    staged_file_1 = "${sample_id}${file_extension}"
+  """
+  ln -s ${file_1} ${staged_file_1}
 
-    python ${PSGA_ROOT_PATH}/scripts/validation/check_file_integrity.py --input-path ${staged_file_1} --expected-md5 ${md5_1}
-    """
+  python ${PSGA_ROOT_PATH}/scripts/validation/check_file_integrity.py --analysis-run-name ${analysis_run} --sample-name ${sample_id} --input-path ${staged_file_1} --expected-md5 ${md5_1}
+  """
 }
 
 /*
@@ -31,6 +32,7 @@ process stage_sample_file {
 process stage_sample_file_pair {
     tag "${task.index} - [${staged_file_1}, ${staged_file_2}]"
     input:
+      val(analysis_run)
       val(file_extension)
       tuple val(sample_id), path(file_1), path(file_2), val(md5_1), val(md5_2)
 
@@ -44,8 +46,8 @@ process stage_sample_file_pair {
     ln -s ${file_1} ${staged_file_1}
     ln -s ${file_2} ${staged_file_2}
 
-    python ${PSGA_ROOT_PATH}/scripts/validation/check_file_integrity.py --input-path ${staged_file_1} --expected-md5 ${md5_1}
-    python ${PSGA_ROOT_PATH}/scripts/validation/check_file_integrity.py --input-path ${staged_file_2} --expected-md5 ${md5_2}
+    python ${PSGA_ROOT_PATH}/scripts/validation/check_file_integrity.py --analysis-run-name ${analysis_run} --sample-name ${sample_id} --input-path ${staged_file_1} --expected-md5 ${md5_1}
+    python ${PSGA_ROOT_PATH}/scripts/validation/check_file_integrity.py --analysis-run-name ${analysis_run} --sample-name ${sample_id} --input-path ${staged_file_2} --expected-md5 ${md5_2}
     """
 }
 
@@ -81,6 +83,7 @@ workflow select_sample_file {
         ch_input_files = Channel.empty()
 
         ch_sample_files = stage_sample_file(
+            params.run,
             file_extension,
             ch_sample_filepaths
         )
@@ -110,6 +113,7 @@ workflow select_sample_file_pair {
         // e.g. ch_sample_filepaths: [[sample_name1, fastq_1, fastq_2, md5_1, md5_2], ...]
 
         ch_sample_files = stage_sample_file_pair(
+            params.run,
             file_extension,
             ch_sample_filepaths
         )
