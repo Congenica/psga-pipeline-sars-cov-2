@@ -4,6 +4,10 @@ from pathlib import Path
 import hashlib
 import click
 
+from scripts.util.logging import get_structlog_logger
+
+log_file = f"{Path(__file__).stem}.log"
+logger = get_structlog_logger(log_file=log_file)
 BLOCKSIZE = 65536
 
 
@@ -22,13 +26,12 @@ def md5sum(input_path: Path, blocksize: int = BLOCKSIZE) -> str:
     return hashfun.hexdigest()
 
 
-def validate(input_path: Path, expected_md5: str, blocksize: int) -> None:
+def validate(analysis_run_name: str, sample_name: str, input_path: Path, expected_md5: str, blocksize: int) -> None:
     computed_md5 = md5sum(input_path, blocksize)
     if computed_md5 != expected_md5:
-        raise FileIntegrityError(
-            f"Integrity check for file: {input_path.name} FAILED. Expected: {expected_md5}, computed: {computed_md5}"
-        )
-    print(f"File {input_path.name} is OK")
+        msg = f"Integrity check for file: {input_path.name} FAILED. Expected: {expected_md5}, computed: {computed_md5}"
+        logger.error(msg, sample=sample_name, analysis_run=analysis_run_name)
+        raise FileIntegrityError(msg)
 
 
 @click.command()
@@ -37,15 +40,19 @@ def validate(input_path: Path, expected_md5: str, blocksize: int) -> None:
 )
 @click.option("--expected-md5", required=True, type=str, help="The expected md5 for the input file")
 @click.option("--blocksize", default=BLOCKSIZE, type=int, help="The block size used for generating the file md5")
+@click.option("--analysis-run-name", required=True, type=str, help="The name of the analysis run")
+@click.option("--sample-name", required=True, type=str, help="The name of the sample")
 def check_file_integrity(
     input_path,
     expected_md5,
     blocksize,
+    analysis_run_name: str,
+    sample_name: str,
 ):
     """
     Check the file integrity using the expected md5.
     """
-    validate(Path(input_path), expected_md5, blocksize)
+    validate(analysis_run_name, sample_name, Path(input_path), expected_md5, blocksize)
 
 
 if __name__ == "__main__":
