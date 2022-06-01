@@ -1,148 +1,87 @@
 from pathlib import Path
-from typing import Dict, Set, Tuple
+from typing import Dict, Set
 from math import isclose
 import click
 import pandas as pd
 
-TOOLS = ["ncov2019_artic_nf", "pangolin"]
+from scripts.util.logging import get_structlog_logger
+from jenkins.config import data_config
+
+log_file = f"{Path(__file__).stem}.log"
+logger = get_structlog_logger(log_file=log_file)
 
 
 class ValidationError(Exception):
     pass
 
 
-def load_data_frames(
-    calculated_csv_path: Path, expected_csv_path: Path, sample_name_column: str
-) -> Tuple[pd.DataFrame, pd.DataFrame]:
-    """
-    Load calculated and expected data frames. Perform a basic validation
-    """
-    df_calc = pd.read_csv(calculated_csv_path)
-    df_exp = pd.read_csv(expected_csv_path)
-
-    if sample_name_column not in df_calc.columns or sample_name_column not in df_exp.columns:
-        raise ValueError(f"The column {sample_name_column} was not found. Impossible to retrieve samples")
-
-    return df_calc, df_exp
-
-
 def check_columns(
-    df_calc: pd.DataFrame, df_exp: pd.DataFrame, sample_name_column: str, columns_of_interest: Set[str]
-) -> Tuple[Set[str], Set[str]]:
+    df_calc: pd.DataFrame, df_exp: pd.DataFrame, sample_name_column: str, columns_to_validate: Set[str]
+) -> bool:
     """
     Load sample names and perform basic validations
     """
     sample_names_calc = set(df_calc[sample_name_column])
     sample_names_exp = set(df_exp[sample_name_column])
+    errors = False
 
     if sample_names_calc != sample_names_exp:
-        raise ValidationError(f"Expected samples: {sample_names_exp}, but retrieved samples {sample_names_calc}")
+        errors = True
+        logger.error(f"Expected samples: {sample_names_exp}, but retrieved samples {sample_names_calc}")
 
-    if not columns_of_interest.issubset(df_calc.columns):
-        raise ValidationError(f"The columns: {columns_of_interest} are expected in df_calc, but got: {df_calc.columns}")
+    if not columns_to_validate.issubset(df_calc.columns):
+        errors = True
+        logger.error(f"Columns: {columns_to_validate} are expected in df_calc, but got: {df_calc.columns}")
 
-    if not columns_of_interest.issubset(df_exp.columns):
-        raise ValidationError(f"The columns: {columns_of_interest} are expected in df_exp, but got: {df_exp.columns}")
+    if not columns_to_validate.issubset(df_exp.columns):
+        errors = True
+        logger.error(f"Columns: {columns_to_validate} are expected in df_exp, but got: {df_exp.columns}")
 
-    return sample_names_calc, sample_names_exp
+    return errors
 
 
-def validate_csv(config: Dict) -> None:
+def validate(config: Dict, df_calc: pd.DataFrame, df_exp: pd.DataFrame) -> None:
     """
     Compare the tables in the two CSV file paths
     """
+
     sample_name_column = config["sample_name_column"]
-    coi = config["columns_of_interest"]
-    ctr = config["columns_to_round"]
+    columns_to_validate = set(config["columns_to_validate"].values())
+    columns_to_round = config["columns_to_round"]
 
-    df_calc, df_exp = load_data_frames(config["calculated_output"], config["expected_output"], sample_name_column)
-    check_columns(df_calc, df_exp, sample_name_column, set(coi))
+    errors = check_columns(df_calc, df_exp, sample_name_column, columns_to_validate)
 
-    df_calc_sub = df_calc[coi].sort_values(by=[sample_name_column])
-    df_exp_sub = df_exp[coi].sort_values(by=[sample_name_column])
+    sample_names = df_calc[sample_name_column].tolist()
 
-    mismatch = False
-    for col_to_compare in coi:
-        col_calc = df_calc_sub[col_to_compare].fillna(0).tolist()
-        col_exp = df_exp_sub[col_to_compare].fillna(0).tolist()
+    for col_to_compare in columns_to_validate:
+        col_calc = df_calc[col_to_compare].fillna(0).tolist()
+        col_exp = df_exp[col_to_compare].fillna(0).tolist()
 
-        col_to_round = False
-        if col_to_compare in ctr:
-            col_to_round = True
+        col_to_round = col_to_compare in columns_to_round
+        diff_data = {}
+
+        for sn, calc, exp in zip(sample_names, col_calc, col_exp):
             # use math.isclose instead of numpy.isclose because the former is symmetric in a and b ; e.g.
             # abs(a-b) <= max(rel_tol * max(abs(a), abs(b)), abs_tol) , instead of
             # abs(a-b) <= (atol + rtol * abs(b))
             # Our expected dataframe is from an execution. The values are not averages
-            match = all((isclose(n1, n2, abs_tol=ctr[col_to_compare]) for n1, n2 in zip(col_calc, col_exp)))
-        else:
-            match = col_calc == col_exp
+            match = (
+                isclose(calc, exp, abs_tol=columns_to_round[col_to_compare])
+                if col_to_compare in columns_to_round
+                else calc == exp
+            )
+            if not match:
+                diff_data[sn] = {"calculated": calc, "expected": exp}
 
-        if not match:
-            mismatch = True
-            print_abstol_info = f"using abs_tol {ctr[col_to_compare]}" if col_to_round else ""
-            print(f"Column: {col_to_compare}. Calculated vs Expected values {print_abstol_info}:")
-            print(f"{col_calc}")
-            print(f"{col_exp}")
+        if diff_data:
+            errors = True
+            abstol_info = f" using abs_tol {columns_to_round[col_to_compare]}" if col_to_round else ""
+            logger.error(f"Found mismatches for column: {col_to_compare}. Calculated vs Expected values{abstol_info}:")
+            for sample, comp in diff_data.items():
+                logger.error(sample=sample, calculated=comp["calculated"], expected=comp["expected"])
 
-    if mismatch:
-        raise ValidationError("Failed validation. See above for details.")
-
-
-validation = {
-    # tool which generated the output file to validate
-    "ncov2019_artic_nf": {
-        # validation function
-        "validate": validate_csv,
-        # validation function config
-        "config": {
-            # paths
-            "calculated_output": None,
-            "expected_output": None,
-            # name of the column used for listing the samples
-            "sample_name_column": "sample_name",
-            # columns to validate
-            "columns_of_interest": [
-                "sample_name",
-                "pct_N_bases",
-                "pct_covered_bases",
-                "longest_no_N_run",
-                "num_aligned_reads",
-                "qc_pass",
-            ],
-            # abs tolerances for the columns to round
-            "columns_to_round": {
-                "pct_N_bases": 0.5,
-                "pct_covered_bases": 0.5,
-                "longest_no_N_run": 25,
-                "num_aligned_reads": 200,
-            },
-        },
-    },
-    "pangolin": {
-        "validate": validate_csv,
-        "config": {
-            "calculated_output": None,
-            "expected_output": None,
-            "sample_name_column": "taxon",
-            "columns_of_interest": [
-                "taxon",
-                "lineage",
-                "conflict",
-                "ambiguity_score",
-                "scorpio_call",
-                "scorpio_support",
-                "scorpio_conflict",
-                "scorpio_notes",
-                "is_designated",
-                "qc_status",
-                "qc_notes",
-                "note",
-            ],
-            # abs tolerances for the columns to round
-            "columns_to_round": {"conflict": 0.1, "scorpio_support": 0.05, "scorpio_conflict": 0.05},
-        },
-    },
-}
+    if errors:
+        raise ValidationError("Validation FAILED. See above for details.")
 
 
 @click.command()
@@ -161,21 +100,28 @@ validation = {
 @click.option(
     "--tool",
     required=True,
-    type=click.Choice(TOOLS, case_sensitive=False),
+    type=click.Choice(data_config, case_sensitive=False),
     help="The name of tool generating the data to validate",
 )
-def validate_results(result_path, expected_result_path, tool):
+@click.option("--analysis-run-name", required=True, type=str, help="The name of the analysis run")
+def validate_results(result_path, expected_result_path, tool, analysis_run_name):
     """
     Compare the calculated result file against the expected result file.
     """
-    validate = validation[tool]["validate"]
-    config = validation[tool]["config"]
-    config["calculated_output"] = Path(result_path)
-    config["expected_output"] = Path(expected_result_path)
+    data = data_config[tool]["config"]
 
-    validate(config)
+    logger.info("Validation of CSV output file STARTED")
+    load_data_from_csv = data_config[tool]["load_data_from_csv"]
+    df_exp = load_data_from_csv(data, Path(expected_result_path))
+    df_calc = load_data_from_csv(data, Path(result_path))
+    validate(data, df_calc, df_exp)
+    logger.info("Validation PASSED")
 
-    print("Validation PASSED")
+    logger.info("Validation of DB content STARTED")
+    load_data_from_db = data_config[tool]["load_data_from_db"]
+    df_calc = load_data_from_db(data, analysis_run_name)
+    validate(data, df_calc, df_exp)
+    logger.info("Validation PASSED")
 
 
 if __name__ == "__main__":
