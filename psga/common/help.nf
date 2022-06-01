@@ -13,7 +13,6 @@ def printMainConfig() {
         * PSGA_INCOMPLETE_ANALYSIS_RUNS_PATH          : ${PSGA_INCOMPLETE_ANALYSIS_RUNS_PATH}
         * PSGA_MAX_ATTEMPTS                           : ${PSGA_MAX_ATTEMPTS}
         * PSGA_SLEEP_TIME_BETWEEN_ATTEMPTS            : ${PSGA_SLEEP_TIME_BETWEEN_ATTEMPTS}
-        * PSGA_CLEANUP_WORKDIR                        : ${PSGA_CLEANUP_WORKDIR}
         * DOCKER_IMAGE_PREFIX                         : ${DOCKER_IMAGE_PREFIX}
         * PSGA_DOCKER_IMAGE_TAG                       : ${PSGA_DOCKER_IMAGE_TAG}
         * K8S_PULL_POLICY                             : ${K8S_PULL_POLICY}

@@ -34,7 +34,6 @@ pipeline {
         string(name: 'PSGA_INCOMPLETE_ANALYSIS_RUNS_PATH', defaultValue: '/data/incomplete_analysis_runs', description: 'The path to the incomplete analysis run session ids')
         string(name: 'PSGA_MAX_ATTEMPTS', defaultValue: '3', description: 'The maximum number of attempts resuming a failed pipeline')
         string(name: 'PSGA_SLEEP_TIME_BETWEEN_ATTEMPTS', defaultValue: '60', description: 'The sleep time between attempts')
-        string(name: 'PSGA_CLEANUP_WORKDIR', defaultValue: 'true', description: 'Clean up Nextflow workdir')
         string(name: 'DOCKER_IMAGE_PREFIX', defaultValue: '144563655722.dkr.ecr.eu-west-1.amazonaws.com/congenica/dev', description: 'The docker image prefix to use')
         string(name: 'K8S_PULL_POLICY', defaultValue: 'Always', description: 'The Kubernetes pull policy for docker images')
         string(name: 'K8S_QUEUE_SIZE', defaultValue: '5', description: 'The K8S job queue size')
@@ -148,7 +147,6 @@ spec:
         PSGA_INCOMPLETE_ANALYSIS_RUNS_PATH          = "${params.PSGA_INCOMPLETE_ANALYSIS_RUNS_PATH}"
         PSGA_MAX_ATTEMPTS                           = "${params.PSGA_MAX_ATTEMPTS}"
         PSGA_SLEEP_TIME_BETWEEN_ATTEMPTS            = "${params.PSGA_SLEEP_TIME_BETWEEN_ATTEMPTS}"
-        PSGA_CLEANUP_WORKDIR                        = "${params.PSGA_CLEANUP_WORKDIR}"
         DOCKER_IMAGE_PREFIX                         = "${params.DOCKER_IMAGE_PREFIX}"
         K8S_QUEUE_SIZE                              = "${params.K8S_QUEUE_SIZE}"
         K8S_STORAGE_CLAIM_NAME                      = "${params.K8S_STORAGE_CLAIM_NAME}"
@@ -182,9 +180,11 @@ spec:
 
                     sh 'cd ${PSGA_ROOT_PATH}/sqitch && bash setup_db_jenkins.sh && cd -'
 
-                    // change workdir so nextflow stores its work/ dir in scratch/
                     // the argument `--load_missing_samples true` enables us to integration test the pipeline in isolation
-                    sh 'nextflow run ${PSGA_ROOT_PATH}/psga/main.nf -c ${PSGA_ROOT_PATH}/psga/${PATHOGEN_CONFIG} --run ${ANALYSIS_RUN} --ncov_workflow ${NCOV_WORKFLOW} --filetype ${FILETYPE} --metadata ${METADATA} --load_missing_samples true'
+                    sh 'nextflow -log ${ANALYSIS_RUN}.log run ${PSGA_ROOT_PATH}/psga/main.nf -c ${PSGA_ROOT_PATH}/psga/${PATHOGEN_CONFIG} --run ${ANALYSIS_RUN} --ncov_workflow ${NCOV_WORKFLOW} --filetype ${FILETYPE} --metadata ${METADATA} --load_missing_samples true -with-trace'
+
+                    // copy main log, nxf work dir logs and reports to PSGA_OUTPUT_PATH
+                    sh 'bash ${PSGA_ROOT_PATH}/psga/finalise.sh ${ANALYSIS_RUN}'
 
                     if (params.VALIDATION_TEST) {
 
@@ -204,13 +204,6 @@ spec:
 
                     }
 
-                    if (params.PSGA_CLEANUP_WORKDIR) {
-                        // PSGA_CLEANUP_WORKDIR env var is passed to the pipeline for automatic clean up of the work directory.
-                        // However, I've noticed that Nextflow does not remove all content in the work directory. The same behaviour
-                        // occurs if the command `nextflow cleanup -f` is executed after running the pipeline.
-                        // For the time being, we clean up the work directory manually, so that we do not risk to saturate the k8s PV.
-                        sh 'rm -rf ${NXF_WORK}'
-                    }
                 }
             }
         }
