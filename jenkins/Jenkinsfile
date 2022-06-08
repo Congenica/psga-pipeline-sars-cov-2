@@ -193,12 +193,12 @@ spec:
                             if ("${FILETYPE}" != "fasta") {
                                 // validate ncov2019-artic-nf for non-fasta samples.
                                 // for fasta samples ncov is not executed
-                                sh 'cd ${PSGA_ROOT_PATH}/jenkins && python validation.py --result-path ${PSGA_OUTPUT_PATH}/ncov2019-artic/ncov_qc.csv  --expected-result-path expected_output/${ANALYSIS_RUN}/ncov2019-artic/ncov_qc.csv --tool ncov2019_artic_nf'
+                                sh 'cd ${PSGA_ROOT_PATH}/jenkins && python validation.py --result-path ${PSGA_OUTPUT_PATH}/ncov2019-artic/ncov_qc.csv  --expected-result-path expected_output/${ANALYSIS_RUN}/ncov2019-artic/ncov_qc.csv --tool ncov2019_artic_nf --analysis-run-name ${ANALYSIS_RUN}'
                             }
 
 
                             // validate pangolin
-                            sh 'cd ${PSGA_ROOT_PATH}/jenkins && python validation.py --result-path ${PSGA_OUTPUT_PATH}/pangolin/all_lineages_report.csv  --expected-result-path expected_output/${ANALYSIS_RUN}/pangolin/all_lineages_report.csv --tool pangolin'
+                            sh 'cd ${PSGA_ROOT_PATH}/jenkins && python validation.py --result-path ${PSGA_OUTPUT_PATH}/pangolin/all_lineages_report.csv  --expected-result-path expected_output/${ANALYSIS_RUN}/pangolin/all_lineages_report.csv --tool pangolin --analysis-run-name ${ANALYSIS_RUN}'
 
                         }
 
