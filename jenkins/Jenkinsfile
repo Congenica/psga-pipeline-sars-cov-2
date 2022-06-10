@@ -172,14 +172,17 @@ spec:
                 script {
                     // sh 'printenv'
 
+                    // deploy db schema migrations
+                    sh 'cd ${PSGA_ROOT_PATH}/sqitch && bash setup_db_jenkins.sh && cd -'
+
                     // cleanup
-                    // due to OPS policy, pods cannot delete objects in S3 buckets.
+                    // NOTE: due to OPS policy, pods cannot delete objects in S3 buckets.
                     if(fileExists("${PSGA_OUTPUT_PATH}")) {
                         sh 'rm -rm ${PSGA_OUTPUT_PATH}'
                     }
+                    sh 'cd ${PSGA_ROOT_PATH}/jenkins && python cleanup.py --analysis-run-name ${ANALYSIS_RUN}'
 
-                    sh 'cd ${PSGA_ROOT_PATH}/sqitch && bash setup_db_jenkins.sh && cd -'
-
+                    // run the pipeline
                     // the argument `--load_missing_samples true` enables us to integration test the pipeline in isolation
                     sh 'nextflow -log ${ANALYSIS_RUN}.log run ${PSGA_ROOT_PATH}/psga/main.nf -c ${PSGA_ROOT_PATH}/psga/${PATHOGEN_CONFIG} --run ${ANALYSIS_RUN} --ncov_workflow ${NCOV_WORKFLOW} --filetype ${FILETYPE} --metadata ${METADATA} --load_missing_samples true -with-trace'
 
@@ -187,6 +190,7 @@ spec:
                     sh 'bash ${PSGA_ROOT_PATH}/psga/finalise.sh ${ANALYSIS_RUN}'
 
                     if (params.VALIDATION_TEST) {
+                        // run validations
 
                         if ("${PATHOGEN_CONFIG}" == "sars_cov_2.config") {
 

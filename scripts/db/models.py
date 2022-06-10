@@ -201,7 +201,7 @@ class Sample(Base):  # type: ignore
     genome_length = Column(Integer, comment="Number of base pair in the virus genome")
     metadata_loaded = Column(Boolean, comment="Metadata was loaded")
 
-    sample_qc = relationship("SampleQC", uselist=False)
+    sample_qc = relationship("SampleQC", cascade="all, delete-orphan", uselist=False)
 
 
 class SampleQC(Base):  # type: ignore
