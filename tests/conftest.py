@@ -8,9 +8,9 @@ import pytest
 from pytest_socket import disable_socket
 
 from scripts.db.database import connect
-from scripts.db.models import AnalysisRun, Sample
+from scripts.db.models import AnalysisRun, Sample, SampleQC
 from sqlalchemy import event
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, joinedload
 
 # set this to True to keep changes made to the database while tests are running
 # you will be responsible for any cleanup needed before re-running tests in this case
@@ -134,6 +134,25 @@ def populated_db_session_with_sample(db_session):
                 metadata_loaded=True,
             )
         )
+
+    # add a sample qc
+    sample = (
+        db_session.query(Sample)
+        .join(AnalysisRun)
+        .filter(
+            Sample.sample_name == "7284954",
+            AnalysisRun.analysis_run_name == analysis_run_name,
+        )
+        .options(joinedload(Sample.sample_qc))
+        .one_or_none()
+    )
+    sample.sample_qc = SampleQC()
+    sample_qc = sample.sample_qc
+    sample_qc.pct_n_bases = 10.3
+    sample_qc.pct_covered_bases = 92.5
+    sample_qc.longest_no_n_run = 1030
+    sample_qc.num_aligned_reads = 250.5
+    sample_qc.qc_pass = True
 
     db_session.commit()
     yield db_session

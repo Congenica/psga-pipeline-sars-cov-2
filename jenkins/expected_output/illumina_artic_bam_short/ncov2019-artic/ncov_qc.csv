@@ -1,0 +1,3 @@
+sample_name,pct_N_bases,pct_covered_bases,longest_no_N_run,num_aligned_reads,fasta,bam,qc_pass
+0c0b5622-d63a-42cc-a804-13d71e1a5306,1.21,98.79,19359,502805,0c0b5622-d63a-42cc-a804-13d71e1a5306.primertrimmed.consensus.fa,0c0b5622-d63a-42cc-a804-13d71e1a5306.mapped.primertrimmed.sorted.bam,TRUE
+39330daf-8dc6-4faa-a2d0-a2c1c909ab3b,1.85,98.15,19222,495326,39330daf-8dc6-4faa-a2d0-a2c1c909ab3b.primertrimmed.consensus.fa,39330daf-8dc6-4faa-a2d0-a2c1c909ab3b.mapped.primertrimmed.sorted.bam,TRUE

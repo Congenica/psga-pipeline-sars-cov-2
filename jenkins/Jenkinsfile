@@ -18,12 +18,12 @@ pipeline {
         string(name: 'NCOV2019_ARTIC_NF_NANOPORE_DOCKER_IMAGE_TAG', defaultValue: 'dev_latest', description: 'The tag for the nCOV-2019 artic-nf nanopore docker image')
         string(name: 'PANGOLIN_DOCKER_IMAGE_TAG', defaultValue: 'dev_latest', description: 'The tag for the Pangolin docker image')
         string(name: 'METADATA', defaultValue: 's3://synthetic-data-dev/UKHSA/small_tests/illumina_fastq/metadata.csv', description: 'The path to the metadata CSV file containing the input file paths of the samples to process. This can be an S3 path')
-        string(name: 'PSGA_OUTPUT_PATH', defaultValue: '/data/output/illumina_fastq_short', description: 'The path containing the output files. This can be an S3 path. In this latter case, please specify a path which does not yet exist, otherwise Nextflow will fail to publish this data due to a policy defined by Dev OPS in which pods are not allowed to delete/overwrite objects in S3.')
+        string(name: 'PSGA_OUTPUT_PATH', defaultValue: '/data/output/illumina_artic_fastq_short', description: 'The path containing the output files. This can be an S3 path. In this latter case, please specify a path which does not yet exist, otherwise Nextflow will fail to publish this data due to a policy defined by Dev OPS in which pods are not allowed to delete/overwrite objects in S3.')
         string(name: 'PATHOGEN_CONFIG', defaultValue: 'sars_cov_2.config', description: 'The config for the sar_cov_2 psga workflow')
-        string(name: 'ANALYSIS_RUN', defaultValue: 'illumina_fastq_short', description: 'This can be the test name')
+        string(name: 'ANALYSIS_RUN', defaultValue: 'illumina_artic_fastq_short', description: 'This can be the test name')
         choice(name: 'NCOV_WORKFLOW', choices: ['illumina_artic', 'medaka_artic', 'no_ncov'], description: 'The ncov workflow to run')
         choice(name: 'FILETYPE', choices: ['fastq', 'bam', 'fasta'], description: 'The input file type. illumina_artic supports fastq, bam; medaka_artic supports fastq; no_ncov supports fasta')
-        string(name: 'NXF_WORK', defaultValue: '/data/work/illumina_fastq_short/', description: 'Nextflow work directory')
+        string(name: 'NXF_WORK', defaultValue: '/data/work/illumina_artic_fastq_short/', description: 'Nextflow work directory')
 
         string(name: 'CLUSTER_NAME', defaultValue: 'saas-dev.k8s.congenica.net', description: 'The k8s cluster to run against')
         string(name: 'NAMESPACE', defaultValue: 'ukhsa-covid', description: 'The k8s namespace to run against')
@@ -172,14 +172,17 @@ spec:
                 script {
                     // sh 'printenv'
 
+                    // deploy db schema migrations
+                    sh 'cd ${PSGA_ROOT_PATH}/sqitch && bash setup_db_jenkins.sh && cd -'
+
                     // cleanup
-                    // due to OPS policy, pods cannot delete objects in S3 buckets.
+                    // NOTE: due to OPS policy, pods cannot delete objects in S3 buckets.
                     if(fileExists("${PSGA_OUTPUT_PATH}")) {
                         sh 'rm -rm ${PSGA_OUTPUT_PATH}'
                     }
+                    sh 'cd ${PSGA_ROOT_PATH}/jenkins && python cleanup.py --analysis-run-name ${ANALYSIS_RUN}'
 
-                    sh 'cd ${PSGA_ROOT_PATH}/sqitch && bash setup_db_jenkins.sh && cd -'
-
+                    // run the pipeline
                     // the argument `--load_missing_samples true` enables us to integration test the pipeline in isolation
                     sh 'nextflow -log ${ANALYSIS_RUN}.log run ${PSGA_ROOT_PATH}/psga/main.nf -c ${PSGA_ROOT_PATH}/psga/${PATHOGEN_CONFIG} --run ${ANALYSIS_RUN} --ncov_workflow ${NCOV_WORKFLOW} --filetype ${FILETYPE} --metadata ${METADATA} --load_missing_samples true -with-trace'
 
@@ -187,6 +190,7 @@ spec:
                     sh 'bash ${PSGA_ROOT_PATH}/psga/finalise.sh ${ANALYSIS_RUN}'
 
                     if (params.VALIDATION_TEST) {
+                        // run validations
 
                         if ("${PATHOGEN_CONFIG}" == "sars_cov_2.config") {
 
