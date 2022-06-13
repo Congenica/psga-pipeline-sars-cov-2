@@ -1,33 +1,40 @@
 #!/usr/bin/env nextflow
 
+import java.nio.file.Files;
+import java.nio.file.Paths;
+
 // Enable DSL 2 syntax
 nextflow.enable.dsl = 2
 
-// List of supported pathogens (edit as required)
-supported_pathogens = ["sars_cov_2"]
 
-// include help and workflow for all available pathogens
-if (supported_pathogens.contains(params.pathogen)) {
-    if (params.print_config){
-        include {printMainConfig} from './common/help.nf'
-        include { printPathogenConfig } from "./${params.pathogen}/help.nf"
-        printMainConfig()
-        printPathogenConfig()
-        exit 0
-    }
-
-    if (params.help){
-        include {printMainHelp} from './common/help.nf'
-        include { printPathogenHelp } from "./${params.pathogen}/help.nf"
-        printMainHelp()
-        printPathogenHelp()
-        exit 0
-    }
-
-    include { psga } from "./${params.pathogen}/psga"
-} else {
-    throw new Exception("Error: unrecognised configuration for pathogen '${params.pathogen}'")
+// these exceptions would be better handled if Nextflow supported inheritance for configs and workflows.
+if (params.pathogen == "") {
+    throw new Exception("Pipeline configuration error. Create a pathogen config file which initialises the parameter `pathogen`.")
 }
+
+if ( !Files.isDirectory(Paths.get(params.pathogen))
+     || Files.notExists(Paths.get(params.pathogen, "help.nf"))
+     || Files.notExists(Paths.get(params.pathogen, "psga.nf")) ) {
+    throw new Exception("Pipeline configuration error. Create a directory called ${params.pathogen} including the files 'psga.nf' and 'help.nf'.")
+}
+
+if (params.print_config) {
+    include { printMainConfig } from './common/help.nf'
+    include { printPathogenConfig } from "./${params.pathogen}/help.nf"
+    printMainConfig()
+    printPathogenConfig()
+    exit 0
+}
+
+if (params.help) {
+    include { printMainHelp } from './common/help.nf'
+    include { printPathogenHelp } from "./${params.pathogen}/help.nf"
+    printMainHelp()
+    printPathogenHelp()
+    exit 0
+}
+
+include { psga } from "./${params.pathogen}/psga.nf"
 
 include { genbank_submission } from './common/genbank.nf'
 include { pipeline_end } from './common/pipeline_lifespan.nf'
