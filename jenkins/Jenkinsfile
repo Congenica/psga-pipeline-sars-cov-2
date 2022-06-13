@@ -26,7 +26,7 @@ pipeline {
         string(name: 'NXF_WORK', defaultValue: '/data/work/illumina_artic_fastq_short/', description: 'Nextflow work directory')
 
         string(name: 'CLUSTER_NAME', defaultValue: 'saas-dev.k8s.congenica.net', description: 'The k8s cluster to run against')
-        string(name: 'NAMESPACE', defaultValue: 'ukhsa-covid', description: 'The k8s namespace to run against')
+        string(name: 'NAMESPACE', defaultValue: 'psga', description: 'The k8s namespace to run against')
         string(name: 'K8S_SERVICE_ACCOUNT', defaultValue: 'psga-admin', description: 'The serviceaccount user to run the job as. Must exist in the namespace and have cluster admin.')
         string(name: 'SLACKCHANNEL', defaultValue: 'integration-tests-psga', description: 'The slack channel to send new commits to')
 
