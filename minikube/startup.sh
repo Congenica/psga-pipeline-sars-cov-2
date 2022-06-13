@@ -12,7 +12,7 @@ wait_for_pod() {
 
 # create new namespace and set it as default
 kubectl apply -f create_namespace.yaml
-kubectl config set-context $(kubectl config current-context) --namespace=ukhsa-covid-minikube
+kubectl config set-context $(kubectl config current-context) --namespace=psga-minikube
 
 # set service account
 kubectl apply -f service_account.yaml
