@@ -8,19 +8,19 @@ nextflow.enable.dsl = 2
 
 
 // these exceptions would be better handled if Nextflow supported inheritance for configs and workflows.
-if (params.pathogen == "") {
-    throw new Exception("Pipeline configuration error. Create a pathogen config file which initialises the parameter `pathogen`.")
+if (params.pathogen_dir == "") {
+    throw new Exception("Pipeline configuration error. Create a pathogen config file which initialises the parameter `pathogen_dir`.")
 }
 
-if ( !Files.isDirectory(Paths.get(params.pathogen))
-     || Files.notExists(Paths.get(params.pathogen, "help.nf"))
-     || Files.notExists(Paths.get(params.pathogen, "psga.nf")) ) {
-    throw new Exception("Pipeline configuration error. Create a directory called ${params.pathogen} including the files 'psga.nf' and 'help.nf'.")
+if ( !Files.isDirectory(Paths.get(params.pathogen_dir))
+     || Files.notExists(Paths.get(params.pathogen_dir, "help.nf"))
+     || Files.notExists(Paths.get(params.pathogen_dir, "psga.nf")) ) {
+    throw new Exception("Pipeline configuration error. Create a directory called ${params.pathogen_dir} including the files 'psga.nf' and 'help.nf'.")
 }
 
 if (params.print_config) {
     include { printMainConfig } from './common/help.nf'
-    include { printPathogenConfig } from "./${params.pathogen}/help.nf"
+    include { printPathogenConfig } from "./${params.pathogen_dir}/help.nf"
     printMainConfig()
     printPathogenConfig()
     exit 0
@@ -28,13 +28,13 @@ if (params.print_config) {
 
 if (params.help) {
     include { printMainHelp } from './common/help.nf'
-    include { printPathogenHelp } from "./${params.pathogen}/help.nf"
+    include { printPathogenHelp } from "./${params.pathogen_dir}/help.nf"
     printMainHelp()
     printPathogenHelp()
     exit 0
 }
 
-include { psga } from "./${params.pathogen}/psga.nf"
+include { psga } from "./${params.pathogen_dir}/psga.nf"
 
 include { genbank_submission } from './common/genbank.nf'
 include { pipeline_end } from './common/pipeline_lifespan.nf'
