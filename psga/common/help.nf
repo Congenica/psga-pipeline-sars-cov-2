@@ -39,7 +39,7 @@ def printMainConfig() {
 
 def printMainHelp() {
     log.info"""
-    Pathogen SequencinG Analysis pipeline.
+    Pathogen Sequence Genome Analysis pipeline.
 
     Generic configuration for all pathogens:
       Mandatory environment variables:

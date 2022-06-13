@@ -13,7 +13,7 @@ pipeline {
 
     parameters {
         booleanParam(name: 'VALIDATION_TEST', defaultValue: false, description: 'If true, run script for validating the results')
-        string(name: 'PSGA_DOCKER_IMAGE_TAG', defaultValue: 'dev_latest', description: 'The docker tag for the Pathogen SequencinG Analysis (PSGA) pipeline')
+        string(name: 'PSGA_DOCKER_IMAGE_TAG', defaultValue: 'dev_latest', description: 'The docker tag for the Pathogen Sequence Genome Analysis (PSGA) pipeline')
         string(name: 'NCOV2019_ARTIC_NF_ILLUMINA_DOCKER_IMAGE_TAG', defaultValue: 'dev_latest', description: 'The tag for the nCOV-2019 artic-nf illumina docker image')
         string(name: 'NCOV2019_ARTIC_NF_NANOPORE_DOCKER_IMAGE_TAG', defaultValue: 'dev_latest', description: 'The tag for the nCOV-2019 artic-nf nanopore docker image')
         string(name: 'PANGOLIN_DOCKER_IMAGE_TAG', defaultValue: 'dev_latest', description: 'The tag for the Pangolin docker image')
