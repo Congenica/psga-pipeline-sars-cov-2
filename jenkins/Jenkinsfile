@@ -13,7 +13,7 @@ pipeline {
 
     parameters {
         booleanParam(name: 'VALIDATION_TEST', defaultValue: false, description: 'If true, run script for validating the results')
-        string(name: 'PSGA_DOCKER_IMAGE_TAG', defaultValue: 'dev_latest', description: 'The docker tag for the Pathogen SequencinG Analysis (PSGA) pipeline')
+        string(name: 'PSGA_DOCKER_IMAGE_TAG', defaultValue: 'dev_latest', description: 'The docker tag for the Pathogen Sequence Genome Analysis (PSGA) pipeline')
         string(name: 'NCOV2019_ARTIC_NF_ILLUMINA_DOCKER_IMAGE_TAG', defaultValue: 'dev_latest', description: 'The tag for the nCOV-2019 artic-nf illumina docker image')
         string(name: 'NCOV2019_ARTIC_NF_NANOPORE_DOCKER_IMAGE_TAG', defaultValue: 'dev_latest', description: 'The tag for the nCOV-2019 artic-nf nanopore docker image')
         string(name: 'PANGOLIN_DOCKER_IMAGE_TAG', defaultValue: 'dev_latest', description: 'The tag for the Pangolin docker image')
@@ -26,7 +26,7 @@ pipeline {
         string(name: 'NXF_WORK', defaultValue: '/data/work/illumina_artic_fastq_short/', description: 'Nextflow work directory')
 
         string(name: 'CLUSTER_NAME', defaultValue: 'saas-dev.k8s.congenica.net', description: 'The k8s cluster to run against')
-        string(name: 'NAMESPACE', defaultValue: 'ukhsa-covid', description: 'The k8s namespace to run against')
+        string(name: 'NAMESPACE', defaultValue: 'psga', description: 'The k8s namespace to run against')
         string(name: 'K8S_SERVICE_ACCOUNT', defaultValue: 'psga-admin', description: 'The serviceaccount user to run the job as. Must exist in the namespace and have cluster admin.')
         string(name: 'SLACKCHANNEL', defaultValue: 'integration-tests-psga', description: 'The slack channel to send new commits to')
 

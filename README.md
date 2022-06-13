@@ -1,4 +1,4 @@
-# Pathogen SequencinG Analysis (PSGA) pipeline
+# Pathogen Sequence Genome Analysis (PSGA) pipeline
 The PSGA project is developed for the UK Health and Security Agency (UKHSA).
 
 Currently, the only supported pathogen is: SARS-CoV-2. For this pathogen, Congenica sequencing protocol is based on the ARTIC consortium and works as follows:
@@ -290,13 +290,12 @@ accordingly to throw exceptions in case of failed verification
 
 
 #### Adding new pathogens
-To add the pathogen `pathogenX` to the pipeline, you need to:
-1. add `pathogenX` to the list of supported pathogens in: `psga/main.nf`
-2. create the directory: `psga/pathogenX`. This folder will contain the Nextflow scripts for analysing this new pathogen
-3. create the Nextflow main workflow: `psga/pathogenX/psga.nf`. Name the workflow as `psga`
-4. create the Nextflow configuration file: `psga/pathogenX.config`. Set the parameter `pathogen` to `pathogenX`
-5. create the Python scripts in: `scripts/pathogenX`
-6. have fun!
+In order to add the pathogen `pathogenX` to the pipeline, change dir to `psga` and follow the instructions below:
+1. run the script: `python initialise_pathogen.py --pathogen-name pathogenX`
+2. add nextflow configs and workflows to the following files: `pathogenX.config`, `pathogenX/psga.nf`, `pathogenX/help.nf`.
+3. add Python scripts to: `../scripts/pathogenX/`
+4. edit the DB schema as necessary
+5. run the pipeline from the psga directory using the command: `nextflow run . -c pathogenX.config <pathogenX-specific parameters>`
 
 
 ## Troubleshootings

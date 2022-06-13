@@ -39,7 +39,7 @@ def printMainConfig() {
 
 def printMainHelp() {
     log.info"""
-    Pathogen SequencinG Analysis pipeline.
+    Pathogen Sequence Genome Analysis pipeline.
 
     Generic configuration for all pathogens:
       Mandatory environment variables:
@@ -99,7 +99,7 @@ def printMainHelp() {
         --genbank_submitter_account_namespace
                                 Center/account abbreviation provided during account creation in MyNCBI. E.g. "congenica".
         --genbank_submission_id_suffix
-                                Static value to add to every submission ID for GenBank. E.g. "ukhsa-sars-cov-2"
+                                Static value to add to every submission ID for GenBank. E.g. "customer-sars-cov-2"
         --genbank_storage_remote_url
                                 GenBank remote URL. E.g. "ftp-private.ncbi.nlm.nih.gov"
         --genbank_storage_remote_username

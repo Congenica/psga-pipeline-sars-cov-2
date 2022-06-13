@@ -9,7 +9,7 @@ from scripts.validation.check_file_integrity import check_file_integrity, FileIn
     [
         (
             "good_metadata_illumina_fastq.tsv",
-            "91ec15a673c2692949847111b0366bc3",
+            "12e5fd2bc82a787d40c4e014e67a0295",
             0,
             None,
         ),
@@ -19,7 +19,7 @@ from scripts.validation.check_file_integrity import check_file_integrity, FileIn
             1,
             FileIntegrityError(
                 "Integrity check for file: good_metadata_illumina_fastq.tsv FAILED. "
-                + "Expected: fake_md5, computed: 91ec15a673c2692949847111b0366bc3"
+                + "Expected: fake_md5, computed: 12e5fd2bc82a787d40c4e014e67a0295"
             ),
         ),
     ],
