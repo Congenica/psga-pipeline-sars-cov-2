@@ -1,10 +1,6 @@
 from pathlib import Path
 from typing import Dict
 import pandas as pd
-from sqlalchemy.orm import joinedload
-
-from scripts.db.database import session_handler
-from scripts.db.models import AnalysisRun, Sample
 
 
 def refine_df(config: Dict, df: pd.DataFrame) -> pd.DataFrame:
@@ -37,45 +33,5 @@ def load_data_from_csv(config: Dict, csv_path: Path) -> pd.DataFrame:
     # rename columns so that they match the names used in the DB
     columns_mapping = config["columns_to_validate"]
     df = df.rename(columns=columns_mapping)
-
-    return refine_df(config, df)
-
-
-def load_ncov_data_from_db(config: Dict, analysis_run_name: str) -> pd.DataFrame:
-    """
-    Load ncov data from the database into a Pandas dataframe
-    """
-    with session_handler() as session:
-        df = pd.read_sql(
-            session.query(Sample)
-            .join(AnalysisRun)
-            .filter(
-                AnalysisRun.analysis_run_name == analysis_run_name,
-            )
-            .options(joinedload(Sample.sample_qc))
-            .statement,
-            session.bind,
-        )
-
-    return refine_df(config, df)
-
-
-def load_pangolin_data_from_db(config: Dict, analysis_run_name: str) -> pd.DataFrame:
-    """
-    Load Pangolin data from the database into a Pandas dataframe
-    """
-    with session_handler() as session:
-        df = pd.read_sql(
-            session.query(Sample)
-            .join(AnalysisRun)
-            .filter(
-                AnalysisRun.analysis_run_name == analysis_run_name,
-            )
-            .statement,
-            session.bind,
-        )
-
-    # convert pangolin status to lower case
-    df["pangolin_status"] = [str(s).lower() for s in df["pangolin_status"]]
 
     return refine_df(config, df)

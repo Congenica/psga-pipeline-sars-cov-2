@@ -35,31 +35,6 @@ spec:
             cpu: "2"
             memory: 6Gi
         env:
-        - name: DB_HOST
-          valueFrom:
-            secretKeyRef:
-              key: clus_COVID_DB_HOST
-              name: db-config
-        - name: DB_NAME
-          valueFrom:
-            secretKeyRef:
-              key: clus_COVID_DB_NAME
-              name: db-config
-        - name: DB_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              key: clus_COVID_DB_PASSWORD
-              name: db-config
-        - name: DB_PORT
-          valueFrom:
-            secretKeyRef:
-              key: clus_COVID_DB_PORT
-              name: db-config
-        - name: DB_USER
-          valueFrom:
-            secretKeyRef:
-              key: clus_COVID_DB_USER
-              name: db-config
         - name: PSGA_ROOT_PATH
           value: /app
         - name: PSGA_OUTPUT_PATH

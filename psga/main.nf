@@ -43,11 +43,6 @@ include { pipeline_end } from './common/pipeline_lifespan.nf'
 // Required environment variables
 // Add new env variables to common/help.nf
 if( "[:]" in [
-    DB_HOST,
-    DB_PORT,
-    DB_NAME,
-    DB_USER,
-    DB_PASSWORD,
     PSGA_ROOT_PATH,
     PSGA_OUTPUT_PATH,
     PSGA_INCOMPLETE_ANALYSIS_RUNS_PATH,

@@ -4,35 +4,11 @@ parameters:
   docker_version:
     type: string
     default: "19.03.13"
-  db_user:
-    type: string
-    default: "postgres"
-  db_password:
-    type: string
-    default: "somesecret"
-  db_name:
-    type: string
-    default: "psga_db"
 
 executors:
   python:
     docker:
       - image: cimg/python:3.9
-  python_with_db:
-    docker:
-      - image: cimg/python:3.9
-        environment:
-          PGHOST: localhost
-          PGUSER: << pipeline.parameters.db_user >>
-          DB_HOST: localhost
-          DB_USER: << pipeline.parameters.db_user >>
-          DB_PASSWORD: << pipeline.parameters.db_password >>
-          DB_NAME: << pipeline.parameters.db_name >>
-      - image: cimg/postgres:11.13
-        environment:
-          POSTGRES_USER: << pipeline.parameters.db_user >>
-          POSTGRES_PASSWORD: << pipeline.parameters.db_password >>
-          POSTGRES_HOST_AUTH_METHOD: password
 
 commands:
   build_and_push_docker_image:
@@ -89,18 +65,9 @@ jobs:
             pre-commit run --all-files
 
   test-psga:
-    executor: python_with_db
+    executor: python
     steps:
       - checkout
-      - run:
-          name: Install sqitch and create database
-          command: |
-            sudo apt-get update
-            sudo apt-get install -qq sqitch postgresql-client
-            createdb psga_db
-            cd sqitch
-            sqitch deploy
-            sqitch verify
       - run:
           name: Install dependencies and run tests
           command: |

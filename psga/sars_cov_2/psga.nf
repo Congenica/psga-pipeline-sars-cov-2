@@ -65,11 +65,8 @@ workflow psga {
         )
 
         check_metadata(
-            params.load_missing_samples,
             params.metadata,
             params.run,
-            params.scheme,
-            params.scheme_version,
             params.filetype,
             params.ncov_workflow
         )

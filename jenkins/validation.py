@@ -103,8 +103,7 @@ def validate(config: Dict, df_calc: pd.DataFrame, df_exp: pd.DataFrame) -> None:
     type=click.Choice(data_config, case_sensitive=False),
     help="The name of tool generating the data to validate",
 )
-@click.option("--analysis-run-name", required=True, type=str, help="The name of the analysis run")
-def validate_results(result_path, expected_result_path, tool, analysis_run_name):
+def validate_results(result_path, expected_result_path, tool):
     """
     Compare the calculated result file against the expected result file.
     """
@@ -114,12 +113,6 @@ def validate_results(result_path, expected_result_path, tool, analysis_run_name)
     load_data_from_csv = data_config[tool]["load_data_from_csv"]
     df_exp = load_data_from_csv(data, Path(expected_result_path))
     df_calc = load_data_from_csv(data, Path(result_path))
-    validate(data, df_calc, df_exp)
-    logger.info("Validation PASSED")
-
-    logger.info("Validation of DB content STARTED")
-    load_data_from_db = data_config[tool]["load_data_from_db"]
-    df_calc = load_data_from_db(data, analysis_run_name)
     validate(data, df_calc, df_exp)
     logger.info("Validation PASSED")
 

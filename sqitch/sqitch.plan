@@ -1,6 +1,0 @@
-%syntax-version=1.0.0
-%project=psga
-%uri=https://github.com/Congenica/psga
-
-01-appschema 2020-11-12T07:51:37Z Tautvydas Petkus <tautvydas.petkus@telesoftas.com> # Initial schema for PSGA database
-02-apptables [01-appschema] 2022-02-18T12:36:13Z Piero Dalle Pezze <piero.dallepezze@congenica.com> # Create tables and enum types for PSGA database

@@ -20,14 +20,6 @@ kubectl apply -f service_account.yaml
 # set psga resources (e.g. pvc)
 kubectl apply -f deploy_psga_resources.yaml
 
-## deploy DB. Currently, the DB is stored in a pod.
-# This is fine for a proof of concept, but obviously not the long term solution.
-# The DB will be stored in a RDS aurora system
-kubectl apply -f deploy_db.yaml
-db_pod="$( kubectl get pods -l app=psql --no-headers -o custom-columns=':metadata.name' )"
-wait_for_pod "${db_pod}"
-kubectl exec -it ${db_pod} -- bash -c './setup_db.sh'
-
 ## deploy psga
 kubectl apply -f deploy_psga.yaml
 pipeline_pod="$( kubectl get pods -l app=psga-minikube --no-headers -o custom-columns=':metadata.name' )"

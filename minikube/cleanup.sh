@@ -1,11 +1,5 @@
 #!/usr/bin/env bash
 
-
-## delete DB
-kubectl delete deployment psql-minikube
-kubectl delete service psql-minikube-host
-kubectl delete pvc psql-minikube-pvc
-
 ## delete psga-minikube
 kubectl delete deployment psga-minikube
 kubectl delete pvc psga-minikube-pvc

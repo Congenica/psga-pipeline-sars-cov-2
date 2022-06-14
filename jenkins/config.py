@@ -1,11 +1,10 @@
-from jenkins.loading import load_data_from_csv, load_ncov_data_from_db, load_pangolin_data_from_db
+from jenkins.loading import load_data_from_csv
 
 
 data_config = {
     # tool which generated the output file to validate
     "ncov2019_artic_nf": {
         "load_data_from_csv": load_data_from_csv,
-        "load_data_from_db": load_ncov_data_from_db,
         "config": {
             # name of the column used for listing the samples
             "sample_name_column": "sample_name",
@@ -29,7 +28,6 @@ data_config = {
     },
     "pangolin": {
         "load_data_from_csv": load_data_from_csv,
-        "load_data_from_db": load_pangolin_data_from_db,
         "config": {
             "sample_name_column": "sample_name",
             "columns_to_validate": {
