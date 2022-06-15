@@ -12,9 +12,9 @@ if (params.pathogen_dir == "") {
     throw new Exception("Pipeline configuration error. Create a pathogen config file which initialises the parameter `pathogen_dir`.")
 }
 
-if ( !Files.isDirectory(Paths.get(params.pathogen_dir))
-     || Files.notExists(Paths.get(params.pathogen_dir, "help.nf"))
-     || Files.notExists(Paths.get(params.pathogen_dir, "psga.nf")) ) {
+if ( !Files.isDirectory(Paths.get(PSGA_ROOT_PATH, "psga", params.pathogen_dir))
+     || Files.notExists(Paths.get(PSGA_ROOT_PATH, "psga", params.pathogen_dir, "help.nf"))
+     || Files.notExists(Paths.get(PSGA_ROOT_PATH, "psga", params.pathogen_dir, "psga.nf")) ) {
     throw new Exception("Pipeline configuration error. Create a directory called ${params.pathogen_dir} including the files 'psga.nf' and 'help.nf'.")
 }
 
@@ -36,7 +36,6 @@ if (params.help) {
 
 include { psga } from "./${params.pathogen_dir}/psga.nf"
 
-include { genbank_submission } from './common/genbank.nf'
 include { pipeline_end } from './common/pipeline_lifespan.nf'
 
 
@@ -80,8 +79,6 @@ if ( params.metadata == "" ) {
 workflow {
 
     psga_workflow = psga()
-
-    genbank_submission(psga_workflow.ch_qc_passed_fasta.collect())
 
     pipeline_end(
         params.run,

@@ -6,7 +6,7 @@ def check_csv_columns(reader_fieldnames: Set[str], expected_fieldnames: Set[str]
     """
     Check whether the expected fieldnames are present in the reader fieldnames
     """
-    if not expected_fieldnames.issubset(reader_fieldnames):
+    if expected_fieldnames != reader_fieldnames:
         err = (
             "Unexpected headers, got:\n"
             + ", ".join(reader_fieldnames)

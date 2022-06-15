@@ -9,7 +9,7 @@ from utils_tests import read_samples_from_file
     "metadata_file,analysis_run_name,analysis_run_columns," "valid_samples,invalid_samples,exit_code,exception_msg",
     [
         (
-            "good_metadata_illumina_fastq.tsv",
+            "good_metadata_illumina_fastq.csv",
             "just_a_name",
             {
                 "input_file_type": "unknown",
@@ -21,7 +21,7 @@ from utils_tests import read_samples_from_file
             "Error: Invalid value for '--input-file-type'",
         ),
         (
-            "good_metadata_illumina_fastq.tsv",
+            "good_metadata_illumina_fastq.csv",
             "just_a_name",
             {
                 "input_file_type": "fastq",
@@ -33,7 +33,7 @@ from utils_tests import read_samples_from_file
             "Error: Invalid value for '--ncov-workflow'",
         ),
         (
-            "good_metadata_illumina_fastq.tsv",
+            "good_metadata_illumina_fastq.csv",
             "just_a_name",
             {
                 "input_file_type": "fastq",
@@ -45,7 +45,7 @@ from utils_tests import read_samples_from_file
             None,
         ),
         (
-            "good_metadata_illumina_bam.tsv",
+            "good_metadata_illumina_bam.csv",
             "just_a_name",
             {
                 "input_file_type": "bam",
@@ -57,7 +57,7 @@ from utils_tests import read_samples_from_file
             None,
         ),
         (
-            "good_metadata_medaka_fastq.tsv",
+            "good_metadata_medaka_fastq.csv",
             "just_a_name",
             {
                 "input_file_type": "fastq",
@@ -69,7 +69,7 @@ from utils_tests import read_samples_from_file
             None,
         ),
         (
-            "good_metadata_fasta.tsv",
+            "good_metadata_fasta.csv",
             "just_a_name",
             {
                 "input_file_type": "fasta",
@@ -81,7 +81,7 @@ from utils_tests import read_samples_from_file
             None,
         ),
         (
-            "good_metadata_illumina_fastq.tsv",
+            "good_metadata_illumina_fastq.csv",
             "invalid_workflow_filetype",
             {
                 "input_file_type": "fasta",
@@ -93,7 +93,7 @@ from utils_tests import read_samples_from_file
             "Error: ncov workflow 'illumina_artic' does not support input file type 'fasta'\n",
         ),
         (
-            "good_metadata_medaka_fastq.tsv",
+            "good_metadata_medaka_fastq.csv",
             "invalid_workflow_filetype",
             {
                 "input_file_type": "bam",
@@ -105,7 +105,7 @@ from utils_tests import read_samples_from_file
             "Error: ncov workflow 'medaka_artic' does not support input file type 'bam'\n",
         ),
         (
-            "good_metadata_medaka_fastq.tsv",
+            "good_metadata_medaka_fastq.csv",
             "invalid_workflow_filetype",
             {
                 "input_file_type": "fasta",
@@ -117,7 +117,7 @@ from utils_tests import read_samples_from_file
             "Error: ncov workflow 'medaka_artic' does not support input file type 'fasta'\n",
         ),
         (
-            "good_metadata_fasta.tsv",
+            "good_metadata_fasta.csv",
             "invalid_workflow_filetype",
             {
                 "input_file_type": "fastq",
@@ -129,7 +129,7 @@ from utils_tests import read_samples_from_file
             "Error: ncov workflow 'no_ncov' does not support input file type 'fastq'\n",
         ),
         (
-            "good_metadata_fasta.tsv",
+            "good_metadata_fasta.csv",
             "invalid_workflow-filetype",
             {
                 "input_file_type": "bam",
@@ -141,7 +141,7 @@ from utils_tests import read_samples_from_file
             "Error: ncov workflow 'no_ncov' does not support input file type 'bam'\n",
         ),
         (
-            "bad_metadata.tsv",
+            "bad_metadata.csv",
             "invalid_rows",
             {
                 "input_file_type": "fastq",

@@ -70,32 +70,6 @@ spec:
     - "sleep"
     args:
     - '1d'
-    env:
-    - name: DB_HOST
-      valueFrom:
-        secretKeyRef:
-          key: clus_COVID_DB_HOST
-          name: db-config
-    - name: DB_NAME
-      valueFrom:
-        secretKeyRef:
-          key: clus_COVID_DB_NAME
-          name: db-config
-    - name: DB_PASSWORD
-      valueFrom:
-        secretKeyRef:
-          key: clus_COVID_DB_PASSWORD
-          name: db-config
-    - name: DB_PORT
-      valueFrom:
-        secretKeyRef:
-          key: clus_COVID_DB_PORT
-          name: db-config
-    - name: DB_USER
-      valueFrom:
-        secretKeyRef:
-          key: clus_COVID_DB_USER
-          name: db-config
     resources:
       limits:
         cpu: "2"
@@ -172,19 +146,15 @@ spec:
                 script {
                     // sh 'printenv'
 
-                    // deploy db schema migrations
-                    sh 'cd ${PSGA_ROOT_PATH}/sqitch && bash setup_db_jenkins.sh && cd -'
-
                     // cleanup
                     // NOTE: due to OPS policy, pods cannot delete objects in S3 buckets.
                     if(fileExists("${PSGA_OUTPUT_PATH}")) {
                         sh 'rm -rm ${PSGA_OUTPUT_PATH}'
                     }
-                    sh 'cd ${PSGA_ROOT_PATH}/jenkins && python cleanup.py --analysis-run-name ${ANALYSIS_RUN}'
 
                     // run the pipeline
                     // the argument `--load_missing_samples true` enables us to integration test the pipeline in isolation
-                    sh 'nextflow -log ${ANALYSIS_RUN}.log run ${PSGA_ROOT_PATH}/psga/main.nf -c ${PSGA_ROOT_PATH}/psga/${PATHOGEN_CONFIG} --run ${ANALYSIS_RUN} --ncov_workflow ${NCOV_WORKFLOW} --filetype ${FILETYPE} --metadata ${METADATA} --load_missing_samples true -with-trace'
+                    sh 'nextflow -log ${ANALYSIS_RUN}.log run ${PSGA_ROOT_PATH}/psga/main.nf -c ${PSGA_ROOT_PATH}/psga/${PATHOGEN_CONFIG} --run ${ANALYSIS_RUN} --ncov_workflow ${NCOV_WORKFLOW} --filetype ${FILETYPE} --metadata ${METADATA} -with-trace'
 
                     // copy main log, nxf work dir logs and reports to PSGA_OUTPUT_PATH
                     sh 'bash ${PSGA_ROOT_PATH}/psga/finalise.sh ${ANALYSIS_RUN}'

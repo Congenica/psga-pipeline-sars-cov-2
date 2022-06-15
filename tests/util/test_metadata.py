@@ -23,12 +23,12 @@ def test_is_invalid_uuid():
     "metadata_file,samples_with_two_reads,expected_exceptions",
     [
         (
-            "good_metadata_illumina_bam.tsv",
+            "good_metadata_illumina_bam.csv",
             False,
             [],
         ),
         (
-            "good_metadata_illumina_bam.tsv",
+            "good_metadata_illumina_bam.csv",
             True,
             [
                 "file_2 for 37a36d1c-5985-4836-87b5-b36bac75d81b not available\n"
@@ -38,7 +38,7 @@ def test_is_invalid_uuid():
             ],
         ),
         (
-            "bad_metadata.tsv",
+            "bad_metadata.csv",
             True,
             [
                 "sample_id not available",
@@ -96,13 +96,13 @@ def test_generate_notifications(tmp_path):
     "metadata_file,samples_with_two_reads,valid_samples,invalid_samples",
     [
         (
-            "good_metadata_illumina_bam.tsv",
+            "good_metadata_illumina_bam.csv",
             False,
             ["37a36d1c-5985-4836-87b5-b36bac75d81b", "985347c5-ff6a-454c-ac34-bc353d05dd70"],
             [],
         ),
         (
-            "bad_metadata.tsv",
+            "bad_metadata.csv",
             True,
             [],
             [

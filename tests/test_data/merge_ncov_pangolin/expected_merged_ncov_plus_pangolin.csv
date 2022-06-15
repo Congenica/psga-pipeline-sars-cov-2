@@ -1,0 +1,5 @@
+sample_id,pct_N_bases,pct_covered_bases,longest_no_N_run,num_aligned_reads,qc_pass,lineage,conflict,ambiguity_score,scorpio_call,scorpio_support,scorpio_conflict,scorpio_notes,version,pangolin_version,scorpio_version,constellation_version,is_designated,qc_status,qc_notes,note
+e80f3c63-d139-4c14-bd72-7a43897ab40d,0.3,99.67,29798,2406868,True,,,,,,,,PUSHER-v1.2.133,4.0.2,0.3.16,v0.1.4,False,fail,,
+56a63f60-764d-4fc7-8764-a46023cbe324,0.12,99.86,29822,2989521,True,AY.98,0,,Delta (B.1.617.2-like),1,0,scorpio call: Alt alleles 13; Ref alleles 0; Amb alleles 0; Oth alleles 0,PUSHER-v1.2.133,4.0.2,0.3.16,v0.1.4,False,pass,Ambiguous_content:0.08,Usher placements: AY.98(1/1)
+0774181d-fb20-4a73-b887-38af7eda9b38,0.3,99.65,29783,3805878,False,,,,,,,,,,,,,,,
+a0951432-cd94-45b5-96d5-b721c037a451,0.3,99.65,29783,3805878,True,,,,,,,,,,,,,,,
