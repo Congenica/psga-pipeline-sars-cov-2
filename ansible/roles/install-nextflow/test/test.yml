@@ -1,6 +1,0 @@
----
-- hosts: all
-  become: false
-  roles:
-    - { role: ../../install-os-packages, yum_update: false, become: true }
-    - { role: ../../install-nextflow}

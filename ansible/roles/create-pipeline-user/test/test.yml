@@ -1,5 +1,0 @@
----
-- hosts: all
-  become: true
-  roles:
-    - { role: ../../create-pipeline-user, username: "{{ pipeline_user }}" }

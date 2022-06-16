@@ -1,8 +1,0 @@
----
-- hosts: all
-  become: true
-  roles:
-    - { role: ../../install-os-packages, yum_update: false }
-    - { role: ../../create-pipeline-user, username: "{{ pipeline_user }}" }
-    - { role: ../../install-miniconda, become_user: "{{ pipeline_user }}" }
-    - { role: ../../install-pangolin, become_user: "{{ pipeline_user }}" }

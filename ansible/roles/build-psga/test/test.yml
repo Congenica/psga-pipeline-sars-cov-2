@@ -1,9 +1,0 @@
----
-- hosts: all
-  become: false
-  vars:
-    docker_build:
-      path: '~/psga'
-  roles:
-    - { role: ../../install-os-packages, yum_update: false, become: yes }
-    - { role: ../../build-psga }

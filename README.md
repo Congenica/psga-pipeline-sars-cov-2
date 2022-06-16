@@ -1,20 +1,14 @@
 # Pathogen Sequence Genome Analysis (PSGA) pipeline
-The PSGA project is developed for the UK Health and Security Agency (UKHSA).
+The architecture of the PSGA pipeline is described [here](https://confluence.congenica.net/display/PSG/PSGA+Pipeline+Architecture).
 
 Currently, the only supported pathogen is: SARS-CoV-2. For this pathogen, Congenica sequencing protocol is based on the ARTIC consortium and works as follows:
 - produce viral genome assemblies from sequence data (ncov2019-artic-nf);
 - assign epidemiological lineages (Pangolin-Scorpio)
 
 Support for other pathogens will be added.
-A diagram for this pipeline is shown below:
-![Alt text](img/PSGA_pipeline_sars_cov_2.png?raw=true "PSGA pipeline for SARS-CoV-2")
 
 ## Operation
-This pipeline runs on a Kubernetes environment using the deployment:
-* `psga`, which allows for the execution of the nextflow pipeline within a k8s pod
-
-The following diagram offers an overview of the pipeline execution in k8s. Each nextflow process is executed on a dedicated pod spun up by the main `psga` pod.
-![Alt text](img/PSGA_k8s.png?raw=true "PSGA pipeline in k8s environment")
+This pipeline runs on a Kubernetes environment. The main workflow coordinates the execution of processes within Kubernetes jobs.
 
 
 ### Environment variables and input parameters
