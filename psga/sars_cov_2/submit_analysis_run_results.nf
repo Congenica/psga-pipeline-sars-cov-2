@@ -60,7 +60,7 @@ process submit_pangolin_results {
 
 
 /*
- * Concatenate ncov and pangolin CSV files
+ * Submit the merged ncov and pangolin output file
  */
 process submit_pipeline_output_csv {
   publishDir "${PSGA_OUTPUT_PATH}/merged_output", mode: 'copy', overwrite: true, pattern: 'pipeline_output.csv'

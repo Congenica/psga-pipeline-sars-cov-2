@@ -1,8 +1,8 @@
 CRON_SETTINGS = BRANCH_NAME == "dev" ? '''
-    H 0 * * 1-5 %VALIDATION_TEST=true;METADATA=s3://synthetic-data-dev/UKHSA/validation_ci/illumina_artic_fastq/metadata.csv;PSGA_OUTPUT_PATH=/data/output/illumina_artic_fastq/;PATHOGEN_CONFIG=sars_cov_2.config;ANALYSIS_RUN=illumina_artic_fastq;NCOV_WORKFLOW=illumina_artic;FILETYPE=fastq;NXF_WORK=/data/work/illumina_artic_fastq/
-    H 6 * * 1-5 %VALIDATION_TEST=true;METADATA=s3://synthetic-data-dev/UKHSA/validation_ci/illumina_artic_bam/metadata.csv;PSGA_OUTPUT_PATH=/data/output/illumina_artic_bam/;PATHOGEN_CONFIG=sars_cov_2.config;ANALYSIS_RUN=illumina_artic_bam;NCOV_WORKFLOW=illumina_artic;FILETYPE=bam;NXF_WORK=/data/work/illumina_artic_bam/
-    H 12 * * 1-5 %VALIDATION_TEST=true;METADATA=s3://synthetic-data-dev/UKHSA/validation_ci/ont_artic_fastq/metadata.csv;PSGA_OUTPUT_PATH=/data/output/ont_artic_fastq/;PATHOGEN_CONFIG=sars_cov_2.config;ANALYSIS_RUN=ont_artic_fastq;NCOV_WORKFLOW=medaka_artic;FILETYPE=fastq;NXF_WORK=/data/work/ont_artic_fastq/
-    H 18 * * 1-5 %VALIDATION_TEST=true;METADATA=s3://synthetic-data-dev/UKHSA/validation_ci/no_ncov_fasta/metadata.csv;PSGA_OUTPUT_PATH=/data/output/no_ncov_fasta/;PATHOGEN_CONFIG=sars_cov_2.config;ANALYSIS_RUN=no_ncov_fasta;NCOV_WORKFLOW=none;FILETYPE=fasta;NXF_WORK=/data/work/no_ncov_fasta/
+    H 0 * * 1-5 %VALIDATION_TEST=true;METADATA=s3://synthetic-data-dev/UKHSA/validation_ci/illumina_artic_fastq/metadata.csv;PSGA_OUTPUT_PATH=/data/output/illumina_artic_fastq/;PATHOGEN=sars_cov_2;ANALYSIS_RUN=illumina_artic_fastq;NCOV_WORKFLOW=illumina_artic;FILETYPE=fastq;NXF_WORK=/data/work/illumina_artic_fastq/
+    H 6 * * 1-5 %VALIDATION_TEST=true;METADATA=s3://synthetic-data-dev/UKHSA/validation_ci/illumina_artic_bam/metadata.csv;PSGA_OUTPUT_PATH=/data/output/illumina_artic_bam/;PATHOGEN=sars_cov_2;ANALYSIS_RUN=illumina_artic_bam;NCOV_WORKFLOW=illumina_artic;FILETYPE=bam;NXF_WORK=/data/work/illumina_artic_bam/
+    H 12 * * 1-5 %VALIDATION_TEST=true;METADATA=s3://synthetic-data-dev/UKHSA/validation_ci/ont_artic_fastq/metadata.csv;PSGA_OUTPUT_PATH=/data/output/ont_artic_fastq/;PATHOGEN=sars_cov_2;ANALYSIS_RUN=ont_artic_fastq;NCOV_WORKFLOW=medaka_artic;FILETYPE=fastq;NXF_WORK=/data/work/ont_artic_fastq/
+    H 18 * * 1-5 %VALIDATION_TEST=true;METADATA=s3://synthetic-data-dev/UKHSA/validation_ci/no_ncov_fasta/metadata.csv;PSGA_OUTPUT_PATH=/data/output/no_ncov_fasta/;PATHOGEN=sars_cov_2;ANALYSIS_RUN=no_ncov_fasta;NCOV_WORKFLOW=none;FILETYPE=fasta;NXF_WORK=/data/work/no_ncov_fasta/
 ''' : ""
 
 pipeline {
@@ -19,7 +19,7 @@ pipeline {
         string(name: 'PANGOLIN_DOCKER_IMAGE_TAG', defaultValue: 'dev_latest', description: 'The tag for the Pangolin docker image')
         string(name: 'METADATA', defaultValue: 's3://synthetic-data-dev/UKHSA/small_tests/illumina_fastq/metadata.csv', description: 'The path to the metadata CSV file containing the input file paths of the samples to process. This can be an S3 path')
         string(name: 'PSGA_OUTPUT_PATH', defaultValue: '/data/output/illumina_artic_fastq_short', description: 'The path containing the output files. This can be an S3 path. In this latter case, please specify a path which does not yet exist, otherwise Nextflow will fail to publish this data due to a policy defined by Dev OPS in which pods are not allowed to delete/overwrite objects in S3.')
-        string(name: 'PATHOGEN_CONFIG', defaultValue: 'sars_cov_2.config', description: 'The config for the sar_cov_2 psga workflow')
+        string(name: 'PATHOGEN', defaultValue: 'sars_cov_2', description: 'The pathogen for the psga workflow')
         string(name: 'ANALYSIS_RUN', defaultValue: 'illumina_artic_fastq_short', description: 'This can be the test name')
         choice(name: 'NCOV_WORKFLOW', choices: ['illumina_artic', 'medaka_artic', 'no_ncov'], description: 'The ncov workflow to run')
         choice(name: 'FILETYPE', choices: ['fastq', 'bam', 'fasta'], description: 'The input file type. illumina_artic supports fastq, bam; medaka_artic supports fastq; no_ncov supports fasta')
@@ -108,7 +108,7 @@ spec:
         PANGOLIN_DOCKER_IMAGE_TAG                   = "${params.PANGOLIN_DOCKER_IMAGE_TAG}"
         PSGA_OUTPUT_PATH                            = "${params.PSGA_OUTPUT_PATH}"
 
-        PATHOGEN_CONFIG                             = "${params.PATHOGEN_CONFIG}"
+        PATHOGEN                                    = "${params.PATHOGEN}"
         ANALYSIS_RUN                                = "${params.ANALYSIS_RUN}"
         NCOV_WORKFLOW                               = "${params.NCOV_WORKFLOW}"
         FILETYPE                                    = "${params.FILETYPE}"
@@ -154,7 +154,7 @@ spec:
 
                     // run the pipeline
                     // the argument `--load_missing_samples true` enables us to integration test the pipeline in isolation
-                    sh 'nextflow -log ${ANALYSIS_RUN}.log run ${PSGA_ROOT_PATH}/psga/main.nf -c ${PSGA_ROOT_PATH}/psga/${PATHOGEN_CONFIG} --run ${ANALYSIS_RUN} --ncov_workflow ${NCOV_WORKFLOW} --filetype ${FILETYPE} --metadata ${METADATA} -with-trace'
+                    sh 'nextflow -log ${ANALYSIS_RUN}.log run ${PSGA_ROOT_PATH}/psga/main.nf -c ${PSGA_ROOT_PATH}/psga/${PATHOGEN}.config --run ${ANALYSIS_RUN} --ncov_workflow ${NCOV_WORKFLOW} --filetype ${FILETYPE} --metadata ${METADATA} -with-trace'
 
                     // copy main log, nxf work dir logs and reports to PSGA_OUTPUT_PATH
                     sh 'bash ${PSGA_ROOT_PATH}/psga/finalise.sh ${ANALYSIS_RUN}'
@@ -162,19 +162,7 @@ spec:
                     if (params.VALIDATION_TEST) {
                         // run validations
 
-                        if ("${PATHOGEN_CONFIG}" == "sars_cov_2.config") {
-
-                            if ("${FILETYPE}" != "fasta") {
-                                // validate ncov2019-artic-nf for non-fasta samples.
-                                // for fasta samples ncov is not executed
-                                sh 'cd ${PSGA_ROOT_PATH}/jenkins && python validation.py --result-path ${PSGA_OUTPUT_PATH}/ncov2019-artic/ncov_qc.csv  --expected-result-path expected_output/${ANALYSIS_RUN}/ncov2019-artic/ncov_qc.csv --tool ncov2019_artic_nf --analysis-run-name ${ANALYSIS_RUN}'
-                            }
-
-
-                            // validate pangolin
-                            sh 'cd ${PSGA_ROOT_PATH}/jenkins && python validation.py --result-path ${PSGA_OUTPUT_PATH}/pangolin/all_lineages_report.csv  --expected-result-path expected_output/${ANALYSIS_RUN}/pangolin/all_lineages_report.csv --tool pangolin --analysis-run-name ${ANALYSIS_RUN}'
-
-                        }
+                        sh 'cd ${PSGA_ROOT_PATH}/jenkins && python validation.py --result-path ${PSGA_OUTPUT_PATH}/merged_output/pipeline_output.csv  --expected-result-path expected_output/${PATHOGEN}/${ANALYSIS_RUN}/pipeline_output.csv --pathogen ${PATHOGEN}'
 
                     }
 

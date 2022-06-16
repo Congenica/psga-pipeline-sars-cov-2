@@ -5,50 +5,29 @@ from jenkins.validation import validate_results
 
 
 @pytest.mark.parametrize(
-    "result_file,expected_result_file,tool,exit_code,exception_msg",
+    "result_file,expected_result_file,pathogen,exit_code,exception_msg",
     [
         # exact - accept
         (
-            "ncov_qc.csv",
-            "ncov_qc.csv",
-            "ncov2019_artic_nf",
-            0,
-            None,
-        ),
-        (
-            "all_lineages_report.csv",
-            "all_lineages_report.csv",
-            "pangolin",
+            "merged_output.csv",
+            "merged_output.csv",
+            "sars_cov_2",
             0,
             None,
         ),
         # approx - accept
         (
-            "ncov_qc.csv",
-            "ncov_qc_approx.csv",
-            "ncov2019_artic_nf",
-            0,
-            None,
-        ),
-        (
-            "all_lineages_report.csv",
-            "all_lineages_report_approx.csv",
-            "pangolin",
+            "merged_output.csv",
+            "merged_output_approx.csv",
+            "sars_cov_2",
             0,
             None,
         ),
         # different - reject
         (
-            "ncov_qc.csv",
-            "ncov_qc_diff.csv",
-            "ncov2019_artic_nf",
-            1,
-            "Validation FAILED. See above for details.",
-        ),
-        (
-            "all_lineages_report.csv",
-            "all_lineages_report_diff.csv",
-            "pangolin",
+            "merged_output.csv",
+            "merged_output_diff.csv",
+            "sars_cov_2",
             1,
             "Validation FAILED. See above for details.",
         ),
@@ -59,7 +38,7 @@ def test_validation(
     test_data_path,
     result_file,
     expected_result_file,
-    tool,
+    pathogen,
     exit_code,
     exception_msg,
 ):
@@ -71,8 +50,8 @@ def test_validation(
             test_data_path / "validation" / result_file,
             "--expected-result-path",
             test_data_path / "validation" / expected_result_file,
-            "--tool",
-            tool,
+            "--pathogen",
+            pathogen,
         ],
     )
 

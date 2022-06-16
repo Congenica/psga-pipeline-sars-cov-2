@@ -3,6 +3,7 @@
  */
 process check_metadata {
   publishDir "${PSGA_OUTPUT_PATH}/notifications", mode: 'copy', overwrite: true, pattern: 'samples_with_{invalid,valid}_metadata.txt'
+  publishDir "${PSGA_OUTPUT_PATH}/logs", mode: 'copy', overwrite: true, pattern: '*.log'
 
   tag "${metadata}"
 
@@ -17,6 +18,7 @@ process check_metadata {
     path "check_metadata.done", emit: ch_metadata_checked
     path "samples_with_invalid_metadata.txt", emit: ch_samples_with_invalid_metadata_file
     path "samples_with_valid_metadata.txt", emit: ch_samples_with_valid_metadata_file
+    path "*.log"
 
   shell:
   '''
