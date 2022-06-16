@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 ## delete psga-minikube
-kubectl delete deployment psga-minikube
+kubectl delete deployment psga-pipeline-minikube
 kubectl delete pvc psga-minikube-pvc
 kubectl delete rolebinding psga-minikube-admin
 kubectl delete serviceaccount psga-minikube-admin

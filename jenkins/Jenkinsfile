@@ -13,7 +13,7 @@ pipeline {
 
     parameters {
         booleanParam(name: 'VALIDATION_TEST', defaultValue: false, description: 'If true, run script for validating the results')
-        string(name: 'PSGA_DOCKER_IMAGE_TAG', defaultValue: 'dev_latest', description: 'The docker tag for the Pathogen Sequence Genome Analysis (PSGA) pipeline')
+        string(name: 'PSGA_PIPELINE_DOCKER_IMAGE_TAG', defaultValue: 'dev_latest', description: 'The docker tag for the Pathogen Sequence Genome Analysis (PSGA) pipeline')
         string(name: 'NCOV2019_ARTIC_NF_ILLUMINA_DOCKER_IMAGE_TAG', defaultValue: 'dev_latest', description: 'The tag for the nCOV-2019 artic-nf illumina docker image')
         string(name: 'NCOV2019_ARTIC_NF_NANOPORE_DOCKER_IMAGE_TAG', defaultValue: 'dev_latest', description: 'The tag for the nCOV-2019 artic-nf nanopore docker image')
         string(name: 'PANGOLIN_DOCKER_IMAGE_TAG', defaultValue: 'dev_latest', description: 'The tag for the Pangolin docker image')
@@ -64,7 +64,7 @@ spec:
   serviceAccountName: ${params.K8S_SERVICE_ACCOUNT}
   containers:
   - name: psga
-    image: ${params.DOCKER_IMAGE_PREFIX}/psga:${params.PSGA_DOCKER_IMAGE_TAG}
+    image: ${params.DOCKER_IMAGE_PREFIX}/psga-pipeline:${params.PSGA_PIPELINE_DOCKER_IMAGE_TAG}
     imagePullPolicy: ${params.K8S_PULL_POLICY}
     command:
     - "sleep"
@@ -102,7 +102,7 @@ spec:
         }
     }
     environment {
-        PSGA_DOCKER_IMAGE_TAG                       = "${params.PSGA_DOCKER_IMAGE_TAG}"
+        PSGA_PIPELINE_DOCKER_IMAGE_TAG                       = "${params.PSGA_PIPELINE_DOCKER_IMAGE_TAG}"
         NCOV2019_ARTIC_NF_ILLUMINA_DOCKER_IMAGE_TAG = "${params.NCOV2019_ARTIC_NF_ILLUMINA_DOCKER_IMAGE_TAG}"
         NCOV2019_ARTIC_NF_NANOPORE_DOCKER_IMAGE_TAG = "${params.NCOV2019_ARTIC_NF_NANOPORE_DOCKER_IMAGE_TAG}"
         PANGOLIN_DOCKER_IMAGE_TAG                   = "${params.PANGOLIN_DOCKER_IMAGE_TAG}"
@@ -172,10 +172,10 @@ spec:
     }
     post {
         success {
-            slackSend color: '#00FF00', channel: "${params.SLACKCHANNEL}", message: "Success - metadata: ${params.METADATA}, psga_output_path: ${params.PSGA_OUTPUT_PATH}, run: ${params.ANALYSIS_RUN}, workflow: ${params.NCOV_WORKFLOW}, filetype: ${params.FILETYPE}, validation test: ${params.VALIDATION_TEST}, job: ${env.JOB_NAME}, build: ${env.BUILD_NUMBER}, psga_docker_tag: ${params.PSGA_DOCKER_IMAGE_TAG}, ncov_illumina_docker_tag: ${params.NCOV2019_ARTIC_NF_ILLUMINA_DOCKER_IMAGE_TAG}, ncov_nanopore_docker_tag: ${params.NCOV2019_ARTIC_NF_NANOPORE_DOCKER_IMAGE_TAG}, pangolin_docker_tag: ${params.PANGOLIN_DOCKER_IMAGE_TAG} (<${env.BUILD_URL}|URL>)"
+            slackSend color: '#00FF00', channel: "${params.SLACKCHANNEL}", message: "Success - metadata: ${params.METADATA}, psga_output_path: ${params.PSGA_OUTPUT_PATH}, run: ${params.ANALYSIS_RUN}, workflow: ${params.NCOV_WORKFLOW}, filetype: ${params.FILETYPE}, validation test: ${params.VALIDATION_TEST}, job: ${env.JOB_NAME}, build: ${env.BUILD_NUMBER}, psga_docker_tag: ${params.PSGA_PIPELINE_DOCKER_IMAGE_TAG}, ncov_illumina_docker_tag: ${params.NCOV2019_ARTIC_NF_ILLUMINA_DOCKER_IMAGE_TAG}, ncov_nanopore_docker_tag: ${params.NCOV2019_ARTIC_NF_NANOPORE_DOCKER_IMAGE_TAG}, pangolin_docker_tag: ${params.PANGOLIN_DOCKER_IMAGE_TAG} (<${env.BUILD_URL}|URL>)"
         }
         failure {
-            slackSend color: '#FF0000', channel: "${params.SLACKCHANNEL}", message: "FAILURE - metadata: ${params.METADATA}, psga_output_path: ${params.PSGA_OUTPUT_PATH}, run: ${params.ANALYSIS_RUN}, workflow: ${params.NCOV_WORKFLOW}, filetype: ${params.FILETYPE}, validation test: ${params.VALIDATION_TEST}, job: ${env.JOB_NAME}, build: ${env.BUILD_NUMBER}, psga_docker_tag: ${params.PSGA_DOCKER_IMAGE_TAG}, ncov_illumina_docker_tag: ${params.NCOV2019_ARTIC_NF_ILLUMINA_DOCKER_IMAGE_TAG}, ncov_nanopore_docker_tag: ${params.NCOV2019_ARTIC_NF_NANOPORE_DOCKER_IMAGE_TAG}, pangolin_docker_tag: ${params.PANGOLIN_DOCKER_IMAGE_TAG} (<${env.BUILD_URL}|URL>)"
+            slackSend color: '#FF0000', channel: "${params.SLACKCHANNEL}", message: "FAILURE - metadata: ${params.METADATA}, psga_output_path: ${params.PSGA_OUTPUT_PATH}, run: ${params.ANALYSIS_RUN}, workflow: ${params.NCOV_WORKFLOW}, filetype: ${params.FILETYPE}, validation test: ${params.VALIDATION_TEST}, job: ${env.JOB_NAME}, build: ${env.BUILD_NUMBER}, psga_docker_tag: ${params.PSGA_PIPELINE_DOCKER_IMAGE_TAG}, ncov_illumina_docker_tag: ${params.NCOV2019_ARTIC_NF_ILLUMINA_DOCKER_IMAGE_TAG}, ncov_nanopore_docker_tag: ${params.NCOV2019_ARTIC_NF_NANOPORE_DOCKER_IMAGE_TAG}, pangolin_docker_tag: ${params.PANGOLIN_DOCKER_IMAGE_TAG} (<${env.BUILD_URL}|URL>)"
         }
     }
 }
