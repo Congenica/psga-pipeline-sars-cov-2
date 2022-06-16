@@ -1,0 +1,6 @@
+sample_id,file_1,file_2,md5_1,md5_2
+e80f3c63-d139-4c14-bd72-7a43897ab40d,s3://synthetic-data-dev/small_tests/illumina_fastq/ERR7150151_1.fastq.gz,s3://synthetic-data-dev/small_tests/illumina_fastq/ERR7150151_2.fastq.gz,997a4ce8160c76a4977755c41c3a4f03,b999b178a283781a395b3ed805194c93
+56a63f60-764d-4fc7-8764-a46023cbe324,s3://synthetic-data-dev/small_tests/illumina_fastq/ERR7150152_1.fastq.gz,s3://synthetic-data-dev/small_tests/illumina_fastq/ERR7150152_2.fastq.gz,997a4ce8160c76a4977755c41c3a4f03,b999b178a283781a395b3ed805194c93
+0774181d-fb20-4a73-b887-38af7eda9b38,s3://synthetic-data-dev/small_tests/illumina_fastq/ERR7150153_1.fastq.gz,s3://synthetic-data-dev/small_tests/illumina_fastq/ERR7150153_2.fastq.gz,997a4ce8160c76a4977755c41c3a4f03,b999b178a283781a395b3ed805194c93
+a0951432-cd94-45b5-96d5-b721c037a451,s3://synthetic-data-dev/small_tests/illumina_fastq/ERR7150154_1.fastq.gz,s3://synthetic-data-dev/small_tests/illumina_fastq/ERR7150154_2.fastq.gz,997a4ce8160c76a4977755c41c3a4f03,b999b178a283781a395b3ed805194c93
+985347c5-ff6a-454c-ac34-bc353d05dd70,s3://synthetic-data-dev/small_tests/illumina_fastq/ERR7150243_1.fastq.gz,s3://synthetic-data-dev/small_tests/illumina_fastq/ERR7150243_2.fastq.gz,c34157c554a0b6225a7ed9680da5c2f3,48abf0d57bfbe85fba8806d185c8ffcc

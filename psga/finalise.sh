@@ -11,7 +11,8 @@ analysis_run=$1
 nextflow clean -force -keep-logs -quiet
 
 # create a compressed archive
-tar czf ${analysis_run}_workdir.tar.gz ${NXF_WORK}
+# NOTE: to speed up the tests, don't create / save this
+#tar czf ${analysis_run}_workdir.tar.gz ${NXF_WORK}
 
 # copy to PSGA_OUTPUT_PATH
 if [[ "${PSGA_OUTPUT_PATH}" =~ ^s3.* ]]; then

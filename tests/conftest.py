@@ -1,62 +1,14 @@
 # pylint: disable=redefined-outer-name
 import os
 import sys
-from datetime import datetime
 from pathlib import Path
 import requests
 import pytest
 from pytest_socket import disable_socket
 
-from scripts.db.database import connect
-from scripts.db.models import AnalysisRun, Sample, SampleQC
-from sqlalchemy import event
-from sqlalchemy.orm import sessionmaker, joinedload
-
-# set this to True to keep changes made to the database while tests are running
-# you will be responsible for any cleanup needed before re-running tests in this case
-DISABLE_ROLLBACK = False
-
-
-Session = sessionmaker()
-
 
 def pytest_runtest_setup():
     disable_socket()
-
-
-@pytest.fixture
-def db_engine():
-    return connect()
-
-
-@pytest.fixture
-def db_session(monkeypatch, db_engine):
-    connection = db_engine.connect()
-    tx = connection.begin()
-
-    session = Session(bind=connection)
-
-    if not DISABLE_ROLLBACK:
-        session.begin_nested()
-
-    @event.listens_for(session, "after_transaction_end")
-    def restart_savepoint(sess, transaction):
-        if transaction.nested and not transaction._parent.nested and not DISABLE_ROLLBACK:
-            sess.expire_all()
-            sess.begin_nested()
-
-    monkeypatch.setattr("scripts.db.database.create_session", lambda: session)
-
-    yield session
-
-    if not DISABLE_ROLLBACK:
-        session.close()
-        tx.rollback()
-    else:
-        tx.commit()
-        session.commit()
-
-    connection.close()
 
 
 @pytest.fixture
@@ -91,71 +43,6 @@ def test_data_path_genbank_input(test_data_path):
 @pytest.fixture
 def test_data_path_genbank_reference(test_data_path):
     return test_data_path / "genbank_reference"
-
-
-@pytest.fixture
-def db_fetcher_by_name(db_session):
-    def fetcher(db_object, name):
-        return db_session.query(db_object).filter(db_object.name == name).one_or_none()
-
-    return fetcher
-
-
-@pytest.fixture
-def sample_generator(db_session, db_fetcher_by_name):
-    def generate_sample(lineage="B.1", date_collected=datetime.now()):
-        return db_session.add(
-            Sample(
-                date_collected=date_collected,
-                pangolin_lineage=lineage,
-            )
-        )
-
-    return generate_sample
-
-
-@pytest.fixture
-def populated_db_session_with_sample(db_session):
-    analysis_run_name = "just_a_name"
-    db_session.add(AnalysisRun(analysis_run_name=analysis_run_name))
-    analysis_run = (
-        db_session.query(AnalysisRun)
-        .filter(
-            AnalysisRun.analysis_run_name == analysis_run_name,
-        )
-        .one_or_none()
-    )
-
-    for sn in ["7284954", "7174693", "8039686", "failed_ncov_qc", "failed_pangolin"]:
-        db_session.add(
-            Sample(
-                sample_name=sn,
-                analysis_run_id=analysis_run.analysis_run_id,
-                metadata_loaded=True,
-            )
-        )
-
-    # add a sample qc
-    sample = (
-        db_session.query(Sample)
-        .join(AnalysisRun)
-        .filter(
-            Sample.sample_name == "7284954",
-            AnalysisRun.analysis_run_name == analysis_run_name,
-        )
-        .options(joinedload(Sample.sample_qc))
-        .one_or_none()
-    )
-    sample.sample_qc = SampleQC()
-    sample_qc = sample.sample_qc
-    sample_qc.pct_n_bases = 10.3
-    sample_qc.pct_covered_bases = 92.5
-    sample_qc.longest_no_n_run = 1030
-    sample_qc.num_aligned_reads = 250.5
-    sample_qc.qc_pass = True
-
-    db_session.commit()
-    yield db_session
 
 
 @pytest.fixture

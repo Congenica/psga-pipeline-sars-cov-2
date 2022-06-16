@@ -8,17 +8,17 @@ from scripts.validation.check_file_integrity import check_file_integrity, FileIn
     "input_path,expected_md5,exit_code,exception",
     [
         (
-            "good_metadata_illumina_fastq.tsv",
+            "good_metadata_illumina_fastq.csv",
             "12e5fd2bc82a787d40c4e014e67a0295",
             0,
             None,
         ),
         (
-            "good_metadata_illumina_fastq.tsv",
+            "good_metadata_illumina_fastq.csv",
             "fake_md5",
             1,
             FileIntegrityError(
-                "Integrity check for file: good_metadata_illumina_fastq.tsv FAILED. "
+                "Integrity check for file: good_metadata_illumina_fastq.csv FAILED. "
                 + "Expected: fake_md5, computed: 12e5fd2bc82a787d40c4e014e67a0295"
             ),
         ),

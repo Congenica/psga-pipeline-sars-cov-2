@@ -46,10 +46,10 @@ def validate(config: Dict, df_calc: pd.DataFrame, df_exp: pd.DataFrame) -> None:
     """
 
     sample_name_column = config["sample_name_column"]
-    columns_to_validate = set(config["columns_to_validate"].values())
+    columns_to_validate = config["columns_to_validate"]
     columns_to_round = config["columns_to_round"]
 
-    errors = check_columns(df_calc, df_exp, sample_name_column, columns_to_validate)
+    errors = check_columns(df_calc, df_exp, sample_name_column, set(columns_to_validate))
 
     sample_names = df_calc[sample_name_column].tolist()
 
@@ -98,28 +98,21 @@ def validate(config: Dict, df_calc: pd.DataFrame, df_exp: pd.DataFrame) -> None:
     help="The expected result file",
 )
 @click.option(
-    "--tool",
+    "--pathogen",
     required=True,
     type=click.Choice(data_config, case_sensitive=False),
-    help="The name of tool generating the data to validate",
+    help="The name of the pathogen",
 )
-@click.option("--analysis-run-name", required=True, type=str, help="The name of the analysis run")
-def validate_results(result_path, expected_result_path, tool, analysis_run_name):
+def validate_results(result_path, expected_result_path, pathogen):
     """
     Compare the calculated result file against the expected result file.
     """
-    data = data_config[tool]["config"]
+    data = data_config[pathogen]["config"]
 
-    logger.info("Validation of CSV output file STARTED")
-    load_data_from_csv = data_config[tool]["load_data_from_csv"]
-    df_exp = load_data_from_csv(data, Path(expected_result_path))
-    df_calc = load_data_from_csv(data, Path(result_path))
-    validate(data, df_calc, df_exp)
-    logger.info("Validation PASSED")
-
-    logger.info("Validation of DB content STARTED")
-    load_data_from_db = data_config[tool]["load_data_from_db"]
-    df_calc = load_data_from_db(data, analysis_run_name)
+    logger.info("Validation of output file STARTED")
+    load_data = data_config[pathogen]["load_data"]
+    df_exp = load_data(data, Path(expected_result_path))
+    df_calc = load_data(data, Path(result_path))
     validate(data, df_calc, df_exp)
     logger.info("Validation PASSED")
 

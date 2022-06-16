@@ -18,16 +18,6 @@ spec:
         name: psga-minikube
         imagePullPolicy: Never
         env:
-        - name: DB_HOST
-          value: psql-minikube-host
-        - name: DB_NAME
-          value: psga_db
-        - name: DB_PASSWORD
-          value: postgres
-        - name: DB_PORT
-          value: '5432'
-        - name: DB_USER
-          value: postgres
         - name: PSGA_ROOT_PATH
           value: /app
         - name: PSGA_OUTPUT_PATH

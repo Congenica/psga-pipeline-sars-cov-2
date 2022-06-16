@@ -10,10 +10,8 @@ A diagram for this pipeline is shown below:
 ![Alt text](img/PSGA_pipeline_sars_cov_2.png?raw=true "PSGA pipeline for SARS-CoV-2")
 
 ## Operation
-This pipeline runs on a Kubernetes environment. For the time being, there are two k8s deployments:
+This pipeline runs on a Kubernetes environment using the deployment:
 * `psga`, which allows for the execution of the nextflow pipeline within a k8s pod
-* `psql`, which is a postgresql database accessible by the pods within the environment
-Ideally, the postgresql database should be stored in an RDS aurora system outside the cluster, but for development, the current setting is fine.
 
 The following diagram offers an overview of the pipeline execution in k8s. Each nextflow process is executed on a dedicated pod spun up by the main `psga` pod.
 ![Alt text](img/PSGA_k8s.png?raw=true "PSGA pipeline in k8s environment")
@@ -65,7 +63,7 @@ eval $(minikube -p minikube docker-env)
 The next step is to build the pipeline docker images in the minikube docker environment. For simplicity, the database is stored on a pod. This is not ideal as this can be lost if the pod crashes or is deleted. However, as a proof of concept, this is fine. In the future, the database will be stored in an RDS aurora cluster, therefore outside the k8s environment.
 ```commandline
 export DOCKER_IMAGE_PREFIX=144563655722.dkr.ecr.eu-west-1.amazonaws.com/congenica/dev
-export PSGA_DOCKER_IMAGE_TAG_BASE=1.0.1
+export PSGA_DOCKER_IMAGE_TAG_BASE=1.0.2
 export NCOV2019_ARTIC_NF_ILLUMINA_DOCKER_IMAGE_TAG_BASE=1.0.0
 export NCOV2019_ARTIC_NF_NANOPORE_DOCKER_IMAGE_TAG_BASE=1.0.0
 export PANGOLIN_DOCKER_IMAGE_TAG_BASE=1.0.0
@@ -91,7 +89,6 @@ docker build -t ${DOCKER_IMAGE_PREFIX}/pangolin-base:${PANGOLIN_DOCKER_IMAGE_TAG
 
 # build main images
 docker build -t ${DOCKER_IMAGE_PREFIX}/psga:${PSGA_DOCKER_IMAGE_TAG} -f docker/Dockerfile.psga .
-docker build -t ${DOCKER_IMAGE_PREFIX}/psga-db:${PSGA_DOCKER_IMAGE_TAG} -f docker/Dockerfile.postgres .
 
 # build ncov docker images
 docker build -t ${DOCKER_IMAGE_PREFIX}/ncov2019-artic-nf-illumina:${NCOV2019_ARTIC_NF_ILLUMINA_DOCKER_IMAGE_TAG} -f docker/Dockerfile.ncov2019-artic-nf-illumina .
@@ -129,13 +126,12 @@ exit
 
 ### Running the pipeline using K8s (currently in Congenica saas-dev cluster)
 Start a new shell to make sure that the standard docker environment is used and not the one dedicated to minikube.
-All the docker images mentioned in the Minikube section, except for `docker/Dockerfile.postgres` must be built and pushed to Congenica ECR.
+All the docker images mentioned in the Minikube section must be built and pushed to Congenica ECR.
 To redeploy PSGA pipeline components:
 ```
 cd k8s
 ./startup.sh
 ```
-The DB is stored in RDS Aurora and can be accessed via the psga pod.
 
 
 
@@ -170,6 +166,14 @@ generateDS -o "scripts/genbank/genbank_submission.py" submission.xsd
 
 ## Development
 
+### Adding new pathogens
+In order to add the pathogen `pathogenX` to the pipeline, change dir to `psga` and follow the instructions below:
+1. run the script: `python initialise_pathogen.py --pathogen-name pathogenX`
+2. add nextflow configs and workflows to the following files: `pathogenX.config`, `pathogenX/psga.nf`, `pathogenX/help.nf`.
+3. add Python scripts to: `../scripts/pathogenX/`
+4. edit the DB schema as necessary
+5. run the pipeline from the psga directory using the command: `nextflow run . -c pathogenX.config <pathogenX-specific parameters>`
+
 ### Install dependency packages using Python Poetry tool
 `Poetry` manages Python dependencies. Dependencies are declared in `pyproject.toml` and exact versions of both dependencies and sub-dependencies are stored in `poetry.lock`. Both are committed to the git repo.
 
@@ -187,66 +191,9 @@ pre-commit install --install-hooks
 ```
 
 
-#### Set up the required environment variables (the following configuration is just an example)
+#### Set up the required environment variables
 For a description of these environment variables, see section `Environment variables and input parameters`.
 
-```commandline
-export DB_HOST=127.0.0.1
-export DB_PORT=5432
-export DB_NAME=psga_db
-export DB_USER=postgres
-export DB_PASSWORD=postgres
-
-export PSGA_ROOT_PATH="/app"
-export PSGA_OUTPUT_PATH="/data/output"
-```
-
-#### Set up a local postgres database
-
-A local database must be available to run the tests
-```commandline
-export DOCKER_IMAGE_PREFIX=144563655722.dkr.ecr.eu-west-1.amazonaws.com/congenica/dev
-export PSGA_DOCKER_IMAGE_TAG=1.0.0
-
-docker build -t ${DOCKER_IMAGE_PREFIX}/psga-db:${PSGA_DOCKER_IMAGE_TAG} -f docker/Dockerfile.postgres .
-
-docker run -d -p ${DB_PORT}:${DB_PORT} --name my-postgres-server -e POSTGRES_PASSWORD=${DB_PASSWORD} ${DOCKER_IMAGE_PREFIX}/psga-db:${PSGA_DOCKER_IMAGE_TAG}
-
-# test the connection from your local machine
-psql -h ${DB_HOST} -p ${DB_PORT} -U ${DB_USER} -W
-
-# once finished testing
-docker stop my-postgres-server
-docker rm my-postgres-server
-```
-
-All database schema migrations are managed using `sqitch` tool. Prerequisites for running the `sqitch`. The docker image psga-db
-already has sqitch installed. The following commands are executed within the psga-db docker container:
-
-Create a dedicated database for the project:
-```commandline
-export PGPASSWORD=${DB_PASSWORD}
-createdb -h ${DB_HOST} -U ${DB_USER} ${DB_NAME}
-```
-
-Finally, deploy the required DB migrations:
-```commandline
-# all migrations are in the project sqitch dir
-SQITCH_URI=db:pg://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}
-sqitch deploy ${SQITCH_URI}
-```
-
-The following sqitch commands can be helpful for diagnosis:
-```commandline
-# check the migration status (are we missing any migrations?):
-sqitch status ${SQITCH_URI}
-
-# verify migrations, which were made:
-sqitch verify ${SQITCH_URI}
-
-# revert the changes:
-sqitch revert ${SQITCH_URI}
-```
 
 #### Run the unit tests
 Unit tests are implemented with pytest and stored in the project tests dir
@@ -275,33 +222,3 @@ If you want to update a package to it's latest version, run
 poetry add package@latest
 ```
 To update to a specific version that is not the latest version, re-run the add command specifying a different version constraint.
-
-
-#### Working with sqitch
-The work is done in `${PSGA_ROOT_PATH}/sqitch/` directory
-
-To add the new migration, use the following command:
-```commandline
-sqitch add 0x-my_migration_file_name -n 'My changes described here'
-```
-An `.sql` file will be created in `deploy`, `revert` and `verify`. Populate the files.
-Important - `verify` scripts only fail, if `.sql` query raises an exception. Create verify scripts
-accordingly to throw exceptions in case of failed verification
-
-
-#### Adding new pathogens
-In order to add the pathogen `pathogenX` to the pipeline, change dir to `psga` and follow the instructions below:
-1. run the script: `python initialise_pathogen.py --pathogen-name pathogenX`
-2. add nextflow configs and workflows to the following files: `pathogenX.config`, `pathogenX/psga.nf`, `pathogenX/help.nf`.
-3. add Python scripts to: `../scripts/pathogenX/`
-4. edit the DB schema as necessary
-5. run the pipeline from the psga directory using the command: `nextflow run . -c pathogenX.config <pathogenX-specific parameters>`
-
-
-## Troubleshootings
-
-### Sqitch
-If authentication fails, try adding connection info to the command-line. For example:
-```commandline
-sqitch --db-user ${DB_USER} --db-host ${DB_HOST} --db-port ${DB_PORT} deploy db:pg:${DB_NAME}
-```

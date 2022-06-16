@@ -65,11 +65,8 @@ workflow psga {
         )
 
         check_metadata(
-            params.load_missing_samples,
             params.metadata,
             params.run,
-            params.scheme,
-            params.scheme_version,
             params.filetype,
             params.ncov_workflow
         )
@@ -138,6 +135,7 @@ workflow psga {
         // E.g. [qc.csv, [fa1, fa2], [png1, png2,..]] => [qc.csv, fa1, fa2, png1, png2]
         // note: flatten() before collect() to execute one single process
         submit_analysis_run_results(
+            ch_metadata,
             ch_ncov2019_artic.flatten().collect(),
             pangolin.out.ch_pangolin_lineage_csv.collect()
         )
