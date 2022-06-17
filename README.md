@@ -57,11 +57,11 @@ eval $(minikube -p minikube docker-env)
 The next step is to build the pipeline docker images in the minikube docker environment. For simplicity, the database is stored on a pod. This is not ideal as this can be lost if the pod crashes or is deleted. However, as a proof of concept, this is fine. In the future, the database will be stored in an RDS aurora cluster, therefore outside the k8s environment.
 ```commandline
 export DOCKER_IMAGE_PREFIX=144563655722.dkr.ecr.eu-west-1.amazonaws.com/congenica/dev
-export PSGA_DOCKER_IMAGE_TAG_BASE=1.0.2
+export PSGA_PIPELINE_DOCKER_IMAGE_TAG_BASE=1.0.2
 export NCOV2019_ARTIC_NF_ILLUMINA_DOCKER_IMAGE_TAG_BASE=1.0.0
 export NCOV2019_ARTIC_NF_NANOPORE_DOCKER_IMAGE_TAG_BASE=1.0.0
 export PANGOLIN_DOCKER_IMAGE_TAG_BASE=1.0.0
-export PSGA_DOCKER_IMAGE_TAG=1.0.0
+export PSGA_PIPELINE_DOCKER_IMAGE_TAG=1.0.0
 export NCOV2019_ARTIC_NF_ILLUMINA_DOCKER_IMAGE_TAG=1.0.0
 export NCOV2019_ARTIC_NF_NANOPORE_DOCKER_IMAGE_TAG=1.0.0
 export PANGOLIN_DOCKER_IMAGE_TAG=1.0.0
@@ -75,14 +75,14 @@ git submodule update
 git submodule update --remote --merge
 
 # create base images
-docker build -t ${DOCKER_IMAGE_PREFIX}/psga-base:${PSGA_DOCKER_IMAGE_TAG_BASE} -f docker/Dockerfile.psga-base .
+docker build -t ${DOCKER_IMAGE_PREFIX}/psga-pipeline-base:${PSGA_PIPELINE_DOCKER_IMAGE_TAG_BASE} -f docker/Dockerfile.psga-pipeline-base .
 docker build -t ${DOCKER_IMAGE_PREFIX}/ncov2019-artic-nf-illumina-base:${NCOV2019_ARTIC_NF_ILLUMINA_DOCKER_IMAGE_TAG_BASE} -f docker/Dockerfile.ncov2019-artic-nf-illumina-base .
 docker build -t ${DOCKER_IMAGE_PREFIX}/ncov2019-artic-nf-nanopore-base:${NCOV2019_ARTIC_NF_NANOPORE_DOCKER_IMAGE_TAG_BASE} -f docker/Dockerfile.ncov2019-artic-nf-nanopore-base .
 docker build -t ${DOCKER_IMAGE_PREFIX}/pangolin-base:${PANGOLIN_DOCKER_IMAGE_TAG_BASE} -f docker/Dockerfile.pangolin-base .
 
 
 # build main images
-docker build -t ${DOCKER_IMAGE_PREFIX}/psga:${PSGA_DOCKER_IMAGE_TAG} -f docker/Dockerfile.psga .
+docker build -t ${DOCKER_IMAGE_PREFIX}/psga-pipeline:${PSGA_PIPELINE_DOCKER_IMAGE_TAG} -f docker/Dockerfile.psga-pipeline .
 
 # build ncov docker images
 docker build -t ${DOCKER_IMAGE_PREFIX}/ncov2019-artic-nf-illumina:${NCOV2019_ARTIC_NF_ILLUMINA_DOCKER_IMAGE_TAG} -f docker/Dockerfile.ncov2019-artic-nf-illumina .
@@ -98,11 +98,11 @@ cd minikube
 ./startup.sh
 
 # exec the psga pod
-kubectl exec -it psga-XXXX -- bash
+kubectl exec -it psga-pipeline-XXXX -- bash
 
 # ------------------
 # WITHIN THE POD
-# run the pipeline within the pod (processes are spun up as pod workers by this pipeline). The results will be stored in psga pod: /data/output
+# run the pipeline within the pod (processes are spun up as pod workers by this pipeline). The results will be stored in psga-pipeline pod: /data/output
 # use `-resume` flag to resume the previous pipeline execution
 nextflow run . -c <pathogen>.config <input_parameters>
 
@@ -127,36 +127,6 @@ cd k8s
 ./startup.sh
 ```
 
-
-
-### GenBank submission
-
-To submit files to GenBank, appropriate files and values need to be prepared for submission:
-* Submission template. Navigate to https://submit.ncbi.nlm.nih.gov/genbank/template/submission/ and fill out the
-  form. A file .sbt will be available for download. Add this file path to nextflow parameter
-  `genbank_submission_template` in configuration file  `psga/nextflow.config`
-* Add Center/account abbreviation provided during account creation in MyNCBI to parameter
-  `genbank_submitter_account_namespace` and `genbank_submitter_name`
-  in configuration file  `psga/nextflow.config`
-* Provide GenBank FTP connection details in `psga/nextflow.config`:
-  * Username `genbank_storage_remote_username`
-  * Password `genbank_storage_remote_password`
-* Set the upload directory to `Production` for `genbank_storage_remote_directory` in `psga/nextflow.config`
-
-Samples to GenBank are submitted once. When Sample is uploaded to GenBank, it is marked with session id. After that,
-sample won't be submitted to GenBank
-
-If any of credentials are missing for GenBank, submission is skipped
-
-#### GenBank Submission schema
-
-File `scripts/genbank/submission.py` was generated using submission schema
-[submission.xsd](https://www.ncbi.nlm.nih.gov/viewvc/v1/trunk/submit/public-docs/common/).
-A tool [generateDS](https://pypi.org/project/generateDS/) was used to generate a file.
-A command line used to generate a file:
-```commandline
-generateDS -o "scripts/genbank/genbank_submission.py" submission.xsd
-```
 
 ## Development
 

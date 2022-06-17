@@ -1,44 +1,90 @@
-CRON_SETTINGS = BRANCH_NAME == "dev" ? '''
-    H 0 * * 1-5 %VALIDATION_TEST=true;METADATA=s3://synthetic-data-dev/UKHSA/validation_ci/illumina_artic_fastq/metadata.csv;PSGA_OUTPUT_PATH=/data/output/illumina_artic_fastq/;PATHOGEN=sars_cov_2;ANALYSIS_RUN=illumina_artic_fastq;NCOV_WORKFLOW=illumina_artic;FILETYPE=fastq;NXF_WORK=/data/work/illumina_artic_fastq/
-    H 6 * * 1-5 %VALIDATION_TEST=true;METADATA=s3://synthetic-data-dev/UKHSA/validation_ci/illumina_artic_bam/metadata.csv;PSGA_OUTPUT_PATH=/data/output/illumina_artic_bam/;PATHOGEN=sars_cov_2;ANALYSIS_RUN=illumina_artic_bam;NCOV_WORKFLOW=illumina_artic;FILETYPE=bam;NXF_WORK=/data/work/illumina_artic_bam/
-    H 12 * * 1-5 %VALIDATION_TEST=true;METADATA=s3://synthetic-data-dev/UKHSA/validation_ci/ont_artic_fastq/metadata.csv;PSGA_OUTPUT_PATH=/data/output/ont_artic_fastq/;PATHOGEN=sars_cov_2;ANALYSIS_RUN=ont_artic_fastq;NCOV_WORKFLOW=medaka_artic;FILETYPE=fastq;NXF_WORK=/data/work/ont_artic_fastq/
-    H 18 * * 1-5 %VALIDATION_TEST=true;METADATA=s3://synthetic-data-dev/UKHSA/validation_ci/no_ncov_fasta/metadata.csv;PSGA_OUTPUT_PATH=/data/output/no_ncov_fasta/;PATHOGEN=sars_cov_2;ANALYSIS_RUN=no_ncov_fasta;NCOV_WORKFLOW=none;FILETYPE=fasta;NXF_WORK=/data/work/no_ncov_fasta/
-''' : ""
+/*
+Constructs the Docker tag to use for this build from the branch it was kicked off from. It is hardcoded to take the
+"_latest" image from this branch as we always want to run the most recent version of this image in Jenkins. By
+constructing it here, it allows the build to find the Docker image from the branch that is kicked off in Jenkins without
+having to pass it in as a parameter to the build.
+This is done as a function outside of the pipeline {} declaration as Jenkins cannot read custom environment variables
+before the Kubernetes pod has started up.
+*/
+def getDockerTagFromBranch() {
+    return "${env.BRANCH_NAME.replace("/","_").replace("-","_")}_latest"
+}
+
+/*
+Constructs build summary messages intended to be posted in Slack
+*/
+def buildSlackMessage() {
+    return """
+branch:           ${env.BRANCH_NAME}
+namespace:        ${params.NAMESPACE}
+metadata:         ${params.METADATA}
+psga_output_path: ${params.PSGA_OUTPUT_PATH}
+run:              ${params.ANALYSIS_RUN}
+pathogen:         ${params.PATHOGEN}
+workflow:         ${params.NCOV_WORKFLOW}
+filetype:         ${params.FILETYPE}
+started by:       ${getTriggerDescription()}
+"""
+}
+
+/*
+Constructs the parameterised cron schedule for this build in Jenkins but only if the branch is dev. This avoids applying
+this cron schedule to all branches in this multi-branch pipeline. The triggers are staggered to avoid kicking them all
+off at the same time, making reading the Slack messaging harder than it needs to be.
+This uses a parameterised cron trigger so that tests for all deployments can be scheduled by passing down the necessary
+input parameters per trigger. See the plugin page for more details: https://plugins.jenkins.io/parameterized-scheduler/
+*/
+def getParameterisedCronSchedule() {
+    return env.BRANCH_NAME == "dev" ? """
+        H 0 * * 1-5 %METADATA=s3://synthetic-data-dev/UKHSA/validation_ci/illumina_artic_fastq/metadata.csv;PSGA_OUTPUT_PATH=/data/output/illumina_artic_fastq/;PATHOGEN=sars_cov_2;ANALYSIS_RUN=illumina_artic_fastq;NCOV_WORKFLOW=illumina_artic;FILETYPE=fastq
+        H 6 * * 1-5 %METADATA=s3://synthetic-data-dev/UKHSA/validation_ci/illumina_artic_bam/metadata.csv;PSGA_OUTPUT_PATH=/data/output/illumina_artic_bam/;PATHOGEN=sars_cov_2;ANALYSIS_RUN=illumina_artic_bam;NCOV_WORKFLOW=illumina_artic;FILETYPE=bam
+        H 12 * * 1-5 %METADATA=s3://synthetic-data-dev/UKHSA/validation_ci/ont_artic_fastq/metadata.csv;PSGA_OUTPUT_PATH=/data/output/ont_artic_fastq/;PATHOGEN=sars_cov_2;ANALYSIS_RUN=ont_artic_fastq;NCOV_WORKFLOW=medaka_artic;FILETYPE=fastq
+        H 18 * * 1-5 %METADATA=s3://synthetic-data-dev/UKHSA/validation_ci/no_ncov_fasta/metadata.csv;PSGA_OUTPUT_PATH=/data/output/no_ncov_fasta/;PATHOGEN=sars_cov_2;ANALYSIS_RUN=no_ncov_fasta;NCOV_WORKFLOW=none;FILETYPE=fasta
+    """ : ""
+}
+
+/*
+Get the description of how a build was triggered.
+*/
+def getTriggerDescription() {
+    def trigger = currentBuild.getBuildCauses()[0].shortDescription
+    return trigger.contains('user') ? trigger.replace('Started by user ', '') : 'Cron Trigger'
+}
+
+/*
+The Slack channel that messages are sent to are dependent on the branch being built:
+    - For dev builds, these are posted to a separate channel (to reduce the noise and make seeing results much clearer)
+    - For all other builds, they are grouped together in a single channel to avoid polluting the dev channel
+*/
+def getSlackChannel() {
+    return env.BRANCH_NAME == 'dev' ? '#psga-pipeline-ci-dev' : '#psga-pipeline-ci'
+}
+
 
 pipeline {
 
     triggers {
-        parameterizedCron(CRON_SETTINGS)
+        parameterizedCron(getParameterisedCronSchedule())
     }
 
     parameters {
-        booleanParam(name: 'VALIDATION_TEST', defaultValue: false, description: 'If true, run script for validating the results')
-        string(name: 'PSGA_DOCKER_IMAGE_TAG', defaultValue: 'dev_latest', description: 'The docker tag for the Pathogen Sequence Genome Analysis (PSGA) pipeline')
-        string(name: 'NCOV2019_ARTIC_NF_ILLUMINA_DOCKER_IMAGE_TAG', defaultValue: 'dev_latest', description: 'The tag for the nCOV-2019 artic-nf illumina docker image')
-        string(name: 'NCOV2019_ARTIC_NF_NANOPORE_DOCKER_IMAGE_TAG', defaultValue: 'dev_latest', description: 'The tag for the nCOV-2019 artic-nf nanopore docker image')
-        string(name: 'PANGOLIN_DOCKER_IMAGE_TAG', defaultValue: 'dev_latest', description: 'The tag for the Pangolin docker image')
+        booleanParam(name: 'VALIDATION_TEST', defaultValue: true, description: 'If true, run script for validating the results')
         string(name: 'METADATA', defaultValue: 's3://synthetic-data-dev/UKHSA/small_tests/illumina_fastq/metadata.csv', description: 'The path to the metadata CSV file containing the input file paths of the samples to process. This can be an S3 path')
         string(name: 'PSGA_OUTPUT_PATH', defaultValue: '/data/output/illumina_artic_fastq_short', description: 'The path containing the output files. This can be an S3 path. In this latter case, please specify a path which does not yet exist, otherwise Nextflow will fail to publish this data due to a policy defined by Dev OPS in which pods are not allowed to delete/overwrite objects in S3.')
-        string(name: 'PATHOGEN', defaultValue: 'sars_cov_2', description: 'The pathogen for the psga workflow')
+        choice(name: 'PATHOGEN', choices: ['sars_cov_2'], description: 'The pathogen for the psga workflow')
         string(name: 'ANALYSIS_RUN', defaultValue: 'illumina_artic_fastq_short', description: 'This can be the test name')
         choice(name: 'NCOV_WORKFLOW', choices: ['illumina_artic', 'medaka_artic', 'no_ncov'], description: 'The ncov workflow to run')
         choice(name: 'FILETYPE', choices: ['fastq', 'bam', 'fasta'], description: 'The input file type. illumina_artic supports fastq, bam; medaka_artic supports fastq; no_ncov supports fasta')
-        string(name: 'NXF_WORK', defaultValue: '/data/work/illumina_artic_fastq_short/', description: 'Nextflow work directory')
 
-        string(name: 'CLUSTER_NAME', defaultValue: 'saas-dev.k8s.congenica.net', description: 'The k8s cluster to run against')
-        string(name: 'NAMESPACE', defaultValue: 'psga', description: 'The k8s namespace to run against')
-        string(name: 'K8S_SERVICE_ACCOUNT', defaultValue: 'psga-admin', description: 'The serviceaccount user to run the job as. Must exist in the namespace and have cluster admin.')
-        string(name: 'SLACKCHANNEL', defaultValue: 'integration-tests-psga', description: 'The slack channel to send new commits to')
+        string(name: 'CLUSTER_NAME', defaultValue: 'saas-dev.k8s.congenica.net', description: 'The Kubernetes cluster where the Congenica platform is deployed that the tests will run against.')
+        string(name: 'NAMESPACE', defaultValue: 'psga', description: 'The Kubernetes namespace where the Congenica platform is deployed that the tests will run against.')
 
-        string(name: 'PSGA_ROOT_PATH', defaultValue: '/app', description: 'The root path of the PSGA pipeline')
-        string(name: 'PSGA_INCOMPLETE_ANALYSIS_RUNS_PATH', defaultValue: '/data/incomplete_analysis_runs', description: 'The path to the incomplete analysis run session ids')
         string(name: 'PSGA_MAX_ATTEMPTS', defaultValue: '3', description: 'The maximum number of attempts resuming a failed pipeline')
         string(name: 'PSGA_SLEEP_TIME_BETWEEN_ATTEMPTS', defaultValue: '60', description: 'The sleep time between attempts')
         string(name: 'DOCKER_IMAGE_PREFIX', defaultValue: '144563655722.dkr.ecr.eu-west-1.amazonaws.com/congenica/dev', description: 'The docker image prefix to use')
-        string(name: 'K8S_PULL_POLICY', defaultValue: 'Always', description: 'The Kubernetes pull policy for docker images')
-        string(name: 'K8S_QUEUE_SIZE', defaultValue: '5', description: 'The K8S job queue size')
-        string(name: 'K8S_STORAGE_CLAIM_NAME', defaultValue: 'psga-pvc', description: 'The K8S storage claim name')
+        choice(name: 'K8S_PULL_POLICY', choices: ['Always', 'IfNotPresent', 'Never'], description: 'The Kubernetes pull policy for docker images')
         string(name: 'K8S_STORAGE_MOUNT_PATH', defaultValue: '/data', description: 'The K8S storage mount path')
+        string(name: 'K8S_QUEUE_SIZE', defaultValue: '5', description: 'The K8S job queue size')
         string(name: 'K8S_PROCESS_MAX_RETRIES', defaultValue: '3', description: 'The number of maximum retries for pipeline jobs')
         string(name: 'K8S_PROCESS_CPU_LOW', defaultValue: '1', description: 'The lowest number of cpus. The majority of jobs use this.')
         string(name: 'K8S_PROCESS_CPU_HIGH', defaultValue: '2', description: 'The highest number of cpus')
@@ -47,8 +93,6 @@ pipeline {
         string(name: 'K8S_PROCESS_MEMORY_MEDIUM', defaultValue: '1500', description: 'Memory setting')
         string(name: 'K8S_PROCESS_MEMORY_HIGH', defaultValue: '3000', description: 'Memory setting')
         string(name: 'K8S_PROCESS_MEMORY_VERY_HIGH', defaultValue: '6000', description: 'Memory setting')
-        string(name: 'NXF_ANSI_LOG', defaultValue: 'false', description: 'Nextflow flag')
-        string(name: 'NXF_EXECUTOR', defaultValue: 'k8s', description: 'Nextflow executor')
         string(name: 'NXF_OPTS', defaultValue: '-Xms1g -Xmx4g', description: 'Nextflow options')
 
     }
@@ -60,12 +104,12 @@ pipeline {
 apiVersion: v1
 kind: Pod
 spec:
-  serviceAccount: ${params.K8S_SERVICE_ACCOUNT}
-  serviceAccountName: ${params.K8S_SERVICE_ACCOUNT}
+  serviceAccount: ${params.NAMESPACE}-admin
+  serviceAccountName: ${params.NAMESPACE}-admin
   containers:
   - name: psga
-    image: ${params.DOCKER_IMAGE_PREFIX}/psga:${params.PSGA_DOCKER_IMAGE_TAG}
-    imagePullPolicy: ${params.K8S_PULL_POLICY}
+    image: ${params.DOCKER_IMAGE_PREFIX}/psga-pipeline:${getDockerTagFromBranch()}
+    imagePullPolicy: ${K8S_PULL_POLICY}
     command:
     - "sleep"
     args:
@@ -93,7 +137,7 @@ spec:
   volumes:
   - name: psga-persistent-storage
     persistentVolumeClaim:
-      claimName: ${params.K8S_STORAGE_CLAIM_NAME}
+      claimName: ${params.NAMESPACE}-pvc
   - emptyDir:
       medium: ""
     name: "workspace-volume"
@@ -102,10 +146,10 @@ spec:
         }
     }
     environment {
-        PSGA_DOCKER_IMAGE_TAG                       = "${params.PSGA_DOCKER_IMAGE_TAG}"
-        NCOV2019_ARTIC_NF_ILLUMINA_DOCKER_IMAGE_TAG = "${params.NCOV2019_ARTIC_NF_ILLUMINA_DOCKER_IMAGE_TAG}"
-        NCOV2019_ARTIC_NF_NANOPORE_DOCKER_IMAGE_TAG = "${params.NCOV2019_ARTIC_NF_NANOPORE_DOCKER_IMAGE_TAG}"
-        PANGOLIN_DOCKER_IMAGE_TAG                   = "${params.PANGOLIN_DOCKER_IMAGE_TAG}"
+        PSGA_PIPELINE_DOCKER_IMAGE_TAG              = "${getDockerTagFromBranch()}"
+        NCOV2019_ARTIC_NF_ILLUMINA_DOCKER_IMAGE_TAG = "${getDockerTagFromBranch()}"
+        NCOV2019_ARTIC_NF_NANOPORE_DOCKER_IMAGE_TAG = "${getDockerTagFromBranch()}"
+        PANGOLIN_DOCKER_IMAGE_TAG                   = "${getDockerTagFromBranch()}"
         PSGA_OUTPUT_PATH                            = "${params.PSGA_OUTPUT_PATH}"
 
         PATHOGEN                                    = "${params.PATHOGEN}"
@@ -116,14 +160,14 @@ spec:
 
         // other configs
         K8S_PULL_POLICY                             = "${params.K8S_PULL_POLICY}"
-        K8S_SERVICE_ACCOUNT                         = "${params.K8S_SERVICE_ACCOUNT}"
-        PSGA_ROOT_PATH                              = "${params.PSGA_ROOT_PATH}"
-        PSGA_INCOMPLETE_ANALYSIS_RUNS_PATH          = "${params.PSGA_INCOMPLETE_ANALYSIS_RUNS_PATH}"
+        PSGA_ROOT_PATH                              = "/app"
+        PSGA_INCOMPLETE_ANALYSIS_RUNS_PATH          = "/data/incomplete_analysis_runs"
         PSGA_MAX_ATTEMPTS                           = "${params.PSGA_MAX_ATTEMPTS}"
         PSGA_SLEEP_TIME_BETWEEN_ATTEMPTS            = "${params.PSGA_SLEEP_TIME_BETWEEN_ATTEMPTS}"
         DOCKER_IMAGE_PREFIX                         = "${params.DOCKER_IMAGE_PREFIX}"
         K8S_QUEUE_SIZE                              = "${params.K8S_QUEUE_SIZE}"
-        K8S_STORAGE_CLAIM_NAME                      = "${params.K8S_STORAGE_CLAIM_NAME}"
+        K8S_SERVICE_ACCOUNT                         = "${params.NAMESPACE}-admin"
+        K8S_STORAGE_CLAIM_NAME                      = "${params.NAMESPACE}-pvc"
         K8S_STORAGE_MOUNT_PATH                      = "${params.K8S_STORAGE_MOUNT_PATH}"
         K8S_PROCESS_MAX_RETRIES                     = "${params.K8S_PROCESS_MAX_RETRIES}"
         K8S_PROCESS_CPU_LOW                         = "${params.K8S_PROCESS_CPU_LOW}"
@@ -133,18 +177,19 @@ spec:
         K8S_PROCESS_MEMORY_MEDIUM                   = "${params.K8S_PROCESS_MEMORY_MEDIUM}"
         K8S_PROCESS_MEMORY_HIGH                     = "${params.K8S_PROCESS_MEMORY_HIGH}"
         K8S_PROCESS_MEMORY_VERY_HIGH                = "${params.K8S_PROCESS_MEMORY_VERY_HIGH}"
-        NXF_WORK                                    = "${params.NXF_WORK}"
-        NXF_ANSI_LOG                                = "${params.NXF_ANSI_LOG}"
-        NXF_EXECUTOR                                = "${params.NXF_EXECUTOR}"
+        NXF_WORK                                    = "/data/work/${params.ANALYSIS_RUN}"
+        NXF_ANSI_LOG                                = "false"
+        NXF_EXECUTOR                                = "k8s"
         NXF_OPTS                                    = "${params.NXF_OPTS}"
 
-
+        SLACK_CHANNEL                               = "${getSlackChannel()}"
     }
     stages {
         stage('Run PSGA pipeline') {
             steps {
                 script {
-                    // sh 'printenv'
+                    // uncomment when testing
+                    //sh 'printenv'
 
                     // cleanup
                     // NOTE: due to OPS policy, pods cannot delete objects in S3 buckets.
@@ -165,17 +210,38 @@ spec:
                         sh 'cd ${PSGA_ROOT_PATH}/jenkins && python validation.py --result-path ${PSGA_OUTPUT_PATH}/merged_output/pipeline_output.csv  --expected-result-path expected_output/${PATHOGEN}/${ANALYSIS_RUN}/pipeline_output.csv --pathogen ${PATHOGEN}'
 
                     }
-
                 }
             }
         }
     }
     post {
         success {
-            slackSend color: '#00FF00', channel: "${params.SLACKCHANNEL}", message: "Success - metadata: ${params.METADATA}, psga_output_path: ${params.PSGA_OUTPUT_PATH}, run: ${params.ANALYSIS_RUN}, workflow: ${params.NCOV_WORKFLOW}, filetype: ${params.FILETYPE}, validation test: ${params.VALIDATION_TEST}, job: ${env.JOB_NAME}, build: ${env.BUILD_NUMBER}, psga_docker_tag: ${params.PSGA_DOCKER_IMAGE_TAG}, ncov_illumina_docker_tag: ${params.NCOV2019_ARTIC_NF_ILLUMINA_DOCKER_IMAGE_TAG}, ncov_nanopore_docker_tag: ${params.NCOV2019_ARTIC_NF_NANOPORE_DOCKER_IMAGE_TAG}, pangolin_docker_tag: ${params.PANGOLIN_DOCKER_IMAGE_TAG} (<${env.BUILD_URL}|URL>)"
+            script {
+                if (params.VALIDATION_TEST) {
+                    slackSend(
+                        channel: "${env.SLACK_CHANNEL}",
+                        color: 'good',
+                        message: """
+        :tick: <${env.BUILD_URL}|Jenkins Build #${env.BUILD_NUMBER}>
+        ```${buildSlackMessage()}```
+        """
+                    )
+                }
+            }
         }
         failure {
-            slackSend color: '#FF0000', channel: "${params.SLACKCHANNEL}", message: "FAILURE - metadata: ${params.METADATA}, psga_output_path: ${params.PSGA_OUTPUT_PATH}, run: ${params.ANALYSIS_RUN}, workflow: ${params.NCOV_WORKFLOW}, filetype: ${params.FILETYPE}, validation test: ${params.VALIDATION_TEST}, job: ${env.JOB_NAME}, build: ${env.BUILD_NUMBER}, psga_docker_tag: ${params.PSGA_DOCKER_IMAGE_TAG}, ncov_illumina_docker_tag: ${params.NCOV2019_ARTIC_NF_ILLUMINA_DOCKER_IMAGE_TAG}, ncov_nanopore_docker_tag: ${params.NCOV2019_ARTIC_NF_NANOPORE_DOCKER_IMAGE_TAG}, pangolin_docker_tag: ${params.PANGOLIN_DOCKER_IMAGE_TAG} (<${env.BUILD_URL}|URL>)"
+            script {
+                if (params.VALIDATION_TEST) {
+                    slackSend(
+                        channel: "${env.SLACK_CHANNEL}",
+                        color: 'danger',
+                        message: """
+        :cross: <${env.BUILD_URL}|Jenkins Build #${env.BUILD_NUMBER}>
+        ```${buildSlackMessage()}```
+        """
+                    )
+                }
+            }
         }
     }
 }

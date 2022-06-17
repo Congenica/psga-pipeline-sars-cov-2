@@ -1,21 +1,21 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: psga-minikube
+  name: psga-pipeline-minikube
 spec:
   selector:
     matchLabels:
-      app: psga-minikube
+      app: psga-pipeline-minikube
   strategy:
     type: Recreate
   template:
     metadata:
       labels:
-        app: psga-minikube
+        app: psga-pipeline-minikube
     spec:
       containers:
-      - image: 144563655722.dkr.ecr.eu-west-1.amazonaws.com/congenica/dev/psga:1.0.0
-        name: psga-minikube
+      - image: 144563655722.dkr.ecr.eu-west-1.amazonaws.com/congenica/dev/psga-pipeline:1.0.0
+        name: psga-pipeline-minikube
         imagePullPolicy: Never
         env:
         - name: PSGA_ROOT_PATH
@@ -30,7 +30,7 @@ spec:
           value: '60'
         - name: DOCKER_IMAGE_PREFIX
           value: '144563655722.dkr.ecr.eu-west-1.amazonaws.com/congenica/dev'
-        - name: PSGA_DOCKER_IMAGE_TAG
+        - name: PSGA_PIPELINE_DOCKER_IMAGE_TAG
           value: '1.0.0'
         - name: NCOV2019_ARTIC_NF_ILLUMINA_DOCKER_IMAGE_TAG
           value: '1.0.0'
