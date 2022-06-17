@@ -1,2 +1,0 @@
-docker_build:
-  path: "{{ playbook_dir }}/../"
