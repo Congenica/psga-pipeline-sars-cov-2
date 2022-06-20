@@ -4,10 +4,10 @@
  * Submit ncov sample results
  */
 process submit_ncov_results {
-  publishDir "${PSGA_OUTPUT_PATH}/ncov2019-artic", mode: 'copy', overwrite: true, pattern: '*.{fa,png,csv}'
+  publishDir "${PSGA_OUTPUT_PATH}/ncov2019-artic", mode: 'copy', overwrite: true, pattern: 'ncov_qc.csv'
 
   input:
-    path ncov_all_sample_results
+    path ch_ncov_qc_csvs
 
   output:
     path "${output_path}", emit: ch_ncov_qc_all_samples_csv
@@ -24,9 +24,6 @@ process submit_ncov_results {
   awk 'FNR == 1' "\${sample_qc}" > ${output_path}
   # copy over the record only from all files (second line)
   awk 'FNR == 2' *.qc.csv >> ${output_path}
-
-  # remove the qc.csv files containing single samples
-  rm *.qc.csv
   """
 }
 
@@ -104,18 +101,18 @@ process submit_pipeline_output_csv {
 workflow submit_analysis_run_results {
     take:
         ch_metadata
-        ch_ncov_all_samples_results
+        ch_ncov_qc_csvs
         ch_pangolin_csvs
     main:
 
         if ( params.filetype == "fasta" ) {
             // mock ncov
-            ch_ncov_submitted = ch_ncov_all_samples_results
+            ch_ncov_submitted = ch_ncov_qc_csvs
 
         } else {
             // this will be bam or fastq
 
-            submit_ncov_results(ch_ncov_all_samples_results.collect())
+            submit_ncov_results(ch_ncov_qc_csvs)
 
             ch_ncov_submitted = submit_ncov_results.out.ch_ncov_qc_all_samples_csv
 
