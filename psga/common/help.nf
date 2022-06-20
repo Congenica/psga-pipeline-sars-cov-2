@@ -4,10 +4,6 @@ def printMainConfig() {
         ${workflow.manifest.name} v ${workflow.manifest.version}
         =====================
         Global environment variables:
-        * DB_HOST                                     : ${DB_HOST}
-        * DB_PORT                                     : ${DB_PORT}
-        * DB_NAME                                     : ${DB_NAME}
-        * DB_USER                                     : ${DB_USER}
         * PSGA_ROOT_PATH                              : ${PSGA_ROOT_PATH}
         * PSGA_OUTPUT_PATH                            : ${PSGA_OUTPUT_PATH}
         * PSGA_INCOMPLETE_ANALYSIS_RUNS_PATH          : ${PSGA_INCOMPLETE_ANALYSIS_RUNS_PATH}
@@ -26,14 +22,8 @@ def printMainConfig() {
         * NXF_OPTS                                    : ${NXF_OPTS}
 
         Global parameters:
-        * metadata                              : ${params.metadata}
-        * run                                   : ${params.run}
-        * genbank_submitter_name                : ${params.genbank_submitter_name}
-        * genbank_submitter_account_namespace   : ${params.genbank_submitter_account_namespace}
-        * genbank_submission_template           : ${params.genbank_submission_template}
-        * genbank_storage_remote_url            : ${params.genbank_storage_remote_url}
-        * genbank_storage_remote_username       : ${params.genbank_storage_remote_username}
-        * genbank_storage_remote_directory      : ${params.genbank_storage_remote_directory}
+        * metadata                                    : ${params.metadata}
+        * run                                         : ${params.run}
     """.stripIndent()
 }
 
@@ -43,11 +33,6 @@ def printMainHelp() {
 
     Generic configuration for all pathogens:
       Mandatory environment variables:
-        DB_HOST                 Postgres database host address (e.g. 192.168.0.33)
-        DB_PORT                 Postgres database port (e.g. 5432)
-        DB_NAME                 Postgres database name (e.g. psga_db)
-        DB_USER                 Postgres database user name (e.g. postgres)
-        DB_PASSWORD             Postgres database user password (e.g. postgres)
         PSGA_ROOT_PATH
                                 Path to the pipeline code (e.g. git checkout). (e.g. /app) |
         PSGA_OUTPUT_PATH
@@ -87,28 +72,6 @@ def printMainHelp() {
         --run                   A (unique) string identifying the analysis run (batch).
 
       Optional parameters:
-        --genbank_submission_template
-                                GenBank submission template, which is generated
-                                at website https://submit.ncbi.nlm.nih.gov/genbank/template/submission/
-                                provided default file is an example one. Make sure to generate your own
-                                template file. Default: ${PSGA_ROOT_PATH}/data/GenBank/template.example.sbt".
-        --genbank_submission_comment
-                                Comment to be added to each submission to GenBank. Default: "United Kingdom SARS-Cov-2 genome submission".
-        --genbank_submitter_name
-                                User account name that will be provided when the submission account is established. E.g. "congenica".
-        --genbank_submitter_account_namespace
-                                Center/account abbreviation provided during account creation in MyNCBI. E.g. "congenica".
-        --genbank_submission_id_suffix
-                                Static value to add to every submission ID for GenBank. E.g. "customer-sars-cov-2"
-        --genbank_storage_remote_url
-                                GenBank remote URL. E.g. "ftp-private.ncbi.nlm.nih.gov"
-        --genbank_storage_remote_username
-                                GenBank remote storage information with credentials
-        --genbank_storage_remote_password
-                                GenBank remote storage information with credentials
-        --genbank_storage_remote_directory
-                                Set to "Test" for making test submissions for GenBank submission portal.
-                                Set to "Production" to actually submit sequences to GenBank for further analysis. Default: "Test".
         --help                  Print this help
         --print_config          Print the pipeline configuration
     """.stripIndent()
