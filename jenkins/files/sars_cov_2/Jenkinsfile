@@ -203,7 +203,7 @@ spec:
 
                     if (params.VALIDATION_TEST) {
                         // run validations
-                        sh 'python ${PSGA_ROOT_PATH}/jenkins/validation.py --result-path ${PSGA_OUTPUT_PATH}/merged_output/pipeline_output.csv  --expected-result-path ${PSGA_ROOT_PATH}/tests/test_data/jenkins/expected_output/sars_cov_2/${ANALYSIS_RUN}/pipeline_output.csv sars_cov_2 --ncov-workflow ${NCOV_WORKFLOW} --filetype ${FILETYPE}'
+                        sh 'python ${PSGA_ROOT_PATH}/jenkins/validation.py --result-path ${PSGA_OUTPUT_PATH}/merged_output/pipeline_output.csv  --expected-result-path ${PSGA_ROOT_PATH}/tests/test_data/jenkins/expected_output/sars_cov_2/${ANALYSIS_RUN}/pipeline_output.csv sars_cov_2 --ncov-workflow ${NCOV_WORKFLOW}'
                     }
 
                     // copy main log, nxf work dir logs and reports to PSGA_OUTPUT_PATH
