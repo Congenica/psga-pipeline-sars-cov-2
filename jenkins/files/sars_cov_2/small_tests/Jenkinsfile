@@ -1,0 +1,77 @@
+pipeline {
+    agent none
+    stages {
+        stage('Run PSGA pipeline: small tests') {
+            parallel {
+                stage('illumina/fastq') {
+                    steps {
+                        script {
+                            build (
+                                job: "psga-pipeline/${env.BRANCH_NAME}",
+                                parameters: [
+                                        booleanParam(name: 'VALIDATION_TEST', value: true),
+                                        string(name: 'METADATA', value: "s3://synthetic-data-dev/UKHSA/small_tests/illumina_fastq/metadata.csv"),
+                                        string(name: 'PSGA_OUTPUT_PATH', value: "/data/output/illumina_artic_fastq_short"),
+                                        string(name: 'ANALYSIS_RUN', value: "illumina_artic_fastq_short"),
+                                        string(name: 'NCOV_WORKFLOW', value: "illumina_artic"),
+                                        string(name: 'FILETYPE', value: "fastq"),
+                                ]
+                            )
+                        }
+                    }
+                }
+                stage('illumina/bam') {
+                    steps {
+                        script {
+                            build (
+                                job: "psga-pipeline/${env.BRANCH_NAME}",
+                                parameters: [
+                                        booleanParam(name: 'VALIDATION_TEST', value: true),
+                                        string(name: 'METADATA', value: "s3://synthetic-data-dev/UKHSA/small_tests/illumina_bams/metadata.csv"),
+                                        string(name: 'PSGA_OUTPUT_PATH', value: "/data/output/illumina_artic_bam_short"),
+                                        string(name: 'ANALYSIS_RUN', value: "illumina_artic_bam_short"),
+                                        string(name: 'NCOV_WORKFLOW', value: "illumina_artic"),
+                                        string(name: 'FILETYPE', value: "bam"),
+                                ]
+                            )
+                        }
+                    }
+                }
+                stage('medaka/fastq') {
+                    steps {
+                        script {
+                            build (
+                                job: "psga-pipeline/${env.BRANCH_NAME}",
+                                parameters: [
+                                        booleanParam(name: 'VALIDATION_TEST', value: true),
+                                        string(name: 'METADATA', value: "s3://synthetic-data-dev/UKHSA/small_tests/medaka_fastq/metadata.csv"),
+                                        string(name: 'PSGA_OUTPUT_PATH', value: "/data/output/medaka_artic_fastq_short"),
+                                        string(name: 'ANALYSIS_RUN', value: "medaka_artic_fastq_short"),
+                                        string(name: 'NCOV_WORKFLOW', value: "medaka_artic"),
+                                        string(name: 'FILETYPE', value: "fastq"),
+                                ]
+                            )
+                        }
+                    }
+                }
+                stage('no_ncov/fasta') {
+                    steps {
+                        script {
+                            build (
+                                job: "psga-pipeline/${env.BRANCH_NAME}",
+                                parameters: [
+                                        booleanParam(name: 'VALIDATION_TEST', value: true),
+                                        string(name: 'METADATA', value: "s3://synthetic-data-dev/UKHSA/small_tests/no_ncov_fasta/metadata.csv"),
+                                        string(name: 'PSGA_OUTPUT_PATH', value: "/data/output/no_ncov_fasta_short"),
+                                        string(name: 'ANALYSIS_RUN', value: "no_ncov_fasta_short"),
+                                        string(name: 'NCOV_WORKFLOW', value: "no_ncov"),
+                                        string(name: 'FILETYPE', value: "fasta"),
+                                ]
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
