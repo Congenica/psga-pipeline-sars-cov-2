@@ -1,0 +1,99 @@
+/*
+Constructs the cron schedule for this build in Jenkins but only if the branch is dev. This avoids applying
+this cron schedule to all branches in this multi-branch pipeline.
+*/
+def getCronSchedule() {
+    return env.BRANCH_NAME == "dev" ? "H 0 * * 1-5" : ""
+}
+
+pipeline {
+    triggers {
+        cron(getCronSchedule())
+    }
+    agent none
+    environment {
+        PSGA_PIPELINE = "psga-pipeline-sars-cov-2"
+    }
+    stages {
+        stage('Run PSGA pipeline: validation-ci') {
+            stages {
+                stage('illumina/fastq') {
+                    steps {
+                        script {
+                            catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+                                build (
+                                    job: "${PSGA_PIPELINE}/${env.BRANCH_NAME}",
+                                    parameters: [
+                                            booleanParam(name: 'VALIDATION_TEST', value: true),
+                                            string(name: 'METADATA', value: "s3://synthetic-data-dev/UKHSA/validation_ci/illumina_artic_fastq/metadata.csv"),
+                                            string(name: 'PSGA_OUTPUT_PATH', value: "/data/output/illumina_artic_fastq"),
+                                            string(name: 'ANALYSIS_RUN', value: "illumina_artic_fastq"),
+                                            string(name: 'NCOV_WORKFLOW', value: "illumina_artic"),
+                                            string(name: 'FILETYPE', value: "fastq"),
+                                    ]
+                                )
+                            }
+                        }
+                    }
+                }
+                stage('illumina/bam') {
+                    steps {
+                        script {
+                            catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+                                build (
+                                    job: "${PSGA_PIPELINE}/${env.BRANCH_NAME}",
+                                    parameters: [
+                                            booleanParam(name: 'VALIDATION_TEST', value: true),
+                                            string(name: 'METADATA', value: "s3://synthetic-data-dev/UKHSA/validation_ci/illumina_artic_bam/metadata.csv"),
+                                            string(name: 'PSGA_OUTPUT_PATH', value: "/data/output/illumina_artic_bam"),
+                                            string(name: 'ANALYSIS_RUN', value: "illumina_artic_bam"),
+                                            string(name: 'NCOV_WORKFLOW', value: "illumina_artic"),
+                                            string(name: 'FILETYPE', value: "bam"),
+                                    ]
+                                )
+                            }
+                        }
+                    }
+                }
+                stage('medaka/fastq') {
+                    steps {
+                        script {
+                            catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+                                build (
+                                    job: "${PSGA_PIPELINE}/${env.BRANCH_NAME}",
+                                    parameters: [
+                                            booleanParam(name: 'VALIDATION_TEST', value: true),
+                                            string(name: 'METADATA', value: "s3://synthetic-data-dev/UKHSA/validation_ci/ont_artic_fastq/metadata.csv"),
+                                            string(name: 'PSGA_OUTPUT_PATH', value: "/data/output/ont_artic_fastq"),
+                                            string(name: 'ANALYSIS_RUN', value: "ont_artic_fastq"),
+                                            string(name: 'NCOV_WORKFLOW', value: "medaka_artic"),
+                                            string(name: 'FILETYPE', value: "fastq"),
+                                    ]
+                                )
+                            }
+                        }
+                    }
+                }
+                stage('no_ncov/fasta') {
+                    steps {
+                        script {
+                            catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+                                build (
+                                    job: "${PSGA_PIPELINE}/${env.BRANCH_NAME}",
+                                    parameters: [
+                                            booleanParam(name: 'VALIDATION_TEST', value: true),
+                                            string(name: 'METADATA', value: "s3://synthetic-data-dev/UKHSA/validation_ci/no_ncov_fasta/metadata.csv"),
+                                            string(name: 'PSGA_OUTPUT_PATH', value: "/data/output/no_ncov_fasta"),
+                                            string(name: 'ANALYSIS_RUN', value: "no_ncov_fasta"),
+                                            string(name: 'NCOV_WORKFLOW', value: "no_ncov"),
+                                            string(name: 'FILETYPE', value: "fasta"),
+                                    ]
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

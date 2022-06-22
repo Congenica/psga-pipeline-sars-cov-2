@@ -28,22 +28,6 @@ started by:       ${getTriggerDescription()}
 }
 
 /*
-Constructs the parameterised cron schedule for this build in Jenkins but only if the branch is dev. This avoids applying
-this cron schedule to all branches in this multi-branch pipeline. The triggers are staggered to avoid kicking them all
-off at the same time, making reading the Slack messaging harder than it needs to be.
-This uses a parameterised cron trigger so that tests for all deployments can be scheduled by passing down the necessary
-input parameters per trigger. See the plugin page for more details: https://plugins.jenkins.io/parameterized-scheduler/
-*/
-def getParameterisedCronSchedule() {
-    return env.BRANCH_NAME == "dev" ? """
-        H 0 * * 1-5 %METADATA=s3://synthetic-data-dev/UKHSA/validation_ci/illumina_artic_fastq/metadata.csv;PSGA_OUTPUT_PATH=/data/output/illumina_artic_fastq/;ANALYSIS_RUN=illumina_artic_fastq;NCOV_WORKFLOW=illumina_artic;FILETYPE=fastq
-        H 6 * * 1-5 %METADATA=s3://synthetic-data-dev/UKHSA/validation_ci/illumina_artic_bam/metadata.csv;PSGA_OUTPUT_PATH=/data/output/illumina_artic_bam/;ANALYSIS_RUN=illumina_artic_bam;NCOV_WORKFLOW=illumina_artic;FILETYPE=bam
-        H 12 * * 1-5 %METADATA=s3://synthetic-data-dev/UKHSA/validation_ci/ont_artic_fastq/metadata.csv;PSGA_OUTPUT_PATH=/data/output/ont_artic_fastq/;ANALYSIS_RUN=ont_artic_fastq;NCOV_WORKFLOW=medaka_artic;FILETYPE=fastq
-        H 18 * * 1-5 %METADATA=s3://synthetic-data-dev/UKHSA/validation_ci/no_ncov_fasta/metadata.csv;PSGA_OUTPUT_PATH=/data/output/no_ncov_fasta/;ANALYSIS_RUN=no_ncov_fasta;NCOV_WORKFLOW=none;FILETYPE=fasta
-    """ : ""
-}
-
-/*
 Get the description of how a build was triggered.
 */
 def getTriggerDescription() {
@@ -62,10 +46,6 @@ def getSlackChannel() {
 
 
 pipeline {
-
-    triggers {
-        parameterizedCron(getParameterisedCronSchedule())
-    }
 
     parameters {
         booleanParam(name: 'VALIDATION_TEST', defaultValue: true, description: 'If true, run script for validating the results')
