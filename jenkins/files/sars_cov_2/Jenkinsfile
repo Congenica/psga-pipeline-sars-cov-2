@@ -20,7 +20,7 @@ namespace:        ${params.NAMESPACE}
 metadata:         ${params.METADATA}
 psga_output_path: ${params.PSGA_OUTPUT_PATH}
 run:              ${params.ANALYSIS_RUN}
-pathogen:         ${params.PATHOGEN}
+pathogen:         sars_cov_2
 workflow:         ${params.NCOV_WORKFLOW}
 filetype:         ${params.FILETYPE}
 started by:       ${getTriggerDescription()}
@@ -28,27 +28,11 @@ started by:       ${getTriggerDescription()}
 }
 
 /*
-Constructs the parameterised cron schedule for this build in Jenkins but only if the branch is dev. This avoids applying
-this cron schedule to all branches in this multi-branch pipeline. The triggers are staggered to avoid kicking them all
-off at the same time, making reading the Slack messaging harder than it needs to be.
-This uses a parameterised cron trigger so that tests for all deployments can be scheduled by passing down the necessary
-input parameters per trigger. See the plugin page for more details: https://plugins.jenkins.io/parameterized-scheduler/
-*/
-def getParameterisedCronSchedule() {
-    return env.BRANCH_NAME == "dev" ? """
-        H 0 * * 1-5 %METADATA=s3://synthetic-data-dev/UKHSA/validation_ci/illumina_artic_fastq/metadata.csv;PSGA_OUTPUT_PATH=/data/output/illumina_artic_fastq/;PATHOGEN=sars_cov_2;ANALYSIS_RUN=illumina_artic_fastq;NCOV_WORKFLOW=illumina_artic;FILETYPE=fastq
-        H 6 * * 1-5 %METADATA=s3://synthetic-data-dev/UKHSA/validation_ci/illumina_artic_bam/metadata.csv;PSGA_OUTPUT_PATH=/data/output/illumina_artic_bam/;PATHOGEN=sars_cov_2;ANALYSIS_RUN=illumina_artic_bam;NCOV_WORKFLOW=illumina_artic;FILETYPE=bam
-        H 12 * * 1-5 %METADATA=s3://synthetic-data-dev/UKHSA/validation_ci/ont_artic_fastq/metadata.csv;PSGA_OUTPUT_PATH=/data/output/ont_artic_fastq/;PATHOGEN=sars_cov_2;ANALYSIS_RUN=ont_artic_fastq;NCOV_WORKFLOW=medaka_artic;FILETYPE=fastq
-        H 18 * * 1-5 %METADATA=s3://synthetic-data-dev/UKHSA/validation_ci/no_ncov_fasta/metadata.csv;PSGA_OUTPUT_PATH=/data/output/no_ncov_fasta/;PATHOGEN=sars_cov_2;ANALYSIS_RUN=no_ncov_fasta;NCOV_WORKFLOW=none;FILETYPE=fasta
-    """ : ""
-}
-
-/*
 Get the description of how a build was triggered.
 */
 def getTriggerDescription() {
     def trigger = currentBuild.getBuildCauses()[0].shortDescription
-    return trigger.contains('user') ? trigger.replace('Started by user ', '') : 'Cron Trigger'
+    return trigger.contains('user') ? trigger.replace('Started by user ', '') : 'Automated trigger'
 }
 
 /*
@@ -63,15 +47,10 @@ def getSlackChannel() {
 
 pipeline {
 
-    triggers {
-        parameterizedCron(getParameterisedCronSchedule())
-    }
-
     parameters {
         booleanParam(name: 'VALIDATION_TEST', defaultValue: true, description: 'If true, run script for validating the results')
         string(name: 'METADATA', defaultValue: 's3://synthetic-data-dev/UKHSA/small_tests/illumina_fastq/metadata.csv', description: 'The path to the metadata CSV file containing the input file paths of the samples to process. This can be an S3 path')
         string(name: 'PSGA_OUTPUT_PATH', defaultValue: '/data/output/illumina_artic_fastq_short', description: 'The path containing the output files. This can be an S3 path. In this latter case, please specify a path which does not yet exist, otherwise Nextflow will fail to publish this data due to a policy defined by Dev OPS in which pods are not allowed to delete/overwrite objects in S3.')
-        choice(name: 'PATHOGEN', choices: ['sars_cov_2'], description: 'The pathogen for the psga workflow')
         string(name: 'ANALYSIS_RUN', defaultValue: 'illumina_artic_fastq_short', description: 'This can be the test name')
         choice(name: 'NCOV_WORKFLOW', choices: ['illumina_artic', 'medaka_artic', 'no_ncov'], description: 'The ncov workflow to run')
         choice(name: 'FILETYPE', choices: ['fastq', 'bam', 'fasta'], description: 'The input file type. illumina_artic supports fastq, bam; medaka_artic supports fastq; no_ncov supports fasta')
@@ -82,7 +61,7 @@ pipeline {
         string(name: 'PSGA_MAX_ATTEMPTS', defaultValue: '3', description: 'The maximum number of attempts resuming a failed pipeline')
         string(name: 'PSGA_SLEEP_TIME_BETWEEN_ATTEMPTS', defaultValue: '60', description: 'The sleep time between attempts')
         string(name: 'DOCKER_IMAGE_PREFIX', defaultValue: '144563655722.dkr.ecr.eu-west-1.amazonaws.com/congenica/dev', description: 'The docker image prefix to use')
-        choice(name: 'K8S_PULL_POLICY', choices: ['Always', 'IfNotPresent', 'Never'], description: 'The Kubernetes pull policy for docker images')
+        string(name: 'K8S_PULL_POLICY', defaultValue: 'Always', description: 'The Kubernetes pull policy for docker images')
         string(name: 'K8S_STORAGE_MOUNT_PATH', defaultValue: '/data', description: 'The K8S storage mount path')
         string(name: 'K8S_QUEUE_SIZE', defaultValue: '5', description: 'The K8S job queue size')
         string(name: 'K8S_PROCESS_MAX_RETRIES', defaultValue: '3', description: 'The number of maximum retries for pipeline jobs')
@@ -152,7 +131,6 @@ spec:
         PANGOLIN_DOCKER_IMAGE_TAG                   = "${getDockerTagFromBranch()}"
         PSGA_OUTPUT_PATH                            = "${params.PSGA_OUTPUT_PATH}"
 
-        PATHOGEN                                    = "${params.PATHOGEN}"
         ANALYSIS_RUN                                = "${params.ANALYSIS_RUN}"
         NCOV_WORKFLOW                               = "${params.NCOV_WORKFLOW}"
         FILETYPE                                    = "${params.FILETYPE}"
@@ -201,15 +179,11 @@ spec:
 
                     // run the pipeline
                     // the argument `--load_missing_samples true` enables us to integration test the pipeline in isolation
-                    sh 'nextflow -log ${ANALYSIS_RUN}.log run ${PSGA_ROOT_PATH}/psga/main.nf -c ${PSGA_ROOT_PATH}/psga/${PATHOGEN}.config --run ${ANALYSIS_RUN} --ncov_workflow ${NCOV_WORKFLOW} --filetype ${FILETYPE} --metadata ${METADATA} -with-trace'
+                    sh 'nextflow -log ${ANALYSIS_RUN}.log run ${PSGA_ROOT_PATH}/psga/main.nf -c ${PSGA_ROOT_PATH}/psga/sars_cov_2.config --run ${ANALYSIS_RUN} --ncov_workflow ${NCOV_WORKFLOW} --filetype ${FILETYPE} --metadata ${METADATA} -with-trace'
 
                     if (params.VALIDATION_TEST) {
                         // run validations
-                        if (params.PATHOGEN == "sars_cov_2") {
-                            sh 'python ${PSGA_ROOT_PATH}/jenkins/validation.py --result-path ${PSGA_OUTPUT_PATH}/merged_output/pipeline_output.csv  --expected-result-path ${PSGA_ROOT_PATH}/tests/test_data/jenkins/expected_output/${PATHOGEN}/${ANALYSIS_RUN}/pipeline_output.csv ${PATHOGEN} --ncov-workflow ${NCOV_WORKFLOW} --filetype ${FILETYPE}'
-                        } else {
-                            throw new Exception("Unsupported pathogen")
-                        }
+                        sh 'python ${PSGA_ROOT_PATH}/jenkins/validation.py --result-path ${PSGA_OUTPUT_PATH}/merged_output/pipeline_output.csv  --expected-result-path ${PSGA_ROOT_PATH}/tests/test_data/jenkins/expected_output/sars_cov_2/${ANALYSIS_RUN}/pipeline_output.csv sars_cov_2 --ncov-workflow ${NCOV_WORKFLOW}'
                     }
 
                     // copy main log, nxf work dir logs and reports to PSGA_OUTPUT_PATH
