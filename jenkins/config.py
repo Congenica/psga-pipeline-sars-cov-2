@@ -1,10 +1,6 @@
-from jenkins.loading import load_data_from_csv
-
-
 data_config = {
     # pathogen
     "sars_cov_2": {
-        "load_data": load_data_from_csv,
         "config": {
             # name of the column used for listing the samples
             "sample_name_column": "sample_id",

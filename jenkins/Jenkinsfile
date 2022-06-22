@@ -193,23 +193,28 @@ spec:
 
                     // cleanup
                     // NOTE: due to OPS policy, pods cannot delete objects in S3 buckets.
-                    if(fileExists("${PSGA_OUTPUT_PATH}")) {
-                        sh 'rm -rm ${PSGA_OUTPUT_PATH}'
+                    // fileExists() does not seem to work..
+                    res = sh(script: "test -d ${PSGA_OUTPUT_PATH} && echo 'found' || echo 'not_found' ", returnStdout: true).trim()
+                    if(res=='found'){
+                        sh 'rm -rf ${PSGA_OUTPUT_PATH}'
                     }
 
                     // run the pipeline
                     // the argument `--load_missing_samples true` enables us to integration test the pipeline in isolation
                     sh 'nextflow -log ${ANALYSIS_RUN}.log run ${PSGA_ROOT_PATH}/psga/main.nf -c ${PSGA_ROOT_PATH}/psga/${PATHOGEN}.config --run ${ANALYSIS_RUN} --ncov_workflow ${NCOV_WORKFLOW} --filetype ${FILETYPE} --metadata ${METADATA} -with-trace'
 
+                    if (params.VALIDATION_TEST) {
+                        // run validations
+                        if (params.PATHOGEN == "sars_cov_2") {
+                            sh 'python ${PSGA_ROOT_PATH}/jenkins/validation.py --result-path ${PSGA_OUTPUT_PATH}/merged_output/pipeline_output.csv  --expected-result-path ${PSGA_ROOT_PATH}/tests/test_data/jenkins/expected_output/${PATHOGEN}/${ANALYSIS_RUN}/pipeline_output.csv ${PATHOGEN} --ncov-workflow ${NCOV_WORKFLOW} --filetype ${FILETYPE}'
+                        } else {
+                            throw new Exception("Unsupported pathogen")
+                        }
+                    }
+
                     // copy main log, nxf work dir logs and reports to PSGA_OUTPUT_PATH
                     sh 'bash ${PSGA_ROOT_PATH}/psga/finalise.sh ${ANALYSIS_RUN}'
 
-                    if (params.VALIDATION_TEST) {
-                        // run validations
-
-                        sh 'cd ${PSGA_ROOT_PATH}/jenkins && python validation.py --result-path ${PSGA_OUTPUT_PATH}/merged_output/pipeline_output.csv  --expected-result-path expected_output/${PATHOGEN}/${ANALYSIS_RUN}/pipeline_output.csv --pathogen ${PATHOGEN}'
-
-                    }
                 }
             }
         }

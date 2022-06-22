@@ -1,14 +1,20 @@
 from pathlib import Path
-from typing import Dict
+from typing import Dict, List
 import pandas as pd
 
 
-def refine_df(config: Dict, df: pd.DataFrame) -> pd.DataFrame:
+def _refine_df(config: Dict, df: pd.DataFrame) -> pd.DataFrame:
     """
     Call common functions for refining the dataframe
     """
+
+    for col in ["sample_name_column", "columns_to_validate", "columns_to_round"]:
+        if col not in config:
+            raise ValueError(f"Error in the validation config. {col} not specified in config")
+
     sample_name_column = config["sample_name_column"]
     columns_to_validate = config["columns_to_validate"]
+
     if sample_name_column not in columns_to_validate:
         raise ValueError(
             f"Error in the validation config. Make sure that {sample_name_column} is in 'columns_to_validate'"
@@ -29,5 +35,18 @@ def load_data_from_csv(config: Dict, csv_path: Path) -> pd.DataFrame:
     Load the CSV content to a Pandas dataframe, performing basic validation
     """
     df = pd.read_csv(csv_path)
-    df = refine_df(config, df)
-    return refine_df(config, df)
+
+    return _refine_df(config, df)
+
+
+def get_file_paths(root: Path) -> List[Path]:
+    """
+    Return a list of file paths in root. The search is recursive.
+    """
+    file_list = []
+    for x in root.iterdir():
+        if x.is_file():
+            file_list.append(x)
+        elif x.is_dir():
+            file_list.extend(get_file_paths(x))
+    return file_list

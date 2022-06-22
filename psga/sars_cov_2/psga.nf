@@ -81,7 +81,7 @@ workflow psga {
             )
 
             // mock ncov
-            ch_ncov2019_artic = Channel.fromPath('/mock_file')
+            ch_ncov_qc_csv = Channel.fromPath('/mock_file')
 
         } else {
 
@@ -123,7 +123,7 @@ workflow psga {
                 params.scheme,
                 params.scheme_version
             )
-            ch_ncov2019_artic = ncov2019_artic.out.ch_ncov_sample_all_results
+            ch_ncov_qc_csv = ncov2019_artic.out.ch_ncov_qc_csv
             ch_fasta_files = ncov2019_artic.out.ch_ncov_sample_fasta
         }
 
@@ -131,12 +131,9 @@ workflow psga {
 
         pangolin(ch_qc_passed_fasta)
 
-        // flatten the ncov results to make sure we deal with a flat list.
-        // E.g. [qc.csv, [fa1, fa2], [png1, png2,..]] => [qc.csv, fa1, fa2, png1, png2]
-        // note: flatten() before collect() to execute one single process
         submit_analysis_run_results(
             ch_metadata,
-            ch_ncov2019_artic.flatten().collect(),
+            ch_ncov_qc_csv.collect(),
             pangolin.out.ch_pangolin_lineage_csv.collect()
         )
 

@@ -3,6 +3,8 @@
  * see: https://github.com/connor-lab/ncov2019-artic-nf
  */
 process ncov2019_artic_nf_pipeline_illumina {
+  publishDir "${PSGA_OUTPUT_PATH}/ncov2019-artic", mode: 'copy', overwrite: true, pattern: 'output_{fasta,plots}/*'
+
   tag "${task.index} - ${fastq_file}"
   input:
     path fastq_file
@@ -15,7 +17,9 @@ process ncov2019_artic_nf_pipeline_illumina {
   output:
     // retain the qc csv intentionally
     tuple path("ncov_output/*.qc.csv"), path("output_fasta/*.consensus.fa"), emit: ch_ncov_sample_fasta
-    tuple path("ncov_output/*.qc.csv"), path("output_fasta/*.fa"), path("output_plots/*.png"), emit: ch_ncov_sample_all_results
+    path "ncov_output/*.qc.csv", emit: ch_ncov_qc_csv
+    path "output_fasta/*.fa"
+    path "output_plots/*.png"
 
   shell:
   '''
@@ -63,6 +67,8 @@ process ncov2019_artic_nf_pipeline_illumina {
  * Note: This runs as a shell block
  */
 process ncov2019_artic_nf_pipeline_medaka {
+  publishDir "${PSGA_OUTPUT_PATH}/ncov2019-artic", mode: 'copy', overwrite: true, pattern: 'output_{fasta,plots}/*'
+
   tag "${task.index} - ${fastq_file}"
   input:
     path fastq_file
@@ -75,7 +81,9 @@ process ncov2019_artic_nf_pipeline_medaka {
   output:
     // retain the qc csv intentionally
     tuple path("ncov_output/*.qc.csv"), path("output_fasta/*.consensus.fa"), emit: ch_ncov_sample_fasta
-    tuple path("ncov_output/*.qc.csv"), path("output_fasta/*.fa"), path("output_plots/*.png"), emit: ch_ncov_sample_all_results
+    path "ncov_output/*.qc.csv", emit: ch_ncov_qc_csv
+    path "output_fasta/*.fa"
+    path "output_plots/*.png"
 
   shell:
   '''
