@@ -25,7 +25,7 @@ from jenkins.compare import compare_output_files_set, ValidationError
         (
             ["a/b/c1", "a/b/c2", "d/e", "f"],
             ["a/b/c1", "a/b/c2", "d/e"],
-            "Validation FAILED. See above for details.",
+            None,
         ),
         (
             ["a/b/c1", "a/b/c2", "d/e"],

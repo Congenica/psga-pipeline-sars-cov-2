@@ -107,8 +107,10 @@ def compare_output_files_set(calc_output_files: Set[Path], exp_output_files: Set
 
     calc_output_files_only = calc_output_files - exp_output_files
     if calc_output_files_only:
-        errors = True
-        logger.error(f"These unexpected output files were also generated: {calc_output_files_only}")
+        logger.warning(
+            f"These unexpected output files were also generated: {calc_output_files_only}. "
+            "IGNORE if the analysis run includes samples which are expected to fail."
+        )
 
     exp_output_files_only = exp_output_files - calc_output_files
     if exp_output_files_only:
