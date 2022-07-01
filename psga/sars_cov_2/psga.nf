@@ -3,6 +3,7 @@ include { check_metadata } from './check_metadata.nf'
 include { fastqc } from '../common/fastqc.nf'
 
 if ( params.ncov_workflow == "illumina_artic" ) {
+    include { contamination_removal_illumina as contamination_removal } from '../common/contamination_removal.nf'
     include { ncov2019_artic_nf_pipeline_illumina as ncov2019_artic } from './ncov2019_artic.nf'
     if ( params.filetype == "fastq" ) {
         include { select_sample_file_pair as get_sample_files } from '../common/fetch_sample_files.nf'
@@ -13,6 +14,7 @@ if ( params.ncov_workflow == "illumina_artic" ) {
         throw new Exception("Error: '--filetype' can only be 'fastq' or 'bam' for 'illumina_artic' workflow")
     }
 } else if ( params.ncov_workflow == "medaka_artic" ) {
+    include { contamination_removal_ont as contamination_removal } from '../common/contamination_removal.nf'
     include { ncov2019_artic_nf_pipeline_medaka as ncov2019_artic } from './ncov2019_artic.nf'
     if ( params.filetype == "fastq" ) {
         include { select_sample_file as get_sample_files } from '../common/fetch_sample_files.nf'
@@ -86,37 +88,60 @@ workflow psga {
         } else {
 
             ch_input_files_fastq = Channel.empty()
-            if ( params.ncov_workflow == "illumina_artic" && params.filetype == "fastq" ) {
-                ch_input_files_fastq = get_sample_files(
-                    ch_metadata,
-                    ".fastq.gz"
-                )
-            } else if ( params.ncov_workflow == "illumina_artic" && params.filetype == "bam" ) {
-                ch_input_files_bam = get_sample_files(
-                    ch_metadata,
-                    ".bam"
-                )
-                ch_input_files_fastq = bam_to_fastq(ch_input_files_bam)
-            } else if ( params.ncov_workflow == "medaka_artic" && params.filetype == "fastq" ) {
-                ch_input_files_fastq = get_sample_files(
-                    ch_metadata,
-                    ".fastq"
-                )
+
+            if ( params.ncov_workflow == "illumina_artic") {
+
+                if ( params.filetype == "fastq" ) {
+                    ch_input_files_fastq = get_sample_files(
+                        ch_metadata,
+                        ".fastq.gz"
+                    )
+                } else if ( params.filetype == "bam" ) {
+                    ch_input_files_bam = get_sample_files(
+                        ch_metadata,
+                        ".bam"
+                    )
+                    ch_input_files_fastq = bam_to_fastq(ch_input_files_bam)
+                } else {
+                    log.error """\
+                        ERROR: illumina workflow supports only fastq or bam file types.
+                        Aborting!
+                    """
+                    System.exit(1)
+                }
+
+            } else if ( params.ncov_workflow == "medaka_artic" ) {
+
+                if ( params.filetype == "fastq" ) {
+                    ch_input_files_fastq = get_sample_files(
+                        ch_metadata,
+                        ".fastq"
+                    )
+                } else {
+                    log.error """\
+                        ERROR: nanopore / medaka workflow supports only fastq file type.
+                        Aborting!
+                    """
+                    System.exit(1)
+                }
+
             } else {
                 log.error """\
-                    ERROR: nanopore / medaka workflow can only run with fastq input files.
+                    ERROR: the only supported workflows are illumina_artic and medaka_artic.
                     Aborting!
                 """
                 System.exit(1)
             }
 
-            // run fastqc for all sample fastq files
-            fastqc(ch_input_files_fastq)
+            contamination_removal(
+                params.rik_ref_genome_fasta,
+                ch_input_files_fastq
+            )
 
-            ch_input_files = fastqc.out.ch_input_files
+            fastqc(contamination_removal.out.ch_output_file)
 
             ncov2019_artic(
-                ch_input_files,
+                fastqc.out.ch_input_files,
                 params.run,
                 params.scheme_repo_url,
                 params.scheme_dir,
