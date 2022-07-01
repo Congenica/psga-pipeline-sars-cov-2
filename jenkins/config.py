@@ -21,7 +21,6 @@ data_config = {
                 "is_designated",
                 "qc_status",
                 "qc_notes",
-                "note",
             ],
             # abs tolerances for the columns to round
             "columns_to_round": {
