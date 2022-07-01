@@ -28,7 +28,7 @@ process bam_to_fastq {
   # see: http://www.htslib.org/doc/samtools-fasta.html
   samtools collate -u -O ${fastq_preproc}/${sample_name}.sorted.bam | samtools fastq -1 ${fastq_directory}/${sample_name}${fastq_suffix_1} -2  ${fastq_directory}/${sample_name}${fastq_suffix_2} -0 /dev/null -s /dev/null -n
 
-  bgzip ${fastq_directory}/${sample_name}${fastq_suffix_1}
-  bgzip ${fastq_directory}/${sample_name}${fastq_suffix_2}
+  bgzip -f ${fastq_directory}/${sample_name}${fastq_suffix_1}
+  bgzip -f ${fastq_directory}/${sample_name}${fastq_suffix_2}
   """
 }
