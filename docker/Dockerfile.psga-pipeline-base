@@ -3,8 +3,7 @@ FROM python:3.9
 RUN apt-get update \
   && apt-get install --yes --no-install-recommends build-essential procps wget default-jre openjdk-11-jre-headless libpq-dev rename liblzma-dev libbz2-dev zlib1g-dev \
   && apt-get clean -y \
-  && rm -rf /var/lib/apt/lists/* \
-  && pip3 install pytest pyfastaq tox
+  && rm -rf /var/lib/apt/lists/*
 
 
 # fetch a version of nextflow including the nf-amazon plugin. Install the nf-amazon plugin once for all
@@ -33,36 +32,20 @@ COPY data/fastqc_config_limits.txt /usr/local/FastQC/Configuration/limits.txt
 # b) this block fixes the original installer and customise what we need
 # c) these dependencies (see head of this file for reference) are required only by the code below:
 #    - apt-get deps: liblzma-dev libbz2-dev zlib1g-dev
-#    - python deps: pytest pyfastaq tox
+#    - python deps: pyfastaq
 ENV READ_IT_AND_KEEP_VERSION="0.3.0"
 ENV READ_IT_AND_KEEP_DIR="/usr/local/read-it-and-keep"
 ARG READ_IT_AND_KEEP_SRC_DIR="/usr/local/read-it-and-keep-${READ_IT_AND_KEEP_VERSION}"
-#_________________________ ART ____________________________#
-RUN mkdir -p ${READ_IT_AND_KEEP_DIR} \
-  && cd ${READ_IT_AND_KEEP_DIR} \
-  && wget https://www.niehs.nih.gov/research/resources/assets/docs/artbinmountrainier2016.06.05linux64.tgz \
-  && tar xf artbinmountrainier2016.06.05linux64.tgz \
-  && rm artbinmountrainier2016.06.05linux64.tgz \
-  && cp -s art_bin_MountRainier/art_illumina .
-#_________________________ badread ________________________#
-RUN cd ${READ_IT_AND_KEEP_DIR} \
-  && wget -q https://github.com/rrwick/Badread/archive/refs/tags/v0.2.0.tar.gz \
-  && tar xf v0.2.0.tar.gz \
-  && rm v0.2.0.tar.gz \
-  && cd Badread-0.2.0 \
-  && python3 -m pip install .
-#_________________________ read-it-and-keep _______________#
-ENV DEBIAN_FRONTEND=noninteractive
 ENV PATH=${READ_IT_AND_KEEP_DIR}:$PATH
 ENV LANG=C.UTF-8
-RUN cd /usr/local/ \
+RUN mkdir -p ${READ_IT_AND_KEEP_DIR} \
+  && cd /usr/local/ \
   && wget https://github.com/GlobalPathogenAnalysisService/read-it-and-keep/archive/refs/tags/v${READ_IT_AND_KEEP_VERSION}.tar.gz \
   && tar xzf v${READ_IT_AND_KEEP_VERSION}.tar.gz \
   && rm v${READ_IT_AND_KEEP_VERSION}.tar.gz \
-  && pip3 install tox \
+  && pip3 install pyfastaq \
   && cd ${READ_IT_AND_KEEP_SRC_DIR}/src \
   && make \
-  && make test \
   && cd ${READ_IT_AND_KEEP_DIR} \
   && cp -s ${READ_IT_AND_KEEP_SRC_DIR}/src/readItAndKeep . \
   && cp -s ${READ_IT_AND_KEEP_SRC_DIR}/tests/MN908947.3.fa . \

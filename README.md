@@ -19,21 +19,12 @@ The current configuration can be printed with the command: `nextflow run . --pri
 
 
 ### Input files stored in aws s3
-To process samples stored in s3, to set up a metadata CSV file (see tests/test_data/good_metadata.csv for reference) including the paths to the sample input files. Two files are required for running illumina fastq samples. 1 file is required for running illumina bam or nanopore medaka fastq samples.
-Analysis runs containing test datasets can be found below. Each set contains a metadata.csv file. Sample files are stored in the same directory for convenience, but this is not mandatory.
+To process samples stored in s3, set up a metadata CSV file (see tests/test_data/good_metadata.csv for reference) including the paths to the sample input files. Two files are required for running illumina fastq samples. 1 file is required for running illumina bam / nanopore medaka fastq / no_ncov fasta samples.
 
-Small size datasets (processing time: few minutes):
-- s3://synthetic-data-dev/UKHSA/small_tests/illumina_fastq          (2 samples)
-- s3://synthetic-data-dev/UKHSA/small_tests/illumina_fasta          (2 samples)
-- s3://synthetic-data-dev/UKHSA/small_tests/illumina_bams           (2 samples)
-- s3://synthetic-data-dev/UKHSA/small_tests/medaka_fastq            (2 samples)
+For each pathogen, test datasets can be found in `jenkins/files`.
 
-Medium size datasets (processing time: 1-2 hours). These datasets are used in our Jenkins CI validation (see jenkins/ dir):
-- s3://synthetic-data-dev/UKHSA/validation_ci/illumina_artic_fastq    (30 samples: 10 alpha, 10 delta, 10 omicron)
-- s3://synthetic-data-dev/UKHSA/validation_ci/illumina_artic_fasta    (30 samples: 10 alpha, 10 delta, 10 omicron)
-- s3://synthetic-data-dev/UKHSA/validation_ci/illumina_artic_bam      (30 samples: 10 alpha, 10 delta, 10 omicron)
-- s3://synthetic-data-dev/UKHSA/validation_ci/ont_artic_fastq         (30 samples: mix variants)
-
+<<<----->>>
+TO REMOVE with https://jira.congenica.net/browse/PSG-379
 Large size datasets (processing time: 4-6 hours). These datasets were used as part of the validation in the UKHSA tender:
 - s3://synthetic-data-dev/UKHSA/validation/illumina_ARTIC_fastq_COG_MARCH     (100 samples, alpha variants)
 - s3://synthetic-data-dev/UKHSA/validation/illumina_ARTIC_fastq_COG_OCT2021   (100 samples, mostly delta variants)
@@ -42,54 +33,29 @@ Large size datasets (processing time: 4-6 hours). These datasets were used as pa
 - s3://synthetic-data-dev/UKHSA/validation/illumina_ARTIC_bam_COG_OCT2021   (100 samples, mostly delta variants)
 - s3://synthetic-data-dev/UKHSA/validation/illumina_ARTIC_bam_COG_FEB2022   (100 samples, omicron variants)
 - s3://synthetic-data-dev/UKHSA/validation/ONT_ARTIC_fastq_COG   (300 samples, mix variants)
+<<<----->>>
 
 
 ### Running the pipeline using K8s Minikube (local testing)
+Install git submodules
+```commandline
+# initialise the submodules and fetch the code from origin of this repository
+make submodule-setup
+# update the submodules from origin of their repositories
+make submodule-update
+```
 
-Download and install Minikube using the instructions provided here: https://minikube.sigs.k8s.io/docs/start/
-
+Download and install Minikube using the instructions provided here: https://minikube.sigs.k8s.io/docs/start/ .
 Once minikube is active, we need to activate the minikube registry of docker images so that Minikube can find these locally.
 See: https://medium.com/swlh/how-to-run-locally-built-docker-images-in-kubernetes-b28fbc32cc1d for additional ideas
 ```commandline
 eval $(minikube -p minikube docker-env)
 ```
 
-The next step is to build the pipeline docker images in the minikube docker environment. For simplicity, the database is stored on a pod. This is not ideal as this can be lost if the pod crashes or is deleted. However, as a proof of concept, this is fine. In the future, the database will be stored in an RDS aurora cluster, therefore outside the k8s environment.
+Build the pipeline docker images in the minikube docker environment:
 ```commandline
-export DOCKER_IMAGE_PREFIX=144563655722.dkr.ecr.eu-west-1.amazonaws.com/congenica/dev
-export PSGA_PIPELINE_DOCKER_IMAGE_TAG_BASE=1.0.3
-export NCOV2019_ARTIC_NF_ILLUMINA_DOCKER_IMAGE_TAG_BASE=1.0.0
-export NCOV2019_ARTIC_NF_NANOPORE_DOCKER_IMAGE_TAG_BASE=1.0.0
-export PANGOLIN_DOCKER_IMAGE_TAG_BASE=1.0.0
-export PSGA_PIPELINE_DOCKER_IMAGE_TAG=1.0.0
-export NCOV2019_ARTIC_NF_ILLUMINA_DOCKER_IMAGE_TAG=1.0.0
-export NCOV2019_ARTIC_NF_NANOPORE_DOCKER_IMAGE_TAG=1.0.0
-export PANGOLIN_DOCKER_IMAGE_TAG=1.0.0
-
-# add project submodules
-git submodule init
-git submodule update
-
-# update pangolin, ncov2019_artic_nf to their latest commits
-# If you run this command, you need to regenerate the base images for pangolin and ncov2019
-git submodule update --remote --merge
-
-# create base images
-docker build -t ${DOCKER_IMAGE_PREFIX}/psga-pipeline-base:${PSGA_PIPELINE_DOCKER_IMAGE_TAG_BASE} -f docker/Dockerfile.psga-pipeline-base .
-docker build -t ${DOCKER_IMAGE_PREFIX}/ncov2019-artic-nf-illumina-base:${NCOV2019_ARTIC_NF_ILLUMINA_DOCKER_IMAGE_TAG_BASE} -f docker/Dockerfile.ncov2019-artic-nf-illumina-base .
-docker build -t ${DOCKER_IMAGE_PREFIX}/ncov2019-artic-nf-nanopore-base:${NCOV2019_ARTIC_NF_NANOPORE_DOCKER_IMAGE_TAG_BASE} -f docker/Dockerfile.ncov2019-artic-nf-nanopore-base .
-docker build -t ${DOCKER_IMAGE_PREFIX}/pangolin-base:${PANGOLIN_DOCKER_IMAGE_TAG_BASE} -f docker/Dockerfile.pangolin-base .
-
-
-# build main images
-docker build -t ${DOCKER_IMAGE_PREFIX}/psga-pipeline:${PSGA_PIPELINE_DOCKER_IMAGE_TAG} -f docker/Dockerfile.psga-pipeline .
-
-# build ncov docker images
-docker build -t ${DOCKER_IMAGE_PREFIX}/ncov2019-artic-nf-illumina:${NCOV2019_ARTIC_NF_ILLUMINA_DOCKER_IMAGE_TAG} -f docker/Dockerfile.ncov2019-artic-nf-illumina .
-docker build -t ${DOCKER_IMAGE_PREFIX}/ncov2019-artic-nf-nanopore:${NCOV2019_ARTIC_NF_NANOPORE_DOCKER_IMAGE_TAG} -f docker/Dockerfile.ncov2019-artic-nf-nanopore .
-
-# build pangolin docker image
-docker build -t ${DOCKER_IMAGE_PREFIX}/pangolin:${PANGOLIN_DOCKER_IMAGE_TAG} -f docker/Dockerfile.pangolin .
+make build-base-images
+make build-images
 ```
 
 Once all the required images are generated, the deployments can be created:
@@ -101,7 +67,7 @@ cd minikube
 kubectl exec -it psga-pipeline-XXXX -- bash
 
 # ------------------
-# WITHIN THE POD
+# WITHIN THE psga POD
 # run the pipeline within the pod (processes are spun up as pod workers by this pipeline). The results will be stored in psga-pipeline pod: /data/output
 # use `-resume` flag to resume the previous pipeline execution
 nextflow run . -c <pathogen>.config <input_parameters>
