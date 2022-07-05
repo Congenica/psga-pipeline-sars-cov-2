@@ -1,3 +1,7 @@
+/*
+ * samples per test: 2
+ * processing time: few minutes
+ */
 pipeline {
     agent none
     environment {

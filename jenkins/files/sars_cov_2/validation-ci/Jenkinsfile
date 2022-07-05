@@ -1,4 +1,9 @@
 /*
+ * samples per test: 30 (10 alpha, 10 delta, 10 omicron. ont_artic_fasta contains a mix of variants)
+ * processing time: ~1.5 hours
+ */
+
+/*
 Constructs the cron schedule for this build in Jenkins but only if the branch is dev. This avoids applying
 this cron schedule to all branches in this multi-branch pipeline.
 */

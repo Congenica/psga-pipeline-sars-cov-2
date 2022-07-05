@@ -46,6 +46,7 @@ def get_expected_output_files(root: Path, sample_names: List[str], ncov_workflow
         else:
             raise ValueError(f"Unsupported ncov_workflow: {ncov_workflow}")
 
+        output_files.extend([root / "contamination_removal" / f"{s}_removed_reads.txt" for s in sample_names])
         output_files.extend([root / "fastqc" / f"{s}_{e}" for s in sample_names for e in fastqc_suffixes])
         output_files.extend(
             [root / "ncov2019-artic" / "output_fasta" / f"{s}{e}" for s in sample_names for e in ncov_fasta_suffixes]
