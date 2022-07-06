@@ -19,6 +19,7 @@ branch:           ${env.BRANCH_NAME}
 namespace:        ${params.NAMESPACE}
 metadata:         ${params.METADATA}
 psga_output_path: ${params.PSGA_OUTPUT_PATH}
+workdir:          ${params.NXF_WORK}
 run:              ${params.ANALYSIS_RUN}
 pathogen:         sars_cov_2
 workflow:         ${params.NCOV_WORKFLOW}
@@ -50,7 +51,8 @@ pipeline {
     parameters {
         booleanParam(name: 'VALIDATION_TEST', defaultValue: true, description: 'If true, run script for validating the results')
         string(name: 'METADATA', defaultValue: 's3://synthetic-data-dev/UKHSA/small_tests/illumina_fastq/metadata.csv', description: 'The path to the metadata CSV file containing the input file paths of the samples to process. This can be an S3 path')
-        string(name: 'PSGA_OUTPUT_PATH', defaultValue: '/data/output/illumina_artic_fastq_short', description: 'The path containing the output files. This can be an S3 path. In this latter case, please specify a path which does not yet exist, otherwise Nextflow will fail to publish this data due to a policy defined by Dev OPS in which pods are not allowed to delete/overwrite objects in S3.')
+        string(name: 'PSGA_OUTPUT_PATH', defaultValue: '/data/output/illumina_artic_fastq_short', description: 'The path to the output files. This can be an S3 path. In this latter case, please specify a path which does not yet exist, otherwise Nextflow will fail to store files due to a policy defined by Dev OPS in which pods are not allowed to delete/overwrite objects in S3.')
+        string(name: 'NXF_WORK', defaultValue: '/data/work/illumina_artic_fastq_short', description: 'The path to Nextflow work directory. This can be an S3 path. In this latter case, please specify a path which does not yet exist, otherwise Nextflow will fail to store files due to a policy defined by Dev OPS in which pods are not allowed to delete/overwrite objects in S3.')
         string(name: 'ANALYSIS_RUN', defaultValue: 'illumina_artic_fastq_short', description: 'This can be the test name')
         choice(name: 'NCOV_WORKFLOW', choices: ['illumina_artic', 'medaka_artic', 'no_ncov'], description: 'The ncov workflow to run')
         choice(name: 'FILETYPE', choices: ['fastq', 'bam', 'fasta'], description: 'The input file type. illumina_artic supports fastq, bam; medaka_artic supports fastq; no_ncov supports fasta')
@@ -155,7 +157,7 @@ spec:
         K8S_PROCESS_MEMORY_MEDIUM                   = "${params.K8S_PROCESS_MEMORY_MEDIUM}"
         K8S_PROCESS_MEMORY_HIGH                     = "${params.K8S_PROCESS_MEMORY_HIGH}"
         K8S_PROCESS_MEMORY_VERY_HIGH                = "${params.K8S_PROCESS_MEMORY_VERY_HIGH}"
-        NXF_WORK                                    = "/data/work/${params.ANALYSIS_RUN}"
+        NXF_WORK                                    = "${params.NXF_WORK}"
         NXF_ANSI_LOG                                = "false"
         NXF_EXECUTOR                                = "k8s"
         NXF_OPTS                                    = "${params.NXF_OPTS}"

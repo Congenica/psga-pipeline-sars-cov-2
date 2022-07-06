@@ -23,18 +23,6 @@ To process samples stored in s3, set up a metadata CSV file (see tests/test_data
 
 For each pathogen, test datasets can be found in `jenkins/files`.
 
-<<<----->>>
-TO REMOVE with https://jira.congenica.net/browse/PSG-379
-Large size datasets (processing time: 4-6 hours). These datasets were used as part of the validation in the UKHSA tender:
-- s3://synthetic-data-dev/UKHSA/validation/illumina_ARTIC_fastq_COG_MARCH     (100 samples, alpha variants)
-- s3://synthetic-data-dev/UKHSA/validation/illumina_ARTIC_fastq_COG_OCT2021   (100 samples, mostly delta variants)
-- s3://synthetic-data-dev/UKHSA/validation/illumina_ARTIC_fastq_COG_FEB2022   (100 samples, omicron variants)
-- s3://synthetic-data-dev/UKHSA/validation/illumina_ARTIC_bam_COG_MAR2021   (100 samples, alpha variants)
-- s3://synthetic-data-dev/UKHSA/validation/illumina_ARTIC_bam_COG_OCT2021   (100 samples, mostly delta variants)
-- s3://synthetic-data-dev/UKHSA/validation/illumina_ARTIC_bam_COG_FEB2022   (100 samples, omicron variants)
-- s3://synthetic-data-dev/UKHSA/validation/ONT_ARTIC_fastq_COG   (300 samples, mix variants)
-<<<----->>>
-
 
 ### Running the pipeline using K8s Minikube (local testing)
 Install git submodules
