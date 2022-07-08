@@ -1,0 +1,102 @@
+/*
+ * These samples were obtained and processed as part of the validation for the tender (Feb 2022)
+ * samples per test: 300 (100 alpha, 100 delta, 100 omicron. ont_artic_fasta contains a mix of variants)
+ * processing time: ~4-6 hours
+ */
+
+pipeline {
+    agent none
+    environment {
+        PSGA_PIPELINE = "psga-pipeline-sars-cov-2"
+    }
+    stages {
+        stage('Run PSGA pipeline: large tests') {
+            stages {
+                stage('illumina/fastq') {
+                    steps {
+                        script {
+                            catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+                                build (
+                                    job: "${PSGA_PIPELINE}/${env.BRANCH_NAME}",
+                                    parameters: [
+                                            booleanParam(name: 'VALIDATION_TEST', value: false),
+                                            string(name: 'METADATA', value: "s3://synthetic-data-dev/UKHSA/large_tests/illumina_artic_fastq/metadata.csv"),
+                                            string(name: 'PSGA_OUTPUT_PATH', value: "s3://synthetic-data-dev/UKHSA/large_tests/output/illumina_artic_fastq"),
+                                            string(name: 'NXF_WORK', value: "/data/work/illumina_artic_fastq_large"),
+                                            string(name: 'ANALYSIS_RUN', value: "illumina_artic_fastq_large"),
+                                            string(name: 'NCOV_WORKFLOW', value: "illumina_artic"),
+                                            string(name: 'FILETYPE', value: "fastq"),
+                                            string(name: 'K8S_QUEUE_SIZE', value: "10"),
+                                    ]
+                                )
+                            }
+                        }
+                    }
+                }
+                stage('illumina/bam') {
+                    steps {
+                        script {
+                            catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+                                build (
+                                    job: "${PSGA_PIPELINE}/${env.BRANCH_NAME}",
+                                    parameters: [
+                                            booleanParam(name: 'VALIDATION_TEST', value: false),
+                                            string(name: 'METADATA', value: "s3://synthetic-data-dev/UKHSA/large_tests/illumina_artic_bam/metadata.csv"),
+                                            string(name: 'PSGA_OUTPUT_PATH', value: "s3://synthetic-data-dev/UKHSA/large_tests/output/illumina_artic_bam"),
+                                            string(name: 'NXF_WORK', value: "/data/work/illumina_artic_bam_large"),
+                                            string(name: 'ANALYSIS_RUN', value: "illumina_artic_bam_large"),
+                                            string(name: 'NCOV_WORKFLOW', value: "illumina_artic"),
+                                            string(name: 'FILETYPE', value: "bam"),
+                                            string(name: 'K8S_QUEUE_SIZE', value: "10"),
+                                    ]
+                                )
+                            }
+                        }
+                    }
+                }
+                stage('medaka/fastq') {
+                    steps {
+                        script {
+                            catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+                                build (
+                                    job: "${PSGA_PIPELINE}/${env.BRANCH_NAME}",
+                                    parameters: [
+                                            booleanParam(name: 'VALIDATION_TEST', value: false),
+                                            string(name: 'METADATA', value: "s3://synthetic-data-dev/UKHSA/large_tests/ont_artic_fastq/metadata.csv"),
+                                            string(name: 'PSGA_OUTPUT_PATH', value: "s3://synthetic-data-dev/UKHSA/large_tests/output/ont_artic_fastq"),
+                                            string(name: 'NXF_WORK', value: "/data/work/ont_artic_fastq_large"),
+                                            string(name: 'ANALYSIS_RUN', value: "ont_artic_fastq_large"),
+                                            string(name: 'NCOV_WORKFLOW', value: "medaka_artic"),
+                                            string(name: 'FILETYPE', value: "fastq"),
+                                            string(name: 'K8S_QUEUE_SIZE', value: "10"),
+                                    ]
+                                )
+                            }
+                        }
+                    }
+                }
+                stage('no_ncov/fasta') {
+                    steps {
+                        script {
+                            catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+                                build (
+                                    job: "${PSGA_PIPELINE}/${env.BRANCH_NAME}",
+                                    parameters: [
+                                            booleanParam(name: 'VALIDATION_TEST', value: false),
+                                            string(name: 'METADATA', value: "s3://synthetic-data-dev/UKHSA/large_tests/no_ncov_fasta/metadata.csv"),
+                                            string(name: 'PSGA_OUTPUT_PATH', value: "s3://synthetic-data-dev/UKHSA/large_tests/output/no_ncov_fasta"),
+                                            string(name: 'NXF_WORK', value: "/data/work/no_ncov_fasta_large"),
+                                            string(name: 'ANALYSIS_RUN', value: "no_ncov_fasta_large"),
+                                            string(name: 'NCOV_WORKFLOW', value: "no_ncov"),
+                                            string(name: 'FILETYPE', value: "fasta"),
+                                            string(name: 'K8S_QUEUE_SIZE', value: "10"),
+                                    ]
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
