@@ -75,6 +75,27 @@ pipeline {
                         }
                     }
                 }
+                stage('no_ncov/fasta') {
+                    steps {
+                        script {
+                            catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+                                build (
+                                    job: "${PSGA_PIPELINE}/${env.BRANCH_NAME}",
+                                    parameters: [
+                                            booleanParam(name: 'VALIDATION_TEST', value: false),
+                                            string(name: 'METADATA', value: "s3://synthetic-data-dev/UKHSA/large_tests/no_ncov_fasta/metadata.csv"),
+                                            string(name: 'PSGA_OUTPUT_PATH', value: "s3://synthetic-data-dev/UKHSA/large_tests/output/no_ncov_fasta"),
+                                            string(name: 'NXF_WORK', value: "/data/work/no_ncov_fasta_large"),
+                                            string(name: 'ANALYSIS_RUN', value: "no_ncov_fasta_large"),
+                                            string(name: 'NCOV_WORKFLOW', value: "no_ncov"),
+                                            string(name: 'FILETYPE', value: "fasta"),
+                                            string(name: 'K8S_QUEUE_SIZE', value: "10"),
+                                    ]
+                                )
+                            }
+                        }
+                    }
+                }
             }
         }
     }
