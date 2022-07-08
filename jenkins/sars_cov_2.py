@@ -36,11 +36,11 @@ def get_expected_output_files(root: Path, sample_names: List[str], ncov_workflow
         )
 
         if ncov_workflow == "illumina_artic":
-            fastqc_suffixes = [f"{r}_fastqc.{e}" for r in [1, 2] for e in ["html", "zip"]]
+            fastqc_suffixes = [f"{r}_fastqc.zip" for r in [1, 2]]
             ncov_fasta_suffixes = [".primertrimmed.consensus.fa"]
             ncov_plots_suffixes = [".depth.png"]
         elif ncov_workflow == "medaka_artic":
-            fastqc_suffixes = [f"fastqc.{e}" for e in ["html", "zip"]]
+            fastqc_suffixes = ["fastqc.zip"]
             ncov_fasta_suffixes = [".consensus.fa", ".muscle.in.fa", ".muscle.out.fa", ".preconsensus.fa"]
             ncov_plots_suffixes = ["-barplot.png", "-boxplot.png", ".depth.png"]
         else:

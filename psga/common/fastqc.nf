@@ -2,7 +2,7 @@
  * Run: fastqc
  */
 process fastqc {
-  publishDir "${PSGA_OUTPUT_PATH}/fastqc", mode: 'copy', overwrite: true, pattern: '*_fastqc.{html,zip}'
+  publishDir "${PSGA_OUTPUT_PATH}/fastqc", mode: 'copy', overwrite: true, pattern: '*_fastqc.zip'
 
   tag "${task.index} - ${ch_input_files}"
 
@@ -11,7 +11,6 @@ process fastqc {
 
   output:
     path ch_input_files, emit: ch_input_files
-    path "*_fastqc.html", emit: ch_fastqc_html_report
     path "*_fastqc.zip", emit: ch_fastqc_zip_report
 
   shell:
