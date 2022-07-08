@@ -102,6 +102,15 @@ spec:
       requests:
         cpu: "2"
         memory: 6Gi
+    affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: farmNode
+                operator: In
+                values:
+                - "true"
     volumeMounts:
     - mountPath: ${params.K8S_STORAGE_MOUNT_PATH}
       name: psga-persistent-storage
