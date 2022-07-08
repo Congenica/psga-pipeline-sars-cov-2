@@ -26,7 +26,7 @@ spec:
       containers:
       - image: 144563655722.dkr.ecr.eu-west-1.amazonaws.com/congenica/dev/psga-pipeline:dev_latest
         name: psga-pipeline
-        imagePullPolicy: IfNotPresent
+        imagePullPolicy: Always
         resources:
           limits:
             cpu: "2"
@@ -55,8 +55,10 @@ spec:
           value: 'dev_latest'
         - name: PANGOLIN_DOCKER_IMAGE_TAG
           value: 'dev_latest'
+        - name: K8S_NODE
+          value: farmNode
         - name: K8S_PULL_POLICY
-          value: IfNotPresent
+          value: Always
         - name: K8S_SERVICE_ACCOUNT
           value: psga-admin
         - name: K8S_QUEUE_SIZE

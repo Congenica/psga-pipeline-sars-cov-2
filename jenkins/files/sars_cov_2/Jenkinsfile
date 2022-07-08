@@ -63,6 +63,7 @@ pipeline {
         string(name: 'PSGA_MAX_ATTEMPTS', defaultValue: '3', description: 'The maximum number of attempts resuming a failed pipeline')
         string(name: 'PSGA_SLEEP_TIME_BETWEEN_ATTEMPTS', defaultValue: '60', description: 'The sleep time between attempts')
         string(name: 'DOCKER_IMAGE_PREFIX', defaultValue: '144563655722.dkr.ecr.eu-west-1.amazonaws.com/congenica/dev', description: 'The docker image prefix to use')
+        string(name: 'K8S_NODE', defaultValue: 'farmNode', description: 'The Kubernetes node to use as a nodeAffinity for worker jobs')
         string(name: 'K8S_PULL_POLICY', defaultValue: 'Always', description: 'The Kubernetes pull policy for docker images')
         string(name: 'K8S_STORAGE_MOUNT_PATH', defaultValue: '/data', description: 'The K8S storage mount path')
         string(name: 'K8S_QUEUE_SIZE', defaultValue: '5', description: 'The K8S job queue size')
@@ -87,10 +88,19 @@ kind: Pod
 spec:
   serviceAccount: ${params.NAMESPACE}-admin
   serviceAccountName: ${params.NAMESPACE}-admin
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+        - matchExpressions:
+          - key: ${params.K8S_NODE}
+            operator: In
+            values:
+            - "true"
   containers:
   - name: psga
     image: ${params.DOCKER_IMAGE_PREFIX}/psga-pipeline:${getDockerTagFromBranch()}
-    imagePullPolicy: ${K8S_PULL_POLICY}
+    imagePullPolicy: ${params.K8S_PULL_POLICY}
     command:
     - "sleep"
     args:
@@ -102,15 +112,6 @@ spec:
       requests:
         cpu: "2"
         memory: 6Gi
-    affinity:
-        nodeAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-            nodeSelectorTerms:
-            - matchExpressions:
-              - key: farmNode
-                operator: In
-                values:
-                - "true"
     volumeMounts:
     - mountPath: ${params.K8S_STORAGE_MOUNT_PATH}
       name: psga-persistent-storage
@@ -119,8 +120,6 @@ spec:
       readOnly: false
     workingDir: "/home/jenkins/agent"
   dnsPolicy: ClusterFirst
-  nodeSelector:
-    farmNode: "true"
   restartPolicy: Never
   schedulerName: default-scheduler
   securityContext: {}
@@ -148,6 +147,7 @@ spec:
         METADATA                                    = "${params.METADATA}"
 
         // other configs
+        K8S_NODE                                    = "${params.K8S_NODE}"
         K8S_PULL_POLICY                             = "${params.K8S_PULL_POLICY}"
         PSGA_ROOT_PATH                              = "/app"
         PSGA_INCOMPLETE_ANALYSIS_RUNS_PATH          = "/data/incomplete_analysis_runs"
