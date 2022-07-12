@@ -13,6 +13,15 @@ spec:
       labels:
         app: psga-pipeline-minikube
     spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: farmNode
+                operator: In
+                values:
+                - "true"
       containers:
       - image: 144563655722.dkr.ecr.eu-west-1.amazonaws.com/congenica/dev/psga-pipeline:1.0.0
         name: psga-pipeline-minikube
@@ -38,6 +47,8 @@ spec:
           value: '1.0.0'
         - name: PANGOLIN_DOCKER_IMAGE_TAG
           value: '1.0.0'
+        - name: K8S_NODE
+          value: farmNode
         - name: K8S_PULL_POLICY
           value: Never
         - name: K8S_SERVICE_ACCOUNT

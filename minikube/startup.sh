@@ -10,6 +10,9 @@ wait_for_pod() {
     printf "\n${__POD} is running\n"
 }
 
+# label minikube node so that it matches against the cluster
+kubectl label --overwrite node minikube farmNode=true
+
 # create new namespace and set it as default
 kubectl apply -f create_namespace.yaml
 kubectl config set-context $(kubectl config current-context) --namespace=psga-minikube
