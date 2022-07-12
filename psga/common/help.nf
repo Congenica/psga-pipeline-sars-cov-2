@@ -53,7 +53,7 @@ def printMainHelp() {
         K8S_QUEUE_SIZE          The maximum number of processes to run at the same time (default: 20)
         K8S_STORAGE_CLAIM_NAME  The Kubernetes PVC claim
         K8S_STORAGE_MOUNT_PATH  The Kubernetes mount path (default: /data)
-        K8S_PROCESS_MAX_RETRIES The maximum number that a process can be retried if a resource-based exit code (137-143) is raised (default: 3)
+        K8S_PROCESS_MAX_RETRIES The maximum number that a process can be retried if a non-zero exit status is returned (default: 3)
         K8S_PROCESS_CPU_LOW     Value for a process using little CPU. There is no need to change this as the pipeline was designed for high scalability (default: 1)
         K8S_PROCESS_CPU_HIGH    Value for a process using a lot of CPU. There is no need to change this as the pipeline was designed for high scalability (default: 2)
         K8S_PROCESS_MEMORY_VERY_LOW
