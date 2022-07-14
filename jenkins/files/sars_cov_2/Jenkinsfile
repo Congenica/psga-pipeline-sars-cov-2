@@ -83,12 +83,11 @@ pipeline {
             cloud params.CLUSTER_NAME
             namespace params.NAMESPACE
             inheritFrom 'k8s-agent'
+            serviceAccount "${params.NAMESPACE}-admin"
             yaml """
 apiVersion: v1
 kind: Pod
 spec:
-  serviceAccount: ${params.NAMESPACE}-admin
-  serviceAccountName: ${params.NAMESPACE}-admin
   affinity:
     nodeAffinity:
       requiredDuringSchedulingIgnoredDuringExecution:
