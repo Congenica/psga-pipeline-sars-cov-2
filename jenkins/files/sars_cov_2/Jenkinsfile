@@ -82,6 +82,7 @@ pipeline {
         kubernetes {
             cloud params.CLUSTER_NAME
             namespace params.NAMESPACE
+            inheritFrom 'k8s-agent'
             yaml """
 apiVersion: v1
 kind: Pod
