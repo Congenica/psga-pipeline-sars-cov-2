@@ -51,12 +51,12 @@ Once all the required images are generated, the deployments can be created:
 cd minikube
 ./startup.sh
 
-# exec the sars-cov-2 pod
-kubectl exec -it sars-cov-2-pipeline-XXXX -- bash
+# exec the <pathogen> pod
+kubectl exec -it <pathogen>-pipeline-XXXX -- bash
 
 # ------------------
-# WITHIN THE psga POD
-# run the pipeline within the pod (processes are spun up as pod workers by this pipeline). The results will be stored in sars-cov-2-pipeline pod: /data/output
+# WITHIN THE pathogen POD
+# run the pipeline within the pod (processes are spun up as pod workers by this pipeline). The results will be stored in: /data/output
 # use `-resume` flag to resume the previous pipeline execution
 nextflow run . <input_parameters>
 
@@ -73,13 +73,8 @@ exit
 
 
 ### Running the pipeline using K8s (currently in Congenica saas-dev cluster)
-Start a new shell to make sure that the standard docker environment is used and not the one dedicated to minikube.
-All the docker images mentioned in the Minikube section must be built and pushed to Congenica ECR.
-To redeploy PSGA pipeline components:
-```
-cd k8s
-./startup.sh
-```
+The easiest way is to configure the pipeline via Jenkins.
+* sars-cov-2: https://jenkins.services.congenica.net/job/psga-pipeline-sars-cov-2/
 
 
 ## Development
