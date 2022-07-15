@@ -7,11 +7,14 @@ ENV PIP_VERSION=22.0.4 \
 ARG pathogen="sars_cov_2"
 
 COPY ./psga/common /app/psga/common
-COPY ./psga/${pathogen} ./psga/*.py ./psga/main.nf /app/psga/
+COPY ./psga/${pathogen} ./psga/*.py ./psga/*.sh ./psga/main.nf /app/psga/
 COPY ./scripts/util /app/scripts/util
 COPY ./scripts/validation /app/scripts/validation
 COPY ./scripts/${pathogen} /app/scripts/${pathogen}
 COPY ./pyproject.toml ./poetry.lock ./app/
+
+# scripts for running the validation following integration tests execution
+COPY ./jenkins/*.py ./app/jenkins/
 
 WORKDIR /app/psga
 
