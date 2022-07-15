@@ -15,16 +15,18 @@ Constructs build summary messages intended to be posted in Slack
 */
 def buildSlackMessage() {
     return """
-branch:           ${env.BRANCH_NAME}
-namespace:        ${params.NAMESPACE}
-metadata:         ${params.METADATA}
-psga_output_path: ${params.PSGA_OUTPUT_PATH}
-workdir:          ${params.NXF_WORK}
-run:              ${params.ANALYSIS_RUN}
-pathogen:         sars_cov_2
-workflow:         ${params.NCOV_WORKFLOW}
-filetype:         ${params.FILETYPE}
-started by:       ${getTriggerDescription()}
+branch:             ${env.BRANCH_NAME}
+namespace:          ${params.NAMESPACE}
+metadata:           ${params.METADATA}
+psga_output_path:   ${params.PSGA_OUTPUT_PATH}
+workdir:            ${params.NXF_WORK}
+run:                ${params.ANALYSIS_RUN}
+pathogen:           sars_cov_2
+workflow:           ${params.NCOV_WORKFLOW}
+filetype:           ${params.FILETYPE}
+primer scheme:      ${params.PRIMER_SCHEME}
+primer scheme_ver:  ${params.PRIMER_SCHEME_VERSION}
+started by:         ${getTriggerDescription()}
 """
 }
 
@@ -56,6 +58,8 @@ pipeline {
         string(name: 'ANALYSIS_RUN', defaultValue: 'illumina_artic_fastq_short', description: 'This can be the test name')
         choice(name: 'NCOV_WORKFLOW', choices: ['illumina_artic', 'medaka_artic', 'no_ncov'], description: 'The ncov workflow to run')
         choice(name: 'FILETYPE', choices: ['fastq', 'bam', 'fasta'], description: 'The input file type. illumina_artic supports fastq, bam; medaka_artic supports fastq; no_ncov supports fasta')
+        string(name: 'PRIMER_SCHEME', defaultValue: 'nCoV-2019', description: 'The name of the primer scheme used by the ncov-artic pipeline')
+        string(name: 'PRIMER_SCHEME_VERSION', defaultValue: 'V3', description: 'The version of the primer scheme used by the ncov-artic pipeline')
 
         string(name: 'CLUSTER_NAME', defaultValue: 'saas-dev.k8s.congenica.net', description: 'The Kubernetes cluster where the Congenica platform is deployed that the tests will run against.')
         string(name: 'NAMESPACE', defaultValue: 'psga', description: 'The Kubernetes namespace where the Congenica platform is deployed that the tests will run against.')
@@ -142,9 +146,11 @@ spec:
         PSGA_OUTPUT_PATH                            = "${params.PSGA_OUTPUT_PATH}"
 
         ANALYSIS_RUN                                = "${params.ANALYSIS_RUN}"
+        METADATA                                    = "${params.METADATA}"
         NCOV_WORKFLOW                               = "${params.NCOV_WORKFLOW}"
         FILETYPE                                    = "${params.FILETYPE}"
-        METADATA                                    = "${params.METADATA}"
+        PRIMER_SCHEME                               = "${params.PRIMER_SCHEME}"
+        PRIMER_SCHEME_VERSION                       = "${params.PRIMER_SCHEME_VERSION}"
 
         // other configs
         K8S_NODE                                    = "${params.K8S_NODE}"
@@ -190,7 +196,7 @@ spec:
 
                     // run the pipeline
                     // the argument `--load_missing_samples true` enables us to integration test the pipeline in isolation
-                    sh 'nextflow -log ${ANALYSIS_RUN}.log run ${PSGA_ROOT_PATH}/psga/main.nf -c ${PSGA_ROOT_PATH}/psga/sars_cov_2.config --run ${ANALYSIS_RUN} --ncov_workflow ${NCOV_WORKFLOW} --filetype ${FILETYPE} --metadata ${METADATA} -with-trace'
+                    sh 'nextflow -log ${ANALYSIS_RUN}.log run ${PSGA_ROOT_PATH}/psga/main.nf -c ${PSGA_ROOT_PATH}/psga/sars_cov_2.config --run ${ANALYSIS_RUN} --ncov_workflow ${NCOV_WORKFLOW} --filetype ${FILETYPE} --scheme ${PRIMER_SCHEME} --scheme_version ${PRIMER_SCHEME_VERSION} --metadata ${METADATA} -with-trace'
 
                     if (params.VALIDATION_TEST) {
                         // run validations
