@@ -17,7 +17,12 @@ process stage_sample_file {
   script:
     staged_file_1 = "${sample_id}${file_extension}"
   """
-  ln -s ${file_1} ${staged_file_1}
+  if [ ! -e ${staged_file_1} ] ; then
+      # only create this symlink if the there isn't a file with name $staged_file_1.
+      # This is only the case when the uploaded files are named after their lab names.
+      # don't use ln -sf because nextflow removes both files.
+      ln -s ${file_1} ${staged_file_1}
+  fi
 
   python ${PSGA_ROOT_PATH}/scripts/validation/check_file_integrity.py --analysis-run-name ${analysis_run} --sample-name ${sample_id} --input-path ${staged_file_1} --expected-md5 ${md5_1}
   """
@@ -43,8 +48,12 @@ process stage_sample_file_pair {
       staged_file_1 = "${sample_id}_1${file_extension}"
       staged_file_2 = "${sample_id}_2${file_extension}"
     """
-    ln -s ${file_1} ${staged_file_1}
-    ln -s ${file_2} ${staged_file_2}
+    if [ ! -e ${staged_file_1} ] ; then
+        ln -s ${file_1} ${staged_file_1}
+    fi
+    if [ ! -e ${staged_file_2} ] ; then
+        ln -s ${file_2} ${staged_file_2}
+    fi
 
     python ${PSGA_ROOT_PATH}/scripts/validation/check_file_integrity.py --analysis-run-name ${analysis_run} --sample-name ${sample_id} --input-path ${staged_file_1} --expected-md5 ${md5_1}
     python ${PSGA_ROOT_PATH}/scripts/validation/check_file_integrity.py --analysis-run-name ${analysis_run} --sample-name ${sample_id} --input-path ${staged_file_2} --expected-md5 ${md5_2}
