@@ -24,8 +24,8 @@ kubectl apply -f service_account.yaml
 kubectl apply -f deploy_psga_resources.yaml
 
 ## deploy psga
-kubectl apply -f deploy_psga.yaml
-pipeline_pod="$( kubectl get pods -l app=psga-pipeline-minikube --no-headers -o custom-columns=':metadata.name' )"
+kubectl apply -f deploy_sars_cov_2.yaml
+pipeline_pod="$( kubectl get pods -l app=sars-cov-2-pipeline-minikube --no-headers -o custom-columns=':metadata.name' )"
 wait_for_pod "${pipeline_pod}"
 # set up a metadata.csv file containing the sample file paths
 # copy your aws credentials so that you can fetch files from s3 within the pod

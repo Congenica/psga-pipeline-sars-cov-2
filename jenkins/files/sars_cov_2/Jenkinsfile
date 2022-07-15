@@ -102,7 +102,7 @@ spec:
             values:
             - "true"
   containers:
-  - name: psga
+  - name: sars-cov-2
     image: ${params.DOCKER_IMAGE_PREFIX}/psga-pipeline:${getDockerTagFromBranch()}
     imagePullPolicy: ${params.K8S_PULL_POLICY}
     command:
@@ -135,11 +135,11 @@ spec:
       medium: ""
     name: "workspace-volume"
 """
-            defaultContainer 'psga'
+            defaultContainer 'sars-cov-2'
         }
     }
     environment {
-        PSGA_PIPELINE_DOCKER_IMAGE_TAG              = "${getDockerTagFromBranch()}"
+        SARS_COV_2_PIPELINE_DOCKER_IMAGE_TAG        = "${getDockerTagFromBranch()}"
         NCOV2019_ARTIC_NF_ILLUMINA_DOCKER_IMAGE_TAG = "${getDockerTagFromBranch()}"
         NCOV2019_ARTIC_NF_NANOPORE_DOCKER_IMAGE_TAG = "${getDockerTagFromBranch()}"
         PANGOLIN_DOCKER_IMAGE_TAG                   = "${getDockerTagFromBranch()}"
@@ -196,7 +196,7 @@ spec:
 
                     // run the pipeline
                     // the argument `--load_missing_samples true` enables us to integration test the pipeline in isolation
-                    sh 'nextflow -log ${ANALYSIS_RUN}.log run ${PSGA_ROOT_PATH}/psga/main.nf -c ${PSGA_ROOT_PATH}/psga/sars_cov_2.config --run ${ANALYSIS_RUN} --ncov_workflow ${NCOV_WORKFLOW} --filetype ${FILETYPE} --scheme ${PRIMER_SCHEME} --scheme_version ${PRIMER_SCHEME_VERSION} --metadata ${METADATA} -with-trace'
+                    sh 'nextflow -log ${ANALYSIS_RUN}.log run ${PSGA_ROOT_PATH}/psga/main.nf --run ${ANALYSIS_RUN} --ncov_workflow ${NCOV_WORKFLOW} --filetype ${FILETYPE} --scheme ${PRIMER_SCHEME} --scheme_version ${PRIMER_SCHEME_VERSION} --metadata ${METADATA} -with-trace'
 
                     if (params.VALIDATION_TEST) {
                         // run validations

@@ -1,29 +1,29 @@
 include { pipeline_start } from './pipeline_lifespan.nf'
 include { check_metadata } from './check_metadata.nf'
-include { fastqc } from '../common/fastqc.nf'
+include { fastqc } from './common/fastqc.nf'
 
 if ( params.ncov_workflow == "illumina_artic" ) {
-    include { contamination_removal_illumina as contamination_removal } from '../common/contamination_removal.nf'
+    include { contamination_removal_illumina as contamination_removal } from './common/contamination_removal.nf'
     include { ncov2019_artic_nf_pipeline_illumina as ncov2019_artic } from './ncov2019_artic.nf'
     if ( params.filetype == "fastq" ) {
-        include { select_sample_file_pair as get_sample_files } from '../common/fetch_sample_files.nf'
+        include { select_sample_file_pair as get_sample_files } from './common/fetch_sample_files.nf'
     } else if ( params.filetype == "bam" ) {
-        include { bam_to_fastq } from '../common/utils.nf'
-        include { select_sample_file as get_sample_files } from '../common/fetch_sample_files.nf'
+        include { bam_to_fastq } from './common/utils.nf'
+        include { select_sample_file as get_sample_files } from './common/fetch_sample_files.nf'
     } else {
         throw new Exception("Error: '--filetype' can only be 'fastq' or 'bam' for 'illumina_artic' workflow")
     }
 } else if ( params.ncov_workflow == "medaka_artic" ) {
-    include { contamination_removal_ont as contamination_removal } from '../common/contamination_removal.nf'
+    include { contamination_removal_ont as contamination_removal } from './common/contamination_removal.nf'
     include { ncov2019_artic_nf_pipeline_medaka as ncov2019_artic } from './ncov2019_artic.nf'
     if ( params.filetype == "fastq" ) {
-        include { select_sample_file as get_sample_files } from '../common/fetch_sample_files.nf'
+        include { select_sample_file as get_sample_files } from './common/fetch_sample_files.nf'
     } else {
         throw new Exception("Error: '--filetype' can only be 'fastq' for 'medaka_artic' workflow")
     }
 } else if ( params.ncov_workflow == "no_ncov" ) {
     if ( params.filetype == "fasta" ) {
-        include { select_sample_file as get_sample_files } from '../common/fetch_sample_files.nf'
+        include { select_sample_file as get_sample_files } from './common/fetch_sample_files.nf'
     } else {
         throw new Exception("Error: '--filetype' can only be 'fasta' for 'no_ncov' workflow")
     }
@@ -38,6 +38,7 @@ include { submit_analysis_run_results } from './submit_analysis_run_results.nf'
 
 // Required environment variables
 if( "[:]" in [
+    SARS_COV_2_PIPELINE_DOCKER_IMAGE_TAG,
     NCOV2019_ARTIC_NF_ILLUMINA_DOCKER_IMAGE_TAG,
     NCOV2019_ARTIC_NF_NANOPORE_DOCKER_IMAGE_TAG,
     PANGOLIN_DOCKER_IMAGE_TAG,

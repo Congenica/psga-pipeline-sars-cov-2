@@ -1,17 +1,18 @@
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: psga-pipeline-minikube
+  name: sars-cov-2-pipeline
 spec:
   selector:
     matchLabels:
-      app: psga-pipeline-minikube
+      app: sars-cov-2-pipeline
   strategy:
     type: Recreate
   template:
     metadata:
       labels:
-        app: psga-pipeline-minikube
+        app: sars-cov-2-pipeline
     spec:
       affinity:
         nodeAffinity:
@@ -23,9 +24,16 @@ spec:
                 values:
                 - "true"
       containers:
-      - image: 144563655722.dkr.ecr.eu-west-1.amazonaws.com/congenica/dev/psga-pipeline:1.0.0
-        name: psga-pipeline-minikube
-        imagePullPolicy: Never
+      - image: 144563655722.dkr.ecr.eu-west-1.amazonaws.com/congenica/dev/psga-pipeline:dev_latest
+        name: sars-cov-2-pipeline
+        imagePullPolicy: Always
+        resources:
+          limits:
+            cpu: "2"
+            memory: 6Gi
+          requests:
+            cpu: "2"
+            memory: 6Gi
         env:
         - name: PSGA_ROOT_PATH
           value: /app
@@ -39,24 +47,24 @@ spec:
           value: '60'
         - name: DOCKER_IMAGE_PREFIX
           value: '144563655722.dkr.ecr.eu-west-1.amazonaws.com/congenica/dev'
-        - name: PSGA_PIPELINE_DOCKER_IMAGE_TAG
-          value: '1.0.0'
+        - name: SARS_COV_2_PIPELINE_DOCKER_IMAGE_TAG
+          value: 'dev_latest'
         - name: NCOV2019_ARTIC_NF_ILLUMINA_DOCKER_IMAGE_TAG
-          value: '1.0.0'
+          value: 'dev_latest'
         - name: NCOV2019_ARTIC_NF_NANOPORE_DOCKER_IMAGE_TAG
-          value: '1.0.0'
+          value: 'dev_latest'
         - name: PANGOLIN_DOCKER_IMAGE_TAG
-          value: '1.0.0'
+          value: 'dev_latest'
         - name: K8S_NODE
           value: farmNode
         - name: K8S_PULL_POLICY
-          value: Never
+          value: Always
         - name: K8S_SERVICE_ACCOUNT
-          value: psga-minikube-admin
+          value: psga-admin
         - name: K8S_QUEUE_SIZE
           value: '5'
         - name: K8S_STORAGE_CLAIM_NAME
-          value: psga-minikube-pvc
+          value: psga-pvc
         - name: K8S_STORAGE_MOUNT_PATH
           value: /data
         - name: K8S_PROCESS_MAX_RETRIES
@@ -70,11 +78,11 @@ spec:
         - name: K8S_PROCESS_MEMORY_LOW
           value: '500'
         - name: K8S_PROCESS_MEMORY_MEDIUM
-          value: '1000'
+          value: '1500'
         - name: K8S_PROCESS_MEMORY_HIGH
-          value: '2000'
+          value: '3000'
         - name: K8S_PROCESS_MEMORY_VERY_HIGH
-          value: '4000'
+          value: '6000'
         - name: NXF_WORK
           value: /data/work
         - name: NXF_EXECUTOR
@@ -86,8 +94,8 @@ spec:
         volumeMounts:
         - name: psga-persistent-storage
           mountPath: /data
-      serviceAccountName: psga-minikube-admin
+      serviceAccountName: psga-admin
       volumes:
       - name: psga-persistent-storage
         persistentVolumeClaim:
-          claimName: psga-minikube-pvc
+          claimName: psga-pvc

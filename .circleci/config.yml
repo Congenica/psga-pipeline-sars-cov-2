@@ -64,7 +64,7 @@ jobs:
             pip install pre-commit==2.17.0
             pre-commit run --all-files
 
-  test-psga-pipeline:
+  run-unit-tests:
     executor: python
     steps:
       - checkout
@@ -73,11 +73,11 @@ jobs:
           command: |
             poetry install
             poetry run pytest tests/
-  build-psga-pipeline:
+  build-sars-cov-2-pipeline:
     executor: python
     steps:
       - build_and_push_docker_image:
-          dockerfile: "Dockerfile.psga-pipeline"
+          dockerfile: "Dockerfile.sars-cov-2-pipeline"
           ecrpath: ${PSGA_PIPELINE_ECREPOPATH}
           gitsubmodules: false
   build-ncov2019-artic-nf-illumina:
@@ -107,23 +107,23 @@ workflows:
   test_and_build_all:
     jobs:
     - pre_commit_hooks
-    - test-psga-pipeline:
+    - run-unit-tests:
         requires:
           - pre_commit_hooks
         context: AWS_ECR_CREDENTIALS
-    - build-psga-pipeline:
+    - build-sars-cov-2-pipeline:
         requires:
-          - test-psga-pipeline
+          - run-unit-tests
         context: AWS_ECR_CREDENTIALS
     - build-ncov2019-artic-nf-illumina:
         requires:
-          - test-psga-pipeline
+          - run-unit-tests
         context: AWS_ECR_CREDENTIALS
     - build-ncov2019-artic-nf-nanopore:
         requires:
-          - test-psga-pipeline
+          - run-unit-tests
         context: AWS_ECR_CREDENTIALS
     - build-pangolin:
         requires:
-          - test-psga-pipeline
+          - run-unit-tests
         context: AWS_ECR_CREDENTIALS

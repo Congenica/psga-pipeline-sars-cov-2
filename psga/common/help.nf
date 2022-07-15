@@ -10,7 +10,6 @@ def printMainConfig() {
         * PSGA_MAX_ATTEMPTS                           : ${PSGA_MAX_ATTEMPTS}
         * PSGA_SLEEP_TIME_BETWEEN_ATTEMPTS            : ${PSGA_SLEEP_TIME_BETWEEN_ATTEMPTS}
         * DOCKER_IMAGE_PREFIX                         : ${DOCKER_IMAGE_PREFIX}
-        * PSGA_PIPELINE_DOCKER_IMAGE_TAG              : ${PSGA_PIPELINE_DOCKER_IMAGE_TAG}
         * K8S_NODE                                    : ${K8S_NODE}
         * K8S_PULL_POLICY                             : ${K8S_PULL_POLICY}
         * K8S_SERVICE_ACCOUNT                         : ${K8S_SERVICE_ACCOUNT}
@@ -45,8 +44,6 @@ def printMainHelp() {
         PSGA_SLEEP_TIME_BETWEEN_ATTEMPTS
                                 The sleep time between attempts in seconds
         DOCKER_IMAGE_PREFIX     The prefix of the docker image, excluded the image name
-        PSGA_PIPELINE_DOCKER_IMAGE_TAG
-                                The tag of the psga docker image
         K8S_NODE                The Kubernetes node for nodeAffinity
         K8S_PULL_POLICY         The Kubernetes docker image pull policy (e.g. Always, Never)
         K8S_SERVICE_ACCOUNT     The Kubernetes service account
