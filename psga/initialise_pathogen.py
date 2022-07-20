@@ -4,24 +4,6 @@ from pathlib import Path
 import click
 
 
-def setup_pathogen_config(pathogen_name: str) -> None:
-    """
-    Create a config file for the pathogen
-    """
-    config_path = Path(f"{pathogen_name}.config")
-    with open(config_path, "w") as fd:
-        fd.write(
-            "// load the main config\n"
-            "includeConfig 'nextflow.config'\n"
-            "\n"
-            "params {\n"
-            "    // mandatory. Directory containing the Nextflow configs and workflows for this pathogen\n"
-            f'    pathogen_dir = "{pathogen_name}"\n'
-            "}"
-        )
-    print(f"Generated config file: {config_path}")
-
-
 def setup_pathogen_dir(pathogen_name: str) -> None:
     """
     Initialise the directory for this pathogen
@@ -74,7 +56,7 @@ def setup_pathogen_dir(pathogen_name: str) -> None:
             "            <describe the pathogen analysis here>\n"
             "\n"
             "          Usage:\n"
-            f"            nextflow run . -c {pathogen_name}.config --run [analysis_run] --metadata [csv] [parameters]\n"
+            f"            nextflow run . --run [analysis_run] --metadata [csv] [parameters]\n"
             "\n"
             "          Mandatory environment variables:\n"
             "            <any mandatory env vars here>\n"
@@ -88,6 +70,24 @@ def setup_pathogen_dir(pathogen_name: str) -> None:
             '    """.stripIndent()\n'
             "}"
         )
+
+    # create pathogen config file
+    with open(pathogen_dir / "nextflow.config", "w") as fd:
+        fd.write(
+            "// load the main config\n"
+            "includeConfig './common/common.config'\n"
+            "\n"
+            "manifest {\n"
+            f'    name = "Congenica PSGA/{pathogen_name} pipeline"\n'
+            f'    description = "Pathogen Sequence Genome Analysis pipeline for {pathogen_name} pathogen"\n'
+            "    author = 'Congenica'\n"
+            "    homePage = 'https://www.congenica.com/'\n"
+            "    mainScript = 'main.nf'\n"
+            "    nextflowVersion = '>= 21.10.4'\n"
+            "    version = '1.0.0'\n"
+            "}\n"
+        )
+
     print(f"Initialised pathogen directory: {pathogen_dir}")
 
 
@@ -102,13 +102,10 @@ def initialise_pathogen(pathogen_name):
     """
     This script initialises the files for analysing a new pathogen using the PSGA pipeline.
     """
-    setup_pathogen_config(pathogen_name)
     setup_pathogen_dir(pathogen_name)
-    print(f"Pathogen {pathogen_name} has been initialised")
     print("Customise the workflow for this pathogen adding / modifying files in the following paths:")
     print(f" * nextflow configs and workflows: ./{pathogen_name}")
     print(f" * Python scripts: ../scripts/{pathogen_name}")
-    print(" * db schema: ../scripts/db")
     print(f" * Python tests: ../tests/{pathogen_name}")
 
 

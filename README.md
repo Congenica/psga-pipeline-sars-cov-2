@@ -42,8 +42,8 @@ eval $(minikube -p minikube docker-env)
 
 Build the pipeline docker images in the minikube docker environment:
 ```commandline
-make build-base-images
-make build-images
+make base-images
+make sars-cov-2-images
 ```
 
 Once all the required images are generated, the deployments can be created:
@@ -51,14 +51,14 @@ Once all the required images are generated, the deployments can be created:
 cd minikube
 ./startup.sh
 
-# exec the psga pod
-kubectl exec -it psga-pipeline-XXXX -- bash
+# exec the <pathogen> pod
+kubectl exec -it <pathogen>-pipeline-XXXX -- bash
 
 # ------------------
-# WITHIN THE psga POD
-# run the pipeline within the pod (processes are spun up as pod workers by this pipeline). The results will be stored in psga-pipeline pod: /data/output
+# WITHIN THE pathogen POD
+# run the pipeline within the pod (processes are spun up as pod workers by this pipeline). The results will be stored in: /data/output
 # use `-resume` flag to resume the previous pipeline execution
-nextflow run . -c <pathogen>.config <input_parameters>
+nextflow run . <input_parameters>
 
 # The following command cleans up the previous run's work directories and cache, but retains the content of ${PSGA_OUTPUT_PATH}:
 nextflow clean -f
@@ -73,24 +73,20 @@ exit
 
 
 ### Running the pipeline using K8s (currently in Congenica saas-dev cluster)
-Start a new shell to make sure that the standard docker environment is used and not the one dedicated to minikube.
-All the docker images mentioned in the Minikube section must be built and pushed to Congenica ECR.
-To redeploy PSGA pipeline components:
-```
-cd k8s
-./startup.sh
-```
+The easiest way is to configure the pipeline via Jenkins.
+* sars-cov-2: https://jenkins.services.congenica.net/job/psga-pipeline-sars-cov-2/
 
 
 ## Development
 
-### Adding new pathogens
+### Add new pathogens
 In order to add the pathogen `pathogenX` to the pipeline, change dir to `psga` and follow the instructions below:
 1. run the script: `python initialise_pathogen.py --pathogen-name pathogenX`
-2. add nextflow configs and workflows to the following files: `pathogenX.config`, `pathogenX/psga.nf`, `pathogenX/help.nf`.
+2. write the nextflow pipeline `pathogenX/psga.nf` and update `pathogenX/help.nf` accordingly
 3. add Python scripts to: `../scripts/pathogenX/`
-4. edit the DB schema as necessary
-5. run the pipeline from the psga directory using the command: `nextflow run . -c pathogenX.config <pathogenX-specific parameters>`
+4. add Python unit tests to: `../tests/pathogenX/`
+5. create dockerfile in `../docker/Dockerfile.pathogenX-pipeline (see Dockerfile.sars-cov-2-pipeline for reference)
+6. add Jenkins integration tests to: `../jenkins/files/pathogenX/Jenkinsfile` (see sars-cov-2 for reference)
 
 ### Install dependency packages using Python Poetry tool
 `Poetry` manages Python dependencies. Dependencies are declared in `pyproject.toml` and exact versions of both dependencies and sub-dependencies are stored in `poetry.lock`. Both are committed to the git repo.

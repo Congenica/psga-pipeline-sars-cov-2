@@ -4,6 +4,7 @@ def printPathogenConfig() {
         SARS-CoV-2 pathogen
         ===================
         Environment variables:
+        * SARS_COV_2_PIPELINE_DOCKER_IMAGE_TAG        : ${SARS_COV_2_PIPELINE_DOCKER_IMAGE_TAG}
         * NCOV2019_ARTIC_NF_ILLUMINA_DOCKER_IMAGE_TAG : ${NCOV2019_ARTIC_NF_ILLUMINA_DOCKER_IMAGE_TAG}
         * NCOV2019_ARTIC_NF_NANOPORE_DOCKER_IMAGE_TAG : ${NCOV2019_ARTIC_NF_NANOPORE_DOCKER_IMAGE_TAG}
         * PANGOLIN_DOCKER_IMAGE_TAG                   : ${PANGOLIN_DOCKER_IMAGE_TAG}
@@ -28,9 +29,11 @@ def printPathogenHelp() {
           - Pangolin: pangolin (https://github.com/cov-lineages/pangolin)
 
       Usage:
-        nextflow run . -c sars_cov_2.config --run [analysis_run] --ncov_workflow [ncov_workflow] --filetype [filetype] [workflow-options]
+        nextflow run . --run [analysis_run] --ncov_workflow [ncov_workflow] --filetype [filetype] [workflow-options]
 
       Mandatory environment variables:
+        SARS_COV_2_PIPELINE_DOCKER_IMAGE_TAG
+                                The tag of the sars-cov-2 docker image
         NCOV2019_ARTIC_NF_ILLUMINA_DOCKER_IMAGE_TAG
                                 The tag of the ncov2019-artic-nf-illumina docker image
         NCOV2019_ARTIC_NF_NANOPORE_DOCKER_IMAGE_TAG
