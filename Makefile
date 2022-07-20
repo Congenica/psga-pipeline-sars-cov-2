@@ -8,3 +8,6 @@ sars-cov-2-images:
 	docker build -t ${DOCKER_IMAGE_URI_PATH}/ncov2019-artic-nf-illumina:${DOCKER_IMAGE_TAG} -f docker/Dockerfile.ncov2019-artic-nf-illumina .
 	docker build -t ${DOCKER_IMAGE_URI_PATH}/ncov2019-artic-nf-nanopore:${DOCKER_IMAGE_TAG} -f docker/Dockerfile.ncov2019-artic-nf-nanopore .
 	docker build -t ${DOCKER_IMAGE_URI_PATH}/pangolin:${DOCKER_IMAGE_TAG} -f docker/Dockerfile.pangolin .
+
+dummy-pathogen-images:
+	docker build --build-arg pathogen=dummy_pathogen -t ${DOCKER_IMAGE_URI_PATH}/dummy-pathogen-pipeline:${DOCKER_IMAGE_TAG} -f docker/Dockerfile.psga-pipeline .

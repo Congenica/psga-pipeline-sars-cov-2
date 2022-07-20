@@ -1,0 +1,96 @@
+pipeline:
+  name: Dummy Pathogen
+  docker_image: "dummy-pathogen-pipeline"
+  protocols:
+
+    # PRIMER 1
+
+    - name: illumina-dummy-pathogen-primera-v1
+      kit:
+        name: Primer A V1
+        slug: Primer-A_V1
+      sequencer_technology:
+        name: Illumina
+        slug: illumina
+      pathogen:
+        name: Dummy Pathogen
+        slug: dummy-pathogen
+
+    - name: ont-dummy-pathogen-primera-v1
+      kit:
+        name: Primer A V1
+        slug: Primer-A_V1
+      sequencer_technology:
+        name: ONT
+        slug: ont
+      pathogen:
+        name: Dummy Pathogen
+        slug: dummy-pathogen
+
+    # Midnight ONT V3
+
+    - name: ont-dummy-pathogen-primerb-ont-v3
+      kit:
+        name: Primer B ONT V3
+        slug: Primer-B-ONT_V3
+      sequencer_technology:
+        name: ONT
+        slug: ont
+      pathogen:
+        name: Dummy Pathogen
+        slug: dummy-pathogen
+
+pipeline_version:
+  docker_tag: dev_latest
+
+input_fields:
+  - field_name: sample_id
+    field_type: string
+    required: true
+    validation_rules:
+      - rule_type: min_max
+        min: 36
+        max: 36
+      - rule_type: regex
+        expression: "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"
+
+#input_row_validation_rules:
+#- {}
+#
+#input_set_validation_rules:
+#- {}
+
+output_fields:
+  - field_name: SAMPLE_ID
+    field_type: string
+    required: true
+    validation_rules:
+      - rule_type: min_max
+        min: 36
+        max: 36
+      - rule_type: regex
+        expression: "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"
+
+  - field_name: STATUS
+    field_type: string
+    required: true
+    validation_rules:
+      - rule_type: not_null
+
+  - field_name: QC_STATUS
+    field_type: string
+    required: true
+    validation_rules:
+      - rule_type: not_null
+
+  - field_name: SCORE
+    field_type: number
+    required: true
+    validation_rules:
+      - rule_type: integer
+      - rule_type: not_null
+#output_row_validation_rules:
+#- {}
+#
+#output_set_validation_rules:
+#- {}

@@ -1,0 +1,80 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dummy-pathogen-pipeline-minikube
+spec:
+  selector:
+    matchLabels:
+      app: dummy-pathogen-pipeline-minikube
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: dummy-pathogen-pipeline-minikube
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: farmNode
+                operator: In
+                values:
+                - "true"
+      containers:
+      - image: 566277102435.dkr.ecr.eu-west-2.amazonaws.com/congenica/psga-dev/dummy-pathogen-pipeline:1.0.0
+        name: dummy-pathogen-pipeline-minikube
+        command:
+        - /bin/bash
+        args:
+        - -c
+        - "while true; do sleep 30; done;"
+        imagePullPolicy: Never
+        env:
+        - name: DOCKER_IMAGE_URI_PATH
+          value: '566277102435.dkr.ecr.eu-west-2.amazonaws.com/congenica/psga-dev'
+        - name: DOCKER_IMAGE_TAG
+          value: '1.0.0'
+        - name: AWS_MAX_CONNECTIONS
+          value: '20'
+        - name: AWS_MAX_PARALLEL_TRANSFERS
+          value: '5'
+        - name: K8S_NODE
+          value: farmNode
+        - name: K8S_PULL_POLICY
+          value: Never
+        - name: K8S_SERVICE_ACCOUNT
+          value: psga-minikube-admin
+        - name: QUEUE_SIZE
+          value: '5'
+        - name: K8S_STORAGE_CLAIM_NAME
+          value: psga-minikube-pvc
+        - name: K8S_STORAGE_MOUNT_PATH
+          value: /data
+        - name: K8S_PROCESS_MEMORY_VERY_LOW
+          value: '250'
+        - name: K8S_PROCESS_MEMORY_LOW
+          value: '500'
+        - name: K8S_PROCESS_MEMORY_MEDIUM
+          value: '1000'
+        - name: K8S_PROCESS_MEMORY_HIGH
+          value: '2000'
+        - name: K8S_PROCESS_MEMORY_VERY_HIGH
+          value: '4000'
+        - name: NXF_WORK
+          value: /data/work
+        - name: NXF_EXECUTOR
+          value: k8s
+        - name: NXF_ANSI_LOG
+          value: 'false'
+        - name: NXF_OPTS
+          value: '-Xms1g -Xmx4g'
+        volumeMounts:
+        - name: psga-persistent-storage
+          mountPath: /data
+      serviceAccountName: psga-minikube-admin
+      volumes:
+      - name: psga-persistent-storage
+        persistentVolumeClaim:
+          claimName: psga-minikube-pvc
