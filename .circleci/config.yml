@@ -20,6 +20,9 @@ commands:
       gitsubmodules:
         type: boolean
         default: false
+      pathogen:
+        type: string
+        default: ""
     steps:
       - setup_remote_docker:
           version: << pipeline.parameters.docker_version >>
@@ -45,7 +48,12 @@ commands:
             FULL_TAG="${REGISTRY_URI}:${DOCKER_TAG}"
             LATEST_IMAGE_TAG="${REGISTRY_URI}:${DOCKER_TAG_BRANCH}_latest"
             CIRCLE_TAG="${REGISTRY_URI}:circleci_${CIRCLE_BUILD_NUM}"
-            docker build -t ${FULL_TAG} -t ${CIRCLE_TAG} -t ${LATEST_IMAGE_TAG} -f docker/<< parameters.dockerfile >> .
+            if [ "<< parameters.pathogen >>" == ""];
+            then
+                docker build -t ${FULL_TAG} -t ${CIRCLE_TAG} -t ${LATEST_IMAGE_TAG} -f docker/<< parameters.dockerfile >> .
+            else
+                docker build --build-arg pathogen=<< parameters.pathogen >> -t ${FULL_TAG} -t ${CIRCLE_TAG} -t ${LATEST_IMAGE_TAG} -f docker/<< parameters.dockerfile >> .
+            fi
             docker push ${FULL_TAG}
             docker push ${CIRCLE_TAG}
             docker push ${LATEST_IMAGE_TAG}
@@ -77,9 +85,10 @@ jobs:
     executor: python
     steps:
       - build_and_push_docker_image:
-          dockerfile: "Dockerfile.sars-cov-2-pipeline"
+          dockerfile: "Dockerfile.psga-pipeline"
           ecrpath: ${PSGA_PIPELINE_ECREPOPATH}
           gitsubmodules: false
+          pathogen: "sars_cov_2"
   build-ncov2019-artic-nf-illumina:
     executor: python
     steps:
