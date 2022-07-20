@@ -8,7 +8,7 @@ import click
 from scripts.util.notifications import Event, Notification
 from scripts.validation.check_csv_columns import check_csv_columns
 
-EXPECTED_HEADERS = {"sample_id", "file_1", "file_2", "md5_1", "md5_2"}
+EXPECTED_HEADERS = {"sample_id", "file_1", "file_2"}
 
 
 @dataclass
@@ -42,14 +42,10 @@ def validate_and_normalise_row(row, sample_with_two_reads: bool):
 
     if not row["file_1"]:
         errs.append(f"file_1 for {sample_id} not available")
-    if not row["md5_1"]:
-        errs.append(f"md5_1 for {sample_id} not available")
 
     if sample_with_two_reads:
         if not row["file_2"]:
             errs.append(f"file_2 for {sample_id} not available")
-        if not row["md5_2"]:
-            errs.append(f"md5_2 for {sample_id} not available")
 
     if errs:
         raise ValueError("\n".join(errs))

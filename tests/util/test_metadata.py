@@ -31,10 +31,8 @@ def test_is_invalid_uuid():
             "good_metadata_illumina_bam.csv",
             True,
             [
-                "file_2 for 37a36d1c-5985-4836-87b5-b36bac75d81b not available\n"
-                "md5_2 for 37a36d1c-5985-4836-87b5-b36bac75d81b not available",
-                "file_2 for 985347c5-ff6a-454c-ac34-bc353d05dd70 not available\n"
-                "md5_2 for 985347c5-ff6a-454c-ac34-bc353d05dd70 not available",
+                "file_2 for 37a36d1c-5985-4836-87b5-b36bac75d81b not available",
+                "file_2 for 985347c5-ff6a-454c-ac34-bc353d05dd70 not available",
             ],
         ),
         (
@@ -45,8 +43,6 @@ def test_is_invalid_uuid():
                 'sample_id "#()aadd" is not a UUID',
                 "file_1 for 185347c5-ff6a-454c-ac34-bc353d05dd70 not available",
                 "file_2 for 27a36d1c-5985-4836-87b5-b36bac75d81b not available",
-                "md5_1 for 385347c5-ff6a-454c-ac34-bc353d05dd70 not available",
-                "md5_2 for 485347c5-ff6a-454c-ac34-bc353d05dd70 not available",
             ],
         ),
     ],
@@ -104,14 +100,12 @@ def test_generate_notifications(tmp_path):
         (
             "bad_metadata.csv",
             True,
-            [],
+            ["385347c5-ff6a-454c-ac34-bc353d05dd70"],
             [
                 "",
                 "#()aadd",
                 "185347c5-ff6a-454c-ac34-bc353d05dd70",
                 "27a36d1c-5985-4836-87b5-b36bac75d81b",
-                "385347c5-ff6a-454c-ac34-bc353d05dd70",
-                "485347c5-ff6a-454c-ac34-bc353d05dd70",
             ],
         ),
     ],
