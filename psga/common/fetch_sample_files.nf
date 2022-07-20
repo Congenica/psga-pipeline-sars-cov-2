@@ -9,7 +9,7 @@ process stage_sample_file {
   input:
     val(analysis_run)
     val(file_extension)
-    tuple val(sample_id), path(file_1), val(md5_1)
+    tuple val(sample_id), path(file_1)
 
   output:
     path(staged_file_1), emit: ch_sample_files
@@ -23,8 +23,6 @@ process stage_sample_file {
       # don't use ln -sf because nextflow removes both files.
       ln -s ${file_1} ${staged_file_1}
   fi
-
-  python ${PSGA_ROOT_PATH}/scripts/validation/check_file_integrity.py --analysis-run-name ${analysis_run} --sample-name ${sample_id} --input-path ${staged_file_1} --expected-md5 ${md5_1}
   """
 }
 
@@ -39,7 +37,7 @@ process stage_sample_file_pair {
     input:
       val(analysis_run)
       val(file_extension)
-      tuple val(sample_id), path(file_1), path(file_2), val(md5_1), val(md5_2)
+      tuple val(sample_id), path(file_1), path(file_2)
 
     output:
       tuple path(staged_file_1), path(staged_file_2), emit: ch_sample_files
@@ -54,9 +52,6 @@ process stage_sample_file_pair {
     if [ ! -e ${staged_file_2} ] ; then
         ln -s ${file_2} ${staged_file_2}
     fi
-
-    python ${PSGA_ROOT_PATH}/scripts/validation/check_file_integrity.py --analysis-run-name ${analysis_run} --sample-name ${sample_id} --input-path ${staged_file_1} --expected-md5 ${md5_1}
-    python ${PSGA_ROOT_PATH}/scripts/validation/check_file_integrity.py --analysis-run-name ${analysis_run} --sample-name ${sample_id} --input-path ${staged_file_2} --expected-md5 ${md5_2}
     """
 }
 
@@ -85,9 +80,9 @@ workflow select_sample_file {
 
         ch_metadata
             .splitCsv(header:true)
-            .map{ row-> tuple(row.sample_id, row.file_1, row.md5_1) }
+            .map{ row-> tuple(row.sample_id, row.file_1) }
             .set { ch_sample_filepaths }
-        // e.g. ch_sample_filepaths: [[sample_name1, fastq, md5], ...]
+        // e.g. ch_sample_filepaths: [[sample_name1, fastq], ...]
 
         ch_input_files = Channel.empty()
 
@@ -117,9 +112,9 @@ workflow select_sample_file_pair {
 
         ch_metadata
             .splitCsv(header:true)
-            .map{ row-> tuple(row.sample_id, row.file_1, row.file_2, row.md5_1, row.md5_2) }
+            .map{ row-> tuple(row.sample_id, row.file_1, row.file_2) }
             .set { ch_sample_filepaths }
-        // e.g. ch_sample_filepaths: [[sample_name1, fastq_1, fastq_2, md5_1, md5_2], ...]
+        // e.g. ch_sample_filepaths: [[sample_name1, fastq_1, fastq_2], ...]
 
         ch_sample_files = stage_sample_file_pair(
             params.run,

@@ -153,8 +153,6 @@ from utils_tests import read_samples_from_file
                 "#()aadd",
                 "185347c5-ff6a-454c-ac34-bc353d05dd70",
                 "27a36d1c-5985-4836-87b5-b36bac75d81b",
-                "385347c5-ff6a-454c-ac34-bc353d05dd70",
-                "485347c5-ff6a-454c-ac34-bc353d05dd70",
             ],
             1,
             "Invalid row for sample :\n"
@@ -165,13 +163,8 @@ from utils_tests import read_samples_from_file
             + "file_1 for 185347c5-ff6a-454c-ac34-bc353d05dd70 not available\n"
             + "Invalid row for sample 27a36d1c-5985-4836-87b5-b36bac75d81b:\n"
             + "file_2 for 27a36d1c-5985-4836-87b5-b36bac75d81b not available\n"
-            + "Invalid row for sample 385347c5-ff6a-454c-ac34-bc353d05dd70:\n"
-            + "md5_1 for 385347c5-ff6a-454c-ac34-bc353d05dd70 not available\n"
-            + "Invalid row for sample 485347c5-ff6a-454c-ac34-bc353d05dd70:\n"
-            + "md5_2 for 485347c5-ff6a-454c-ac34-bc353d05dd70 not available\n"
             + "Error: Errors encountered for sample ids: , #()aadd, 185347c5-ff6a-454c-ac34-bc353d05dd70, "
-            + "27a36d1c-5985-4836-87b5-b36bac75d81b, 385347c5-ff6a-454c-ac34-bc353d05dd70, "
-            + "485347c5-ff6a-454c-ac34-bc353d05dd70\n",
+            + "27a36d1c-5985-4836-87b5-b36bac75d81b\n",
         ),
     ],
 )
