@@ -4,6 +4,7 @@ NCOV2019_ARTIC_NF_ILLUMINA_DOCKER_IMAGE_TAG_BASE=1.0.0
 NCOV2019_ARTIC_NF_NANOPORE_DOCKER_IMAGE_TAG_BASE=1.0.0
 PANGOLIN_DOCKER_IMAGE_TAG_BASE=1.0.0
 SARS_COV_2_PIPELINE_DOCKER_IMAGE_TAG=1.0.0
+DUMMY_PATHOGEN_PIPELINE_DOCKER_IMAGE_TAG=1.0.0
 NCOV2019_ARTIC_NF_ILLUMINA_DOCKER_IMAGE_TAG=1.0.0
 NCOV2019_ARTIC_NF_NANOPORE_DOCKER_IMAGE_TAG=1.0.0
 PANGOLIN_DOCKER_IMAGE_TAG=1.0.0
@@ -32,3 +33,6 @@ sars-cov-2-images:
 	docker build -t ${DOCKER_IMAGE_PREFIX}/ncov2019-artic-nf-illumina:${NCOV2019_ARTIC_NF_ILLUMINA_DOCKER_IMAGE_TAG} -f docker/Dockerfile.ncov2019-artic-nf-illumina .
 	docker build -t ${DOCKER_IMAGE_PREFIX}/ncov2019-artic-nf-nanopore:${NCOV2019_ARTIC_NF_NANOPORE_DOCKER_IMAGE_TAG} -f docker/Dockerfile.ncov2019-artic-nf-nanopore .
 	docker build -t ${DOCKER_IMAGE_PREFIX}/pangolin:${PANGOLIN_DOCKER_IMAGE_TAG} -f docker/Dockerfile.pangolin .
+
+dummy-pathogen-images:
+	docker build --build-arg pathogen=dummy_pathogen -t ${DOCKER_IMAGE_PREFIX}/dummy-pathogen-pipeline:${DUMMY_PATHOGEN_PIPELINE_DOCKER_IMAGE_TAG} -f docker/Dockerfile.psga-pipeline .
