@@ -25,14 +25,6 @@ For each pathogen, test datasets can be found in `jenkins/files`.
 
 
 ### Running the pipeline using K8s Minikube (local testing)
-Install git submodules
-```commandline
-# initialise the submodules and fetch the code from origin of this repository
-make submodule-setup
-# update the submodules from origin of their repositories
-make submodule-update
-```
-
 Download and install Minikube using the instructions provided here: https://minikube.sigs.k8s.io/docs/start/ .
 Once minikube is active, we need to activate the minikube registry of docker images so that Minikube can find these locally.
 See: https://medium.com/swlh/how-to-run-locally-built-docker-images-in-kubernetes-b28fbc32cc1d for additional ideas

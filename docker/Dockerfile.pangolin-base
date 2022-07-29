@@ -1,13 +1,33 @@
 FROM continuumio/miniconda3:4.10.3 AS condabuild
-COPY pangolin/environment.yml /environment.yml
-RUN /opt/conda/bin/conda update conda \
-  && /opt/conda/bin/conda install mamba -c conda-forge \
-  && /opt/conda/bin/mamba env create -f /environment.yml -n pangolin
+
+ARG pangolin_commit=cbf077847b34cc51689d1bd31a5790d7c94a7253
+ARG scorpio_commit=2ae9e99b8c638786a6a5867222057c5b1ac28712
+ARG constellations_commit=9e2d67fe824c6637aea430f915a455e392cb774a
+ARG pangoLEARN_commit=21a21efa98d643cae5471457837e07841b610770
+ARG lineages_commit=53c52117c3c48530f937e311f9d3fcefd0cedd45
+ARG pangolin_data_commit=245325a91a02279039b35e672cc062d312770f66
+
+RUN git clone https://github.com/cov-lineages/pangolin.git \
+  && cd pangolin \
+  && git checkout ${pangolin_commit}
+
+RUN conda install mamba -c conda-forge \
+  && mamba env create -f pangolin/environment.yml -n pangolin
 
 FROM debian:buster-slim
 RUN apt-get update \
   && apt-get install -y --no-install-recommends git procps ca-certificates \
   && apt-get clean -y \
   && rm -rf /var/lib/apt/lists/*
+
 COPY --from=condabuild /opt/conda/envs/pangolin /opt/conda/envs/pangolin
+COPY --from=condabuild /pangolin /pangolin
 ENV PATH=/opt/conda/envs/pangolin/bin:$PATH
+
+RUN cd /pangolin \
+  && python setup.py install \
+  && pip install git+https://github.com/cov-lineages/scorpio.git@${scorpio_commit} \
+  && pip install git+https://github.com/cov-lineages/constellations.git@${constellations_commit} \
+  && pip install git+https://github.com/cov-lineages/pangoLEARN.git@${pangoLEARN_commit} \
+  && pip install git+https://github.com/cov-lineages/lineages.git@${lineages_commit} \
+  && pip install git+https://github.com/cov-lineages/pangolin-data.git@${pangolin_data_commit}

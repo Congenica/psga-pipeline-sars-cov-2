@@ -1,13 +1,20 @@
 FROM continuumio/miniconda3:4.10.3 AS condabuild
-COPY ncov2019-artic-nf/environments/extras.yml /extras.yml
-COPY ncov2019-artic-nf/environments/illumina/environment.yml /environment.yml
-RUN /opt/conda/bin/conda update conda && \
-/opt/conda/bin/conda install mamba -c conda-forge && \
-/opt/conda/bin/mamba env create -f /environment.yml && \
-/opt/conda/bin/mamba env update -f /extras.yml -n artic-ncov2019-illumina
 
-# reinstall these two packages to their latest version, as the conda-selected downgraded ones fail to run
-RUN /opt/conda/bin/mamba install -y -c conda-forge -c bioconda cutadapt==3.1 dnaio==0.4.4 openjdk=11.0.8 -n artic-ncov2019-illumina
+ARG ncov=ncov2019-artic-nf
+ARG ncov_commit=8af5152cf7107c3a369b996f5bad3473d329050c
+ARG primer_schemes_commit=c40e75dd532fa1241c0af480c378c9cc07abb915
+
+RUN git clone --recursive https://github.com/connor-lab/${ncov}.git \
+  && cd ${ncov} \
+  && git checkout ${ncov_commit}
+
+# Also reinstall these two packages to their latest version, as the conda-selected downgraded ones fail to run
+RUN cd ${ncov}/environments \
+  && conda install mamba -c conda-forge \
+  && mamba env create -f illumina/environment.yml \
+  && mamba env update -f extras.yml -n artic-ncov2019-illumina \
+  && mamba install -y -c conda-forge -c bioconda cutadapt==3.1 dnaio==0.4.4 openjdk=11.0.8 -n artic-ncov2019-illumina
+
 
 FROM debian:buster-slim
 RUN apt-get update \
@@ -16,8 +23,15 @@ RUN apt-get update \
   && rm -rf /var/lib/apt/lists/*
 
 COPY --from=condabuild /opt/conda/envs/artic-ncov2019-illumina /opt/conda/envs/artic-ncov2019-illumina
-ENV PATH=/opt/conda/envs/artic-ncov2019-illumina/bin:$PATH
+COPY --from=condabuild ${ncov} ${ncov}
+ENV PATH=${ncov}/bin:/opt/conda/envs/artic-ncov2019-illumina/bin:$PATH
 
-COPY ncov2019-artic-nf/bin/qc.py /opt/conda/envs/artic-ncov2019-illumina/bin
+RUN mkdir -p /artic-network \
+  && git clone https://github.com/artic-network/primer-schemes.git /artic-network/primer-schemes \
+  && cd /artic-network/primer-schemes \
+  && git checkout ${primer_schemes_commit}
+
+COPY psga/sars_cov_2/ncov-illumina.config .
+COPY psga/sars_cov_2/ncov-common.config .
 
 RUN wget -qO- https://github.com/nextflow-io/nextflow/releases/download/v21.10.6/nextflow | bash && chmod +x nextflow && mv nextflow /usr/bin

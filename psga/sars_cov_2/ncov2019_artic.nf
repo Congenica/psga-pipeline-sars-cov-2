@@ -40,7 +40,7 @@ process ncov2019_artic_nf_pipeline_illumina {
   # note: `pwd` is the workdir for this nextflow process
   # note: use /tmp as work dir, so that the intermediate files for this pipeline remain local
   #       instead of being shared with our pipeline
-  nextflow run ${PSGA_ROOT_PATH}/ncov2019-artic-nf \
+  nextflow run /ncov2019-artic-nf \
       --illumina \
       --prefix ${ncov_prefix} \
       --directory `eval pwd` \
@@ -50,7 +50,7 @@ process ncov2019_artic_nf_pipeline_illumina {
       --scheme ${scheme} \
       --schemeVersion ${kit} \
       -work-dir /tmp \
-      -c ${PSGA_ROOT_PATH}/psga/sars_cov_2/ncov-illumina.config
+      -c /ncov-illumina.config
 
   mkdir -p ${output_fasta}
   mkdir -p ${output_plots}
@@ -118,7 +118,7 @@ process ncov2019_artic_nf_pipeline_medaka {
   # note: --basecalled_fastq is the directory containing the barcodes or the fastq files
   # note: use /tmp as work dir, so that the intermediate files for this pipeline remain local
   #       instead of being shared with our pipeline
-  nextflow run ${PSGA_ROOT_PATH}/ncov2019-artic-nf \
+  nextflow run /ncov2019-artic-nf \
       --medaka \
       --prefix ${ncov_prefix} \
       --basecalled_fastq ${sample_name} \
@@ -128,7 +128,7 @@ process ncov2019_artic_nf_pipeline_medaka {
       --scheme ${scheme} \
       --schemeVersion ${kit} \
       -work-dir /tmp \
-      -c ${PSGA_ROOT_PATH}/psga/sars_cov_2/ncov-nanopore.config
+      -c /ncov-nanopore.config
 
   mkdir -p ${output_fasta}
   mkdir -p ${output_plots}
