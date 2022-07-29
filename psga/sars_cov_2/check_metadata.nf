@@ -10,8 +10,7 @@ process check_metadata {
   input:
     path metadata
     val analysis_run_name
-    val filetype
-    val ncov_workflow
+    val sequencing_technology
 
   output:
     path metadata, emit: ch_metadata
@@ -26,8 +25,7 @@ process check_metadata {
 
   metadata=!{metadata}
   analysis_run_name=!{analysis_run_name}
-  filetype=!{filetype}
-  ncov_workflow=!{ncov_workflow}
+  sequencing_technology=!{sequencing_technology}
 
   metadata_checked="check_metadata.done"
   samples_with_invalid_metadata_file="samples_with_invalid_metadata.txt"
@@ -36,8 +34,7 @@ process check_metadata {
   python ${PSGA_ROOT_PATH}/scripts/sars_cov_2/check_metadata.py \
     --metadata-path "${metadata}" \
     --analysis-run-name "${analysis_run_name}" \
-    --input-file-type "${filetype}" \
-    --ncov-workflow "${ncov_workflow}" \
+    --sequencing-technology "${sequencing_technology}" \
     --samples-with-invalid-metadata-file "${samples_with_invalid_metadata_file}" \
     --samples-with-valid-metadata-file "${samples_with_valid_metadata_file}"
 

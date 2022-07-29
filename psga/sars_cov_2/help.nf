@@ -10,8 +10,7 @@ def printPathogenConfig() {
         * PANGOLIN_DOCKER_IMAGE_TAG                   : ${PANGOLIN_DOCKER_IMAGE_TAG}
 
         Parameters:
-        * ncov_workflow                         : ${params.ncov_workflow}
-        * filetype                              : ${params.filetype}
+        * sequencing_technology                 : ${params.sequencing_technology}
         * scheme_repo_url                       : ${params.scheme_repo_url}
         * scheme_dir                            : ${params.scheme_dir}
         * scheme                                : ${params.scheme}
@@ -29,7 +28,7 @@ def printPathogenHelp() {
           - Pangolin: pangolin (https://github.com/cov-lineages/pangolin)
 
       Usage:
-        nextflow run . --run [analysis_run] --ncov_workflow [ncov_workflow] --filetype [filetype] [workflow-options]
+        nextflow run . --run [analysis_run] --sequencing_technology [sequencing_technology] [workflow-options]
 
       Mandatory environment variables:
         SARS_COV_2_PIPELINE_DOCKER_IMAGE_TAG
@@ -42,8 +41,7 @@ def printPathogenHelp() {
                                 The tag of the pangolin docker image
 
       Mandatory parameters:
-        --ncov_workflow         The ncov2019artic workflow to run: 'illumina_artic' (input file extension: .fastq.gz or .bam), 'medaka_artic' (input file extension: .fastq), 'no_ncov' (input file extension: .fasta).
-        --filetype              The type of input file: 'fasta', 'fastq' or 'bam'.
+        --sequencing_technology The sequencing technology for to use for ncov2019_artic pipeline: 'illumina' (input file extension: .fastq.gz or .bam), 'ont' (input file extension: .fastq), 'unknown' (input file extension: .fasta). If unknown, ncov is not executed.
 
       Optional parameters:
         --scheme_version        ARTIC scheme version (Default: 'V3')

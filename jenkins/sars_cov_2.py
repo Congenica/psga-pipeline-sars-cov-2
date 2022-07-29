@@ -6,12 +6,12 @@ from jenkins.loading import load_data_from_csv, get_file_paths
 from jenkins.compare import compare_merged_output_file, compare_output_files_set
 from jenkins.config import data_config
 from scripts.util.logging import get_structlog_logger
-from scripts.sars_cov_2.check_metadata import NCOV_WORKFLOW_FILE_TYPE_VALID_COMBINATIONS
+from scripts.sars_cov_2.check_metadata import SUPPORTED_FILES_BY_SEQUENCING_TECHNOLOGY
 
 logger = get_structlog_logger()
 
 
-def get_expected_output_files(root: Path, sample_names: List[str], ncov_workflow: str) -> List[Path]:
+def get_expected_output_files(root: Path, sample_names: List[str], sequencing_technology: str) -> List[Path]:
     """
     Return a list of expected output paths
     """
@@ -30,21 +30,22 @@ def get_expected_output_files(root: Path, sample_names: List[str], ncov_workflow
         "samples_with_valid_metadata.txt",
     ]
 
-    if ncov_workflow != "no_ncov":
+    if sequencing_technology != "unknown":
+        # skip ncov
         notification_files.extend(
             ["samples_failed_ncov_qc.txt", "samples_passed_ncov_qc.txt", "samples_unknown_ncov_qc.txt"]
         )
 
-        if ncov_workflow == "illumina_artic":
+        if sequencing_technology == "illumina":
             fastqc_suffixes = [f"{r}_fastqc.zip" for r in [1, 2]]
             ncov_fasta_suffixes = [".primertrimmed.consensus.fa"]
             ncov_plots_suffixes = [".depth.png"]
-        elif ncov_workflow == "medaka_artic":
+        elif sequencing_technology == "ont":
             fastqc_suffixes = ["fastqc.zip"]
             ncov_fasta_suffixes = [".consensus.fa", ".muscle.in.fa", ".muscle.out.fa", ".preconsensus.fa"]
             ncov_plots_suffixes = ["-barplot.png", "-boxplot.png", ".depth.png"]
         else:
-            raise ValueError(f"Unsupported ncov_workflow: {ncov_workflow}")
+            raise ValueError(f"Unsupported sequencing_technology: {sequencing_technology}")
 
         output_files.extend([root / "contamination_removal" / f"{s}_removed_reads.txt" for s in sample_names])
         output_files.extend([root / "fastqc" / f"{s}_{e}" for s in sample_names for e in fastqc_suffixes])
@@ -63,13 +64,13 @@ def get_expected_output_files(root: Path, sample_names: List[str], ncov_workflow
 
 @click.command(name="sars_cov_2")
 @click.option(
-    "--ncov-workflow",
+    "--sequencing-technology",
     required=True,
-    type=click.Choice(set(NCOV_WORKFLOW_FILE_TYPE_VALID_COMBINATIONS), case_sensitive=True),
-    help="The name of the ncov workflow",
+    type=click.Choice(set(SUPPORTED_FILES_BY_SEQUENCING_TECHNOLOGY), case_sensitive=True),
+    help="The name of the sequencing technology",
 )
 @click.pass_context
-def sars_cov_2(ctx, ncov_workflow: str):
+def sars_cov_2(ctx, sequencing_technology: str):
     """
     Validate sars_cov_2 output
     """
@@ -85,7 +86,7 @@ def sars_cov_2(ctx, ncov_workflow: str):
     sample_names = compare_merged_output_file(load_data_from_csv, data, result_path, expected_result_path)
 
     logger.info("Validation of output files set STARTED")
-    exp_output_files = get_expected_output_files(psga_output_path, sample_names, ncov_workflow)
+    exp_output_files = get_expected_output_files(psga_output_path, sample_names, sequencing_technology)
     calc_output_files = get_file_paths(psga_output_path)
     compare_output_files_set(set(calc_output_files), set(exp_output_files))
     logger.info("Validation PASSED")

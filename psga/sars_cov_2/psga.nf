@@ -2,33 +2,20 @@ include { pipeline_start } from './pipeline_lifespan.nf'
 include { check_metadata } from './check_metadata.nf'
 include { fastqc } from './common/fastqc.nf'
 
-if ( params.ncov_workflow == "illumina_artic" ) {
+if ( params.sequencing_technology == "illumina" ) {
     include { contamination_removal_illumina as contamination_removal } from './common/contamination_removal.nf'
     include { ncov2019_artic_nf_pipeline_illumina as ncov2019_artic } from './ncov2019_artic.nf'
-    if ( params.filetype == "fastq" ) {
-        include { select_sample_file_pair as get_sample_files } from './common/fetch_sample_files.nf'
-    } else if ( params.filetype == "bam" ) {
-        include { bam_to_fastq } from './common/utils.nf'
-        include { select_sample_file as get_sample_files } from './common/fetch_sample_files.nf'
-    } else {
-        throw new Exception("Error: '--filetype' can only be 'fastq' or 'bam' for 'illumina_artic' workflow")
-    }
-} else if ( params.ncov_workflow == "medaka_artic" ) {
+    include { stage_sample_file } from './common/fetch_sample_files.nf'
+    include { stage_sample_file_pair } from './common/fetch_sample_files.nf'
+    include { bam_to_fastq } from './common/utils.nf'
+} else if ( params.sequencing_technology == "ont" ) {
     include { contamination_removal_ont as contamination_removal } from './common/contamination_removal.nf'
     include { ncov2019_artic_nf_pipeline_medaka as ncov2019_artic } from './ncov2019_artic.nf'
-    if ( params.filetype == "fastq" ) {
-        include { select_sample_file as get_sample_files } from './common/fetch_sample_files.nf'
-    } else {
-        throw new Exception("Error: '--filetype' can only be 'fastq' for 'medaka_artic' workflow")
-    }
-} else if ( params.ncov_workflow == "no_ncov" ) {
-    if ( params.filetype == "fasta" ) {
-        include { select_sample_file as get_sample_files } from './common/fetch_sample_files.nf'
-    } else {
-        throw new Exception("Error: '--filetype' can only be 'fasta' for 'no_ncov' workflow")
-    }
+    include { stage_sample_file } from './common/fetch_sample_files.nf'
+} else if ( params.sequencing_technology == "unknown" ) {
+    include { stage_sample_file } from './common/fetch_sample_files.nf'
 } else {
-    throw new Exception("Error: '--ncov_workflow' can only be 'illumina_artic', 'medaka_artic' or 'no_ncov'")
+    throw new Exception("Error: '--sequencing_technology' can only be 'illumina', 'ont' or 'unknown'")
 }
 
 include { reheader } from './reheader.nf'
@@ -59,8 +46,7 @@ workflow psga {
         pipeline_start(
             params.metadata,
             params.run,
-            params.ncov_workflow,
-            params.filetype,
+            params.sequencing_technology,
             params.scheme_repo_url,
             params.scheme_dir,
             params.scheme,
@@ -70,68 +56,50 @@ workflow psga {
         check_metadata(
             params.metadata,
             params.run,
-            params.filetype,
-            params.ncov_workflow
+            params.sequencing_technology
         )
-
         ch_metadata = check_metadata.out.ch_metadata
 
-        if ( params.filetype == "fasta" ) {
+        // split the metadata in "single" (1 single file) and "pair" (2 reads) branches
+        ch_metadata
+            .splitCsv(header: true, sep: ',')
+            .branch {
+                single: it.file_2 == ''
+                pair: true
+            }
+            .set { ch_metadata_records }
 
-            ch_fasta_files = get_sample_files(
-                ch_metadata,
-                ".fasta"
-            )
+        if ( params.sequencing_technology == "unknown" ) {
+
+            // files are FASTA
+            ch_fasta_files = stage_sample_file(ch_metadata_records.single)
 
             // mock ncov
             ch_ncov_qc_csv = Channel.fromPath('/mock_file')
 
         } else {
 
-            ch_input_files_fastq = Channel.empty()
+            if ( params.sequencing_technology == "illumina") {
 
-            if ( params.ncov_workflow == "illumina_artic") {
+                // stage bam and transform it into 2 paired fastq files
+                ch_bam = stage_sample_file(ch_metadata_records.single)
+                ch_fastq_pairs_from_bam = bam_to_fastq(ch_bam)
 
-                if ( params.filetype == "fastq" ) {
-                    ch_input_files_fastq = get_sample_files(
-                        ch_metadata,
-                        ".fastq.gz"
-                    )
-                } else if ( params.filetype == "bam" ) {
-                    ch_input_files_bam = get_sample_files(
-                        ch_metadata,
-                        ".bam"
-                    )
-                    ch_input_files_fastq = bam_to_fastq(ch_input_files_bam)
-                } else {
-                    log.error """\
-                        ERROR: illumina workflow supports only fastq or bam file types.
-                        Aborting!
-                    """
-                    System.exit(1)
-                }
+                // stage fastq file pair
+                ch_fastq_pairs = stage_sample_file_pair(ch_metadata_records.pair)
 
-            } else if ( params.ncov_workflow == "medaka_artic" ) {
+                // unify the content of the two channels into one. Order of samples is irrelevant.
+                ch_input_files_fastq = ch_fastq_pairs.mix(ch_fastq_pairs_from_bam)
 
-                if ( params.filetype == "fastq" ) {
-                    ch_input_files_fastq = get_sample_files(
-                        ch_metadata,
-                        ".fastq"
-                    )
-                } else {
-                    log.error """\
-                        ERROR: nanopore / medaka workflow supports only fastq file type.
-                        Aborting!
-                    """
-                    System.exit(1)
-                }
+            } else if ( params.sequencing_technology == "ont" ) {
+
+                // stage fastq file pair
+                ch_input_files_fastq = stage_sample_file(ch_metadata_records.single)
 
             } else {
-                log.error """\
-                    ERROR: the only supported workflows are illumina_artic and medaka_artic.
-                    Aborting!
-                """
-                System.exit(1)
+
+                throw new Exception("Error: '--sequencing_technology' can only be 'illumina', 'ont' or 'unknown'")
+
             }
 
             contamination_removal(

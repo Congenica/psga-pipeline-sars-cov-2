@@ -34,8 +34,7 @@ pipeline {
                                             string(name: 'PSGA_OUTPUT_PATH', value: "/data/output/illumina_artic_fastq"),
                                             string(name: 'NXF_WORK', value: "/data/work/illumina_artic_fastq"),
                                             string(name: 'ANALYSIS_RUN', value: "illumina_artic_fastq"),
-                                            string(name: 'NCOV_WORKFLOW', value: "illumina_artic"),
-                                            string(name: 'FILETYPE', value: "fastq"),
+                                            string(name: 'SEQUENCING_TECHNOLOGY', value: "illumina"),
                                     ]
                                 )
                             }
@@ -54,8 +53,7 @@ pipeline {
                                             string(name: 'PSGA_OUTPUT_PATH', value: "/data/output/illumina_artic_bam"),
                                             string(name: 'NXF_WORK', value: "/data/work/illumina_artic_bam"),
                                             string(name: 'ANALYSIS_RUN', value: "illumina_artic_bam"),
-                                            string(name: 'NCOV_WORKFLOW', value: "illumina_artic"),
-                                            string(name: 'FILETYPE', value: "bam"),
+                                            string(name: 'SEQUENCING_TECHNOLOGY', value: "illumina"),
                                     ]
                                 )
                             }
@@ -74,8 +72,7 @@ pipeline {
                                             string(name: 'PSGA_OUTPUT_PATH', value: "/data/output/ont_artic_fastq"),
                                             string(name: 'NXF_WORK', value: "/data/work/ont_artic_fastq"),
                                             string(name: 'ANALYSIS_RUN', value: "ont_artic_fastq"),
-                                            string(name: 'NCOV_WORKFLOW', value: "medaka_artic"),
-                                            string(name: 'FILETYPE', value: "fastq"),
+                                            string(name: 'SEQUENCING_TECHNOLOGY', value: "ont"),
                                     ]
                                 )
                             }
@@ -94,8 +91,7 @@ pipeline {
                                             string(name: 'PSGA_OUTPUT_PATH', value: "/data/output/no_ncov_fasta"),
                                             string(name: 'NXF_WORK', value: "/data/work/no_ncov_fasta"),
                                             string(name: 'ANALYSIS_RUN', value: "no_ncov_fasta"),
-                                            string(name: 'NCOV_WORKFLOW', value: "no_ncov"),
-                                            string(name: 'FILETYPE', value: "fasta"),
+                                            string(name: 'SEQUENCING_TECHNOLOGY', value: "unknown"),
                                     ]
                                 )
                             }
