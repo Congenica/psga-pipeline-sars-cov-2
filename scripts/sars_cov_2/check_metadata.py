@@ -47,7 +47,7 @@ def validate_metadata(
         for row in reader:
             errs = []
             row = normalise_row(row)
-            sample_id = row["sample_id"]
+            sample_id = row["SAMPLE_ID"]
 
             # check sample_id
             if not sample_id:
@@ -56,10 +56,10 @@ def validate_metadata(
                 errs.append(f'sample_id "{sample_id}" is not a UUID')
 
             # check file_1
-            if not row["file_1"]:
-                errs.append(f"file_1 for {sample_id} not available")
+            if not row["SEQ_FILE_1"]:
+                errs.append(f"SEQ_FILE_1 for {sample_id} not available")
             else:
-                file_1 = row["file_1"]
+                file_1 = row["SEQ_FILE_1"]
                 # this returns 0 or 1 extension
                 extensions = [ext for ext in supported_extensions if file_1.endswith(ext)]
                 if not extensions:
@@ -75,10 +75,10 @@ def validate_metadata(
                         and SUPPORTED_FILES_BY_SEQUENCING_TECHNOLOGY[sequencing_technology][file_1_ext]
                     )
                     if two_reads:
-                        if not row["file_2"]:
-                            errs.append(f"file_2 for {sample_id} not available")
-                        elif not row["file_2"].endswith(file_1_ext):
-                            errs.append(f"file_1 and file_2 for {sample_id} have different file types")
+                        if not row["SEQ_FILE_2"]:
+                            errs.append(f"SEQ_FILE_2 for {sample_id} not available")
+                        elif not row["SEQ_FILE_2"].endswith(file_1_ext):
+                            errs.append(f"SEQ_FILE_1 and SEQ_FILE_2 for {sample_id} have different file types")
 
             if errs:
                 sample_errors = "\n".join(errs)

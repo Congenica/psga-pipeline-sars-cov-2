@@ -5,7 +5,7 @@ from dataclasses import dataclass, field
 
 from scripts.util.notifications import Event, Notification
 
-EXPECTED_HEADERS = {"sample_id", "file_1", "file_2"}
+EXPECTED_HEADERS = {"SAMPLE_ID", "SEQ_FILE_1", "SEQ_FILE_2"}
 
 
 @dataclass

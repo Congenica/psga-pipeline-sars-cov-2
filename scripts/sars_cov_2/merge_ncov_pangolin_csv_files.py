@@ -162,7 +162,7 @@ def merge_ncov_pangolin_csv_files(
     df_merged.to_csv(merged_output_csv_file, encoding="utf-8", index=False)
 
     # generate notifications
-    all_samples = df_metadata[sample_id].tolist()
+    all_samples = df_metadata[sample_id.upper()].tolist()
     ncov_all_samples = df_ncov[sample_id].tolist()
     pangolin_all_samples = df_pangolin[sample_id].tolist()
 

@@ -193,14 +193,14 @@ def test_validate_metadata(
             + "Invalid row for sample #()aadd:\n"
             + 'sample_id "#()aadd" is not a UUID\n'
             + "Invalid row for sample 185347c5-ff6a-454c-ac34-bc353d05dd70:\n"
-            + "file_1 for 185347c5-ff6a-454c-ac34-bc353d05dd70 not available\n"
+            + "SEQ_FILE_1 for 185347c5-ff6a-454c-ac34-bc353d05dd70 not available\n"
             + "Invalid row for sample 186647c5-ff6a-454c-ac34-bc353d05dd70:\n"
             + "Sample: 186647c5-ff6a-454c-ac34-bc353d05dd70 has invalid file for sequencing technology illumina. "
             + "Supported files are ['fastq.gz', 'bam']\n"
             + "Invalid row for sample 27a36d1c-5985-4836-87b5-b36bac75d81b:\n"
-            + "file_2 for 27a36d1c-5985-4836-87b5-b36bac75d81b not available\n"
+            + "SEQ_FILE_2 for 27a36d1c-5985-4836-87b5-b36bac75d81b not available\n"
             + "Invalid row for sample 286647c5-ff6a-454c-ac34-bc353d05dd70:\n"
-            + "file_1 and file_2 for 286647c5-ff6a-454c-ac34-bc353d05dd70 have different file types\n"
+            + "SEQ_FILE_1 and SEQ_FILE_2 for 286647c5-ff6a-454c-ac34-bc353d05dd70 have different file types\n"
             + "Error: Errors encountered for sample ids: , #()aadd, "
             + "185347c5-ff6a-454c-ac34-bc353d05dd70, 186647c5-ff6a-454c-ac34-bc353d05dd70, "
             + "27a36d1c-5985-4836-87b5-b36bac75d81b, 286647c5-ff6a-454c-ac34-bc353d05dd70\n",

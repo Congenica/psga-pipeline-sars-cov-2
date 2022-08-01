@@ -64,7 +64,7 @@ workflow psga {
         ch_metadata
             .splitCsv(header: true, sep: ',')
             .branch {
-                single: it.file_2 == ''
+                single: it.SEQ_FILE_2 == ''
                 pair: true
             }
             .set { ch_metadata_records }
