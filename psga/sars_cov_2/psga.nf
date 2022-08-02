@@ -47,10 +47,7 @@ workflow psga {
             params.metadata,
             params.run,
             params.sequencing_technology,
-            params.scheme_repo_url,
-            params.scheme_dir,
-            params.scheme,
-            params.scheme_version
+            params.kit,
         )
 
         check_metadata(
@@ -115,7 +112,7 @@ workflow psga {
                 params.scheme_repo_url,
                 params.scheme_dir,
                 params.scheme,
-                params.scheme_version
+                params.kit
             )
             ch_ncov_qc_csv = ncov2019_artic.out.ch_ncov_qc_csv
             ch_fasta_files = ncov2019_artic.out.ch_ncov_sample_fasta

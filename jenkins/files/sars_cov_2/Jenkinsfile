@@ -23,8 +23,7 @@ workdir:                ${params.NXF_WORK}
 run:                    ${params.ANALYSIS_RUN}
 pathogen:               sars_cov_2
 sequencing_technology:  ${params.SEQUENCING_TECHNOLOGY}
-primer scheme:          ${params.PRIMER_SCHEME}
-primer scheme_ver:      ${params.PRIMER_SCHEME_VERSION}
+kit:                    ${params.KIT}
 started by:             ${getTriggerDescription()}
 """
 }
@@ -56,9 +55,7 @@ pipeline {
         string(name: 'NXF_WORK', defaultValue: '/data/work/illumina_artic_fastq_short', description: 'The path to Nextflow work directory. This can be an S3 path. In this latter case, please specify a path which does not yet exist, otherwise Nextflow will fail to store files due to a policy defined by Dev OPS in which pods are not allowed to delete/overwrite objects in S3.')
         string(name: 'ANALYSIS_RUN', defaultValue: 'illumina_artic_fastq_short', description: 'This can be the test name')
         choice(name: 'SEQUENCING_TECHNOLOGY', choices: ['illumina', 'ont', 'unknown'], description: 'The sequencing technology. "illumina" supports fastq and bam files; "ont" supports fastq files; "unknown" for fasta')
-        string(name: 'PRIMER_SCHEME', defaultValue: 'nCoV-2019', description: 'The name of the primer scheme used by the ncov-artic pipeline')
-        string(name: 'PRIMER_SCHEME_VERSION', defaultValue: 'V3', description: 'The version of the primer scheme used by the ncov-artic pipeline')
-
+        string(name: 'KIT', defaultValue: 'V3', description: 'The version of the artic primer scheme used by the ncov-artic pipeline')
         string(name: 'CLUSTER_NAME', defaultValue: 'saas-dev.k8s.congenica.net', description: 'The Kubernetes cluster where the Congenica platform is deployed that the tests will run against.')
         string(name: 'NAMESPACE', defaultValue: 'psga', description: 'The Kubernetes namespace where the Congenica platform is deployed that the tests will run against.')
 
@@ -146,8 +143,7 @@ spec:
         ANALYSIS_RUN                                = "${params.ANALYSIS_RUN}"
         METADATA                                    = "${params.METADATA}"
         SEQUENCING_TECHNOLOGY                       = "${params.SEQUENCING_TECHNOLOGY}"
-        PRIMER_SCHEME                               = "${params.PRIMER_SCHEME}"
-        PRIMER_SCHEME_VERSION                       = "${params.PRIMER_SCHEME_VERSION}"
+        KIT                                         = "${params.KIT}"
 
         // other configs
         K8S_NODE                                    = "${params.K8S_NODE}"
@@ -193,7 +189,7 @@ spec:
 
                     // run the pipeline
                     // the argument `--load_missing_samples true` enables us to integration test the pipeline in isolation
-                    sh 'nextflow -log ${ANALYSIS_RUN}.log run ${PSGA_ROOT_PATH}/psga/main.nf --run ${ANALYSIS_RUN} --sequencing_technology ${SEQUENCING_TECHNOLOGY} --scheme ${PRIMER_SCHEME} --scheme_version ${PRIMER_SCHEME_VERSION} --metadata ${METADATA} -with-trace'
+                    sh 'nextflow -log ${ANALYSIS_RUN}.log run ${PSGA_ROOT_PATH}/psga/main.nf --run ${ANALYSIS_RUN} --sequencing_technology ${SEQUENCING_TECHNOLOGY} --kit ${KIT} --metadata ${METADATA} -with-trace'
 
                     if (params.VALIDATION_TEST) {
                         // fetch the expected output from s3

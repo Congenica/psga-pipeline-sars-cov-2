@@ -12,7 +12,7 @@ process ncov2019_artic_nf_pipeline_illumina {
     val scheme_repo_url
     val scheme_dir
     val scheme
-    val scheme_version
+    val kit
 
   output:
     // retain the qc csv intentionally
@@ -34,7 +34,7 @@ process ncov2019_artic_nf_pipeline_illumina {
   scheme_repo_url=!{scheme_repo_url}
   scheme_dir=!{scheme_dir}
   scheme=!{scheme}
-  scheme_version=!{scheme_version}
+  kit=!{kit}
 
   # note: we inject our configuration into ncov to override parameters
   # note: `pwd` is the workdir for this nextflow process
@@ -48,7 +48,7 @@ process ncov2019_artic_nf_pipeline_illumina {
       --schemeRepoURL ${scheme_repo_url} \
       --schemeDir ${scheme_dir} \
       --scheme ${scheme} \
-      --schemeVersion ${scheme_version} \
+      --schemeVersion ${kit} \
       -work-dir /tmp \
       -c ${PSGA_ROOT_PATH}/psga/sars_cov_2/ncov-illumina.config
 
@@ -79,7 +79,7 @@ process ncov2019_artic_nf_pipeline_medaka {
     val scheme_repo_url
     val scheme_dir
     val scheme
-    val scheme_version
+    val kit
 
   output:
     // retain the qc csv intentionally
@@ -102,7 +102,7 @@ process ncov2019_artic_nf_pipeline_medaka {
   scheme_repo_url=!{scheme_repo_url}
   scheme_dir=!{scheme_dir}
   scheme=!{scheme}
-  scheme_version=!{scheme_version}
+  kit=!{kit}
 
   # move fastq file to a specific directory so that the output files will have the filename pattern:
   # <analysis_run>_<sample_id>
@@ -126,7 +126,7 @@ process ncov2019_artic_nf_pipeline_medaka {
       --schemeRepoURL ${scheme_repo_url} \
       --schemeDir ${scheme_dir} \
       --scheme ${scheme} \
-      --schemeVersion ${scheme_version} \
+      --schemeVersion ${kit} \
       -work-dir /tmp \
       -c ${PSGA_ROOT_PATH}/psga/sars_cov_2/ncov-nanopore.config
 
