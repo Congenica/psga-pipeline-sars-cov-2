@@ -10,68 +10,51 @@ pipeline {
     stages {
         stage('Run PSGA pipeline: small tests') {
             parallel {
-                stage('illumina/fastq') {
+                stage('illumina') {
                     steps {
                         script {
                             build (
                                 job: "${PSGA_PIPELINE}/${env.BRANCH_NAME}",
                                 parameters: [
                                         booleanParam(name: 'VALIDATION_TEST', value: true),
-                                        string(name: 'METADATA', value: "s3://synthetic-data-dev/UKHSA/small_tests/illumina_fastq/metadata.csv"),
-                                        string(name: 'PSGA_OUTPUT_PATH', value: "/data/output/illumina_artic_fastq_short"),
-                                        string(name: 'NXF_WORK', value: "/data/work/illumina_artic_fastq_short"),
-                                        string(name: 'ANALYSIS_RUN', value: "illumina_artic_fastq_short"),
+                                        string(name: 'METADATA', value: "s3://synthetic-data-dev/UKHSA/small_tests/illumina/metadata.csv"),
+                                        string(name: 'PSGA_OUTPUT_PATH', value: "/data/output/illumina_short"),
+                                        string(name: 'NXF_WORK', value: "/data/work/illumina_short"),
+                                        string(name: 'ANALYSIS_RUN', value: "illumina_short"),
                                         string(name: 'SEQUENCING_TECHNOLOGY', value: "illumina"),
                                 ]
                             )
                         }
                     }
                 }
-                stage('illumina/bam') {
+                stage('ont') {
                     steps {
                         script {
                             build (
                                 job: "${PSGA_PIPELINE}/${env.BRANCH_NAME}",
                                 parameters: [
                                         booleanParam(name: 'VALIDATION_TEST', value: true),
-                                        string(name: 'METADATA', value: "s3://synthetic-data-dev/UKHSA/small_tests/illumina_bams/metadata.csv"),
-                                        string(name: 'PSGA_OUTPUT_PATH', value: "/data/output/illumina_artic_bam_short"),
-                                        string(name: 'NXF_WORK', value: "/data/work/illumina_artic_bam_short"),
-                                        string(name: 'ANALYSIS_RUN', value: "illumina_artic_bam_short"),
-                                        string(name: 'SEQUENCING_TECHNOLOGY', value: "illumina"),
-                                ]
-                            )
-                        }
-                    }
-                }
-                stage('medaka/fastq') {
-                    steps {
-                        script {
-                            build (
-                                job: "${PSGA_PIPELINE}/${env.BRANCH_NAME}",
-                                parameters: [
-                                        booleanParam(name: 'VALIDATION_TEST', value: true),
-                                        string(name: 'METADATA', value: "s3://synthetic-data-dev/UKHSA/small_tests/medaka_fastq/metadata.csv"),
-                                        string(name: 'PSGA_OUTPUT_PATH', value: "/data/output/ont_artic_fastq_short"),
-                                        string(name: 'NXF_WORK', value: "/data/work/ont_artic_fastq_short"),
-                                        string(name: 'ANALYSIS_RUN', value: "ont_artic_fastq_short"),
+                                        string(name: 'METADATA', value: "s3://synthetic-data-dev/UKHSA/small_tests/ont/metadata.csv"),
+                                        string(name: 'PSGA_OUTPUT_PATH', value: "/data/output/ont_short"),
+                                        string(name: 'NXF_WORK', value: "/data/work/ont_short"),
+                                        string(name: 'ANALYSIS_RUN', value: "ont_short"),
                                         string(name: 'SEQUENCING_TECHNOLOGY', value: "ont"),
                                 ]
                             )
                         }
                     }
                 }
-                stage('no_ncov/fasta') {
+                stage('fasta') {
                     steps {
                         script {
                             build (
                                 job: "${PSGA_PIPELINE}/${env.BRANCH_NAME}",
                                 parameters: [
                                         booleanParam(name: 'VALIDATION_TEST', value: true),
-                                        string(name: 'METADATA', value: "s3://synthetic-data-dev/UKHSA/small_tests/no_ncov_fasta/metadata.csv"),
-                                        string(name: 'PSGA_OUTPUT_PATH', value: "/data/output/no_ncov_fasta_short"),
-                                        string(name: 'NXF_WORK', value: "/data/work/no_ncov_fasta_short"),
-                                        string(name: 'ANALYSIS_RUN', value: "no_ncov_fasta_short"),
+                                        string(name: 'METADATA', value: "s3://synthetic-data-dev/UKHSA/small_tests/unknown/metadata.csv"),
+                                        string(name: 'PSGA_OUTPUT_PATH', value: "/data/output/unknown_short"),
+                                        string(name: 'NXF_WORK', value: "/data/work/unknown_short"),
+                                        string(name: 'ANALYSIS_RUN', value: "unknown_short"),
                                         string(name: 'SEQUENCING_TECHNOLOGY', value: "unknown"),
                                 ]
                             )
