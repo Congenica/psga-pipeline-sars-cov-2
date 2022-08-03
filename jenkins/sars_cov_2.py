@@ -6,7 +6,7 @@ from jenkins.loading import load_data_from_csv, get_file_paths
 from jenkins.compare import compare_merged_output_file, compare_output_files_set
 from jenkins.config import data_config
 from scripts.util.logging import get_structlog_logger
-from scripts.sars_cov_2.check_metadata import SUPPORTED_FILES_BY_SEQUENCING_TECHNOLOGY
+from scripts.sars_cov_2.check_metadata import SEQUENCING_TECHNOLOGIES
 
 logger = get_structlog_logger()
 
@@ -66,7 +66,7 @@ def get_expected_output_files(root: Path, sample_names: List[str], sequencing_te
 @click.option(
     "--sequencing-technology",
     required=True,
-    type=click.Choice(set(SUPPORTED_FILES_BY_SEQUENCING_TECHNOLOGY), case_sensitive=True),
+    type=click.Choice(SEQUENCING_TECHNOLOGIES, case_sensitive=True),
     help="The name of the sequencing technology",
 )
 @click.pass_context

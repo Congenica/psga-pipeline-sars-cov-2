@@ -7,6 +7,12 @@ from click import ClickException
 
 from scripts.util.logging import get_structlog_logger
 from scripts.util.metadata import (
+    ILLUMINA,
+    ONT,
+    UNKNOWN,
+    SAMPLE_ID,
+    SEQ_FILE_1,
+    SEQ_FILE_2,
     EXPECTED_HEADERS,
     generate_notifications,
     is_valid_uuid,
@@ -18,11 +24,20 @@ from scripts.validation.check_csv_columns import check_csv_columns
 log_file = f"{Path(__file__).stem}.log"
 logger = get_structlog_logger(log_file=log_file)
 
-# the boolean set to True means 2 files (=reads), False means 1 file
-SUPPORTED_FILES_BY_SEQUENCING_TECHNOLOGY = {
-    "illumina": {"fastq.gz": True, "bam": False},
-    "ont": {"fastq": False},
-    "unknown": {"fasta": False},
+
+SEQUENCING_TECHNOLOGIES = [ILLUMINA, ONT, UNKNOWN]
+FILE_NUM = "file_num"
+SUPPORTED_FILES = {
+    ILLUMINA: {
+        "fastq.gz": {FILE_NUM: 2},
+        "bam": {FILE_NUM: 1},
+    },
+    ONT: {
+        "fastq": {FILE_NUM: 1},
+    },
+    UNKNOWN: {
+        "fasta": {FILE_NUM: 1},
+    },
 }
 
 
@@ -42,47 +57,44 @@ def validate_metadata(
         reader = csv.DictReader(metadata_fd, delimiter=",")
 
         check_csv_columns(set(reader.fieldnames), EXPECTED_HEADERS)
-        supported_extensions = list(SUPPORTED_FILES_BY_SEQUENCING_TECHNOLOGY[sequencing_technology].keys())
+        supported_extensions = list(SUPPORTED_FILES[sequencing_technology])
 
         for row in reader:
             errs = []
             row = normalise_row(row)
-            sample_id = row["SAMPLE_ID"]
+            sample_id = row[SAMPLE_ID]
 
             # check sample_id
             if not sample_id:
-                errs.append("sample_id not available")
+                errs.append(f"{SAMPLE_ID} not available")
             elif not is_valid_uuid(sample_id):
-                errs.append(f'sample_id "{sample_id}" is not a UUID')
+                errs.append(f'{SAMPLE_ID} "{sample_id}" is not a UUID')
 
             # check file_1
-            if not row["SEQ_FILE_1"]:
-                errs.append(f"SEQ_FILE_1 for {sample_id} not available")
+            if not row[SEQ_FILE_1]:
+                errs.append(f"{SEQ_FILE_1} for {sample_id} not available")
             else:
-                file_1 = row["SEQ_FILE_1"]
+                file_1 = row[SEQ_FILE_1]
                 # this returns 0 or 1 extension
                 extensions = [ext for ext in supported_extensions if file_1.endswith(ext)]
                 if not extensions:
                     errs.append(
-                        f"Sample: {sample_id} has invalid file for sequencing technology {sequencing_technology}. "
+                        f"{SAMPLE_ID}: {sample_id} has invalid file for sequencing technology {sequencing_technology}. "
                         f"Supported files are {supported_extensions}"
                     )
                 else:
                     # check file_2 if required
                     file_1_ext = extensions[0]
-                    two_reads = (
-                        sequencing_technology == "illumina"
-                        and SUPPORTED_FILES_BY_SEQUENCING_TECHNOLOGY[sequencing_technology][file_1_ext]
-                    )
+                    two_reads = SUPPORTED_FILES[sequencing_technology][file_1_ext][FILE_NUM] == 2
                     if two_reads:
-                        if not row["SEQ_FILE_2"]:
-                            errs.append(f"SEQ_FILE_2 for {sample_id} not available")
-                        elif not row["SEQ_FILE_2"].endswith(file_1_ext):
-                            errs.append(f"SEQ_FILE_1 and SEQ_FILE_2 for {sample_id} have different file types")
+                        if not row[SEQ_FILE_2]:
+                            errs.append(f"{SEQ_FILE_2} for {sample_id} not available")
+                        elif not row[SEQ_FILE_2].endswith(file_1_ext):
+                            errs.append(f"{SEQ_FILE_1} and {SEQ_FILE_2} for {sample_id} have different file types")
 
             if errs:
                 sample_errors = "\n".join(errs)
-                click.echo(f"Invalid row for sample {sample_id}:\n{sample_errors}", err=True)
+                click.echo(f"Invalid row for {SAMPLE_ID} {sample_id}:\n{sample_errors}", err=True)
                 processed_samples.invalid.append(sample_id)
                 continue
 
@@ -102,7 +114,7 @@ def validate_metadata(
 @click.option(
     "--sequencing-technology",
     required=True,
-    type=click.Choice(set(SUPPORTED_FILES_BY_SEQUENCING_TECHNOLOGY), case_sensitive=True),
+    type=click.Choice(SEQUENCING_TECHNOLOGIES, case_sensitive=True),
     help="The name of the sequencing technology",
 )
 @click.option(

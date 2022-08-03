@@ -5,7 +5,14 @@ from dataclasses import dataclass, field
 
 from scripts.util.notifications import Event, Notification
 
-EXPECTED_HEADERS = {"SAMPLE_ID", "SEQ_FILE_1", "SEQ_FILE_2"}
+SAMPLE_ID = "SAMPLE_ID"
+SEQ_FILE_1 = "SEQ_FILE_1"
+SEQ_FILE_2 = "SEQ_FILE_2"
+
+EXPECTED_HEADERS = {SAMPLE_ID, SEQ_FILE_1, SEQ_FILE_2}
+ILLUMINA = "illumina"
+ONT = "ont"
+UNKNOWN = "unknown"
 
 
 @dataclass

@@ -116,11 +116,11 @@ def test_validate_metadata(
             [],
             ["37a36d1c-5985-4836-87b5-b36bac75d81b", "985347c5-ff6a-454c-ac34-bc353d05dd70"],
             1,
-            "Invalid row for sample 37a36d1c-5985-4836-87b5-b36bac75d81b:\n"
-            + "Sample: 37a36d1c-5985-4836-87b5-b36bac75d81b has invalid file for sequencing technology ont. "
+            "Invalid row for SAMPLE_ID 37a36d1c-5985-4836-87b5-b36bac75d81b:\n"
+            + "SAMPLE_ID: 37a36d1c-5985-4836-87b5-b36bac75d81b has invalid file for sequencing technology ont. "
             + "Supported files are ['fastq']\n"
-            + "Invalid row for sample 985347c5-ff6a-454c-ac34-bc353d05dd70:\n"
-            + "Sample: 985347c5-ff6a-454c-ac34-bc353d05dd70 has invalid file for sequencing technology ont. "
+            + "Invalid row for SAMPLE_ID 985347c5-ff6a-454c-ac34-bc353d05dd70:\n"
+            + "SAMPLE_ID: 985347c5-ff6a-454c-ac34-bc353d05dd70 has invalid file for sequencing technology ont. "
             + "Supported files are ['fastq']\n"
             + "Error: Errors encountered for sample ids: "
             + "37a36d1c-5985-4836-87b5-b36bac75d81b, 985347c5-ff6a-454c-ac34-bc353d05dd70\n",
@@ -132,11 +132,11 @@ def test_validate_metadata(
             [],
             ["37a36d1c-5985-4836-87b5-b36bac75d81b", "985347c5-ff6a-454c-ac34-bc353d05dd70"],
             1,
-            "Invalid row for sample 37a36d1c-5985-4836-87b5-b36bac75d81b:\n"
-            + "Sample: 37a36d1c-5985-4836-87b5-b36bac75d81b has invalid file for sequencing technology illumina. "
+            "Invalid row for SAMPLE_ID 37a36d1c-5985-4836-87b5-b36bac75d81b:\n"
+            + "SAMPLE_ID: 37a36d1c-5985-4836-87b5-b36bac75d81b has invalid file for sequencing technology illumina. "
             + "Supported files are ['fastq.gz', 'bam']\n"
-            + "Invalid row for sample 985347c5-ff6a-454c-ac34-bc353d05dd70:\n"
-            + "Sample: 985347c5-ff6a-454c-ac34-bc353d05dd70 has invalid file for sequencing technology illumina. "
+            + "Invalid row for SAMPLE_ID 985347c5-ff6a-454c-ac34-bc353d05dd70:\n"
+            + "SAMPLE_ID: 985347c5-ff6a-454c-ac34-bc353d05dd70 has invalid file for sequencing technology illumina. "
             + "Supported files are ['fastq.gz', 'bam']\n"
             + "Error: Errors encountered for sample ids: "
             + "37a36d1c-5985-4836-87b5-b36bac75d81b, 985347c5-ff6a-454c-ac34-bc353d05dd70\n",
@@ -148,11 +148,11 @@ def test_validate_metadata(
             [],
             ["37a36d1c-5985-4836-87b5-b36bac75d81b", "985347c5-ff6a-454c-ac34-bc353d05dd70"],
             1,
-            "Invalid row for sample 37a36d1c-5985-4836-87b5-b36bac75d81b:\n"
-            + "Sample: 37a36d1c-5985-4836-87b5-b36bac75d81b has invalid file for sequencing technology unknown. "
+            "Invalid row for SAMPLE_ID 37a36d1c-5985-4836-87b5-b36bac75d81b:\n"
+            + "SAMPLE_ID: 37a36d1c-5985-4836-87b5-b36bac75d81b has invalid file for sequencing technology unknown. "
             + "Supported files are ['fasta']\n"
-            + "Invalid row for sample 985347c5-ff6a-454c-ac34-bc353d05dd70:\n"
-            + "Sample: 985347c5-ff6a-454c-ac34-bc353d05dd70 has invalid file for sequencing technology unknown. "
+            + "Invalid row for SAMPLE_ID 985347c5-ff6a-454c-ac34-bc353d05dd70:\n"
+            + "SAMPLE_ID: 985347c5-ff6a-454c-ac34-bc353d05dd70 has invalid file for sequencing technology unknown. "
             + "Supported files are ['fasta']\n"
             + "Error: Errors encountered for sample ids: "
             + "37a36d1c-5985-4836-87b5-b36bac75d81b, 985347c5-ff6a-454c-ac34-bc353d05dd70\n",
@@ -164,11 +164,11 @@ def test_validate_metadata(
             [],
             ["37a36d1c-5985-4836-87b5-b36bac75d81b", "985347c5-ff6a-454c-ac34-bc353d05dd70"],
             1,
-            "Invalid row for sample 37a36d1c-5985-4836-87b5-b36bac75d81b:\n"
-            + "Sample: 37a36d1c-5985-4836-87b5-b36bac75d81b has invalid file for sequencing technology ont. "
+            "Invalid row for SAMPLE_ID 37a36d1c-5985-4836-87b5-b36bac75d81b:\n"
+            + "SAMPLE_ID: 37a36d1c-5985-4836-87b5-b36bac75d81b has invalid file for sequencing technology ont. "
             + "Supported files are ['fastq']\n"
-            + "Invalid row for sample 985347c5-ff6a-454c-ac34-bc353d05dd70:\n"
-            + "Sample: 985347c5-ff6a-454c-ac34-bc353d05dd70 has invalid file for sequencing technology ont. "
+            + "Invalid row for SAMPLE_ID 985347c5-ff6a-454c-ac34-bc353d05dd70:\n"
+            + "SAMPLE_ID: 985347c5-ff6a-454c-ac34-bc353d05dd70 has invalid file for sequencing technology ont. "
             + "Supported files are ['fastq']\n"
             + "Error: Errors encountered for sample ids: "
             + "37a36d1c-5985-4836-87b5-b36bac75d81b, 985347c5-ff6a-454c-ac34-bc353d05dd70\n",
@@ -188,18 +188,18 @@ def test_validate_metadata(
                 "286647c5-ff6a-454c-ac34-bc353d05dd70",
             ],
             1,
-            "Invalid row for sample :\n"
-            + "sample_id not available\n"
-            + "Invalid row for sample #()aadd:\n"
-            + 'sample_id "#()aadd" is not a UUID\n'
-            + "Invalid row for sample 185347c5-ff6a-454c-ac34-bc353d05dd70:\n"
+            "Invalid row for SAMPLE_ID :\n"
+            + "SAMPLE_ID not available\n"
+            + "Invalid row for SAMPLE_ID #()aadd:\n"
+            + 'SAMPLE_ID "#()aadd" is not a UUID\n'
+            + "Invalid row for SAMPLE_ID 185347c5-ff6a-454c-ac34-bc353d05dd70:\n"
             + "SEQ_FILE_1 for 185347c5-ff6a-454c-ac34-bc353d05dd70 not available\n"
-            + "Invalid row for sample 186647c5-ff6a-454c-ac34-bc353d05dd70:\n"
-            + "Sample: 186647c5-ff6a-454c-ac34-bc353d05dd70 has invalid file for sequencing technology illumina. "
+            + "Invalid row for SAMPLE_ID 186647c5-ff6a-454c-ac34-bc353d05dd70:\n"
+            + "SAMPLE_ID: 186647c5-ff6a-454c-ac34-bc353d05dd70 has invalid file for sequencing technology illumina. "
             + "Supported files are ['fastq.gz', 'bam']\n"
-            + "Invalid row for sample 27a36d1c-5985-4836-87b5-b36bac75d81b:\n"
+            + "Invalid row for SAMPLE_ID 27a36d1c-5985-4836-87b5-b36bac75d81b:\n"
             + "SEQ_FILE_2 for 27a36d1c-5985-4836-87b5-b36bac75d81b not available\n"
-            + "Invalid row for sample 286647c5-ff6a-454c-ac34-bc353d05dd70:\n"
+            + "Invalid row for SAMPLE_ID 286647c5-ff6a-454c-ac34-bc353d05dd70:\n"
             + "SEQ_FILE_1 and SEQ_FILE_2 for 286647c5-ff6a-454c-ac34-bc353d05dd70 have different file types\n"
             + "Error: Errors encountered for sample ids: , #()aadd, "
             + "185347c5-ff6a-454c-ac34-bc353d05dd70, 186647c5-ff6a-454c-ac34-bc353d05dd70, "
