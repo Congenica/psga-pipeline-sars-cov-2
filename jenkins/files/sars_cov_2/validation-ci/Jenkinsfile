@@ -22,7 +22,7 @@ pipeline {
     stages {
         stage('Run PSGA pipeline: validation-ci') {
             stages {
-                stage('illumina/fastq') {
+                stage('illumina') {
                     steps {
                         script {
                             catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
@@ -30,10 +30,10 @@ pipeline {
                                     job: "${PSGA_PIPELINE}/${env.BRANCH_NAME}",
                                     parameters: [
                                             booleanParam(name: 'VALIDATION_TEST', value: true),
-                                            string(name: 'METADATA', value: "s3://synthetic-data-dev/UKHSA/validation_ci/illumina_artic_fastq/metadata.csv"),
-                                            string(name: 'PSGA_OUTPUT_PATH', value: "/data/output/illumina_artic_fastq"),
-                                            string(name: 'NXF_WORK', value: "/data/work/illumina_artic_fastq"),
-                                            string(name: 'ANALYSIS_RUN', value: "illumina_artic_fastq"),
+                                            string(name: 'METADATA', value: "s3://synthetic-data-dev/UKHSA/validation_ci/illumina/metadata.csv"),
+                                            string(name: 'PSGA_OUTPUT_PATH', value: "/data/output/illumina"),
+                                            string(name: 'NXF_WORK', value: "/data/work/illumina"),
+                                            string(name: 'ANALYSIS_RUN', value: "illumina"),
                                             string(name: 'SEQUENCING_TECHNOLOGY', value: "illumina"),
                                     ]
                                 )
@@ -41,7 +41,7 @@ pipeline {
                         }
                     }
                 }
-                stage('illumina/bam') {
+                stage('ont') {
                     steps {
                         script {
                             catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
@@ -49,29 +49,10 @@ pipeline {
                                     job: "${PSGA_PIPELINE}/${env.BRANCH_NAME}",
                                     parameters: [
                                             booleanParam(name: 'VALIDATION_TEST', value: true),
-                                            string(name: 'METADATA', value: "s3://synthetic-data-dev/UKHSA/validation_ci/illumina_artic_bam/metadata.csv"),
-                                            string(name: 'PSGA_OUTPUT_PATH', value: "/data/output/illumina_artic_bam"),
-                                            string(name: 'NXF_WORK', value: "/data/work/illumina_artic_bam"),
-                                            string(name: 'ANALYSIS_RUN', value: "illumina_artic_bam"),
-                                            string(name: 'SEQUENCING_TECHNOLOGY', value: "illumina"),
-                                    ]
-                                )
-                            }
-                        }
-                    }
-                }
-                stage('medaka/fastq') {
-                    steps {
-                        script {
-                            catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
-                                build (
-                                    job: "${PSGA_PIPELINE}/${env.BRANCH_NAME}",
-                                    parameters: [
-                                            booleanParam(name: 'VALIDATION_TEST', value: true),
-                                            string(name: 'METADATA', value: "s3://synthetic-data-dev/UKHSA/validation_ci/ont_artic_fastq/metadata.csv"),
-                                            string(name: 'PSGA_OUTPUT_PATH', value: "/data/output/ont_artic_fastq"),
-                                            string(name: 'NXF_WORK', value: "/data/work/ont_artic_fastq"),
-                                            string(name: 'ANALYSIS_RUN', value: "ont_artic_fastq"),
+                                            string(name: 'METADATA', value: "s3://synthetic-data-dev/UKHSA/validation_ci/ont/metadata.csv"),
+                                            string(name: 'PSGA_OUTPUT_PATH', value: "/data/output/ont"),
+                                            string(name: 'NXF_WORK', value: "/data/work/ont"),
+                                            string(name: 'ANALYSIS_RUN', value: "ont"),
                                             string(name: 'SEQUENCING_TECHNOLOGY', value: "ont"),
                                     ]
                                 )
@@ -87,10 +68,10 @@ pipeline {
                                     job: "${PSGA_PIPELINE}/${env.BRANCH_NAME}",
                                     parameters: [
                                             booleanParam(name: 'VALIDATION_TEST', value: true),
-                                            string(name: 'METADATA', value: "s3://synthetic-data-dev/UKHSA/validation_ci/no_ncov_fasta/metadata.csv"),
-                                            string(name: 'PSGA_OUTPUT_PATH', value: "/data/output/no_ncov_fasta"),
-                                            string(name: 'NXF_WORK', value: "/data/work/no_ncov_fasta"),
-                                            string(name: 'ANALYSIS_RUN', value: "no_ncov_fasta"),
+                                            string(name: 'METADATA', value: "s3://synthetic-data-dev/UKHSA/validation_ci/unknown/metadata.csv"),
+                                            string(name: 'PSGA_OUTPUT_PATH', value: "/data/output/unknown"),
+                                            string(name: 'NXF_WORK', value: "/data/work/unknown"),
+                                            string(name: 'ANALYSIS_RUN', value: "unknown"),
                                             string(name: 'SEQUENCING_TECHNOLOGY', value: "unknown"),
                                     ]
                                 )
