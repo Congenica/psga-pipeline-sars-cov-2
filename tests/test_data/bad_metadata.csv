@@ -1,6 +1,8 @@
-sample_id,file_1,file_2
+SAMPLE_ID,SEQ_FILE_1,SEQ_FILE_2
 ,s3://synthetic-data-dev/small_tests/illumina_fastq/ERR7150151_1.fastq.gz,s3://synthetic-data-dev/small_tests/illumina_fastq/ERR7150151_2.fastq.gz
 #()aadd,s3://synthetic-data-dev/small_tests/illumina_fastq/ERR7150151_1.fastq.gz,s3://synthetic-data-dev/small_tests/illumina_fastq/ERR7150151_2.fastq.gz
 185347c5-ff6a-454c-ac34-bc353d05dd70,,s3://synthetic-data-dev/small_tests/illumina_fastq/ERR7150243_2.fastq.gz
+186647c5-ff6a-454c-ac34-bc353d05dd70,s3://synthetic-data-dev/small_tests/illumina_fastq/ERR7150243_1.vcf.gz,s3://synthetic-data-dev/small_tests/illumina_fastq/ERR7150243_2.fastq.gz
 27a36d1c-5985-4836-87b5-b36bac75d81b,s3://synthetic-data-dev/small_tests/illumina_fastq/ERR7150151_1.fastq.gz,
+286647c5-ff6a-454c-ac34-bc353d05dd70,s3://synthetic-data-dev/small_tests/illumina_fastq/ERR7150243_1.fastq.gz,s3://synthetic-data-dev/small_tests/illumina_fastq/ERR7150243.vcf.gz
 385347c5-ff6a-454c-ac34-bc353d05dd70,s3://synthetic-data-dev/small_tests/illumina_fastq/ERR7150243_1.fastq.gz,s3://synthetic-data-dev/small_tests/illumina_fastq/ERR7150243_2.fastq.gz

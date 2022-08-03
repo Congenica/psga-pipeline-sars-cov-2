@@ -24,8 +24,7 @@ pipeline {
                                             string(name: 'PSGA_OUTPUT_PATH', value: "s3://synthetic-data-dev/UKHSA/large_tests/output/illumina_artic_fastq"),
                                             string(name: 'NXF_WORK', value: "/data/work/illumina_artic_fastq_large"),
                                             string(name: 'ANALYSIS_RUN', value: "illumina_artic_fastq_large"),
-                                            string(name: 'NCOV_WORKFLOW', value: "illumina_artic"),
-                                            string(name: 'FILETYPE', value: "fastq"),
+                                            string(name: 'SEQUENCING_TECHNOLOGY', value: "illumina"),
                                             string(name: 'K8S_QUEUE_SIZE', value: "10"),
                                     ]
                                 )
@@ -45,8 +44,7 @@ pipeline {
                                             string(name: 'PSGA_OUTPUT_PATH', value: "s3://synthetic-data-dev/UKHSA/large_tests/output/illumina_artic_bam"),
                                             string(name: 'NXF_WORK', value: "/data/work/illumina_artic_bam_large"),
                                             string(name: 'ANALYSIS_RUN', value: "illumina_artic_bam_large"),
-                                            string(name: 'NCOV_WORKFLOW', value: "illumina_artic"),
-                                            string(name: 'FILETYPE', value: "bam"),
+                                            string(name: 'SEQUENCING_TECHNOLOGY', value: "illumina"),
                                             string(name: 'K8S_QUEUE_SIZE', value: "10"),
                                     ]
                                 )
@@ -66,8 +64,7 @@ pipeline {
                                             string(name: 'PSGA_OUTPUT_PATH', value: "s3://synthetic-data-dev/UKHSA/large_tests/output/ont_artic_fastq"),
                                             string(name: 'NXF_WORK', value: "/data/work/ont_artic_fastq_large"),
                                             string(name: 'ANALYSIS_RUN', value: "ont_artic_fastq_large"),
-                                            string(name: 'NCOV_WORKFLOW', value: "medaka_artic"),
-                                            string(name: 'FILETYPE', value: "fastq"),
+                                            string(name: 'SEQUENCING_TECHNOLOGY', value: "ont"),
                                             string(name: 'K8S_QUEUE_SIZE', value: "10"),
                                     ]
                                 )
@@ -87,8 +84,7 @@ pipeline {
                                             string(name: 'PSGA_OUTPUT_PATH', value: "s3://synthetic-data-dev/UKHSA/large_tests/output/no_ncov_fasta"),
                                             string(name: 'NXF_WORK', value: "/data/work/no_ncov_fasta_large"),
                                             string(name: 'ANALYSIS_RUN', value: "no_ncov_fasta_large"),
-                                            string(name: 'NCOV_WORKFLOW', value: "no_ncov"),
-                                            string(name: 'FILETYPE', value: "fasta"),
+                                            string(name: 'SEQUENCING_TECHNOLOGY', value: "unknown"),
                                             string(name: 'K8S_QUEUE_SIZE', value: "10"),
                                     ]
                                 )

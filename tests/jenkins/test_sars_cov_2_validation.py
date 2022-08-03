@@ -12,10 +12,10 @@ from jenkins.validation import validate
 from tests.jenkins.util import create_paths
 
 
-def create_output_files(samples: Path, root: Path, ncov_workflow: str):
+def create_output_files(samples: Path, root: Path, sequencing_technology: str):
     df = pd.read_csv(samples)
     sample_names = df["sample_id"].tolist()
-    paths = get_expected_output_files(root, sample_names, ncov_workflow)
+    paths = get_expected_output_files(root, sample_names, sequencing_technology)
     create_paths(paths)
 
 
@@ -63,8 +63,8 @@ def test_compare_merged_output_file(
 
 
 @pytest.mark.parametrize(
-    "ncov_workflow",
-    ["illumina_artic", "medaka_artic", "no_ncov"],
+    "sequencing_technology",
+    ["illumina", "ont", "unknown"],
 )
 @pytest.mark.parametrize(
     "env_var_set,result_file,expected_result_file,exit_code,exception_msg",
@@ -110,7 +110,7 @@ def test_validation(
     env_var_set,
     result_file,
     expected_result_file,
-    ncov_workflow,
+    sequencing_technology,
     exit_code,
     exception_msg,
 ):
@@ -125,7 +125,7 @@ def test_validation(
 
     # here we test the merged output file, but we assume that
     # the output files are as expected
-    create_output_files(actual_path, tmp_path, ncov_workflow)
+    create_output_files(actual_path, tmp_path, sequencing_technology)
 
     rv = CliRunner().invoke(
         validate,
@@ -135,8 +135,8 @@ def test_validation(
             "--expected-result-path",
             expected_path,
             "sars_cov_2",
-            "--ncov-workflow",
-            ncov_workflow,
+            "--sequencing-technology",
+            sequencing_technology,
         ],
     )
     assert rv.exit_code == exit_code

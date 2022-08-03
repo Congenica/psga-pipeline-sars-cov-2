@@ -1,44 +1,57 @@
 import pytest
 from click.testing import CliRunner
 
-from scripts.sars_cov_2.check_metadata import check_metadata
+from scripts.sars_cov_2.check_metadata import check_metadata, validate_metadata
 from utils_tests import read_samples_from_file
 
 
 @pytest.mark.parametrize(
-    "metadata_file,analysis_run_name,analysis_run_columns," "valid_samples,invalid_samples,exit_code,exception_msg",
+    "metadata_file,sequencing_technology,valid_samples,invalid_samples",
     [
         (
-            "good_metadata_illumina_fastq.csv",
-            "just_a_name",
-            {
-                "input_file_type": "unknown",
-                "ncov_workflow": "illumina_artic",
-            },
+            "good_metadata_illumina_bam.csv",
+            "illumina",
+            ["37a36d1c-5985-4836-87b5-b36bac75d81b", "985347c5-ff6a-454c-ac34-bc353d05dd70"],
             [],
-            [],
-            2,
-            "Error: Invalid value for '--input-file-type'",
         ),
+        (
+            "bad_metadata.csv",
+            "illumina",
+            ["385347c5-ff6a-454c-ac34-bc353d05dd70"],
+            [
+                "",
+                "#()aadd",
+                "185347c5-ff6a-454c-ac34-bc353d05dd70",
+                "186647c5-ff6a-454c-ac34-bc353d05dd70",
+                "27a36d1c-5985-4836-87b5-b36bac75d81b",
+                "286647c5-ff6a-454c-ac34-bc353d05dd70",
+            ],
+        ),
+    ],
+)
+def test_validate_metadata(
+    test_data_path,
+    metadata_file,
+    sequencing_technology,
+    valid_samples,
+    invalid_samples,
+):
+    metadata_path = test_data_path / metadata_file
+
+    samples = validate_metadata(metadata_path, sequencing_technology)
+
+    assert sorted(samples.valid) == sorted(valid_samples)
+    assert sorted(samples.invalid) == sorted(invalid_samples)
+
+
+@pytest.mark.parametrize(
+    "metadata_file,analysis_run_name,sequencing_technology,valid_samples,invalid_samples,exit_code,exception_msg",
+    [
+        # CORRECT METADATA
         (
             "good_metadata_illumina_fastq.csv",
             "just_a_name",
-            {
-                "input_file_type": "fastq",
-                "ncov_workflow": "fake_workflow",
-            },
-            [],
-            [],
-            2,
-            "Error: Invalid value for '--ncov-workflow'",
-        ),
-        (
-            "good_metadata_illumina_fastq.csv",
-            "just_a_name",
-            {
-                "input_file_type": "fastq",
-                "ncov_workflow": "illumina_artic",
-            },
+            "illumina",
             ["37a36d1c-5985-4836-87b5-b36bac75d81b", "985347c5-ff6a-454c-ac34-bc353d05dd70"],
             [],
             0,
@@ -47,10 +60,7 @@ from utils_tests import read_samples_from_file
         (
             "good_metadata_illumina_bam.csv",
             "just_a_name",
-            {
-                "input_file_type": "bam",
-                "ncov_workflow": "illumina_artic",
-            },
+            "illumina",
             ["37a36d1c-5985-4836-87b5-b36bac75d81b", "985347c5-ff6a-454c-ac34-bc353d05dd70"],
             [],
             0,
@@ -59,10 +69,7 @@ from utils_tests import read_samples_from_file
         (
             "good_metadata_medaka_fastq.csv",
             "just_a_name",
-            {
-                "input_file_type": "fastq",
-                "ncov_workflow": "medaka_artic",
-            },
+            "ont",
             ["37a36d1c-5985-4836-87b5-b36bac75d81b", "985347c5-ff6a-454c-ac34-bc353d05dd70"],
             [],
             0,
@@ -71,100 +78,132 @@ from utils_tests import read_samples_from_file
         (
             "good_metadata_fasta.csv",
             "just_a_name",
-            {
-                "input_file_type": "fasta",
-                "ncov_workflow": "no_ncov",
-            },
+            "unknown",
             ["37a36d1c-5985-4836-87b5-b36bac75d81b", "985347c5-ff6a-454c-ac34-bc353d05dd70"],
             [],
             0,
             None,
+        ),
+        # combined illumina fastq and bam in 1 single metadata file
+        (
+            "good_metadata_illumina_fastq_bam.csv",
+            "just_a_name",
+            "illumina",
+            [
+                "37a36d1c-5985-4836-87b5-b36bac75d81b",
+                "985347c5-ff6a-454c-ac34-bc353d05dd70",
+                "47a36d1c-5985-4836-87b5-b36bac75d81b",
+                "485347c5-ff6a-454c-ac34-bc353d05dd70",
+            ],
+            [],
+            0,
+            None,
+        ),
+        # CORRECT METADATA, INCORRECT sequencing_technology
+        (
+            "good_metadata_illumina_fastq.csv",
+            "just_a_name",
+            "fake_technology",
+            [],
+            [],
+            2,
+            "Error: Invalid value for '--sequencing-technology'",
         ),
         (
             "good_metadata_illumina_fastq.csv",
-            "invalid_workflow_filetype",
-            {
-                "input_file_type": "fasta",
-                "ncov_workflow": "illumina_artic",
-            },
+            "just_a_name",
+            "ont",
             [],
-            [],
+            ["37a36d1c-5985-4836-87b5-b36bac75d81b", "985347c5-ff6a-454c-ac34-bc353d05dd70"],
             1,
-            "Error: ncov workflow 'illumina_artic' does not support input file type 'fasta'\n",
+            "Invalid row for SAMPLE_ID 37a36d1c-5985-4836-87b5-b36bac75d81b:\n"
+            + "SAMPLE_ID: 37a36d1c-5985-4836-87b5-b36bac75d81b has invalid file for sequencing technology ont. "
+            + "Supported files are ['fastq']\n"
+            + "Invalid row for SAMPLE_ID 985347c5-ff6a-454c-ac34-bc353d05dd70:\n"
+            + "SAMPLE_ID: 985347c5-ff6a-454c-ac34-bc353d05dd70 has invalid file for sequencing technology ont. "
+            + "Supported files are ['fastq']\n"
+            + "Error: Errors encountered for sample ids: "
+            + "37a36d1c-5985-4836-87b5-b36bac75d81b, 985347c5-ff6a-454c-ac34-bc353d05dd70\n",
         ),
         (
             "good_metadata_medaka_fastq.csv",
-            "invalid_workflow_filetype",
-            {
-                "input_file_type": "bam",
-                "ncov_workflow": "medaka_artic",
-            },
+            "just_a_name",
+            "illumina",
             [],
-            [],
+            ["37a36d1c-5985-4836-87b5-b36bac75d81b", "985347c5-ff6a-454c-ac34-bc353d05dd70"],
             1,
-            "Error: ncov workflow 'medaka_artic' does not support input file type 'bam'\n",
+            "Invalid row for SAMPLE_ID 37a36d1c-5985-4836-87b5-b36bac75d81b:\n"
+            + "SAMPLE_ID: 37a36d1c-5985-4836-87b5-b36bac75d81b has invalid file for sequencing technology illumina. "
+            + "Supported files are ['fastq.gz', 'bam']\n"
+            + "Invalid row for SAMPLE_ID 985347c5-ff6a-454c-ac34-bc353d05dd70:\n"
+            + "SAMPLE_ID: 985347c5-ff6a-454c-ac34-bc353d05dd70 has invalid file for sequencing technology illumina. "
+            + "Supported files are ['fastq.gz', 'bam']\n"
+            + "Error: Errors encountered for sample ids: "
+            + "37a36d1c-5985-4836-87b5-b36bac75d81b, 985347c5-ff6a-454c-ac34-bc353d05dd70\n",
         ),
         (
             "good_metadata_medaka_fastq.csv",
-            "invalid_workflow_filetype",
-            {
-                "input_file_type": "fasta",
-                "ncov_workflow": "medaka_artic",
-            },
+            "just_a_name",
+            "unknown",
             [],
-            [],
+            ["37a36d1c-5985-4836-87b5-b36bac75d81b", "985347c5-ff6a-454c-ac34-bc353d05dd70"],
             1,
-            "Error: ncov workflow 'medaka_artic' does not support input file type 'fasta'\n",
+            "Invalid row for SAMPLE_ID 37a36d1c-5985-4836-87b5-b36bac75d81b:\n"
+            + "SAMPLE_ID: 37a36d1c-5985-4836-87b5-b36bac75d81b has invalid file for sequencing technology unknown. "
+            + "Supported files are ['fasta']\n"
+            + "Invalid row for SAMPLE_ID 985347c5-ff6a-454c-ac34-bc353d05dd70:\n"
+            + "SAMPLE_ID: 985347c5-ff6a-454c-ac34-bc353d05dd70 has invalid file for sequencing technology unknown. "
+            + "Supported files are ['fasta']\n"
+            + "Error: Errors encountered for sample ids: "
+            + "37a36d1c-5985-4836-87b5-b36bac75d81b, 985347c5-ff6a-454c-ac34-bc353d05dd70\n",
         ),
         (
             "good_metadata_fasta.csv",
-            "invalid_workflow_filetype",
-            {
-                "input_file_type": "fastq",
-                "ncov_workflow": "no_ncov",
-            },
+            "just_a_name",
+            "ont",
             [],
-            [],
+            ["37a36d1c-5985-4836-87b5-b36bac75d81b", "985347c5-ff6a-454c-ac34-bc353d05dd70"],
             1,
-            "Error: ncov workflow 'no_ncov' does not support input file type 'fastq'\n",
+            "Invalid row for SAMPLE_ID 37a36d1c-5985-4836-87b5-b36bac75d81b:\n"
+            + "SAMPLE_ID: 37a36d1c-5985-4836-87b5-b36bac75d81b has invalid file for sequencing technology ont. "
+            + "Supported files are ['fastq']\n"
+            + "Invalid row for SAMPLE_ID 985347c5-ff6a-454c-ac34-bc353d05dd70:\n"
+            + "SAMPLE_ID: 985347c5-ff6a-454c-ac34-bc353d05dd70 has invalid file for sequencing technology ont. "
+            + "Supported files are ['fastq']\n"
+            + "Error: Errors encountered for sample ids: "
+            + "37a36d1c-5985-4836-87b5-b36bac75d81b, 985347c5-ff6a-454c-ac34-bc353d05dd70\n",
         ),
-        (
-            "good_metadata_fasta.csv",
-            "invalid_workflow-filetype",
-            {
-                "input_file_type": "bam",
-                "ncov_workflow": "no_ncov",
-            },
-            [],
-            [],
-            1,
-            "Error: ncov workflow 'no_ncov' does not support input file type 'bam'\n",
-        ),
+        # INCORRECT METADATA
         (
             "bad_metadata.csv",
             "invalid_rows",
-            {
-                "input_file_type": "fastq",
-                "ncov_workflow": "illumina_artic",
-            },
-            [],
+            "illumina",
+            ["385347c5-ff6a-454c-ac34-bc353d05dd70"],
             [
                 '""',
                 "#()aadd",
                 "185347c5-ff6a-454c-ac34-bc353d05dd70",
+                "186647c5-ff6a-454c-ac34-bc353d05dd70",
                 "27a36d1c-5985-4836-87b5-b36bac75d81b",
+                "286647c5-ff6a-454c-ac34-bc353d05dd70",
             ],
             1,
-            "Invalid row for sample :\n"
-            + "sample_id not available\n"
-            + "Invalid row for sample #()aadd:\n"
-            + 'sample_id "#()aadd" is not a UUID\n'
-            + "Invalid row for sample 185347c5-ff6a-454c-ac34-bc353d05dd70:\n"
-            + "file_1 for 185347c5-ff6a-454c-ac34-bc353d05dd70 not available\n"
-            + "Invalid row for sample 27a36d1c-5985-4836-87b5-b36bac75d81b:\n"
-            + "file_2 for 27a36d1c-5985-4836-87b5-b36bac75d81b not available\n"
-            + "Error: Errors encountered for sample ids: , #()aadd, 185347c5-ff6a-454c-ac34-bc353d05dd70, "
-            + "27a36d1c-5985-4836-87b5-b36bac75d81b\n",
+            "Invalid row for SAMPLE_ID :\n"
+            + "SAMPLE_ID not available\n"
+            + "Invalid row for SAMPLE_ID #()aadd:\n"
+            + 'SAMPLE_ID "#()aadd" is not a UUID\n'
+            + "Invalid row for SAMPLE_ID 185347c5-ff6a-454c-ac34-bc353d05dd70:\n"
+            + "SEQ_FILE_1 for 185347c5-ff6a-454c-ac34-bc353d05dd70 not available\n"
+            + "Invalid row for SAMPLE_ID 186647c5-ff6a-454c-ac34-bc353d05dd70:\n"
+            + "SAMPLE_ID: 186647c5-ff6a-454c-ac34-bc353d05dd70 has invalid file for sequencing technology illumina. "
+            + "Supported files are ['fastq.gz', 'bam']\n"
+            + "Invalid row for SAMPLE_ID 27a36d1c-5985-4836-87b5-b36bac75d81b:\n"
+            + "SEQ_FILE_2 for 27a36d1c-5985-4836-87b5-b36bac75d81b not available\n"
+            + "Invalid row for SAMPLE_ID 286647c5-ff6a-454c-ac34-bc353d05dd70:\n"
+            + "SEQ_FILE_1 and SEQ_FILE_2 for 286647c5-ff6a-454c-ac34-bc353d05dd70 have different file types\n"
+            + "Error: Errors encountered for sample ids: , #()aadd, "
+            + "185347c5-ff6a-454c-ac34-bc353d05dd70, 186647c5-ff6a-454c-ac34-bc353d05dd70, "
+            + "27a36d1c-5985-4836-87b5-b36bac75d81b, 286647c5-ff6a-454c-ac34-bc353d05dd70\n",
         ),
     ],
 )
@@ -173,7 +212,7 @@ def test_check_metadata(
     test_data_path,
     metadata_file,
     analysis_run_name,
-    analysis_run_columns,
+    sequencing_technology,
     valid_samples,
     invalid_samples,
     exit_code,
@@ -188,10 +227,8 @@ def test_check_metadata(
         test_data_path / metadata_file,
         "--analysis-run-name",
         analysis_run_name,
-        "--input-file-type",
-        analysis_run_columns["input_file_type"],
-        "--ncov-workflow",
-        analysis_run_columns["ncov_workflow"],
+        "--sequencing-technology",
+        sequencing_technology,
         "--samples-with-valid-metadata-file",
         valid_samples_path,
         "--samples-with-invalid-metadata-file",
@@ -212,11 +249,11 @@ def test_check_metadata(
         if exit_code == 1:
             assert rv.output == exception_msg
 
-        if valid_samples:
+        if valid_samples is not None:
             # check lists of valid and invalid samples
             processed_valid_samples = read_samples_from_file(valid_samples_path)
             assert sorted(valid_samples) == sorted(processed_valid_samples)
 
-        if invalid_samples:
+        if invalid_samples is not None:
             processed_invalid_samples = read_samples_from_file(invalid_samples_path)
             assert sorted(invalid_samples) == sorted(processed_invalid_samples)

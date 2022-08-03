@@ -105,17 +105,12 @@ workflow submit_analysis_run_results {
         ch_pangolin_csvs
     main:
 
-        if ( params.filetype == "fasta" ) {
-            // mock ncov
+        if ( params.sequencing_technology == "unknown" ) {
+            // ncov was not executed. Therefore, mock ncov
             ch_ncov_submitted = ch_ncov_qc_csvs
-
         } else {
-            // this will be bam or fastq
-
             submit_ncov_results(ch_ncov_qc_csvs)
-
             ch_ncov_submitted = submit_ncov_results.out.ch_ncov_qc_all_samples_csv
-
         }
 
         submit_pangolin_results(ch_pangolin_csvs.collect())

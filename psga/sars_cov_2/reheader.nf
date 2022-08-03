@@ -77,7 +77,7 @@ process store_reheadered_qc_failed_fasta {
 
 /*
  * Reheader a fasta file and store it.
- * If params.filetype is not "fasta", the storing location is based on ncov QC.
+ * If sequencing_technology is "unknown", ncov is not executed.
  * Return the reheadered passed fasta
  */
 workflow reheader {
@@ -86,7 +86,7 @@ workflow reheader {
        ch_sample_fasta
     main:
 
-        if ( params.filetype == "fasta" ) {
+        if ( params.sequencing_technology == "unknown" ) {
             // ncov was not executed
 
             ch_reheadered_fasta = reheader_fasta(standardise_fasta(ch_sample_fasta))

@@ -28,7 +28,7 @@ base-images:
 
 # build images per pathogen
 sars-cov-2-images:
-	docker build --build-arg pathogen=sars_cov_2 -t ${DOCKER_IMAGE_PREFIX}/sars-cov-2-pipeline:${SARS_COV_2_PIPELINE_DOCKER_IMAGE_TAG} -f docker/Dockerfile.psga-pipeline .
+	docker build --build-arg pathogen=sars_cov_2 -t ${DOCKER_IMAGE_PREFIX}/psga-pipeline:${SARS_COV_2_PIPELINE_DOCKER_IMAGE_TAG} -f docker/Dockerfile.psga-pipeline .
 	docker build -t ${DOCKER_IMAGE_PREFIX}/ncov2019-artic-nf-illumina:${NCOV2019_ARTIC_NF_ILLUMINA_DOCKER_IMAGE_TAG} -f docker/Dockerfile.ncov2019-artic-nf-illumina .
 	docker build -t ${DOCKER_IMAGE_PREFIX}/ncov2019-artic-nf-nanopore:${NCOV2019_ARTIC_NF_NANOPORE_DOCKER_IMAGE_TAG} -f docker/Dockerfile.ncov2019-artic-nf-nanopore .
 	docker build -t ${DOCKER_IMAGE_PREFIX}/pangolin:${PANGOLIN_DOCKER_IMAGE_TAG} -f docker/Dockerfile.pangolin .

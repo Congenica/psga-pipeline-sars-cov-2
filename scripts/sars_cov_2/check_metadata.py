@@ -1,38 +1,106 @@
 #!/usr/bin/env python
 
 from pathlib import Path
-
+import csv
 import click
 from click import ClickException
 
 from scripts.util.logging import get_structlog_logger
-from scripts.util.metadata import generate_notifications, inspect_metadata_file, ProcessedSamples
+from scripts.util.metadata import (
+    ILLUMINA,
+    ONT,
+    UNKNOWN,
+    SAMPLE_ID,
+    SEQ_FILE_1,
+    SEQ_FILE_2,
+    EXPECTED_HEADERS,
+    generate_notifications,
+    is_valid_uuid,
+    normalise_row,
+    ProcessedSamples,
+)
+from scripts.validation.check_csv_columns import check_csv_columns
 
 log_file = f"{Path(__file__).stem}.log"
 logger = get_structlog_logger(log_file=log_file)
 
-NCOV_WORKFLOW_FILE_TYPE_VALID_COMBINATIONS = {
-    "illumina_artic": {"fastq", "bam"},
-    "medaka_artic": {"fastq"},
-    "no_ncov": {"fasta"},
+
+SEQUENCING_TECHNOLOGIES = [ILLUMINA, ONT, UNKNOWN]
+FILE_NUM = "file_num"
+SUPPORTED_FILES = {
+    ILLUMINA: {
+        "fastq.gz": {FILE_NUM: 2},
+        "bam": {FILE_NUM: 1},
+    },
+    ONT: {
+        "fastq": {FILE_NUM: 1},
+    },
+    UNKNOWN: {
+        "fasta": {FILE_NUM: 1},
+    },
 }
 
 
-def validate(
+def validate_metadata(
     metadata_path: Path,
-    input_file_type: str,
-    ncov_workflow: str,
+    sequencing_technology: str,
 ) -> ProcessedSamples:
     """
-    Validate metadata and input parameters
+    Validate the CSV metadata file of the samples to process
     """
+    processed_samples = ProcessedSamples(
+        valid=[],
+        invalid=[],
+    )
 
-    if input_file_type not in NCOV_WORKFLOW_FILE_TYPE_VALID_COMBINATIONS[ncov_workflow]:
-        raise ClickException(f"ncov workflow '{ncov_workflow}' does not support input file type '{input_file_type}'")
+    with open(metadata_path, "r") as metadata_fd:
+        reader = csv.DictReader(metadata_fd, delimiter=",")
 
-    samples_with_two_reads = bool(ncov_workflow == "illumina_artic" and input_file_type == "fastq")
+        check_csv_columns(set(reader.fieldnames), EXPECTED_HEADERS)
+        supported_extensions = list(SUPPORTED_FILES[sequencing_technology])
 
-    return inspect_metadata_file(metadata_path, samples_with_two_reads)
+        for row in reader:
+            errs = []
+            row = normalise_row(row)
+            sample_id = row[SAMPLE_ID]
+
+            # check sample_id
+            if not sample_id:
+                errs.append(f"{SAMPLE_ID} not available")
+            elif not is_valid_uuid(sample_id):
+                errs.append(f'{SAMPLE_ID} "{sample_id}" is not a UUID')
+
+            # check file_1
+            if not row[SEQ_FILE_1]:
+                errs.append(f"{SEQ_FILE_1} for {sample_id} not available")
+            else:
+                file_1 = row[SEQ_FILE_1]
+                # this returns 0 or 1 extension
+                extensions = [ext for ext in supported_extensions if file_1.endswith(ext)]
+                if not extensions:
+                    errs.append(
+                        f"{SAMPLE_ID}: {sample_id} has invalid file for sequencing technology {sequencing_technology}. "
+                        f"Supported files are {supported_extensions}"
+                    )
+                else:
+                    # check file_2 if required
+                    file_1_ext = extensions[0]
+                    two_reads = SUPPORTED_FILES[sequencing_technology][file_1_ext][FILE_NUM] == 2
+                    if two_reads:
+                        if not row[SEQ_FILE_2]:
+                            errs.append(f"{SEQ_FILE_2} for {sample_id} not available")
+                        elif not row[SEQ_FILE_2].endswith(file_1_ext):
+                            errs.append(f"{SEQ_FILE_1} and {SEQ_FILE_2} for {sample_id} have different file types")
+
+            if errs:
+                sample_errors = "\n".join(errs)
+                click.echo(f"Invalid row for {SAMPLE_ID} {sample_id}:\n{sample_errors}", err=True)
+                processed_samples.invalid.append(sample_id)
+                continue
+
+            processed_samples.valid.append(sample_id)
+
+    return processed_samples
 
 
 @click.command()
@@ -44,19 +112,10 @@ def validate(
 )
 @click.option("--analysis-run-name", required=True, type=str, help="The name of the analysis run")
 @click.option(
-    "--input-file-type",
+    "--sequencing-technology",
     required=True,
-    type=click.Choice(
-        {ft for file_types in NCOV_WORKFLOW_FILE_TYPE_VALID_COMBINATIONS.values() for ft in file_types},
-        case_sensitive=True,
-    ),
-    help="The type of input files",
-)
-@click.option(
-    "--ncov-workflow",
-    required=True,
-    type=click.Choice(set(NCOV_WORKFLOW_FILE_TYPE_VALID_COMBINATIONS), case_sensitive=True),
-    help="The name of the ncov workflow",
+    type=click.Choice(SEQUENCING_TECHNOLOGIES, case_sensitive=True),
+    help="The name of the sequencing technology",
 )
 @click.option(
     "--samples-with-valid-metadata-file",
@@ -73,8 +132,7 @@ def validate(
 def check_metadata(
     metadata_path,
     analysis_run_name,
-    input_file_type,
-    ncov_workflow,
+    sequencing_technology,
     samples_with_valid_metadata_file,
     samples_with_invalid_metadata_file,
 ):
@@ -82,10 +140,9 @@ def check_metadata(
     Read a CSV metadata and check that is sound
     """
 
-    samples = validate(
+    samples = validate_metadata(
         Path(metadata_path),
-        input_file_type,
-        ncov_workflow,
+        sequencing_technology,
     )
 
     generate_notifications(
