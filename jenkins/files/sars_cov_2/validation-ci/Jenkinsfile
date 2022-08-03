@@ -31,7 +31,7 @@ pipeline {
                                     parameters: [
                                             booleanParam(name: 'VALIDATION_TEST', value: true),
                                             string(name: 'METADATA', value: "s3://synthetic-data-dev/UKHSA/validation_ci/illumina/metadata.csv"),
-                                            string(name: 'PSGA_OUTPUT_PATH', value: "/data/output/illumina"),
+                                            string(name: 'OUTPUT_PATH', value: "/data/output/illumina"),
                                             string(name: 'NXF_WORK', value: "/data/work/illumina"),
                                             string(name: 'ANALYSIS_RUN', value: "illumina"),
                                             string(name: 'SEQUENCING_TECHNOLOGY', value: "illumina"),
@@ -51,7 +51,7 @@ pipeline {
                                     parameters: [
                                             booleanParam(name: 'VALIDATION_TEST', value: true),
                                             string(name: 'METADATA', value: "s3://synthetic-data-dev/UKHSA/validation_ci/ont/metadata.csv"),
-                                            string(name: 'PSGA_OUTPUT_PATH', value: "/data/output/ont"),
+                                            string(name: 'OUTPUT_PATH', value: "/data/output/ont"),
                                             string(name: 'NXF_WORK', value: "/data/work/ont"),
                                             string(name: 'ANALYSIS_RUN', value: "ont"),
                                             string(name: 'SEQUENCING_TECHNOLOGY', value: "ont"),
@@ -71,7 +71,7 @@ pipeline {
                                     parameters: [
                                             booleanParam(name: 'VALIDATION_TEST', value: true),
                                             string(name: 'METADATA', value: "s3://synthetic-data-dev/UKHSA/validation_ci/unknown/metadata.csv"),
-                                            string(name: 'PSGA_OUTPUT_PATH', value: "/data/output/unknown"),
+                                            string(name: 'OUTPUT_PATH', value: "/data/output/unknown"),
                                             string(name: 'NXF_WORK', value: "/data/work/unknown"),
                                             string(name: 'ANALYSIS_RUN', value: "unknown"),
                                             string(name: 'SEQUENCING_TECHNOLOGY', value: "unknown"),

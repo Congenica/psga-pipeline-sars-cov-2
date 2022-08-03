@@ -15,15 +15,15 @@ Constructs build summary messages intended to be posted in Slack
 */
 def buildSlackMessage() {
     return """
+pathogen:               sars_cov_2
 branch:                 ${env.BRANCH_NAME}
 namespace:              ${params.NAMESPACE}
-metadata:               ${params.METADATA}
-psga_output_path:       ${params.PSGA_OUTPUT_PATH}
 workdir:                ${params.NXF_WORK}
+metadata:               ${params.METADATA}
 run:                    ${params.ANALYSIS_RUN}
-pathogen:               sars_cov_2
 sequencing_technology:  ${params.SEQUENCING_TECHNOLOGY}
 kit:                    ${params.KIT}
+output_path:            ${params.OUTPUT_PATH}
 started by:             ${getTriggerDescription()}
 """
 }
@@ -51,7 +51,7 @@ pipeline {
     parameters {
         booleanParam(name: 'VALIDATION_TEST', defaultValue: true, description: 'If true, run script for validating the results')
         string(name: 'METADATA', defaultValue: 's3://synthetic-data-dev/UKHSA/small_tests/illumina_fastq/metadata.csv', description: 'The path to the metadata CSV file containing the input file paths of the samples to process. This can be an S3 path')
-        string(name: 'PSGA_OUTPUT_PATH', defaultValue: '/data/output/illumina_artic_fastq_short', description: 'The path to the output files. This can be an S3 path. In this latter case, please specify a path which does not yet exist, otherwise Nextflow will fail to store files due to a policy defined by Dev OPS in which pods are not allowed to delete/overwrite objects in S3.')
+        string(name: 'OUTPUT_PATH', defaultValue: '/data/output/illumina_artic_fastq_short', description: 'The path to the output files. This can be an S3 path. In this latter case, please specify a path which does not yet exist, otherwise Nextflow will fail to store files due to a policy defined by Dev OPS in which pods are not allowed to delete/overwrite objects in S3.')
         string(name: 'NXF_WORK', defaultValue: '/data/work/illumina_artic_fastq_short', description: 'The path to Nextflow work directory. This can be an S3 path. In this latter case, please specify a path which does not yet exist, otherwise Nextflow will fail to store files due to a policy defined by Dev OPS in which pods are not allowed to delete/overwrite objects in S3.')
         string(name: 'ANALYSIS_RUN', defaultValue: 'illumina_artic_fastq_short', description: 'This can be the test name')
         choice(name: 'SEQUENCING_TECHNOLOGY', choices: ['illumina', 'ont', 'unknown'], description: 'The sequencing technology. "illumina" supports fastq and bam files; "ont" supports fastq files; "unknown" for fasta')
@@ -138,12 +138,12 @@ spec:
         NCOV2019_ARTIC_NF_ILLUMINA_DOCKER_IMAGE_TAG = "${getDockerTagFromBranch()}"
         NCOV2019_ARTIC_NF_NANOPORE_DOCKER_IMAGE_TAG = "${getDockerTagFromBranch()}"
         PANGOLIN_DOCKER_IMAGE_TAG                   = "${getDockerTagFromBranch()}"
-        PSGA_OUTPUT_PATH                            = "${params.PSGA_OUTPUT_PATH}"
 
         ANALYSIS_RUN                                = "${params.ANALYSIS_RUN}"
         METADATA                                    = "${params.METADATA}"
         SEQUENCING_TECHNOLOGY                       = "${params.SEQUENCING_TECHNOLOGY}"
         KIT                                         = "${params.KIT}"
+        OUTPUT_PATH                                 = "${params.OUTPUT_PATH}"
 
         // other configs
         K8S_NODE                                    = "${params.K8S_NODE}"
@@ -182,24 +182,23 @@ spec:
                     // cleanup
                     // NOTE: due to OPS policy, pods cannot delete objects in S3 buckets.
                     // fileExists() does not seem to work..
-                    res = sh(script: "test -d ${PSGA_OUTPUT_PATH} && echo 'found' || echo 'not_found' ", returnStdout: true).trim()
+                    res = sh(script: "test -d ${OUTPUT_PATH} && echo 'found' || echo 'not_found' ", returnStdout: true).trim()
                     if(res=='found'){
-                        sh 'rm -rf ${PSGA_OUTPUT_PATH}'
+                        sh 'rm -rf ${OUTPUT_PATH}'
                     }
 
                     // run the pipeline
-                    // the argument `--load_missing_samples true` enables us to integration test the pipeline in isolation
-                    sh 'nextflow -log ${ANALYSIS_RUN}.log run ${PSGA_ROOT_PATH}/psga/main.nf --run ${ANALYSIS_RUN} --sequencing_technology ${SEQUENCING_TECHNOLOGY} --kit ${KIT} --metadata ${METADATA} -with-trace'
+                    sh 'nextflow -log ${ANALYSIS_RUN}.log run ${PSGA_ROOT_PATH}/psga/main.nf --run ${ANALYSIS_RUN} --sequencing_technology ${SEQUENCING_TECHNOLOGY} --kit ${KIT} --metadata ${METADATA} --output_path ${OUTPUT_PATH} -with-trace'
 
                     if (params.VALIDATION_TEST) {
                         // fetch the expected output from s3
-                        sh 'aws s3 cp s3://synthetic-data-dev/UKHSA/integration_tests_expected_output/sars_cov_2/${ANALYSIS_RUN}/pipeline_output.csv pipeline_output.csv'
+                        sh 'aws s3 cp s3://synthetic-data-dev/UKHSA/integration_tests_expected_output/sars_cov_2/${ANALYSIS_RUN}/pipeline_output.csv results.csv'
                         // run validations
-                        sh 'python ${PSGA_ROOT_PATH}/jenkins/validation.py --result-path ${PSGA_OUTPUT_PATH}/merged_output/pipeline_output.csv  --expected-result-path pipeline_output.csv sars_cov_2 --sequencing-technology ${SEQUENCING_TECHNOLOGY}'
+                        sh 'python ${PSGA_ROOT_PATH}/jenkins/validation.py --result-path ${OUTPUT_PATH}/results.csv  --expected-result-path results.csv --output-path ${OUTPUT_PATH} sars_cov_2 --sequencing-technology ${SEQUENCING_TECHNOLOGY}'
                     }
 
-                    // copy main log, nxf work dir logs and reports to PSGA_OUTPUT_PATH
-                    sh 'bash ${PSGA_ROOT_PATH}/psga/finalise.sh ${ANALYSIS_RUN}'
+                    // copy main log, nxf work dir logs and reports to OUTPUT_PATH
+                    sh 'bash ${PSGA_ROOT_PATH}/psga/finalise.sh ${ANALYSIS_RUN} ${OUTPUT_PATH}'
 
                 }
             }

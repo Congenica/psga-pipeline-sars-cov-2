@@ -4,7 +4,7 @@
  * Submit ncov sample results
  */
 process submit_ncov_results {
-  publishDir "${PSGA_OUTPUT_PATH}/ncov2019-artic", mode: 'copy', overwrite: true, pattern: 'ncov_qc.csv'
+  publishDir "${params.output_path}/ncov2019-artic", mode: 'copy', overwrite: true, pattern: 'ncov_qc.csv'
 
   input:
     path ch_ncov_qc_csvs
@@ -32,7 +32,7 @@ process submit_ncov_results {
  * Submit pangolin sample results
  */
 process submit_pangolin_results {
-  publishDir "${PSGA_OUTPUT_PATH}/pangolin", mode: 'copy', overwrite: true, pattern: 'all_lineages_report.csv'
+  publishDir "${params.output_path}/pangolin", mode: 'copy', overwrite: true, pattern: 'all_lineages_report.csv'
 
   input:
     file input_dir
@@ -60,9 +60,9 @@ process submit_pangolin_results {
  * Submit the merged ncov and pangolin output file
  */
 process submit_pipeline_output_csv {
-  publishDir "${PSGA_OUTPUT_PATH}/merged_output", mode: 'copy', overwrite: true, pattern: 'pipeline_output.csv'
-  publishDir "${PSGA_OUTPUT_PATH}/notifications", mode: 'copy', overwrite: true, pattern: 'samples_{unknown,failed,passed}_{ncov_qc,pangolin}.txt'
-  publishDir "${PSGA_OUTPUT_PATH}/logs", mode: 'copy', overwrite: true, pattern: '*.log'
+  publishDir "${params.output_path}", mode: 'copy', overwrite: true, pattern: 'results.csv'
+  publishDir "${params.output_path}/notifications", mode: 'copy', overwrite: true, pattern: 'samples_{unknown,failed,passed}_{ncov_qc,pangolin}.txt'
+  publishDir "${params.output_path}/logs", mode: 'copy', overwrite: true, pattern: '*.log'
 
   input:
     val ch_analysis_run_name
@@ -76,7 +76,7 @@ process submit_pipeline_output_csv {
     path "*.log"
 
   script:
-    ch_merged_csv_file = "pipeline_output.csv"
+    ch_merged_csv_file = "results.csv"
 
   """
   ncov_opt=""

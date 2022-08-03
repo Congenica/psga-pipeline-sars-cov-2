@@ -2,8 +2,8 @@
  * Check the metadata in the database
  */
 process check_metadata {
-  publishDir "${PSGA_OUTPUT_PATH}/notifications", mode: 'copy', overwrite: true, pattern: 'samples_with_{invalid,valid}_metadata.txt'
-  publishDir "${PSGA_OUTPUT_PATH}/logs", mode: 'copy', overwrite: true, pattern: '*.log'
+  publishDir "${params.output_path}/notifications", mode: 'copy', overwrite: true, pattern: 'samples_with_{invalid,valid}_metadata.txt'
+  publishDir "${params.output_path}/logs", mode: 'copy', overwrite: true, pattern: '*.log'
 
   tag "${metadata}"
 

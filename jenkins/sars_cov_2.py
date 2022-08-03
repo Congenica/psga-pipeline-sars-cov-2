@@ -62,8 +62,10 @@ def get_expected_output_files(root: Path, sample_ids: List[str], sequencing_tech
         output_files.append(root / "ncov2019-artic" / "ncov_qc.csv")
 
     output_files.append(root / "pangolin" / "all_lineages_report.csv")
-    output_files.append(root / "merged_output" / "pipeline_output.csv")
     output_files.extend([root / "notifications" / p for p in notification_files])
+    output_files.append(root / "merged_output" / "pipeline_output.csv")
+    output_files.append(root / "results.csv")
+    output_files.append(root / "resultfiles.json")
 
     return output_files
 
@@ -82,7 +84,7 @@ def sars_cov_2(ctx, sequencing_technology: str):
     """
     result_path = ctx.obj["result_path"]
     expected_result_path = ctx.obj["expected_result_path"]
-    psga_output_path = ctx.obj["psga_output_path"]
+    output_path = ctx.obj["output_path"]
 
     pathogen = "sars_cov_2"
     if pathogen not in data_config:
@@ -92,7 +94,7 @@ def sars_cov_2(ctx, sequencing_technology: str):
     sample_ids = compare_merged_output_file(load_data_from_csv, data, result_path, expected_result_path)
 
     logger.info("Validation of output files set STARTED")
-    exp_output_files = get_expected_output_files(psga_output_path, sample_ids, sequencing_technology)
-    calc_output_files = get_file_paths(psga_output_path)
+    exp_output_files = get_expected_output_files(output_path, sample_ids, sequencing_technology)
+    calc_output_files = get_file_paths(output_path)
     compare_output_files_set(set(calc_output_files), set(exp_output_files))
     logger.info("Validation PASSED")

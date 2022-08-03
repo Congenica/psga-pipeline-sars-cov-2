@@ -50,9 +50,9 @@ kubectl exec -it <pathogen>-pipeline-XXXX -- bash
 # WITHIN THE pathogen POD
 # run the pipeline within the pod (processes are spun up as pod workers by this pipeline). The results will be stored in: /data/output
 # use `-resume` flag to resume the previous pipeline execution
-nextflow run . <input_parameters>
+nextflow run . --metadata <metadata_path> --run <analysis_run> --sequencing_technology <sequencing_technology> --kit <kit> --output_path <output_path> <other pipeline parameters>
 
-# The following command cleans up the previous run's work directories and cache, but retains the content of ${PSGA_OUTPUT_PATH}:
+# The following command cleans up the previous run's work directories and cache, but retains the published output:
 nextflow clean -f
 
 # once finished

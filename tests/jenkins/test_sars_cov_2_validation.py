@@ -67,11 +67,10 @@ def test_compare_merged_output_file(
     ["illumina", "ont", "unknown"],
 )
 @pytest.mark.parametrize(
-    "env_var_set,result_file,expected_result_file,exit_code,exception_msg",
+    "result_file,expected_result_file,exit_code,exception_msg",
     [
         # exact - accept
         (
-            True,
             "merged_output.csv",
             "merged_output.csv",
             0,
@@ -79,7 +78,6 @@ def test_compare_merged_output_file(
         ),
         # approx - accept
         (
-            True,
             "merged_output.csv",
             "merged_output_approx.csv",
             0,
@@ -87,38 +85,22 @@ def test_compare_merged_output_file(
         ),
         # different - reject
         (
-            True,
             "merged_output.csv",
             "merged_output_diff.csv",
             1,
             "Validation FAILED. See above for details.",
         ),
-        # unset env var
-        (
-            False,
-            "merged_output.csv",
-            "merged_output.csv",
-            2,
-            "Error: Missing option '--psga-output-path'",
-        ),
     ],
 )
 def test_validation(
-    monkeypatch,
     tmp_path,
     test_data_path,
-    env_var_set,
     result_file,
     expected_result_file,
     sequencing_technology,
     exit_code,
     exception_msg,
 ):
-
-    if env_var_set:
-        monkeypatch.setenv("PSGA_OUTPUT_PATH", str(tmp_path))
-    else:
-        monkeypatch.delenv("PSGA_OUTPUT_PATH", raising=False)
 
     actual_path = test_data_path / "jenkins" / "validation" / result_file
     expected_path = test_data_path / "jenkins" / "validation" / expected_result_file
@@ -134,6 +116,8 @@ def test_validation(
             actual_path,
             "--expected-result-path",
             expected_path,
+            "--output-path",
+            tmp_path,
             "sars_cov_2",
             "--sequencing-technology",
             sequencing_technology,

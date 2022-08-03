@@ -5,7 +5,6 @@ def printMainConfig() {
         =====================
         Global environment variables:
         * PSGA_ROOT_PATH                              : ${PSGA_ROOT_PATH}
-        * PSGA_OUTPUT_PATH                            : ${PSGA_OUTPUT_PATH}
         * PSGA_INCOMPLETE_ANALYSIS_RUNS_PATH          : ${PSGA_INCOMPLETE_ANALYSIS_RUNS_PATH}
         * PSGA_MAX_ATTEMPTS                           : ${PSGA_MAX_ATTEMPTS}
         * PSGA_SLEEP_TIME_BETWEEN_ATTEMPTS            : ${PSGA_SLEEP_TIME_BETWEEN_ATTEMPTS}
@@ -26,6 +25,7 @@ def printMainConfig() {
         * run                                         : ${params.run}
         * sequencing_technology                       : ${params.sequencing_technology}
         * kit                                         : ${params.kit}
+        * output_path                                 : ${params.output_path}
 
     """.stripIndent()
 }
@@ -38,8 +38,6 @@ def printMainHelp() {
       Mandatory environment variables:
         PSGA_ROOT_PATH
                                 Path to the pipeline code (e.g. git checkout). (e.g. /app) |
-        PSGA_OUTPUT_PATH
-                                Path to the whole pipeline output. (e.g. /data/output, s3://data/output)
         PSGA_INCOMPLETE_ANALYSIS_RUNS_PATH
                                 Path containing the analysis runs which are in progress or incomplete. (e.g. /data/incomplete_analysis_run)
         PSGA_MAX_ATTEMPTS
@@ -74,6 +72,8 @@ def printMainHelp() {
         --run                   A (unique) string identifying the analysis run (batch)
         --sequencing_technology The technology used for sequencing the samples. Values: 'illumina', 'ont', 'unknown'
         --kit                   The kit used for sequencing the samples (e.g. the scheme version of the primers)
+        --output_path
+                                Path to the whole pipeline output. (e.g. /data/output, s3://data/output)
 
       Optional parameters:
         --help                  Print this help
