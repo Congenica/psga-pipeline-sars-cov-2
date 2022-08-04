@@ -30,7 +30,23 @@ if( "[:]" in [
     NCOV2019_ARTIC_NF_NANOPORE_DOCKER_IMAGE_TAG,
     PANGOLIN_DOCKER_IMAGE_TAG,
     ]) {
-    throw new Exception("Found unset environment variables specific to the sars_cov_2 pathoge. See '[:]' above. Abort")
+    throw new Exception("Found unset environment variables specific to the sars_cov_2 pathogen. See '[:]' above. Abort")
+}
+
+
+scheme = "SARS-CoV-2"
+if ( params.kit in ['V1', 'V2', 'V3'] ) {
+    /* This assignment is required for the ncov2019-artic pipeline when running an ONT workflow.
+     * In detail, ncov/ONT expects the primer scheme files to be named after the scheme name.
+     * As the scheme name changed from V3 to V4 from 'nCoV-2019' to 'SARS-CoV-2', it happens that
+     * ncov/ONT does not find the primer files if these combinations are used:
+     * - "SARS-CoV-2" and "V3" (also "V2" and "V1")
+     * - "nCoV-2019" and "V4" (and more recent versions)
+     * The illumina workflow of ncov2019-artic is not affected by this issue.
+     *
+     * With this reassignment, we make sure that primer scheme name and file names match.
+     */
+    scheme = 'nCoV-2019'
 }
 
 
@@ -111,7 +127,7 @@ workflow psga {
                 params.run,
                 params.scheme_repo_url,
                 params.scheme_dir,
-                params.scheme,
+                scheme,
                 params.kit
             )
             ch_ncov_qc_csv = ncov2019_artic.out.ch_ncov_qc_csv
