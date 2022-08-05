@@ -1,8 +1,1 @@
-FROM 144563655722.dkr.ecr.eu-west-1.amazonaws.com/congenica/dev/pangolin-base:1.0.0
-
-COPY pangolin/ /pangolin
-RUN cd /pangolin \
-  && python setup.py install \
-  && pip install git+https://github.com/cov-lineages/pangoLEARN.git --upgrade \
-  && pip install git+https://github.com/cov-lineages/lineages.git --upgrade \
-  && pip install git+https://github.com/cov-lineages/pangolin-data.git --upgrade
+FROM 144563655722.dkr.ecr.eu-west-1.amazonaws.com/congenica/dev/pangolin-base:1.0.1

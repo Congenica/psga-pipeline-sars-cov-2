@@ -1,22 +1,12 @@
 DOCKER_IMAGE_PREFIX=144563655722.dkr.ecr.eu-west-1.amazonaws.com/congenica/dev
 PSGA_PIPELINE_DOCKER_IMAGE_TAG_BASE=1.0.4
-NCOV2019_ARTIC_NF_ILLUMINA_DOCKER_IMAGE_TAG_BASE=1.0.0
-NCOV2019_ARTIC_NF_NANOPORE_DOCKER_IMAGE_TAG_BASE=1.0.0
-PANGOLIN_DOCKER_IMAGE_TAG_BASE=1.0.0
+NCOV2019_ARTIC_NF_ILLUMINA_DOCKER_IMAGE_TAG_BASE=1.0.2
+NCOV2019_ARTIC_NF_NANOPORE_DOCKER_IMAGE_TAG_BASE=1.0.1
+PANGOLIN_DOCKER_IMAGE_TAG_BASE=1.0.1
 SARS_COV_2_PIPELINE_DOCKER_IMAGE_TAG=1.0.0
 NCOV2019_ARTIC_NF_ILLUMINA_DOCKER_IMAGE_TAG=1.0.0
 NCOV2019_ARTIC_NF_NANOPORE_DOCKER_IMAGE_TAG=1.0.0
 PANGOLIN_DOCKER_IMAGE_TAG=1.0.0
-
-# add project submodules
-submodule-setup:
-	git submodule init
-	git submodule update
-
-# update pangolin, ncov2019_artic_nf to their latest commits
-# If you run this command, you need to regenerate the base images for pangolin and ncov2019
-submodule-update:
-	git submodule update --remote --merge
 
 # create base images
 base-images:
