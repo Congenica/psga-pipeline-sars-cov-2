@@ -133,7 +133,6 @@ process ncov2019_artic_nf_pipeline_medaka {
   mkdir -p ${output_fasta}
   mkdir -p ${output_plots}
   mv ${ncov_fasta_out_dir}/*.fasta ${output_fasta}
-  mv ${ncov_fasta_out_dir}/*.png ${output_plots}
   mv ${ncov_qc_plots_dir}/*.png ${output_plots}
 
   # this is a code correction to the nanopore medaka workflow in order to restore the correct sample names
