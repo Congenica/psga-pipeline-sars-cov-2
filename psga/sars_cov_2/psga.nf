@@ -59,18 +59,9 @@ workflow psga {
     main:
 
         // save the session_id and command
-        pipeline_start(
-            params.metadata,
-            params.run,
-            params.sequencing_technology,
-            params.kit,
-        )
+        pipeline_start()
 
-        check_metadata(
-            params.metadata,
-            params.run,
-            params.sequencing_technology
-        )
+        check_metadata(params.metadata)
         ch_metadata = check_metadata.out.ch_metadata
 
         // split the metadata in "single" (1 single file) and "pair" (2 reads) branches
