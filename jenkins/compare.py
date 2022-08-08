@@ -24,7 +24,14 @@ def _check_columns(
 
     if sample_names_calc != sample_names_exp:
         errors = True
-        logger.error(f"Expected samples: {sample_names_exp}, but retrieved samples {sample_names_calc}")
+        # at least one of these two sets will not be empty
+        calculated_but_not_expected = sample_names_calc - sample_names_exp
+        expected_but_not_calculated = sample_names_exp - sample_names_calc
+        logger.error("Found mismatch of samples. In the errors below, focus on these samples only.")
+        if calculated_but_not_expected:
+            logger.error(f"These unexpected samples were also processed: {calculated_but_not_expected}")
+        if expected_but_not_calculated:
+            logger.error(f"These expected samples were not calculated: {expected_but_not_calculated}")
 
     if not columns_to_validate.issubset(df_calc.columns):
         errors = True
