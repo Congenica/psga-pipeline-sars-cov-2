@@ -25,6 +25,7 @@ pipeline {
                                             string(name: 'NXF_WORK', value: "/data/work/illumina_artic_fastq_large"),
                                             string(name: 'ANALYSIS_RUN', value: "illumina_artic_fastq_large"),
                                             string(name: 'SEQUENCING_TECHNOLOGY', value: "illumina"),
+                                            string(name: 'KIT', value: "V3"),
                                             string(name: 'K8S_QUEUE_SIZE', value: "10"),
                                     ]
                                 )
@@ -45,6 +46,7 @@ pipeline {
                                             string(name: 'NXF_WORK', value: "/data/work/illumina_artic_bam_large"),
                                             string(name: 'ANALYSIS_RUN', value: "illumina_artic_bam_large"),
                                             string(name: 'SEQUENCING_TECHNOLOGY', value: "illumina"),
+                                            string(name: 'KIT', value: "V3"),
                                             string(name: 'K8S_QUEUE_SIZE', value: "10"),
                                     ]
                                 )
@@ -65,6 +67,7 @@ pipeline {
                                             string(name: 'NXF_WORK', value: "/data/work/ont_artic_fastq_large"),
                                             string(name: 'ANALYSIS_RUN', value: "ont_artic_fastq_large"),
                                             string(name: 'SEQUENCING_TECHNOLOGY', value: "ont"),
+                                            string(name: 'KIT', value: "V3"),
                                             string(name: 'K8S_QUEUE_SIZE', value: "10"),
                                     ]
                                 )
@@ -85,6 +88,7 @@ pipeline {
                                             string(name: 'NXF_WORK', value: "/data/work/no_ncov_fasta_large"),
                                             string(name: 'ANALYSIS_RUN', value: "no_ncov_fasta_large"),
                                             string(name: 'SEQUENCING_TECHNOLOGY', value: "unknown"),
+                                            string(name: 'KIT', value: "V3"),
                                             string(name: 'K8S_QUEUE_SIZE', value: "10"),
                                     ]
                                 )

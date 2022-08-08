@@ -34,7 +34,7 @@ if( "[:]" in [
 }
 
 
-scheme = "SARS-CoV-2"
+primer_scheme_name = "SARS-CoV-2"
 if ( params.kit in ['V1', 'V2', 'V3'] ) {
     /* This assignment is required for the ncov2019-artic pipeline when running an ONT workflow.
      * In detail, ncov/ONT expects the primer scheme files to be named after the scheme name.
@@ -46,7 +46,7 @@ if ( params.kit in ['V1', 'V2', 'V3'] ) {
      *
      * With this reassignment, we make sure that primer scheme name and file names match.
      */
-    scheme = 'nCoV-2019'
+    primer_scheme_name = 'nCoV-2019'
 }
 
 
@@ -59,18 +59,9 @@ workflow psga {
     main:
 
         // save the session_id and command
-        pipeline_start(
-            params.metadata,
-            params.run,
-            params.sequencing_technology,
-            params.kit,
-        )
+        pipeline_start()
 
-        check_metadata(
-            params.metadata,
-            params.run,
-            params.sequencing_technology
-        )
+        check_metadata(params.metadata)
         ch_metadata = check_metadata.out.ch_metadata
 
         // split the metadata in "single" (1 single file) and "pair" (2 reads) branches
@@ -124,11 +115,7 @@ workflow psga {
 
             ncov2019_artic(
                 fastqc.out.ch_input_files,
-                params.run,
-                params.scheme_repo_url,
-                params.scheme_dir,
-                scheme,
-                params.kit
+                primer_scheme_name,
             )
             ch_ncov_qc_csv = ncov2019_artic.out.ch_ncov_qc_csv
             ch_fasta_files = ncov2019_artic.out.ch_ncov_sample_fasta

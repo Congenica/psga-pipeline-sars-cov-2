@@ -9,8 +9,6 @@ process check_metadata {
 
   input:
     path metadata
-    val analysis_run_name
-    val sequencing_technology
 
   output:
     path metadata, emit: ch_metadata
@@ -24,8 +22,6 @@ process check_metadata {
   # convert nextflow variables to Bash so that the same format is used
 
   metadata=!{metadata}
-  analysis_run_name=!{analysis_run_name}
-  sequencing_technology=!{sequencing_technology}
 
   metadata_checked="check_metadata.done"
   samples_with_invalid_metadata_file="samples_with_invalid_metadata.txt"
@@ -33,8 +29,8 @@ process check_metadata {
 
   python ${PSGA_ROOT_PATH}/scripts/sars_cov_2/check_metadata.py \
     --metadata-path "${metadata}" \
-    --analysis-run-name "${analysis_run_name}" \
-    --sequencing-technology "${sequencing_technology}" \
+    --analysis-run-name "!{params.run}" \
+    --sequencing-technology "!{params.sequencing_technology}" \
     --samples-with-invalid-metadata-file "${samples_with_invalid_metadata_file}" \
     --samples-with-valid-metadata-file "${samples_with_valid_metadata_file}"
 

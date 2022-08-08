@@ -22,6 +22,7 @@ pipeline {
                                         string(name: 'NXF_WORK', value: "/data/work/illumina_short"),
                                         string(name: 'ANALYSIS_RUN', value: "illumina_short"),
                                         string(name: 'SEQUENCING_TECHNOLOGY', value: "illumina"),
+                                        string(name: 'KIT', value: "V3"),
                                 ]
                             )
                         }
@@ -39,6 +40,43 @@ pipeline {
                                         string(name: 'NXF_WORK', value: "/data/work/ont_short"),
                                         string(name: 'ANALYSIS_RUN', value: "ont_short"),
                                         string(name: 'SEQUENCING_TECHNOLOGY', value: "ont"),
+                                        string(name: 'KIT', value: "V3"),
+                                ]
+                            )
+                        }
+                    }
+                }
+                stage('illumina/v4') {
+                    steps {
+                        script {
+                            build (
+                                job: "${PSGA_PIPELINE}/${env.BRANCH_NAME}",
+                                parameters: [
+                                        booleanParam(name: 'VALIDATION_TEST', value: false),
+                                        string(name: 'METADATA', value: "s3://synthetic-data-dev/UKHSA/requirements/CL0015b/illumina_v4_input/metadata.csv"),
+                                        string(name: 'PSGA_OUTPUT_PATH', value: "/data/output/illumina_v4"),
+                                        string(name: 'NXF_WORK', value: "/data/work/illumina_v4"),
+                                        string(name: 'ANALYSIS_RUN', value: "illumina_v4"),
+                                        string(name: 'SEQUENCING_TECHNOLOGY', value: "illumina"),
+                                        string(name: 'KIT', value: "V4"),
+                                ]
+                            )
+                        }
+                    }
+                }
+                stage('ont/v4') {
+                    steps {
+                        script {
+                            build (
+                                job: "${PSGA_PIPELINE}/${env.BRANCH_NAME}",
+                                parameters: [
+                                        booleanParam(name: 'VALIDATION_TEST', value: false),
+                                        string(name: 'METADATA', value: "s3://synthetic-data-dev/UKHSA/requirements/CL0015b/ont_v4_input/metadata.csv"),
+                                        string(name: 'PSGA_OUTPUT_PATH', value: "/data/output/ont_v4"),
+                                        string(name: 'NXF_WORK', value: "/data/work/ont_v4"),
+                                        string(name: 'ANALYSIS_RUN', value: "ont_v4"),
+                                        string(name: 'SEQUENCING_TECHNOLOGY', value: "ont"),
+                                        string(name: 'KIT', value: "V4"),
                                 ]
                             )
                         }
@@ -56,6 +94,7 @@ pipeline {
                                         string(name: 'NXF_WORK', value: "/data/work/unknown_short"),
                                         string(name: 'ANALYSIS_RUN', value: "unknown_short"),
                                         string(name: 'SEQUENCING_TECHNOLOGY', value: "unknown"),
+                                        string(name: 'KIT', value: "V3"),
                                 ]
                             )
                         }

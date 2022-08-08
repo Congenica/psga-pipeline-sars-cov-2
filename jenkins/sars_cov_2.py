@@ -39,11 +39,9 @@ def get_expected_output_files(root: Path, sample_names: List[str], sequencing_te
         if sequencing_technology == "illumina":
             fastqc_suffixes = [f"{r}_fastqc.zip" for r in [1, 2]]
             ncov_fasta_suffixes = [".primertrimmed.consensus.fa"]
-            ncov_plots_suffixes = [".depth.png"]
         elif sequencing_technology == "ont":
             fastqc_suffixes = ["fastqc.zip"]
             ncov_fasta_suffixes = [".consensus.fa", ".muscle.in.fa", ".muscle.out.fa", ".preconsensus.fa"]
-            ncov_plots_suffixes = ["-barplot.png", "-boxplot.png", ".depth.png"]
         else:
             raise ValueError(f"Unsupported sequencing_technology: {sequencing_technology}")
 
@@ -52,9 +50,7 @@ def get_expected_output_files(root: Path, sample_names: List[str], sequencing_te
         output_files.extend(
             [root / "ncov2019-artic" / "output_fasta" / f"{s}{e}" for s in sample_names for e in ncov_fasta_suffixes]
         )
-        output_files.extend(
-            [root / "ncov2019-artic" / "output_plots" / f"{s}{e}" for s in sample_names for e in ncov_plots_suffixes]
-        )
+        output_files.extend([root / "ncov2019-artic" / "output_plots" / f"{s}.depth.png" for s in sample_names])
         output_files.append(root / "ncov2019-artic" / "ncov_qc.csv")
 
     output_files.extend([root / "notifications" / p for p in notification_files])
