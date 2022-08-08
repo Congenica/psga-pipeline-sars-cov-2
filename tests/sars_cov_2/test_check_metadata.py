@@ -9,9 +9,16 @@ from utils_tests import read_samples_from_file
     "metadata_file,sequencing_technology,valid_samples,invalid_samples",
     [
         (
-            "good_metadata_illumina_bam.csv",
+            "good_metadata_illumina.csv",
             "illumina",
-            ["37a36d1c-5985-4836-87b5-b36bac75d81b", "985347c5-ff6a-454c-ac34-bc353d05dd70"],
+            [
+                "37a36d1c-5985-4836-87b5-b36bac75d81b",
+                "57a36d1c-5985-4836-87b5-b36bac75d81b",
+                "885347c5-ff6a-454c-ac34-bc353d05dd70",
+                "985347c5-ff6a-454c-ac34-bc353d05dd70",
+                "47a36d1c-5985-4836-87b5-b36bac75d81b",
+                "485347c5-ff6a-454c-ac34-bc353d05dd70",
+            ],
             [],
         ),
         (
@@ -49,48 +56,13 @@ def test_validate_metadata(
     [
         # CORRECT METADATA
         (
-            "good_metadata_illumina_fastq.csv",
-            "just_a_name",
-            "illumina",
-            ["37a36d1c-5985-4836-87b5-b36bac75d81b", "985347c5-ff6a-454c-ac34-bc353d05dd70"],
-            [],
-            0,
-            None,
-        ),
-        (
-            "good_metadata_illumina_bam.csv",
-            "just_a_name",
-            "illumina",
-            ["37a36d1c-5985-4836-87b5-b36bac75d81b", "985347c5-ff6a-454c-ac34-bc353d05dd70"],
-            [],
-            0,
-            None,
-        ),
-        (
-            "good_metadata_medaka_fastq.csv",
-            "just_a_name",
-            "ont",
-            ["37a36d1c-5985-4836-87b5-b36bac75d81b", "985347c5-ff6a-454c-ac34-bc353d05dd70"],
-            [],
-            0,
-            None,
-        ),
-        (
-            "good_metadata_fasta.csv",
-            "just_a_name",
-            "unknown",
-            ["37a36d1c-5985-4836-87b5-b36bac75d81b", "985347c5-ff6a-454c-ac34-bc353d05dd70"],
-            [],
-            0,
-            None,
-        ),
-        # combined illumina fastq and bam in 1 single metadata file
-        (
-            "good_metadata_illumina_fastq_bam.csv",
+            "good_metadata_illumina.csv",
             "just_a_name",
             "illumina",
             [
                 "37a36d1c-5985-4836-87b5-b36bac75d81b",
+                "57a36d1c-5985-4836-87b5-b36bac75d81b",
+                "885347c5-ff6a-454c-ac34-bc353d05dd70",
                 "985347c5-ff6a-454c-ac34-bc353d05dd70",
                 "47a36d1c-5985-4836-87b5-b36bac75d81b",
                 "485347c5-ff6a-454c-ac34-bc353d05dd70",
@@ -99,9 +71,34 @@ def test_validate_metadata(
             0,
             None,
         ),
+        (
+            "good_metadata_ont.csv",
+            "just_a_name",
+            "ont",
+            [
+                "37a36d1c-5985-4836-87b5-b36bac75d81b",
+                "57a36d1c-5985-4836-87b5-b36bac75d81b",
+                "885347c5-ff6a-454c-ac34-bc353d05dd70",
+                "985347c5-ff6a-454c-ac34-bc353d05dd70",
+                "47a36d1c-5985-4836-87b5-b36bac75d81b",
+                "485347c5-ff6a-454c-ac34-bc353d05dd70",
+            ],
+            [],
+            0,
+            None,
+        ),
+        (
+            "good_metadata_fasta.csv",
+            "just_a_name",
+            "unknown",
+            ["37a36d1c-5985-4836-87b5-b36bac75d81b", "985347c5-ff6a-454c-ac34-bc353d05dd70"],
+            [],
+            0,
+            None,
+        ),
         # CORRECT METADATA, INCORRECT sequencing_technology
         (
-            "good_metadata_illumina_fastq.csv",
+            "good_metadata_illumina.csv",
             "just_a_name",
             "fake_technology",
             [],
@@ -110,52 +107,81 @@ def test_validate_metadata(
             "Error: Invalid value for '--sequencing-technology'",
         ),
         (
-            "good_metadata_illumina_fastq.csv",
+            "good_metadata_illumina.csv",
             "just_a_name",
             "ont",
+            [
+                "37a36d1c-5985-4836-87b5-b36bac75d81b",
+                "47a36d1c-5985-4836-87b5-b36bac75d81b",
+                "485347c5-ff6a-454c-ac34-bc353d05dd70",
+                "57a36d1c-5985-4836-87b5-b36bac75d81b",
+                "885347c5-ff6a-454c-ac34-bc353d05dd70",
+                "985347c5-ff6a-454c-ac34-bc353d05dd70",
+            ],
             [],
-            ["37a36d1c-5985-4836-87b5-b36bac75d81b", "985347c5-ff6a-454c-ac34-bc353d05dd70"],
-            1,
-            "Invalid row for SAMPLE_ID 37a36d1c-5985-4836-87b5-b36bac75d81b:\n"
-            + "SAMPLE_ID: 37a36d1c-5985-4836-87b5-b36bac75d81b has invalid file for sequencing technology ont. "
-            + "Supported files are ['fastq']\n"
-            + "Invalid row for SAMPLE_ID 985347c5-ff6a-454c-ac34-bc353d05dd70:\n"
-            + "SAMPLE_ID: 985347c5-ff6a-454c-ac34-bc353d05dd70 has invalid file for sequencing technology ont. "
-            + "Supported files are ['fastq']\n"
-            + "Error: Errors encountered for sample ids: "
-            + "37a36d1c-5985-4836-87b5-b36bac75d81b, 985347c5-ff6a-454c-ac34-bc353d05dd70\n",
+            0,
+            None,
         ),
         (
-            "good_metadata_medaka_fastq.csv",
+            "good_metadata_ont.csv",
             "just_a_name",
             "illumina",
-            [],
-            ["37a36d1c-5985-4836-87b5-b36bac75d81b", "985347c5-ff6a-454c-ac34-bc353d05dd70"],
+            ["47a36d1c-5985-4836-87b5-b36bac75d81b", "485347c5-ff6a-454c-ac34-bc353d05dd70"],
+            [
+                "37a36d1c-5985-4836-87b5-b36bac75d81b",
+                "57a36d1c-5985-4836-87b5-b36bac75d81b",
+                "885347c5-ff6a-454c-ac34-bc353d05dd70",
+                "985347c5-ff6a-454c-ac34-bc353d05dd70",
+            ],
             1,
             "Invalid row for SAMPLE_ID 37a36d1c-5985-4836-87b5-b36bac75d81b:\n"
-            + "SAMPLE_ID: 37a36d1c-5985-4836-87b5-b36bac75d81b has invalid file for sequencing technology illumina. "
-            + "Supported files are ['fastq.gz', 'bam']\n"
+            + "SEQ_FILE_2 for 37a36d1c-5985-4836-87b5-b36bac75d81b not available\n"
+            + "Invalid row for SAMPLE_ID 57a36d1c-5985-4836-87b5-b36bac75d81b:\n"
+            + "SEQ_FILE_2 for 57a36d1c-5985-4836-87b5-b36bac75d81b not available\n"
+            + "Invalid row for SAMPLE_ID 885347c5-ff6a-454c-ac34-bc353d05dd70:\n"
+            + "SEQ_FILE_2 for 885347c5-ff6a-454c-ac34-bc353d05dd70 not available\n"
             + "Invalid row for SAMPLE_ID 985347c5-ff6a-454c-ac34-bc353d05dd70:\n"
-            + "SAMPLE_ID: 985347c5-ff6a-454c-ac34-bc353d05dd70 has invalid file for sequencing technology illumina. "
-            + "Supported files are ['fastq.gz', 'bam']\n"
+            + "SEQ_FILE_2 for 985347c5-ff6a-454c-ac34-bc353d05dd70 not available\n"
             + "Error: Errors encountered for sample ids: "
-            + "37a36d1c-5985-4836-87b5-b36bac75d81b, 985347c5-ff6a-454c-ac34-bc353d05dd70\n",
+            + "37a36d1c-5985-4836-87b5-b36bac75d81b, 57a36d1c-5985-4836-87b5-b36bac75d81b, "
+            + "885347c5-ff6a-454c-ac34-bc353d05dd70, 985347c5-ff6a-454c-ac34-bc353d05dd70\n",
         ),
         (
-            "good_metadata_medaka_fastq.csv",
+            "good_metadata_ont.csv",
             "just_a_name",
             "unknown",
             [],
-            ["37a36d1c-5985-4836-87b5-b36bac75d81b", "985347c5-ff6a-454c-ac34-bc353d05dd70"],
+            [
+                "37a36d1c-5985-4836-87b5-b36bac75d81b",
+                "47a36d1c-5985-4836-87b5-b36bac75d81b",
+                "485347c5-ff6a-454c-ac34-bc353d05dd70",
+                "57a36d1c-5985-4836-87b5-b36bac75d81b",
+                "885347c5-ff6a-454c-ac34-bc353d05dd70",
+                "985347c5-ff6a-454c-ac34-bc353d05dd70",
+            ],
             1,
             "Invalid row for SAMPLE_ID 37a36d1c-5985-4836-87b5-b36bac75d81b:\n"
             + "SAMPLE_ID: 37a36d1c-5985-4836-87b5-b36bac75d81b has invalid file for sequencing technology unknown. "
-            + "Supported files are ['fasta']\n"
+            + "Supported files are ['fasta', 'fa']\n"
+            + "Invalid row for SAMPLE_ID 57a36d1c-5985-4836-87b5-b36bac75d81b:\n"
+            + "SAMPLE_ID: 57a36d1c-5985-4836-87b5-b36bac75d81b has invalid file for sequencing technology unknown. "
+            + "Supported files are ['fasta', 'fa']\n"
+            + "Invalid row for SAMPLE_ID 885347c5-ff6a-454c-ac34-bc353d05dd70:\n"
+            + "SAMPLE_ID: 885347c5-ff6a-454c-ac34-bc353d05dd70 has invalid file for sequencing technology unknown. "
+            + "Supported files are ['fasta', 'fa']\n"
             + "Invalid row for SAMPLE_ID 985347c5-ff6a-454c-ac34-bc353d05dd70:\n"
             + "SAMPLE_ID: 985347c5-ff6a-454c-ac34-bc353d05dd70 has invalid file for sequencing technology unknown. "
-            + "Supported files are ['fasta']\n"
+            + "Supported files are ['fasta', 'fa']\n"
+            + "Invalid row for SAMPLE_ID 47a36d1c-5985-4836-87b5-b36bac75d81b:\n"
+            + "SAMPLE_ID: 47a36d1c-5985-4836-87b5-b36bac75d81b has invalid file for sequencing technology unknown. "
+            + "Supported files are ['fasta', 'fa']\n"
+            + "Invalid row for SAMPLE_ID 485347c5-ff6a-454c-ac34-bc353d05dd70:\n"
+            + "SAMPLE_ID: 485347c5-ff6a-454c-ac34-bc353d05dd70 has invalid file for sequencing technology unknown. "
+            + "Supported files are ['fasta', 'fa']\n"
             + "Error: Errors encountered for sample ids: "
-            + "37a36d1c-5985-4836-87b5-b36bac75d81b, 985347c5-ff6a-454c-ac34-bc353d05dd70\n",
+            + "37a36d1c-5985-4836-87b5-b36bac75d81b, 47a36d1c-5985-4836-87b5-b36bac75d81b, "
+            + "485347c5-ff6a-454c-ac34-bc353d05dd70, 57a36d1c-5985-4836-87b5-b36bac75d81b, "
+            + "885347c5-ff6a-454c-ac34-bc353d05dd70, 985347c5-ff6a-454c-ac34-bc353d05dd70\n",
         ),
         (
             "good_metadata_fasta.csv",
@@ -166,10 +192,10 @@ def test_validate_metadata(
             1,
             "Invalid row for SAMPLE_ID 37a36d1c-5985-4836-87b5-b36bac75d81b:\n"
             + "SAMPLE_ID: 37a36d1c-5985-4836-87b5-b36bac75d81b has invalid file for sequencing technology ont. "
-            + "Supported files are ['fastq']\n"
+            + "Supported files are ['fastq', 'fastq.gz', 'fq', 'fq.gz', 'bam']\n"
             + "Invalid row for SAMPLE_ID 985347c5-ff6a-454c-ac34-bc353d05dd70:\n"
             + "SAMPLE_ID: 985347c5-ff6a-454c-ac34-bc353d05dd70 has invalid file for sequencing technology ont. "
-            + "Supported files are ['fastq']\n"
+            + "Supported files are ['fastq', 'fastq.gz', 'fq', 'fq.gz', 'bam']\n"
             + "Error: Errors encountered for sample ids: "
             + "37a36d1c-5985-4836-87b5-b36bac75d81b, 985347c5-ff6a-454c-ac34-bc353d05dd70\n",
         ),
@@ -196,7 +222,7 @@ def test_validate_metadata(
             + "SEQ_FILE_1 for 185347c5-ff6a-454c-ac34-bc353d05dd70 not available\n"
             + "Invalid row for SAMPLE_ID 186647c5-ff6a-454c-ac34-bc353d05dd70:\n"
             + "SAMPLE_ID: 186647c5-ff6a-454c-ac34-bc353d05dd70 has invalid file for sequencing technology illumina. "
-            + "Supported files are ['fastq.gz', 'bam']\n"
+            + "Supported files are ['fastq', 'fastq.gz', 'fq', 'fq.gz', 'bam']\n"
             + "Invalid row for SAMPLE_ID 27a36d1c-5985-4836-87b5-b36bac75d81b:\n"
             + "SEQ_FILE_2 for 27a36d1c-5985-4836-87b5-b36bac75d81b not available\n"
             + "Invalid row for SAMPLE_ID 286647c5-ff6a-454c-ac34-bc353d05dd70:\n"

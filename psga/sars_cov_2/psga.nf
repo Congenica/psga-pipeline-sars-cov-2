@@ -6,12 +6,14 @@ if ( params.sequencing_technology == "illumina" ) {
     include { contamination_removal_illumina as contamination_removal } from './common/contamination_removal.nf'
     include { ncov2019_artic_nf_pipeline_illumina as ncov2019_artic } from './ncov2019_artic.nf'
     include { stage_sample_file } from './common/fetch_sample_files.nf'
-    include { stage_sample_file_pair } from './common/fetch_sample_files.nf'
-    include { bam_to_fastq } from './common/utils.nf'
+    include { stage_sample_file_pair as stage_fastq_sample_file } from './common/fetch_sample_files.nf'
+    include { bam_to_fastq_illumina as bam_to_fastq } from './common/utils.nf'
 } else if ( params.sequencing_technology == "ont" ) {
     include { contamination_removal_ont as contamination_removal } from './common/contamination_removal.nf'
     include { ncov2019_artic_nf_pipeline_medaka as ncov2019_artic } from './ncov2019_artic.nf'
     include { stage_sample_file } from './common/fetch_sample_files.nf'
+    include { stage_sample_file as stage_fastq_sample_file } from './common/fetch_sample_files.nf'
+    include { bam_to_fastq_ont as bam_to_fastq } from './common/utils.nf'
 } else if ( params.sequencing_technology == "unknown" ) {
     include { stage_sample_file } from './common/fetch_sample_files.nf'
 } else {
@@ -73,38 +75,48 @@ workflow psga {
             }
             .set { ch_metadata_records }
 
+
+        // organise ch_metadata_records.single by file type
+        ch_metadata_records.single
+            .filter { it.SEQ_FILE_1 =~ /\.bam$/ }
+            .set { ch_metadata_records_single_bam }
+        ch_metadata_records.single
+            .filter { it.SEQ_FILE_1 =~ /\.(fq|fastq?)(?:\.gz)?$/ }
+            .set { ch_metadata_records_single_fastq }
+        ch_metadata_records.single
+            .filter { it.SEQ_FILE_1 =~ /\.(fa|fasta?)(?:\.gz)?$/ }
+            .set { ch_metadata_records_single_fasta }
+
+        ch_metadata_records_pair_fastq = ch_metadata_records.pair
+
+
         if ( params.sequencing_technology == "unknown" ) {
 
             // files are FASTA
-            ch_fasta_files = stage_sample_file(ch_metadata_records.single)
-
+            ch_fasta_files = stage_sample_file(ch_metadata_records_single_fasta)
             // mock ncov
             ch_ncov_qc_csv = Channel.fromPath('/mock_file')
 
         } else {
 
+            // stage bam files
+            ch_bam_files = stage_sample_file(ch_metadata_records_single_bam)
+            // transform bam into 2 paired fastq files
+            ch_bam_to_fastq = bam_to_fastq(ch_bam_files)
+
             if ( params.sequencing_technology == "illumina") {
-
-                // stage bam and transform it into 2 paired fastq files
-                ch_bam = stage_sample_file(ch_metadata_records.single)
-                ch_fastq_pairs_from_bam = bam_to_fastq(ch_bam)
-
                 // stage fastq file pair
-                ch_fastq_pairs = stage_sample_file_pair(ch_metadata_records.pair)
-
-                // unify the content of the two channels into one. Order of samples is irrelevant.
-                ch_input_files_fastq = ch_fastq_pairs.mix(ch_fastq_pairs_from_bam)
-
+                ch_fastq_files = stage_fastq_sample_file(ch_metadata_records_pair_fastq)
             } else if ( params.sequencing_technology == "ont" ) {
-
-                // stage fastq file pair
-                ch_input_files_fastq = stage_sample_file(ch_metadata_records.single)
-
+                // stage fastq file
+                ch_fastq_files = stage_fastq_sample_file(ch_metadata_records_single_fastq)
             } else {
-
                 throw new Exception("Error: '--sequencing_technology' can only be 'illumina', 'ont' or 'unknown'")
-
             }
+
+            // unify the input fastq files with fastq files converted from bam files into one channel. Order of sample tuples is irrelevant.
+            ch_input_files_fastq = ch_fastq_files.mix(ch_bam_to_fastq)
+
 
             contamination_removal(
                 params.rik_ref_genome_fasta,

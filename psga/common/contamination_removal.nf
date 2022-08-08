@@ -18,16 +18,23 @@ process contamination_removal_ont {
 
   shell:
   '''
+  # NOTE: readItAndKeep always compresses the output, not matter what the input was
+  # therefore, make sure that the input file is compressed, in order to have the right output file name
+
   ref_genome_fasta=!{ref_genome_fasta}
   file_1=!{file_1}
-  sample_id=$( echo ${file_1} | cut -d '.' -f1)
+  sample_id=$( echo ${file_1} | cut -d '.' -f1 )
+
+  if [ "${file_1##*.}" != "gz" ]; then
+      # keep input file, otherwise nextflow complains
+      gzip -c ${file_1} > ${file_1}.gz
+      file_1="${file_1}.gz"
+  fi
 
   readItAndKeep --tech ont --ref_fasta ${ref_genome_fasta} --reads1 ${file_1} --outprefix out 2>&1 | tee ${sample_id}_removed_reads.txt
 
   mkdir -p out
-  # ncov ont requires reads to be decompressed
-  gunzip out.reads.fastq.gz
-  mv out.reads.fastq out/${file_1}
+  mv -f out.reads.fastq.gz out/${sample_id}.fastq.gz
   '''
 }
 
@@ -46,15 +53,29 @@ process contamination_removal_illumina {
 
   shell:
   '''
+  # NOTE: readItAndKeep always compresses the output, not matter what the input was
+  # therefore, make sure that the input file is compressed, in order to have the right output file name
+
   ref_genome_fasta=!{ref_genome_fasta}
   file_1=!{file_1}
   file_2=!{file_2}
   sample_id=$( echo ${file_1} | cut -d '_' -f1 )
 
+  if [ "${file_1##*.}" != "gz" ]; then
+      # keep input file, otherwise nextflow complains
+      gzip -c ${file_1} > ${file_1}.gz
+      file_1="${file_1}.gz"
+  fi
+  if [ "${file_2##*.}" != "gz" ]; then
+      # keep input file, otherwise nextflow complains
+      gzip -c ${file_2} > ${file_2}.gz
+      file_2="${file_2}.gz"
+  fi
+
   readItAndKeep --tech illumina --ref_fasta ${ref_genome_fasta} --reads1 ${file_1} --reads2 ${file_2} --outprefix out 2>&1 | tee ${sample_id}_removed_reads.txt
 
   mkdir -p out
-  mv out.reads_1.fastq.gz out/${file_1}
-  mv out.reads_2.fastq.gz out/${file_2}
+  mv -f out.reads_1.fastq.gz out/${sample_id}_1.fastq.gz
+  mv -f out.reads_2.fastq.gz out/${sample_id}_2.fastq.gz
   '''
 }
