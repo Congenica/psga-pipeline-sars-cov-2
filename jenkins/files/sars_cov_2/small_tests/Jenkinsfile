@@ -52,7 +52,7 @@ pipeline {
                             build (
                                 job: "${PSGA_PIPELINE}/${env.BRANCH_NAME}",
                                 parameters: [
-                                        booleanParam(name: 'VALIDATION_TEST', value: false),
+                                        booleanParam(name: 'VALIDATION_TEST', value: true),
                                         string(name: 'METADATA', value: "s3://synthetic-data-dev/UKHSA/requirements/CL0015b/illumina_v4_input/metadata.csv"),
                                         string(name: 'PSGA_OUTPUT_PATH', value: "/data/output/illumina_v4"),
                                         string(name: 'NXF_WORK', value: "/data/work/illumina_v4"),
@@ -70,7 +70,7 @@ pipeline {
                             build (
                                 job: "${PSGA_PIPELINE}/${env.BRANCH_NAME}",
                                 parameters: [
-                                        booleanParam(name: 'VALIDATION_TEST', value: false),
+                                        booleanParam(name: 'VALIDATION_TEST', value: true),
                                         string(name: 'METADATA', value: "s3://synthetic-data-dev/UKHSA/requirements/CL0015b/ont_v4_input/metadata.csv"),
                                         string(name: 'PSGA_OUTPUT_PATH', value: "/data/output/ont_v4"),
                                         string(name: 'NXF_WORK', value: "/data/work/ont_v4"),
