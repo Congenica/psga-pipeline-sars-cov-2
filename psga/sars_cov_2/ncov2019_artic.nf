@@ -51,8 +51,8 @@ process ncov2019_artic_nf_pipeline_illumina {
   mv ${ncov_qc_plots_dir}/*.png ${output_plots}
 
   # extract the sample name from one of the reads and rename the qc csv
-  sample_name="$(ls *.gz | head -n 1 | cut -d"_" -f1)"
-  mv ${ncov_out_dir}/${ncov_prefix}.qc.csv ${ncov_out_dir}/${sample_name}.qc.csv
+  sample_id="$(ls *.gz | head -n 1 | cut -d"_" -f1)"
+  mv ${ncov_out_dir}/${ncov_prefix}.qc.csv ${ncov_out_dir}/${sample_id}.qc.csv
   '''
 }
 
@@ -90,15 +90,21 @@ process ncov2019_artic_nf_pipeline_medaka {
   ncov_prefix=!{params.run}
   scheme_name=!{scheme_name}
 
+  # ncov/ONT expects decompressed fastq in artic 1.1.3
+  if [ "${fastq_file##*.}" = "gz" ]; then
+      gunzip -c ${fastq_file} > ${fastq_file%.*}
+      fastq_file="${fastq_file%.*}"
+  fi
+
   # move fastq file to a specific directory so that the output files will have the filename pattern:
   # <analysis_run>_<sample_id>
   # where analysis_run is ncov_prefix, and
   # sample_id is the sample UUID (=file name of the fastq file)
 
   # there is only one input fastq file here as ncov is executed per sample
-  sample_name=`basename ${fastq_file%.*}`
-  mkdir -p ${sample_name}
-  mv -f ${fastq_file} ${sample_name}
+  sample_id=$( echo ${fastq_file} | cut -d '.' -f1)
+  mkdir -p ${sample_id}
+  mv -f ${fastq_file} ${sample_id}
 
   # note: we inject our configuration into ncov to override parameters
   # note: --basecalled_fastq is the directory containing the barcodes or the fastq files
@@ -108,7 +114,7 @@ process ncov2019_artic_nf_pipeline_medaka {
       --medaka \
       --medakaModel !{params.medaka_model} \
       --prefix ${ncov_prefix} \
-      --basecalled_fastq ${sample_name} \
+      --basecalled_fastq ${sample_id} \
       --outdir ${ncov_out_dir} \
       --schemeRepoURL !{params.scheme_repo_url} \
       --schemeDir !{params.scheme_dir} \
@@ -124,20 +130,20 @@ process ncov2019_artic_nf_pipeline_medaka {
 
   # this is a code correction to the nanopore medaka workflow in order to restore the correct sample names
   # in file names and file content
-  for file_to_update in `ls ${output_fasta}/${ncov_prefix}_${sample_name}*.fasta`; do
-      sed -i "s/${ncov_prefix}_${sample_name}/${sample_name}/" ${file_to_update}
+  for file_to_update in `ls ${output_fasta}/${ncov_prefix}_${sample_id}*.fasta`; do
+      sed -i "s/${ncov_prefix}_${sample_id}/${sample_id}/" ${file_to_update}
       # use .fa extension so that this is the same as for the ncov illumina workflow
       mv ${file_to_update} ${file_to_update%.*}.fa
   done
 
-  sed -i "s/${ncov_prefix}_${sample_name}/${sample_name}/g" ${ncov_out_dir}/${ncov_prefix}.qc.csv
-  mv ${ncov_out_dir}/${ncov_prefix}.qc.csv ${ncov_out_dir}/${sample_name}.qc.csv
+  sed -i "s/${ncov_prefix}_${sample_id}/${sample_id}/g" ${ncov_out_dir}/${ncov_prefix}.qc.csv
+  mv ${ncov_out_dir}/${ncov_prefix}.qc.csv ${ncov_out_dir}/${sample_id}.qc.csv
 
-  for file_to_rename in `find ${output_fasta} ${output_plots} -name ${ncov_prefix}_${sample_name}*`; do
+  for file_to_rename in `find ${output_fasta} ${output_plots} -name ${ncov_prefix}_${sample_id}*`; do
       file_dir=`dirname ${file_to_rename}`
       file_name=`basename ${file_to_rename}`
       cd ${file_dir}
-      rename "s/${ncov_prefix}_${sample_name}/${sample_name}/" ${file_name}
+      rename "s/${ncov_prefix}_${sample_id}/${sample_id}/" ${file_name}
       cd - > /dev/null
   done
   '''

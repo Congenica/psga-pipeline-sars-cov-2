@@ -29,14 +29,22 @@ SEQUENCING_TECHNOLOGIES = [ILLUMINA, ONT, UNKNOWN]
 FILE_NUM = "file_num"
 SUPPORTED_FILES = {
     ILLUMINA: {
+        "fastq": {FILE_NUM: 2},
         "fastq.gz": {FILE_NUM: 2},
+        "fq": {FILE_NUM: 2},
+        "fq.gz": {FILE_NUM: 2},
         "bam": {FILE_NUM: 1},
     },
     ONT: {
         "fastq": {FILE_NUM: 1},
+        "fastq.gz": {FILE_NUM: 1},
+        "fq": {FILE_NUM: 1},
+        "fq.gz": {FILE_NUM: 1},
+        "bam": {FILE_NUM: 1},
     },
     UNKNOWN: {
         "fasta": {FILE_NUM: 1},
+        "fa": {FILE_NUM: 1},
     },
 }
 
