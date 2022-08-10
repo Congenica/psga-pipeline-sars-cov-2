@@ -10,7 +10,7 @@ pipeline {
     stages {
         stage('Run PSGA pipeline: small tests') {
             parallel {
-                stage('illumina') {
+                stage('illumina/v3') {
                     steps {
                         script {
                             build (
@@ -28,7 +28,7 @@ pipeline {
                         }
                     }
                 }
-                stage('ont') {
+                stage('ont/v3') {
                     steps {
                         script {
                             build (
