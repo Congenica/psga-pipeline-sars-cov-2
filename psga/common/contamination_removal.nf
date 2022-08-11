@@ -4,7 +4,7 @@
  * This tool keeps the reads that match the provided target genome.
  */
 process contamination_removal_ont {
-  publishDir "${PSGA_OUTPUT_PATH}/contamination_removal", mode: 'copy', overwrite: true, pattern: '*_removed_reads.txt'
+  publishDir "${PSGA_OUTPUT_PATH}/contamination_removal", mode: 'copy', overwrite: true, pattern: '{cleaned_fastq/*.fastq.gz,counting/*.txt}'
 
   tag "${task.index} - ${file_1}"
 
@@ -13,8 +13,8 @@ process contamination_removal_ont {
     path file_1
 
   output:
-    path "out/*", emit: ch_output_file
-    path "*_removed_reads.txt"
+    path "cleaned_fastq/*.fastq.gz", emit: ch_output_file
+    path "counting/*.txt"
 
   shell:
   '''
@@ -31,15 +31,16 @@ process contamination_removal_ont {
       file_1="${file_1}.gz"
   fi
 
-  readItAndKeep --tech ont --ref_fasta ${ref_genome_fasta} --reads1 ${file_1} --outprefix out 2>&1 | tee ${sample_id}_removed_reads.txt
+  mkdir -p cleaned_fastq counting
 
-  mkdir -p out
-  mv -f out.reads.fastq.gz out/${sample_id}.fastq.gz
+  readItAndKeep --tech ont --ref_fasta ${ref_genome_fasta} --reads1 ${file_1} --outprefix out 2>&1 | tee counting/${sample_id}.txt
+
+  mv -f out.reads.fastq.gz cleaned_fastq/${sample_id}.fastq.gz
   '''
 }
 
 process contamination_removal_illumina {
-  publishDir "${PSGA_OUTPUT_PATH}/contamination_removal", mode: 'copy', overwrite: true, pattern: '*_removed_reads.txt'
+  publishDir "${PSGA_OUTPUT_PATH}/contamination_removal", mode: 'copy', overwrite: true, pattern: '{cleaned_fastq/*.fastq.gz,counting/*.txt}'
 
   tag "${task.index} - [${file_1}, ${file_2}]"
 
@@ -48,8 +49,8 @@ process contamination_removal_illumina {
     tuple path(file_1), path(file_2)
 
   output:
-    path "out/*", emit: ch_output_file
-    path "*_removed_reads.txt"
+    path "cleaned_fastq/*.fastq.gz", emit: ch_output_file
+    path "counting/*.txt"
 
   shell:
   '''
@@ -72,10 +73,11 @@ process contamination_removal_illumina {
       file_2="${file_2}.gz"
   fi
 
-  readItAndKeep --tech illumina --ref_fasta ${ref_genome_fasta} --reads1 ${file_1} --reads2 ${file_2} --outprefix out 2>&1 | tee ${sample_id}_removed_reads.txt
+  mkdir -p cleaned_fastq counting
 
-  mkdir -p out
-  mv -f out.reads_1.fastq.gz out/${sample_id}_1.fastq.gz
-  mv -f out.reads_2.fastq.gz out/${sample_id}_2.fastq.gz
+  readItAndKeep --tech illumina --ref_fasta ${ref_genome_fasta} --reads1 ${file_1} --reads2 ${file_2} --outprefix out 2>&1 | tee counting/${sample_id}.txt
+
+  mv -f out.reads_1.fastq.gz cleaned_fastq/${sample_id}_1.fastq.gz
+  mv -f out.reads_2.fastq.gz cleaned_fastq/${sample_id}_2.fastq.gz
   '''
 }
