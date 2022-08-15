@@ -120,7 +120,7 @@ def load_data_from_csv(
     default="samples_passed_pangolin.txt",
     help="output file storing the samples passing pangolin QC",
 )
-def merge_ncov_pangolin_csv_files(
+def generate_pipeline_results_csv(
     analysis_run_name: str,
     metadata_file: str,
     ncov_qc_csv_file: str,
@@ -229,4 +229,4 @@ def merge_ncov_pangolin_csv_files(
 
 if __name__ == "__main__":
     # pylint: disable=no-value-for-parameter
-    merge_ncov_pangolin_csv_files()
+    generate_pipeline_results_csv()

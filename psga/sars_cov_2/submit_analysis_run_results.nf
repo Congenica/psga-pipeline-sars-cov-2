@@ -59,7 +59,7 @@ process submit_pangolin_results {
 /*
  * Submit the merged ncov and pangolin output file
  */
-process submit_pipeline_output_csv {
+process submit_pipeline_results_csv {
   publishDir "${params.output_path}", mode: 'copy', overwrite: true, pattern: 'results.csv'
   publishDir "${params.output_path}/notifications", mode: 'copy', overwrite: true, pattern: 'samples_{unknown,failed,passed}_{ncov_qc,pangolin}.txt'
   publishDir "${params.output_path}/logs", mode: 'copy', overwrite: true, pattern: '*.log'
@@ -84,7 +84,7 @@ process submit_pipeline_output_csv {
       ncov_opt="--ncov-qc-csv-file \"${ch_qc_ncov_result_csv_file}\""
   fi
 
-  python ${PSGA_ROOT_PATH}/scripts/sars_cov_2/merge_ncov_pangolin_csv_files.py \
+  python ${PSGA_ROOT_PATH}/scripts/sars_cov_2/generate_pipeline_results_csv.py \
     --analysis-run-name "${ch_analysis_run_name}" \
     --metadata-file "${ch_metadata}" \
     --pangolin-csv-file "${ch_pangolin_csv_file}" \
@@ -115,14 +115,14 @@ workflow submit_analysis_run_results {
 
         submit_pangolin_results(ch_pangolin_csvs.collect())
 
-        submit_pipeline_output_csv(
+        submit_pipeline_results_csv(
             params.run,
             ch_metadata,
             ch_ncov_submitted,
             submit_pangolin_results.out.ch_pangolin_all_lineages,
         )
 
-        ch_analysis_run_results_submitted = submit_pipeline_output_csv.out.ch_merged_csv_file
+        ch_analysis_run_results_submitted = submit_pipeline_results_csv.out.ch_merged_csv_file
 
     emit:
         ch_analysis_run_results_submitted

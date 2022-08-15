@@ -4,7 +4,7 @@ from click.testing import CliRunner
 import pandas as pd
 from pandas.testing import assert_frame_equal
 
-from scripts.sars_cov_2.merge_ncov_pangolin_csv_files import merge_ncov_pangolin_csv_files
+from scripts.sars_cov_2.generate_pipeline_results_csv import generate_pipeline_results_csv
 from utils_tests import read_samples_from_file
 
 
@@ -53,7 +53,7 @@ def check_sample_list(input_path, expected_samples):
         ),
     ],
 )
-def test_merge_ncov_pangolin_csv_files(
+def test_generate_pipeline_results_csv(
     tmp_path,
     test_data_path,
     metadata,
@@ -103,7 +103,7 @@ def test_merge_ncov_pangolin_csv_files(
             ]
         )
     rv = CliRunner().invoke(
-        merge_ncov_pangolin_csv_files,
+        generate_pipeline_results_csv,
         args,
     )
 
