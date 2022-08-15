@@ -59,7 +59,7 @@ process submit_pangolin_results {
 /*
  * Submit the merged ncov and pangolin output file
  */
-process submit_pipeline_results_csv {
+process submit_pipeline_results_files {
   publishDir "${params.output_path}", mode: 'copy', overwrite: true, pattern: 'results.csv'
   publishDir "${params.output_path}/notifications", mode: 'copy', overwrite: true, pattern: 'samples_{unknown,failed,passed}_{ncov_qc,pangolin}.txt'
   publishDir "${params.output_path}/logs", mode: 'copy', overwrite: true, pattern: '*.log'
@@ -71,12 +71,12 @@ process submit_pipeline_results_csv {
     path ch_pangolin_csv_file
 
   output:
-    path ch_merged_csv_file, emit: ch_merged_csv_file
+    path ch_output_csv_file, emit: ch_output_csv_file
     path "*.txt", emit: ch_samples_files_by_qc
     path "*.log"
 
   script:
-    ch_merged_csv_file = "results.csv"
+    ch_output_csv_file = "results.csv"
 
   """
   ncov_opt=""
@@ -84,11 +84,11 @@ process submit_pipeline_results_csv {
       ncov_opt="--ncov-qc-csv-file \"${ch_qc_ncov_result_csv_file}\""
   fi
 
-  python ${PSGA_ROOT_PATH}/scripts/sars_cov_2/generate_pipeline_results_csv.py \
+  python ${PSGA_ROOT_PATH}/scripts/sars_cov_2/generate_pipeline_results_files.py \
     --analysis-run-name "${ch_analysis_run_name}" \
     --metadata-file "${ch_metadata}" \
     --pangolin-csv-file "${ch_pangolin_csv_file}" \
-    --merged-output-csv-file "${ch_merged_csv_file}" \
+    --output-csv-file "${ch_output_csv_file}" \
     \${ncov_opt}
   """
 }
@@ -115,14 +115,14 @@ workflow submit_analysis_run_results {
 
         submit_pangolin_results(ch_pangolin_csvs.collect())
 
-        submit_pipeline_results_csv(
+        submit_pipeline_results_files(
             params.run,
             ch_metadata,
             ch_ncov_submitted,
             submit_pangolin_results.out.ch_pangolin_all_lineages,
         )
 
-        ch_analysis_run_results_submitted = submit_pipeline_results_csv.out.ch_merged_csv_file
+        ch_analysis_run_results_submitted = submit_pipeline_results_files.out.ch_output_csv_file
 
     emit:
         ch_analysis_run_results_submitted
