@@ -60,7 +60,7 @@ process submit_pangolin_results {
  * Submit the merged ncov and pangolin output file
  */
 process submit_pipeline_results_files {
-  publishDir "${params.output_path}", mode: 'copy', overwrite: true, pattern: 'results.csv'
+  publishDir "${params.output_path}", mode: 'copy', overwrite: true, pattern: 'result{s.csv,files.json}'
   publishDir "${params.output_path}/notifications", mode: 'copy', overwrite: true, pattern: 'samples_{unknown,failed,passed}_{ncov_qc,pangolin}.txt'
   publishDir "${params.output_path}/logs", mode: 'copy', overwrite: true, pattern: '*.log'
 
@@ -72,11 +72,13 @@ process submit_pipeline_results_files {
 
   output:
     path ch_output_csv_file, emit: ch_output_csv_file
+    path ch_output_json_file, emit: ch_output_json_file
     path "*.txt", emit: ch_samples_files_by_qc
     path "*.log"
 
   script:
     ch_output_csv_file = "results.csv"
+    ch_output_json_file = "resultfiles.json"
 
   """
   ncov_opt=""
@@ -89,6 +91,9 @@ process submit_pipeline_results_files {
     --metadata-file "${ch_metadata}" \
     --pangolin-csv-file "${ch_pangolin_csv_file}" \
     --output-csv-file "${ch_output_csv_file}" \
+    --output-json-file "${ch_output_json_file}" \
+    --output-path "${params.output_path}" \
+    --sequencing-technology "${params.sequencing_technology}" \
     \${ncov_opt}
   """
 }
