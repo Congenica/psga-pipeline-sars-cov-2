@@ -5,7 +5,7 @@ import pytest
 import structlog
 
 from scripts.util.notifications import Event, Notification
-from scripts.util.logging import get_structlog_logger
+from scripts.util.logging import get_structlog_logger, ERROR, INFO
 
 
 def load_log_file_to_dict(log_file: Path, key: str) -> Dict:
@@ -25,7 +25,7 @@ def load_log_file_to_dict(log_file: Path, key: str) -> Dict:
             "evt1": Event(
                 analysis_run="analysis_run1",
                 path="error.log",
-                level="ERROR",
+                level=ERROR,
                 message="error message",
                 samples=["a", "b"],
             ),
@@ -34,7 +34,7 @@ def load_log_file_to_dict(log_file: Path, key: str) -> Dict:
             "evt1": Event(
                 analysis_run="analysis_run1",
                 path="passed.log",
-                level="INFO",
+                level=INFO,
                 message="info message",
                 samples=["x", "y", "z"],
             ),
@@ -43,14 +43,14 @@ def load_log_file_to_dict(log_file: Path, key: str) -> Dict:
             "evt1": Event(
                 analysis_run="analysis_run1",
                 path="error.log",
-                level="ERROR",
+                level=ERROR,
                 message="error message",
                 samples=["a", "b"],
             ),
             "evt2": Event(
                 analysis_run="analysis_run1",
                 path="passed.log",
-                level="INFO",
+                level=INFO,
                 message="info message",
                 samples=["x", "y", "z"],
             ),
@@ -59,14 +59,14 @@ def load_log_file_to_dict(log_file: Path, key: str) -> Dict:
             "evt1": Event(
                 analysis_run="analysis_run1",
                 path="error.log",
-                level="ERROR",
+                level=ERROR,
                 message="error message",
                 samples=["a", "b"],
             ),
             "evt2": Event(
                 analysis_run="analysis_run2",
                 path="passed.log",
-                level="INFO",
+                level=INFO,
                 message="info message",
                 samples=["x", "y", "z"],
             ),

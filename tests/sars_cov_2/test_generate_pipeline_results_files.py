@@ -1,10 +1,26 @@
 from pathlib import Path
 import pytest
+import json
 from click.testing import CliRunner
 import pandas as pd
 from pandas.testing import assert_frame_equal
 
-from scripts.sars_cov_2.generate_pipeline_results_files import SAMPLE_ID_COL, generate_pipeline_results_files
+from scripts.sars_cov_2.generate_pipeline_results_files import (
+    generate_pipeline_results_files,
+    SAMPLES_UNKNOWN_NCOV_QC_FILE,
+    SAMPLES_FAILED_NCOV_QC_FILE,
+    SAMPLES_PASSED_NCOV_QC_FILE,
+    SAMPLES_UNKNOWN_PANGOLIN_FILE,
+    SAMPLES_FAILED_PANGOLIN_FILE,
+    SAMPLES_PASSED_PANGOLIN_FILE,
+    UNKNOWN_NCOV,
+    FAILED_NCOV,
+    PASSED_NCOV,
+    UNKNOWN_PANGOLIN,
+    FAILED_PANGOLIN,
+    PASSED_PANGOLIN,
+)
+from scripts.util.metadata import SAMPLE_ID
 from utils_tests import read_samples_from_file
 
 
@@ -13,43 +29,70 @@ def check_sample_list(input_path, expected_samples):
     assert sorted(expected_samples) == sorted(processed_samples)
 
 
+# TODO: need a case for each sequencing technology
 @pytest.mark.parametrize(
-    "metadata,ncov_csv,pangolin_csv,analysis_run_name,exp_lists,exp_results_csv",
+    "metadata,ncov_csv,pangolin_csv,analysis_run_name,sequencing_technology,"
+    "exp_lists,exp_results_csv,exp_resultfiles_json",
     [
         (
-            "metadata.csv",
+            "metadata_illumina.csv",
             "ncov_test.qc.csv",
             "all_lineages_report.csv",
             "just_a_name",
+            "illumina",
             {
-                "ncov_unknown": ["985347c5-ff6a-454c-ac34-bc353d05dd70"],
-                "ncov_failed": ["0774181d-fb20-4a73-b887-38af7eda9b38"],
-                "ncov_passed": [
+                UNKNOWN_NCOV: ["985347c5-ff6a-454c-ac34-bc353d05dd70"],
+                FAILED_NCOV: ["0774181d-fb20-4a73-b887-38af7eda9b38"],
+                PASSED_NCOV: [
                     "e80f3c63-d139-4c14-bd72-7a43897ab40d",
                     "56a63f60-764d-4fc7-8764-a46023cbe324",
                     "a0951432-cd94-45b5-96d5-b721c037a451",
                 ],
-                "pangolin_unknown": ["a0951432-cd94-45b5-96d5-b721c037a451"],
-                "pangolin_failed": ["e80f3c63-d139-4c14-bd72-7a43897ab40d"],
-                "pangolin_passed": ["56a63f60-764d-4fc7-8764-a46023cbe324"],
+                UNKNOWN_PANGOLIN: ["a0951432-cd94-45b5-96d5-b721c037a451"],
+                FAILED_PANGOLIN: ["e80f3c63-d139-4c14-bd72-7a43897ab40d"],
+                PASSED_PANGOLIN: ["56a63f60-764d-4fc7-8764-a46023cbe324"],
             },
-            "expected_merged_ncov_plus_pangolin.csv",
+            "results_illumina_ont.csv",
+            "resultfiles_illumina.json",
         ),
         (
-            "metadata.csv",
+            "metadata_ont.csv",
+            "ncov_test.qc.csv",
+            "all_lineages_report.csv",
+            "just_a_name",
+            "ont",
+            {
+                UNKNOWN_NCOV: ["985347c5-ff6a-454c-ac34-bc353d05dd70"],
+                FAILED_NCOV: ["0774181d-fb20-4a73-b887-38af7eda9b38"],
+                PASSED_NCOV: [
+                    "e80f3c63-d139-4c14-bd72-7a43897ab40d",
+                    "56a63f60-764d-4fc7-8764-a46023cbe324",
+                    "a0951432-cd94-45b5-96d5-b721c037a451",
+                ],
+                UNKNOWN_PANGOLIN: ["a0951432-cd94-45b5-96d5-b721c037a451"],
+                FAILED_PANGOLIN: ["e80f3c63-d139-4c14-bd72-7a43897ab40d"],
+                PASSED_PANGOLIN: ["56a63f60-764d-4fc7-8764-a46023cbe324"],
+            },
+            "results_illumina_ont.csv",
+            "resultfiles_ont.json",
+        ),
+        (
+            "metadata_unknown.csv",
             None,
             "all_lineages_report.csv",
             "just_a_name",
+            "unknown",
             {
-                "pangolin_unknown": [
+                UNKNOWN_PANGOLIN: [
                     "985347c5-ff6a-454c-ac34-bc353d05dd70",
                     "0774181d-fb20-4a73-b887-38af7eda9b38",
                     "a0951432-cd94-45b5-96d5-b721c037a451",
                 ],
-                "pangolin_failed": ["e80f3c63-d139-4c14-bd72-7a43897ab40d"],
-                "pangolin_passed": ["56a63f60-764d-4fc7-8764-a46023cbe324"],
+                FAILED_PANGOLIN: ["e80f3c63-d139-4c14-bd72-7a43897ab40d"],
+                PASSED_PANGOLIN: ["56a63f60-764d-4fc7-8764-a46023cbe324"],
             },
-            "expected_merged_pangolin_only.csv",
+            "results_unknown.csv",
+            "resultfiles_unknown.json",
         ),
     ],
 )
@@ -60,11 +103,14 @@ def test_generate_pipeline_results_files(
     ncov_csv,
     pangolin_csv,
     analysis_run_name,
+    sequencing_technology,
     exp_lists,
     exp_results_csv,
+    exp_resultfiles_json,
 ):
 
     output_csv_file = Path(tmp_path / "results.csv")
+    output_json_file = Path(tmp_path / "resultfiles.json")
 
     args = [
         "--analysis-run-name",
@@ -75,6 +121,12 @@ def test_generate_pipeline_results_files(
         test_data_path / "pipeline_results_files" / pangolin_csv,
         "--output-csv-file",
         output_csv_file,
+        "--output-json-file",
+        output_json_file,
+        "--output-path",
+        tmp_path,
+        "--sequencing-technology",
+        sequencing_technology,
         "--notifications-path",
         tmp_path,
     ]
@@ -91,6 +143,9 @@ def test_generate_pipeline_results_files(
         args,
     )
 
+    # TODO remove
+    print(rv.output)
+
     assert rv.exit_code == 0
 
     expected_output_df = pd.read_csv(test_data_path / "pipeline_results_files" / exp_results_csv)
@@ -100,9 +155,9 @@ def test_generate_pipeline_results_files(
     expected_cols = expected_output_df.columns
     assert sorted(calculated_cols) == sorted(expected_cols)
 
-    calculated_output_df.sort_values(by=[SAMPLE_ID_COL], inplace=True)
+    calculated_output_df.sort_values(by=[SAMPLE_ID], inplace=True)
     calculated_output_df.sort_index(axis=1, inplace=True)
-    expected_output_df.sort_values(by=[SAMPLE_ID_COL], inplace=True)
+    expected_output_df.sort_values(by=[SAMPLE_ID], inplace=True)
     expected_output_df.sort_index(axis=1, inplace=True)
 
     assert_frame_equal(
@@ -111,10 +166,22 @@ def test_generate_pipeline_results_files(
     )
 
     if ncov_csv:
-        check_sample_list(Path(tmp_path / "samples_unknown_ncov_qc.txt"), exp_lists["ncov_unknown"])
-        check_sample_list(Path(tmp_path / "samples_failed_ncov_qc.txt"), exp_lists["ncov_failed"])
-        check_sample_list(Path(tmp_path / "samples_passed_ncov_qc.txt"), exp_lists["ncov_passed"])
+        check_sample_list(Path(tmp_path / SAMPLES_UNKNOWN_NCOV_QC_FILE), exp_lists[UNKNOWN_NCOV])
+        check_sample_list(Path(tmp_path / SAMPLES_FAILED_NCOV_QC_FILE), exp_lists[FAILED_NCOV])
+        check_sample_list(Path(tmp_path / SAMPLES_PASSED_NCOV_QC_FILE), exp_lists[PASSED_NCOV])
 
-    check_sample_list(Path(tmp_path / "samples_unknown_pangolin.txt"), exp_lists["pangolin_unknown"])
-    check_sample_list(Path(tmp_path / "samples_failed_pangolin.txt"), exp_lists["pangolin_failed"])
-    check_sample_list(Path(tmp_path / "samples_passed_pangolin.txt"), exp_lists["pangolin_passed"])
+    check_sample_list(Path(tmp_path / SAMPLES_UNKNOWN_PANGOLIN_FILE), exp_lists[UNKNOWN_PANGOLIN])
+    check_sample_list(Path(tmp_path / SAMPLES_FAILED_PANGOLIN_FILE), exp_lists[FAILED_PANGOLIN])
+    check_sample_list(Path(tmp_path / SAMPLES_PASSED_PANGOLIN_FILE), exp_lists[PASSED_PANGOLIN])
+
+    # compare the resultfiles.json
+    with open(test_data_path / "pipeline_results_files" / exp_resultfiles_json) as json_fd:
+        exp_resultfiles_json_dict = json.load(json_fd)
+    with open(output_json_file) as json_fd:
+        calc_resultfiles_json_dict = json.load(json_fd)
+
+    exp_result_files_json_dict_full_path = {
+        sample_id: [f"{str(tmp_path)}/{f}" for f in files] for sample_id, files in exp_resultfiles_json_dict.items()
+    }
+
+    assert exp_result_files_json_dict_full_path, calc_resultfiles_json_dict

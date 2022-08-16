@@ -2,7 +2,7 @@ import pytest
 
 import pandas as pd
 
-from scripts.sars_cov_2.generate_pipeline_results_files import SAMPLE_ID_COL
+from scripts.util.metadata import SAMPLE_ID
 from jenkins.loading import get_file_paths, load_data_from_csv
 from tests.jenkins.util import create_paths
 
@@ -18,23 +18,23 @@ from tests.jenkins.util import create_paths
         (
             "merged_output.csv",
             {
-                "sample_name_column": SAMPLE_ID_COL,
+                "sample_name_column": SAMPLE_ID,
             },
             "columns_to_validate not specified in config",
         ),
         (
             "merged_output.csv",
             {
-                "sample_name_column": SAMPLE_ID_COL,
-                "columns_to_validate": [SAMPLE_ID_COL],
+                "sample_name_column": SAMPLE_ID,
+                "columns_to_validate": [SAMPLE_ID],
             },
             "columns_to_round not specified in config",
         ),
         (
             "merged_output.csv",
             {
-                "sample_name_column": SAMPLE_ID_COL,
-                "columns_to_validate": [SAMPLE_ID_COL],
+                "sample_name_column": SAMPLE_ID,
+                "columns_to_validate": [SAMPLE_ID],
                 "columns_to_round": [],
             },
             None,
@@ -43,7 +43,7 @@ from tests.jenkins.util import create_paths
             "merged_output.csv",
             {
                 "sample_name_column": "fake_sample_id",
-                "columns_to_validate": [SAMPLE_ID_COL],
+                "columns_to_validate": [SAMPLE_ID],
                 "columns_to_round": [],
             },
             "Make sure that fake_sample_id is in 'columns_to_validate'",
@@ -51,11 +51,11 @@ from tests.jenkins.util import create_paths
         (
             "merged_output.csv",
             {
-                "sample_name_column": SAMPLE_ID_COL,
+                "sample_name_column": SAMPLE_ID,
                 "columns_to_validate": ["fake_sample_id"],
                 "columns_to_round": [],
             },
-            f"Make sure that {SAMPLE_ID_COL} is in 'columns_to_validate'",
+            f"Make sure that {SAMPLE_ID} is in 'columns_to_validate'",
         ),
     ],
 )
@@ -64,7 +64,7 @@ def test_load_data_from_csv(tmp_path, test_data_path, csv_file, config, exc):
     # simplify this file for testing
     df = pd.read_csv(csv_path)
     # with the following op, the dataframe becomes a series
-    df = df[SAMPLE_ID_COL]
+    df = df[SAMPLE_ID]
 
     df_path = tmp_path / csv_file
     df.to_csv(df_path)
@@ -74,7 +74,7 @@ def test_load_data_from_csv(tmp_path, test_data_path, csv_file, config, exc):
             load_data_from_csv(config, csv_path)
     else:
         df_loaded = load_data_from_csv(config, csv_path)
-        assert set(df.tolist()) == set(df_loaded[SAMPLE_ID_COL].tolist())
+        assert set(df.tolist()) == set(df_loaded[SAMPLE_ID].tolist())
 
 
 @pytest.mark.parametrize(

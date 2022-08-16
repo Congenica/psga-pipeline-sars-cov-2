@@ -123,7 +123,7 @@ def validate_metadata(
     "--sequencing-technology",
     required=True,
     type=click.Choice(SEQUENCING_TECHNOLOGIES, case_sensitive=True),
-    help="The name of the sequencing technology",
+    help="the sequencer technology used for sequencing the samples",
 )
 @click.option(
     "--samples-with-valid-metadata-file",

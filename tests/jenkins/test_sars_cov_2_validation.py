@@ -3,7 +3,7 @@ import pytest
 from click.testing import CliRunner
 import pandas as pd
 
-from scripts.sars_cov_2.generate_pipeline_results_files import SAMPLE_ID_COL
+from scripts.util.metadata import SAMPLE_ID
 from jenkins.compare import compare_merged_output_file, ValidationError
 from jenkins.config import data_config
 from jenkins.loading import load_data_from_csv
@@ -15,7 +15,7 @@ from tests.jenkins.util import create_paths
 
 def create_output_files(samples: Path, root: Path, sequencing_technology: str):
     df = pd.read_csv(samples)
-    sample_names = df[SAMPLE_ID_COL].tolist()
+    sample_names = df[SAMPLE_ID].tolist()
     paths = get_expected_output_files(root, sample_names, sequencing_technology)
     create_paths(paths)
 
@@ -59,7 +59,7 @@ def test_compare_merged_output_file(
     else:
         sample_names = compare_merged_output_file(load_data_from_csv, data, actual_path, expected_path)
         df = pd.read_csv(expected_path)
-        expected_sample_names = df[SAMPLE_ID_COL].tolist()
+        expected_sample_names = df[SAMPLE_ID].tolist()
         assert set(sample_names) == set(expected_sample_names)
 
 
