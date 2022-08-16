@@ -33,7 +33,9 @@ def get_expected_output_files(output_path: Path, sample_ids: List[str], sequenci
     # generate a unified list of paths as non-sample results files must also be included
     output_files = [path for sample_paths in output_files_per_sample.values() for path in sample_paths]
 
-    output_files.extend([output_path / "logs" / f for f in ["check_metadata.log", "merge_ncov_pangolin_csv_files.log"]])
+    output_files.extend(
+        [output_path / "logs" / f for f in ["check_metadata.log", "generate_pipeline_results_files.log"]]
+    )
 
     notification_files = [
         "samples_failed_pangolin.txt",
@@ -73,8 +75,8 @@ def sars_cov_2(ctx, sequencing_technology: str):
     """
     Validate sars_cov_2 output
     """
-    result_path = ctx.obj["result_path"]
-    expected_result_path = ctx.obj["expected_result_path"]
+    results_csv = ctx.obj["results_csv"]
+    expected_results_csv = ctx.obj["expected_results_csv"]
     output_path = ctx.obj["output_path"]
 
     pathogen = "sars_cov_2"
@@ -82,7 +84,7 @@ def sars_cov_2(ctx, sequencing_technology: str):
         ValueError(f"Configuration error. Pathogen {pathogen} not supported")
     data = data_config[pathogen]["config"]
 
-    sample_ids = compare_merged_output_file(load_data_from_csv, data, result_path, expected_result_path)
+    sample_ids = compare_merged_output_file(load_data_from_csv, data, results_csv, expected_results_csv)
 
     logger.info("Validation of output files set STARTED")
     exp_output_files = get_expected_output_files(output_path, sample_ids, sequencing_technology)
