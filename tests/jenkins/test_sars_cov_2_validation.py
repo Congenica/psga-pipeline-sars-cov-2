@@ -21,7 +21,7 @@ def create_output_files(samples: Path, root: Path, sequencing_technology: str):
 
 
 @pytest.mark.parametrize(
-    "result_file,expected_result_file,exc",
+    "results_csv,expected_results_csv,exc",
     [
         # exact - accept
         (
@@ -45,12 +45,12 @@ def create_output_files(samples: Path, root: Path, sequencing_technology: str):
 )
 def test_compare_merged_output_file(
     test_data_path,
-    result_file,
-    expected_result_file,
+    results_csv,
+    expected_results_csv,
     exc,
 ):
-    actual_path = test_data_path / "jenkins" / "validation" / result_file
-    expected_path = test_data_path / "jenkins" / "validation" / expected_result_file
+    actual_path = test_data_path / "jenkins" / "validation" / results_csv
+    expected_path = test_data_path / "jenkins" / "validation" / expected_results_csv
     data = data_config["sars_cov_2"]["config"]
 
     if exc:
@@ -68,7 +68,7 @@ def test_compare_merged_output_file(
     ["illumina", "ont", "unknown"],
 )
 @pytest.mark.parametrize(
-    "result_file,expected_result_file,exit_code,exception_msg",
+    "results_csv,expected_results_csv,exit_code,exception_msg",
     [
         # exact - accept
         (
@@ -96,15 +96,15 @@ def test_compare_merged_output_file(
 def test_validation(
     tmp_path,
     test_data_path,
-    result_file,
-    expected_result_file,
+    results_csv,
+    expected_results_csv,
     sequencing_technology,
     exit_code,
     exception_msg,
 ):
 
-    actual_path = test_data_path / "jenkins" / "validation" / result_file
-    expected_path = test_data_path / "jenkins" / "validation" / expected_result_file
+    actual_path = test_data_path / "jenkins" / "validation" / results_csv
+    expected_path = test_data_path / "jenkins" / "validation" / expected_results_csv
 
     # here we test the merged output file, but we assume that
     # the output files are as expected
@@ -113,9 +113,9 @@ def test_validation(
     rv = CliRunner().invoke(
         validate,
         [
-            "--result-path",
+            "--results-csv",
             actual_path,
-            "--expected-result-path",
+            "--expected-results-csv",
             expected_path,
             "--output-path",
             tmp_path,

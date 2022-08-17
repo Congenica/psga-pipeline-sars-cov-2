@@ -8,7 +8,6 @@ from json import JSONEncoder
 import click
 import pandas as pd
 
-from scripts.sars_cov_2.check_metadata import SEQUENCING_TECHNOLOGIES
 from scripts.util.logging import get_structlog_logger, ERROR, WARNING, INFO
 from scripts.util.metadata import EXPECTED_HEADERS as EXPECTED_METADATA_HEADERS, SAMPLE_ID, ILLUMINA, ONT, UNKNOWN
 from scripts.util.notifications import Event, Notification
@@ -16,6 +15,7 @@ from scripts.validation.check_csv_columns import check_csv_columns
 
 log_file = f"{Path(__file__).stem}.log"
 logger = get_structlog_logger(log_file=log_file)
+
 
 # header of ncov qc summary CSV file
 NCOV_SAMPLE_ID_COL = "sample_name"
@@ -358,7 +358,7 @@ def _generate_resultfiles_json(
 )
 @click.option(
     "--sequencing-technology",
-    type=click.Choice(SEQUENCING_TECHNOLOGIES, case_sensitive=True),
+    type=click.Choice([ILLUMINA, ONT, UNKNOWN], case_sensitive=True),
     required=True,
     help="the sequencer technology used for sequencing the samples",
 )

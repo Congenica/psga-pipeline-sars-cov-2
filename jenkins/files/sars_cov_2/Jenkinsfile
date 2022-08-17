@@ -50,12 +50,12 @@ pipeline {
 
     parameters {
         booleanParam(name: 'VALIDATION_TEST', defaultValue: true, description: 'If true, run script for validating the results')
-        string(name: 'METADATA', defaultValue: 's3://synthetic-data-dev/UKHSA/small_tests/illumina_fastq/metadata.csv', description: 'The path to the metadata CSV file containing the input file paths of the samples to process. This can be an S3 path')
-        string(name: 'OUTPUT_PATH', defaultValue: '/data/output/illumina_artic_fastq_short', description: 'The path to the output files. This can be an S3 path. In this latter case, please specify a path which does not yet exist, otherwise Nextflow will fail to store files due to a policy defined by Dev OPS in which pods are not allowed to delete/overwrite objects in S3.')
-        string(name: 'NXF_WORK', defaultValue: '/data/work/illumina_artic_fastq_short', description: 'The path to Nextflow work directory. This can be an S3 path. In this latter case, please specify a path which does not yet exist, otherwise Nextflow will fail to store files due to a policy defined by Dev OPS in which pods are not allowed to delete/overwrite objects in S3.')
-        string(name: 'ANALYSIS_RUN', defaultValue: 'illumina_artic_fastq_short', description: 'This can be the test name')
-        choice(name: 'SEQUENCING_TECHNOLOGY', choices: ['illumina', 'ont', 'unknown'], description: 'The sequencing technology. "illumina" supports fastq and bam files; "ont" supports fastq files; "unknown" for fasta')
-        string(name: 'KIT', defaultValue: 'V3', description: 'The version of the artic primer scheme used by the ncov-artic pipeline')
+        string(name: 'METADATA', defaultValue: '', description: 'The path to the metadata CSV file containing the input file paths of the samples to process. This can be an S3 path')
+        string(name: 'OUTPUT_PATH', defaultValue: '', description: 'The path to the output files. This can be an S3 path. In this latter case, please specify a path which does not yet exist, otherwise Nextflow will fail to store files due to a policy defined by Dev OPS in which pods are not allowed to delete/overwrite objects in S3.')
+        string(name: 'NXF_WORK', defaultValue: '', description: 'The path to Nextflow work directory. This can be an S3 path. In this latter case, please specify a path which does not yet exist, otherwise Nextflow will fail to store files due to a policy defined by Dev OPS in which pods are not allowed to delete/overwrite objects in S3.')
+        string(name: 'ANALYSIS_RUN', defaultValue: '', description: 'This can be the test name')
+        choice(name: 'SEQUENCING_TECHNOLOGY', choices: ['illumina', 'ont', 'unknown'], description: 'The sequencing technology. Use "unknown" to process fasta files')
+        string(name: 'KIT', defaultValue: '', description: 'The version of the artic primer scheme used by the ncov-artic pipeline')
         string(name: 'CLUSTER_NAME', defaultValue: 'saas-dev.k8s.congenica.net', description: 'The Kubernetes cluster where the Congenica platform is deployed that the tests will run against.')
         string(name: 'NAMESPACE', defaultValue: 'psga', description: 'The Kubernetes namespace where the Congenica platform is deployed that the tests will run against.')
 
