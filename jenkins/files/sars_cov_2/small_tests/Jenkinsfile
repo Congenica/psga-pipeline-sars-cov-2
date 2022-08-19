@@ -136,7 +136,24 @@ pipeline {
                         }
                     }
                 }
-            }
+                stage('failing_illumina_samples') {
+                    steps {
+                        script {
+                            build (
+                                job: "${PSGA_PIPELINE}/${env.BRANCH_NAME}",
+                                parameters: [
+                                        booleanParam(name: 'VALIDATION_TEST', value: false),
+                                        string(name: 'METADATA', value: "s3://synthetic-data-dev/UKHSA/from_them/gold_standard/illumina/v4/2022-08-18/pipeline_metadata.csv"),
+                                        string(name: 'OUTPUT_PATH', value: "/data/output/empty_sample_and_sample_failing_ncov_qc"),
+                                        string(name: 'NXF_WORK', value: "/data/work/empty_sample_and_sample_failing_ncov_qc"),
+                                        string(name: 'ANALYSIS_RUN', value: "empty_sample_and_sample_failing_ncov_qc"),
+                                        string(name: 'SEQUENCING_TECHNOLOGY', value: "illumina"),
+                                        string(name: 'KIT', value: "V4"),
+                                ]
+                            )
+                        }
+                    }
+                }            }
         }
     }
 }
