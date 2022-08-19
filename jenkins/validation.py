@@ -10,34 +10,33 @@ get_structlog_logger(log_file=log_file)
 
 @click.group()
 @click.option(
-    "--result-path",
+    "--results-csv",
     required=True,
     type=click.Path(exists=True, dir_okay=True, readable=True),
     help="The calculated result file",
 )
 @click.option(
-    "--expected-result-path",
+    "--expected-results-csv",
     required=True,
     type=click.Path(exists=True, dir_okay=True, readable=True),
     help="The expected result file",
 )
 @click.option(
-    "--psga-output-path",
+    "--output-path",
     type=click.Path(exists=True, dir_okay=True, readable=True),
-    envvar="PSGA_OUTPUT_PATH",
     required=True,
     help="The PSGA pipeline path where all output files are stored",
 )
 @click.pass_context
-def validate(ctx, result_path, expected_result_path, psga_output_path):
+def validate(ctx, results_csv, expected_results_csv, output_path):
     """
     Compare the calculated result file against the expected result file.
     """
     ctx.ensure_object(dict)
 
-    ctx.obj["result_path"] = Path(result_path)
-    ctx.obj["expected_result_path"] = Path(expected_result_path)
-    ctx.obj["psga_output_path"] = Path(psga_output_path)
+    ctx.obj["results_csv"] = Path(results_csv)
+    ctx.obj["expected_results_csv"] = Path(expected_results_csv)
+    ctx.obj["output_path"] = Path(output_path)
 
 
 validate.add_command(sars_cov_2)

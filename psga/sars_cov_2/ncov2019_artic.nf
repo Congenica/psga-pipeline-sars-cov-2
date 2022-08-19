@@ -3,7 +3,7 @@
  * see: https://github.com/connor-lab/ncov2019-artic-nf
  */
 process ncov2019_artic_nf_pipeline_illumina {
-  publishDir "${PSGA_OUTPUT_PATH}/ncov2019-artic", mode: 'copy', overwrite: true, pattern: 'output_{fasta,plots}/*'
+  publishDir "${params.output_path}/ncov2019-artic", mode: 'copy', overwrite: true, pattern: 'output_{fasta,plots}/*'
 
   tag "${task.index} - ${fastq_file}"
   input:
@@ -63,7 +63,7 @@ process ncov2019_artic_nf_pipeline_illumina {
  * Note: This runs as a shell block
  */
 process ncov2019_artic_nf_pipeline_medaka {
-  publishDir "${PSGA_OUTPUT_PATH}/ncov2019-artic", mode: 'copy', overwrite: true, pattern: 'output_{fasta,plots}/*'
+  publishDir "${params.output_path}/ncov2019-artic", mode: 'copy', overwrite: true, pattern: 'output_{fasta,plots}/*'
 
   tag "${task.index} - ${fastq_file}"
   input:

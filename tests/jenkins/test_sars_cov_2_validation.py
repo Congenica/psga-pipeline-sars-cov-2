@@ -3,6 +3,7 @@ import pytest
 from click.testing import CliRunner
 import pandas as pd
 
+from scripts.util.metadata import SAMPLE_ID
 from jenkins.compare import compare_merged_output_file, ValidationError
 from jenkins.config import data_config
 from jenkins.loading import load_data_from_csv
@@ -14,13 +15,13 @@ from tests.jenkins.util import create_paths
 
 def create_output_files(samples: Path, root: Path, sequencing_technology: str):
     df = pd.read_csv(samples)
-    sample_names = df["sample_id"].tolist()
+    sample_names = df[SAMPLE_ID].tolist()
     paths = get_expected_output_files(root, sample_names, sequencing_technology)
     create_paths(paths)
 
 
 @pytest.mark.parametrize(
-    "result_file,expected_result_file,exc",
+    "results_csv,expected_results_csv,exc",
     [
         # exact - accept
         (
@@ -44,12 +45,12 @@ def create_output_files(samples: Path, root: Path, sequencing_technology: str):
 )
 def test_compare_merged_output_file(
     test_data_path,
-    result_file,
-    expected_result_file,
+    results_csv,
+    expected_results_csv,
     exc,
 ):
-    actual_path = test_data_path / "jenkins" / "validation" / result_file
-    expected_path = test_data_path / "jenkins" / "validation" / expected_result_file
+    actual_path = test_data_path / "jenkins" / "validation" / results_csv
+    expected_path = test_data_path / "jenkins" / "validation" / expected_results_csv
     data = data_config["sars_cov_2"]["config"]
 
     if exc:
@@ -58,7 +59,7 @@ def test_compare_merged_output_file(
     else:
         sample_names = compare_merged_output_file(load_data_from_csv, data, actual_path, expected_path)
         df = pd.read_csv(expected_path)
-        expected_sample_names = df["sample_id"].tolist()
+        expected_sample_names = df[SAMPLE_ID].tolist()
         assert set(sample_names) == set(expected_sample_names)
 
 
@@ -67,11 +68,10 @@ def test_compare_merged_output_file(
     ["illumina", "ont", "unknown"],
 )
 @pytest.mark.parametrize(
-    "env_var_set,result_file,expected_result_file,exit_code,exception_msg",
+    "results_csv,expected_results_csv,exit_code,exception_msg",
     [
         # exact - accept
         (
-            True,
             "merged_output.csv",
             "merged_output.csv",
             0,
@@ -79,7 +79,6 @@ def test_compare_merged_output_file(
         ),
         # approx - accept
         (
-            True,
             "merged_output.csv",
             "merged_output_approx.csv",
             0,
@@ -87,41 +86,25 @@ def test_compare_merged_output_file(
         ),
         # different - reject
         (
-            True,
             "merged_output.csv",
             "merged_output_diff.csv",
             1,
             "Validation FAILED. See above for details.",
         ),
-        # unset env var
-        (
-            False,
-            "merged_output.csv",
-            "merged_output.csv",
-            2,
-            "Error: Missing option '--psga-output-path'",
-        ),
     ],
 )
 def test_validation(
-    monkeypatch,
     tmp_path,
     test_data_path,
-    env_var_set,
-    result_file,
-    expected_result_file,
+    results_csv,
+    expected_results_csv,
     sequencing_technology,
     exit_code,
     exception_msg,
 ):
 
-    if env_var_set:
-        monkeypatch.setenv("PSGA_OUTPUT_PATH", str(tmp_path))
-    else:
-        monkeypatch.delenv("PSGA_OUTPUT_PATH", raising=False)
-
-    actual_path = test_data_path / "jenkins" / "validation" / result_file
-    expected_path = test_data_path / "jenkins" / "validation" / expected_result_file
+    actual_path = test_data_path / "jenkins" / "validation" / results_csv
+    expected_path = test_data_path / "jenkins" / "validation" / expected_results_csv
 
     # here we test the merged output file, but we assume that
     # the output files are as expected
@@ -130,10 +113,12 @@ def test_validation(
     rv = CliRunner().invoke(
         validate,
         [
-            "--result-path",
+            "--results-csv",
             actual_path,
-            "--expected-result-path",
+            "--expected-results-csv",
             expected_path,
+            "--output-path",
+            tmp_path,
             "sars_cov_2",
             "--sequencing-technology",
             sequencing_technology,

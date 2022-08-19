@@ -91,15 +91,15 @@ def _compare_dataframes(config: Dict, df_calc: pd.DataFrame, df_exp: pd.DataFram
 
 
 def compare_merged_output_file(
-    load_data: Callable, data: Dict, result_path: Path, expected_result_path: Path
+    load_data: Callable, data: Dict, results_csv: Path, expected_results_csv: Path
 ) -> List[str]:
     """
     Compare the actual vs expected merged output files
     and return the list of samples
     """
     logger.info("Validation of merged output file STARTED")
-    df_exp = load_data(data, expected_result_path)
-    df_calc = load_data(data, result_path)
+    df_exp = load_data(data, expected_results_csv)
+    df_calc = load_data(data, results_csv)
     sample_names = _compare_dataframes(data, df_calc, df_exp)
     logger.info("Validation PASSED")
 

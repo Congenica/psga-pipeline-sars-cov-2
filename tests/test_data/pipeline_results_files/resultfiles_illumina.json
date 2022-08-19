@@ -1,0 +1,48 @@
+{
+    "0774181d-fb20-4a73-b887-38af7eda9b38": [
+        "contamination_removal/cleaned_fastq/0774181d-fb20-4a73-b887-38af7eda9b38_1.fastq.gz",
+        "contamination_removal/cleaned_fastq/0774181d-fb20-4a73-b887-38af7eda9b38_2.fastq.gz",
+        "contamination_removal/counting/0774181d-fb20-4a73-b887-38af7eda9b38.txt",
+        "fastqc/0774181d-fb20-4a73-b887-38af7eda9b38_1_fastqc.zip",
+        "fastqc/0774181d-fb20-4a73-b887-38af7eda9b38_2_fastqc.zip",
+        "ncov2019-artic/output_fasta/0774181d-fb20-4a73-b887-38af7eda9b38.primertrimmed.consensus.fa",
+        "ncov2019-artic/output_plots/0774181d-fb20-4a73-b887-38af7eda9b38.depth.png"
+    ],
+    "56a63f60-764d-4fc7-8764-a46023cbe324": [
+        "contamination_removal/cleaned_fastq/56a63f60-764d-4fc7-8764-a46023cbe324_1.fastq.gz",
+        "contamination_removal/cleaned_fastq/56a63f60-764d-4fc7-8764-a46023cbe324_2.fastq.gz",
+        "contamination_removal/counting/56a63f60-764d-4fc7-8764-a46023cbe324.txt",
+        "fastqc/56a63f60-764d-4fc7-8764-a46023cbe324_1_fastqc.zip",
+        "fastqc/56a63f60-764d-4fc7-8764-a46023cbe324_2_fastqc.zip",
+        "ncov2019-artic/output_fasta/56a63f60-764d-4fc7-8764-a46023cbe324.primertrimmed.consensus.fa",
+        "ncov2019-artic/output_plots/56a63f60-764d-4fc7-8764-a46023cbe324.depth.png",
+        "reheadered-fasta/56a63f60-764d-4fc7-8764-a46023cbe324.fasta"
+    ],
+    "985347c5-ff6a-454c-ac34-bc353d05dd70": [
+        "contamination_removal/cleaned_fastq/985347c5-ff6a-454c-ac34-bc353d05dd70_1.fastq.gz",
+        "contamination_removal/cleaned_fastq/985347c5-ff6a-454c-ac34-bc353d05dd70_2.fastq.gz",
+        "contamination_removal/counting/985347c5-ff6a-454c-ac34-bc353d05dd70.txt",
+        "fastqc/985347c5-ff6a-454c-ac34-bc353d05dd70_1_fastqc.zip",
+        "fastqc/985347c5-ff6a-454c-ac34-bc353d05dd70_2_fastqc.zip"
+    ],
+    "a0951432-cd94-45b5-96d5-b721c037a451": [
+        "contamination_removal/cleaned_fastq/a0951432-cd94-45b5-96d5-b721c037a451_1.fastq.gz",
+        "contamination_removal/cleaned_fastq/a0951432-cd94-45b5-96d5-b721c037a451_2.fastq.gz",
+        "contamination_removal/counting/a0951432-cd94-45b5-96d5-b721c037a451.txt",
+        "fastqc/a0951432-cd94-45b5-96d5-b721c037a451_1_fastqc.zip",
+        "fastqc/a0951432-cd94-45b5-96d5-b721c037a451_2_fastqc.zip",
+        "ncov2019-artic/output_fasta/a0951432-cd94-45b5-96d5-b721c037a451.primertrimmed.consensus.fa",
+        "ncov2019-artic/output_plots/a0951432-cd94-45b5-96d5-b721c037a451.depth.png",
+        "reheadered-fasta/a0951432-cd94-45b5-96d5-b721c037a451.fasta"
+    ],
+    "e80f3c63-d139-4c14-bd72-7a43897ab40d": [
+        "contamination_removal/cleaned_fastq/e80f3c63-d139-4c14-bd72-7a43897ab40d_1.fastq.gz",
+        "contamination_removal/cleaned_fastq/e80f3c63-d139-4c14-bd72-7a43897ab40d_2.fastq.gz",
+        "contamination_removal/counting/e80f3c63-d139-4c14-bd72-7a43897ab40d.txt",
+        "fastqc/e80f3c63-d139-4c14-bd72-7a43897ab40d_1_fastqc.zip",
+        "fastqc/e80f3c63-d139-4c14-bd72-7a43897ab40d_2_fastqc.zip",
+        "ncov2019-artic/output_fasta/e80f3c63-d139-4c14-bd72-7a43897ab40d.primertrimmed.consensus.fa",
+        "ncov2019-artic/output_plots/e80f3c63-d139-4c14-bd72-7a43897ab40d.depth.png",
+        "reheadered-fasta/e80f3c63-d139-4c14-bd72-7a43897ab40d.fasta"
+    ]
+}

@@ -4,7 +4,7 @@
  * This tool keeps the reads that match the provided target genome.
  */
 process contamination_removal_ont {
-  publishDir "${PSGA_OUTPUT_PATH}/contamination_removal", mode: 'copy', overwrite: true, pattern: '{cleaned_fastq/*.fastq.gz,counting/*.txt}'
+  publishDir "${params.output_path}/contamination_removal", mode: 'copy', overwrite: true, pattern: '{cleaned_fastq/*.fastq.gz,counting/*.txt}'
 
   tag "${task.index} - ${file_1}"
 
@@ -40,7 +40,7 @@ process contamination_removal_ont {
 }
 
 process contamination_removal_illumina {
-  publishDir "${PSGA_OUTPUT_PATH}/contamination_removal", mode: 'copy', overwrite: true, pattern: '{cleaned_fastq/*.fastq.gz,counting/*.txt}'
+  publishDir "${params.output_path}/contamination_removal", mode: 'copy', overwrite: true, pattern: '{cleaned_fastq/*.fastq.gz,counting/*.txt}'
 
   tag "${task.index} - [${file_1}, ${file_2}]"
 

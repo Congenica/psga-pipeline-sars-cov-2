@@ -37,8 +37,6 @@ spec:
         env:
         - name: PSGA_ROOT_PATH
           value: /app
-        - name: PSGA_OUTPUT_PATH
-          value: /data/output
         - name: PSGA_INCOMPLETE_ANALYSIS_RUNS_PATH
           value: /data/incomplete_analysis_runs
         - name: PSGA_MAX_ATTEMPTS

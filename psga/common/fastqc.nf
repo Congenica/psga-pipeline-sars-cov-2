@@ -2,7 +2,7 @@
  * Run: fastqc
  */
 process fastqc {
-  publishDir "${PSGA_OUTPUT_PATH}/fastqc", mode: 'copy', overwrite: true, pattern: '*_fastqc.zip'
+  publishDir "${params.output_path}/fastqc", mode: 'copy', overwrite: true, pattern: '*_fastqc.zip'
 
   tag "${task.index} - ${ch_input_files}"
 

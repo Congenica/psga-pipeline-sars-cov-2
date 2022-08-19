@@ -40,7 +40,7 @@ process reheader_fasta {
  */
 process store_reheadered_qc_passed_fasta {
   tag "${task.index} - ${reheadered_fasta_file}"
-  publishDir "${PSGA_OUTPUT_PATH}/reheadered-fasta", mode: 'copy', overwrite: true
+  publishDir "${params.output_path}/reheadered-fasta", mode: 'copy', overwrite: true
 
   input:
     tuple val(sample_name), path(reheadered_fasta_file)
@@ -60,7 +60,7 @@ process store_reheadered_qc_passed_fasta {
  */
 process store_reheadered_qc_failed_fasta {
   tag "${task.index} - ${reheadered_fasta_file}"
-  publishDir "${PSGA_OUTPUT_PATH}/reheadered-fasta-qc-failed", mode: 'copy', overwrite: true
+  publishDir "${params.output_path}/reheadered-fasta-qc-failed", mode: 'copy', overwrite: true
 
   input:
     tuple val(sample_name), path(reheadered_fasta_file)

@@ -9,8 +9,13 @@ import requests
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
 
+CRITICAL = "CRITICAL"
+ERROR = "ERROR"
+WARNING = "WARNING"
+INFO = "INFO"
+DEBUG = "DEBUG"
 
-LOG_LEVELS = {"CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG"}
+LOG_LEVELS = {CRITICAL, ERROR, WARNING, INFO, DEBUG}
 
 
 # pylint: disable=no-member

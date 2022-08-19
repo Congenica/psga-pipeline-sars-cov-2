@@ -1,8 +1,5 @@
 #!/usr/bin/env nextflow
 
-import java.nio.file.Files;
-import java.nio.file.Paths;
-
 // Enable DSL 2 syntax
 nextflow.enable.dsl = 2
 
@@ -32,7 +29,6 @@ include { pipeline_end } from './common/pipeline_lifespan.nf'
 // Add new env variables to common/help.nf
 if( "[:]" in [
     PSGA_ROOT_PATH,
-    PSGA_OUTPUT_PATH,
     PSGA_INCOMPLETE_ANALYSIS_RUNS_PATH,
     DOCKER_IMAGE_PREFIX,
     K8S_NODE,
@@ -68,6 +64,9 @@ if ( params.sequencing_technology == "" ) {
 }
 if ( params.kit == "" ) {
     throw new Exception("Error: '--kit' must be defined")
+}
+if ( params.output_path == "" ) {
+    throw new Exception("Error: '--output_path' must be defined")
 }
 
 workflow {

@@ -21,7 +21,7 @@ pipeline {
                                     parameters: [
                                             booleanParam(name: 'VALIDATION_TEST', value: false),
                                             string(name: 'METADATA', value: "s3://synthetic-data-dev/UKHSA/large_tests/illumina_artic_fastq/metadata.csv"),
-                                            string(name: 'PSGA_OUTPUT_PATH', value: "s3://synthetic-data-dev/UKHSA/large_tests/output/illumina_artic_fastq"),
+                                            string(name: 'OUTPUT_PATH', value: "s3://synthetic-data-dev/UKHSA/large_tests/output/illumina_artic_fastq"),
                                             string(name: 'NXF_WORK', value: "/data/work/illumina_artic_fastq_large"),
                                             string(name: 'ANALYSIS_RUN', value: "illumina_artic_fastq_large"),
                                             string(name: 'SEQUENCING_TECHNOLOGY', value: "illumina"),
@@ -42,7 +42,7 @@ pipeline {
                                     parameters: [
                                             booleanParam(name: 'VALIDATION_TEST', value: false),
                                             string(name: 'METADATA', value: "s3://synthetic-data-dev/UKHSA/large_tests/illumina_artic_bam/metadata.csv"),
-                                            string(name: 'PSGA_OUTPUT_PATH', value: "s3://synthetic-data-dev/UKHSA/large_tests/output/illumina_artic_bam"),
+                                            string(name: 'OUTPUT_PATH', value: "s3://synthetic-data-dev/UKHSA/large_tests/output/illumina_artic_bam"),
                                             string(name: 'NXF_WORK', value: "/data/work/illumina_artic_bam_large"),
                                             string(name: 'ANALYSIS_RUN', value: "illumina_artic_bam_large"),
                                             string(name: 'SEQUENCING_TECHNOLOGY', value: "illumina"),
@@ -63,7 +63,7 @@ pipeline {
                                     parameters: [
                                             booleanParam(name: 'VALIDATION_TEST', value: false),
                                             string(name: 'METADATA', value: "s3://synthetic-data-dev/UKHSA/large_tests/ont_artic_fastq/metadata.csv"),
-                                            string(name: 'PSGA_OUTPUT_PATH', value: "s3://synthetic-data-dev/UKHSA/large_tests/output/ont_artic_fastq"),
+                                            string(name: 'OUTPUT_PATH', value: "s3://synthetic-data-dev/UKHSA/large_tests/output/ont_artic_fastq"),
                                             string(name: 'NXF_WORK', value: "/data/work/ont_artic_fastq_large"),
                                             string(name: 'ANALYSIS_RUN', value: "ont_artic_fastq_large"),
                                             string(name: 'SEQUENCING_TECHNOLOGY', value: "ont"),
@@ -84,7 +84,7 @@ pipeline {
                                     parameters: [
                                             booleanParam(name: 'VALIDATION_TEST', value: false),
                                             string(name: 'METADATA', value: "s3://synthetic-data-dev/UKHSA/large_tests/no_ncov_fasta/metadata.csv"),
-                                            string(name: 'PSGA_OUTPUT_PATH', value: "s3://synthetic-data-dev/UKHSA/large_tests/output/no_ncov_fasta"),
+                                            string(name: 'OUTPUT_PATH', value: "s3://synthetic-data-dev/UKHSA/large_tests/output/no_ncov_fasta"),
                                             string(name: 'NXF_WORK', value: "/data/work/no_ncov_fasta_large"),
                                             string(name: 'ANALYSIS_RUN', value: "no_ncov_fasta_large"),
                                             string(name: 'SEQUENCING_TECHNOLOGY', value: "unknown"),
