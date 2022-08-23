@@ -8,10 +8,10 @@ ARG pathogen
 
 COPY ./psga/common /app/psga/common
 COPY ./psga/${pathogen} ./psga/*.py ./psga/*.sh ./psga/main.nf /app/psga/
+COPY ./pyproject.toml ./poetry.lock ./app/
 COPY ./scripts/util /app/scripts/util
 COPY ./scripts/validation /app/scripts/validation
 COPY ./scripts/${pathogen} /app/scripts/${pathogen}
-COPY ./pyproject.toml ./poetry.lock ./app/
 
 # scripts for running the validation following integration tests execution
 COPY ./jenkins/*.py ./app/jenkins/
@@ -23,5 +23,8 @@ RUN pip install --progress-bar=off --no-cache-dir --upgrade pip==${PIP_VERSION} 
     # make poetry install everything system wide, no need for a virtualenv in docker
     poetry config virtualenvs.create false && \
     poetry install --no-interaction --no-ansi --no-dev
+
+# generic construct if scripts must be executed at this stage (e.g. for generating default files)
+RUN if [ -f /app/scripts/${pathogen}/Makefile ]; then cd /app/scripts/${pathogen} && make; fi;
 
 ENTRYPOINT ["python", "autoresumer.py"]

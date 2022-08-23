@@ -120,11 +120,13 @@ workflow submit_analysis_run_results {
 
         submit_pangolin_results(ch_pangolin_csvs.collect())
 
+        // if the channel is empty, ifEmpty(file(<default_header>)) is used
+        // so that this process is always triggered
         submit_pipeline_results_files(
             params.run,
             ch_metadata,
-            ch_ncov_submitted,
-            submit_pangolin_results.out.ch_pangolin_all_lineages,
+            ch_ncov_submitted.ifEmpty(file(params.ncov_qc_empty_csv)),
+            submit_pangolin_results.out.ch_pangolin_all_lineages.ifEmpty(file(params.pangolin_empty_csv)),
         )
 
         ch_analysis_run_results_submitted = submit_pipeline_results_files.out.ch_output_csv_file
