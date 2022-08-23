@@ -26,10 +26,19 @@ COPY --from=condabuild /opt/conda/envs/artic-ncov2019-illumina /opt/conda/envs/a
 COPY --from=condabuild ${ncov} ${ncov}
 ENV PATH=${ncov}/bin:/opt/conda/envs/artic-ncov2019-illumina/bin:$PATH
 
-RUN mkdir -p /artic-network \
-  && git clone https://github.com/artic-network/primer-schemes.git /artic-network/primer-schemes \
-  && cd /artic-network/primer-schemes \
+
+# PRIMERS
+# Store primers in ncov dockerfile with path:
+# /primers/${primer_name}/SARS-CoV-2/${primer_version}
+# e.g. --kit ARTIC_V4 will use the primers stored in: /primers/ARTIC/SARS-CoV-2/V4
+# This path must contain:
+# 1) *.primer.bed
+# 2) *.reference.fasta
+RUN mkdir -p /primers \
+  && git clone https://github.com/artic-network/primer-schemes.git /primers/ARTIC \
+  && cd /primers/ARTIC \
   && git checkout ${primer_schemes_commit}
+
 
 COPY psga/sars_cov_2/ncov-illumina.config .
 COPY psga/sars_cov_2/ncov-common.config .

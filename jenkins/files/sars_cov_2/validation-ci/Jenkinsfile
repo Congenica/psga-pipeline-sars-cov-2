@@ -35,7 +35,7 @@ pipeline {
                                             string(name: 'NXF_WORK', value: "/data/work/illumina"),
                                             string(name: 'ANALYSIS_RUN', value: "illumina"),
                                             string(name: 'SEQUENCING_TECHNOLOGY', value: "illumina"),
-                                            string(name: 'KIT', value: "V3"),
+                                            string(name: 'KIT', value: "ARTIC_V3"),
                                     ]
                                 )
                             }
@@ -55,7 +55,7 @@ pipeline {
                                             string(name: 'NXF_WORK', value: "/data/work/ont"),
                                             string(name: 'ANALYSIS_RUN', value: "ont"),
                                             string(name: 'SEQUENCING_TECHNOLOGY', value: "ont"),
-                                            string(name: 'KIT', value: "V3"),
+                                            string(name: 'KIT', value: "ARTIC_V3"),
                                     ]
                                 )
                             }
@@ -75,7 +75,7 @@ pipeline {
                                             string(name: 'NXF_WORK', value: "/data/work/unknown"),
                                             string(name: 'ANALYSIS_RUN', value: "unknown"),
                                             string(name: 'SEQUENCING_TECHNOLOGY', value: "unknown"),
-                                            string(name: 'KIT', value: "V3"),
+                                            string(name: 'KIT', value: "ARTIC_V3"),
                                     ]
                                 )
                             }
