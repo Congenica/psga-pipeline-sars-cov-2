@@ -148,7 +148,7 @@ pipeline {
                                         string(name: 'NXF_WORK', value: "/data/work/empty_sample_and_sample_failing_ncov_qc"),
                                         string(name: 'ANALYSIS_RUN', value: "empty_sample_and_sample_failing_ncov_qc"),
                                         string(name: 'SEQUENCING_TECHNOLOGY', value: "illumina"),
-                                        string(name: 'KIT', value: "V4"),
+                                        string(name: 'KIT', value: "ARTIC_V4"),
                                 ]
                             )
                         }
