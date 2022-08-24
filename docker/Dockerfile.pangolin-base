@@ -1,6 +1,6 @@
 FROM continuumio/miniconda3:4.10.3 AS condabuild
 
-ARG pangolin_commit=cbf077847b34cc51689d1bd31a5790d7c94a7253
+ARG pangolin_commit=a85856bf4dbb128d8070c2557da18c2ab1b3686b
 
 RUN git clone https://github.com/cov-lineages/pangolin.git \
   && cd pangolin \
@@ -19,16 +19,12 @@ COPY --from=condabuild /opt/conda/envs/pangolin /opt/conda/envs/pangolin
 COPY --from=condabuild /pangolin /pangolin
 ENV PATH=/opt/conda/envs/pangolin/bin:$PATH
 
-ARG scorpio_commit=2ae9e99b8c638786a6a5867222057c5b1ac28712
-ARG constellations_commit=9e2d67fe824c6637aea430f915a455e392cb774a
-ARG pangoLEARN_commit=21a21efa98d643cae5471457837e07841b610770
-ARG lineages_commit=53c52117c3c48530f937e311f9d3fcefd0cedd45
-ARG pangolin_data_commit=245325a91a02279039b35e672cc062d312770f66
+ARG pangolin_data_commit=4d7220a4b0a67cec0d718b7415cafbc81120af38
+ARG scorpio_commit=300d4a8609d9e8c96a2bad37655063365d296eed
+ARG constellations_commit=61e2a6b12abc63ee488712f60a2c8d88d69bb9bc
 
 RUN cd /pangolin \
   && python setup.py install \
+  && pip install --force-reinstall git+https://github.com/cov-lineages/pangolin-data.git@${pangolin_data_commit} \
   && pip install --force-reinstall git+https://github.com/cov-lineages/scorpio.git@${scorpio_commit} \
-  && pip install --force-reinstall git+https://github.com/cov-lineages/constellations.git@${constellations_commit} \
-  && pip install --force-reinstall git+https://github.com/cov-lineages/pangoLEARN.git@${pangoLEARN_commit} \
-  && pip install --force-reinstall git+https://github.com/cov-lineages/lineages.git@${lineages_commit} \
-  && pip install --force-reinstall git+https://github.com/cov-lineages/pangolin-data.git@${pangolin_data_commit}
+  && pip install --force-reinstall git+https://github.com/cov-lineages/constellations.git@${constellations_commit}
