@@ -1,6 +1,6 @@
 /*
  * Run: ncov2019-artic-nf nextflow pipeline (illumina workflow)
- * see: https://github.com/connor-lab/ncov2019-artic-nf
+ * see: https://github.com/Congenica/ncov2019-artic-nf
  */
 process ncov2019_artic_nf_pipeline_illumina {
   publishDir "${params.output_path}/ncov2019-artic", mode: 'copy', overwrite: true, pattern: 'output_{fasta,plots}/*'
@@ -8,10 +8,9 @@ process ncov2019_artic_nf_pipeline_illumina {
   tag "${task.index} - ${fastq_file}"
   input:
     path fastq_file
-    val scheme_repo_url
     val scheme_dir
-    val scheme_name
-    val primer_version
+    val scheme
+    val scheme_version
 
   output:
     // retain the qc csv intentionally
@@ -30,10 +29,6 @@ process ncov2019_artic_nf_pipeline_illumina {
 
   # convert nextflow variables to Bash for convenience
   ncov_prefix=!{params.run}
-  scheme_repo_url=!{scheme_repo_url}
-  scheme_dir=!{scheme_dir}
-  scheme_name=!{scheme_name}
-  primer_version=!{primer_version}
 
   # note: we inject our configuration into ncov to override parameters
   # note: `pwd` is the workdir for this nextflow process
@@ -44,10 +39,9 @@ process ncov2019_artic_nf_pipeline_illumina {
       --prefix ${ncov_prefix} \
       --directory `eval pwd` \
       --outdir ${ncov_out_dir} \
-      --schemeRepoURL ${scheme_repo_url} \
-      --schemeDir ${scheme_dir} \
-      --scheme ${scheme_name} \
-      --schemeVersion ${primer_version} \
+      --schemeDir !{scheme_dir} \
+      --scheme !{scheme} \
+      --schemeVersion !{scheme_version} \
       -work-dir /tmp \
       -c /ncov-illumina.config
 
@@ -65,7 +59,7 @@ process ncov2019_artic_nf_pipeline_illumina {
 
 /*
  * Run: ncov2019-artic-nf nextflow pipeline (nanopore/medaka workflow)
- * see: https://github.com/connor-lab/ncov2019-artic-nf
+ * see: https://github.com/Congenica/ncov2019-artic-nf
  * Note: This runs as a shell block
  */
 process ncov2019_artic_nf_pipeline_medaka {
@@ -74,10 +68,9 @@ process ncov2019_artic_nf_pipeline_medaka {
   tag "${task.index} - ${fastq_file}"
   input:
     path fastq_file
-    val scheme_repo_url
     val scheme_dir
-    val scheme_name
-    val primer_version
+    val scheme
+    val scheme_version
 
   output:
     // retain the qc csv intentionally
@@ -97,10 +90,6 @@ process ncov2019_artic_nf_pipeline_medaka {
   # convert nextflow variables to Bash for convenience
   fastq_file=!{fastq_file}
   ncov_prefix=!{params.run}
-  scheme_repo_url=!{scheme_repo_url}
-  scheme_dir=!{scheme_dir}
-  scheme_name=!{scheme_name}
-  primer_version=!{primer_version}
 
   # ncov/ONT expects decompressed fastq in artic 1.1.3
   if [ "${fastq_file##*.}" = "gz" ]; then
@@ -128,10 +117,9 @@ process ncov2019_artic_nf_pipeline_medaka {
       --prefix ${ncov_prefix} \
       --basecalled_fastq ${sample_id} \
       --outdir ${ncov_out_dir} \
-      --schemeRepoURL ${scheme_repo_url} \
-      --schemeDir ${scheme_dir} \
-      --scheme ${scheme_name} \
-      --schemeVersion ${primer_version} \
+      --schemeDir !{scheme_dir} \
+      --scheme !{scheme} \
+      --schemeVersion !{scheme_version} \
       -work-dir /tmp \
       -c /ncov-nanopore.config
 

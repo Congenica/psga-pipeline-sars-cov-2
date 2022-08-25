@@ -37,38 +37,19 @@ if( "[:]" in [
 
 
 /* Store primers in ncov dockerfile with path:
- * /primers/${primer_name}/SARS-CoV-2/${primer_version}
- * e.g. --kit ARTIC_V4 will use the primers stored in: /primers/ARTIC/SARS-CoV-2/V4
- * This path must contain:
- * 1) *.primer.bed
- * 2) *.reference.fasta
+ * PRIMERS (ARTIC, Midnight-IDT, Midnight-ONT, NEB-VarSkip)
+ * Store primers in ncov dockerfile with path:
+ * /primer_schemes/${scheme}/SARS-CoV-2/${scheme_version}
+ * e.g. --kit ARTIC_V4 will use the primers stored in: /primer_schemes/ARTIC/SARS-CoV-2/V4
  */
 split_kit = params.kit.split('_')
 if ( split_kit.length != 2 ) {
     throw new Exception("--kit must have the format: PRIMERNAME_PRIMERVERSION")
 }
-primer_name = split_kit[0]
-primer_version = split_kit[1]
+scheme = split_kit[0]
+scheme_version = split_kit[1]
+scheme_dir = "/primer_schemes"
 
-scheme_repo_url = "/primers/${primer_name}"
-scheme_dir = primer_name
-scheme_name = "SARS-CoV-2"
-
-if ( primer_name == "ARTIC" ) {
-    if ( primer_version in ['V1', 'V2', 'V3'] ) {
-        /* This assignment is required for the ncov2019-artic pipeline when running an ONT workflow.
-         * In detail, ncov/ONT expects the primer scheme files to be named after the scheme name.
-         * As the scheme name changed from V3 to V4 from 'nCoV-2019' to 'SARS-CoV-2', it happens that
-         * ncov/ONT does not find the primer files if these combinations are used:
-         * - "SARS-CoV-2" and "V3" (also "V2" and "V1")
-         * - "nCoV-2019" and "V4" (and more recent versions)
-         * The illumina workflow of ncov2019-artic is not affected by this issue.
-         *
-         * With this reassignment, we make sure that primer scheme name and file names match.
-         */
-        scheme_name = 'nCoV-2019'
-    }
-}
 
 /*
  * Main workflow for the pathogen: SARS-CoV-2.
@@ -145,10 +126,9 @@ workflow psga {
 
             ncov2019_artic(
                 fastqc.out.ch_input_files,
-                scheme_repo_url,
                 scheme_dir,
-                scheme_name,
-                primer_version
+                scheme,
+                scheme_version
             )
             ch_ncov_qc_csv = ncov2019_artic.out.ch_ncov_qc_csv
             ch_fasta_files = ncov2019_artic.out.ch_ncov_sample_fasta

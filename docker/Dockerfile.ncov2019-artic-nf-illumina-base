@@ -1,10 +1,9 @@
 FROM continuumio/miniconda3:4.10.3 AS condabuild
 
 ARG ncov=ncov2019-artic-nf
-ARG ncov_commit=8af5152cf7107c3a369b996f5bad3473d329050c
-ARG primer_schemes_commit=c40e75dd532fa1241c0af480c378c9cc07abb915
+ARG ncov_commit=3338ee7a3b9f6e33de621acf513c9cbd8b16debf
 
-RUN git clone --recursive https://github.com/connor-lab/${ncov}.git \
+RUN git clone --recursive https://github.com/Congenica/${ncov}.git \
   && cd ${ncov} \
   && git checkout ${ncov_commit}
 
@@ -26,21 +25,12 @@ COPY --from=condabuild /opt/conda/envs/artic-ncov2019-illumina /opt/conda/envs/a
 COPY --from=condabuild ${ncov} ${ncov}
 ENV PATH=${ncov}/bin:/opt/conda/envs/artic-ncov2019-illumina/bin:$PATH
 
+RUN wget -qO- https://github.com/nextflow-io/nextflow/releases/download/v21.10.6/nextflow | bash && chmod +x nextflow && mv nextflow /usr/bin
 
-# PRIMERS
-# Store primers in ncov dockerfile with path:
-# /primers/${primer_name}/SARS-CoV-2/${primer_version}
-# e.g. --kit ARTIC_V4 will use the primers stored in: /primers/ARTIC/SARS-CoV-2/V4
-# This path must contain:
-# 1) *.primer.bed
-# 2) *.reference.fasta
-RUN mkdir -p /primers \
-  && git clone https://github.com/artic-network/primer-schemes.git /primers/ARTIC \
-  && cd /primers/ARTIC \
-  && git checkout ${primer_schemes_commit}
-
+ARG primer_schemes_commit=a60a1e1e73bde1971c680bd3d53076127dd63fc6
+ARG pathogen=SARS-CoV-2
+COPY docker/download_primer_schemes.sh .
+RUN bash download_primer_schemes.sh ${primer_schemes_commit} ${pathogen}
 
 COPY psga/sars_cov_2/ncov-illumina.config .
 COPY psga/sars_cov_2/ncov-common.config .
-
-RUN wget -qO- https://github.com/nextflow-io/nextflow/releases/download/v21.10.6/nextflow | bash && chmod +x nextflow && mv nextflow /usr/bin
