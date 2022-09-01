@@ -404,9 +404,11 @@ def generate_pipeline_results_files(
     sample_ids_result_files = SampleIdResultFiles(
         all_samples=all_samples,
         ncov_completed_samples=[]
-        if sequencing_technology == UNKNOWN
+        if sequencing_technology == UNKNOWN or not {FAILED_NCOV, PASSED_NCOV} <= events.keys()
         else list(set(events[FAILED_NCOV].samples) | set(events[PASSED_NCOV].samples)),
-        ncov_qc_passed_samples=[] if sequencing_technology == UNKNOWN else list(events[PASSED_NCOV].samples),
+        ncov_qc_passed_samples=[]
+        if sequencing_technology == UNKNOWN or PASSED_NCOV not in events
+        else list(events[PASSED_NCOV].samples),
     )
 
     _generate_resultfiles_json(

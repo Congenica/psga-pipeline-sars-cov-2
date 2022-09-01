@@ -10,7 +10,7 @@ pipeline {
     stages {
         stage('Run PSGA pipeline: small tests') {
             parallel {
-                stage('illumina/v3') {
+                stage('ILLUMINA/ARTIC_V3') {
                     steps {
                         script {
                             build (
@@ -28,7 +28,7 @@ pipeline {
                         }
                     }
                 }
-                stage('ont/v3') {
+                stage('ONT/ARTIC_V3') {
                     steps {
                         script {
                             build (
@@ -46,7 +46,7 @@ pipeline {
                         }
                     }
                 }
-                stage('illumina/v4') {
+                stage('ILLUMINA/ARTIC_V4') {
                     steps {
                         script {
                             build (
@@ -64,7 +64,7 @@ pipeline {
                         }
                     }
                 }
-                stage('ont/v4') {
+                stage('ONT/ARTIC_V4') {
                     steps {
                         script {
                             build (
@@ -82,7 +82,7 @@ pipeline {
                         }
                     }
                 }
-                stage('illumina/v4.1') {
+                stage('ILLUMINA/ARTIC_V4.1') {
                     steps {
                         script {
                             build (
@@ -100,7 +100,7 @@ pipeline {
                         }
                     }
                 }
-                stage('ont/v4.1') {
+                stage('ONT/ARTIC_V4.1') {
                     steps {
                         script {
                             build (
@@ -118,7 +118,25 @@ pipeline {
                         }
                     }
                 }
-                stage('fasta') {
+                stage('ONT/MIDNIGHT_V2') {
+                    steps {
+                        script {
+                            build (
+                                job: "${PSGA_PIPELINE}/${env.BRANCH_NAME}",
+                                parameters: [
+                                        booleanParam(name: 'VALIDATION_TEST', value: true),
+                                        string(name: 'METADATA', value: "s3://synthetic-data-dev/UKHSA/small_tests/ont_midnight_v2/metadata.csv"),
+                                        string(name: 'OUTPUT_PATH', value: "/data/output/ont_midnight_v2"),
+                                        string(name: 'NXF_WORK', value: "/data/work/ont_midnight_v2"),
+                                        string(name: 'ANALYSIS_RUN', value: "ont_midnight_v2"),
+                                        string(name: 'SEQUENCING_TECHNOLOGY', value: "ont"),
+                                        string(name: 'KIT', value: "Midnight-ONT_V2"),
+                                ]
+                            )
+                        }
+                    }
+                }
+                stage('FASTA') {
                     steps {
                         script {
                             build (
@@ -136,7 +154,7 @@ pipeline {
                         }
                     }
                 }
-                stage('failing_illumina_samples') {
+                stage('FAILING_ILLUMINA_SAMPLES') {
                     steps {
                         script {
                             build (

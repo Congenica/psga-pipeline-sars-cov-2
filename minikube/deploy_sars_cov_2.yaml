@@ -32,7 +32,7 @@ spec:
         - name: PSGA_INCOMPLETE_ANALYSIS_RUNS_PATH
           value: /data/incomplete_analysis_runs
         - name: PSGA_MAX_ATTEMPTS
-          value: '3'
+          value: '0'
         - name: PSGA_SLEEP_TIME_BETWEEN_ATTEMPTS
           value: '60'
         - name: DOCKER_IMAGE_PREFIX
