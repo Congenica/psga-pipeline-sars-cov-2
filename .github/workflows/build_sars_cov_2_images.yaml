@@ -1,0 +1,23 @@
+name: Build SARS-CoV-2 docker images
+on:
+  push:
+  # Run on all branches for now
+    branches:
+      - '**'
+
+jobs:
+  build_sars_cov_2_docker_images:
+    steps:
+      - name: build_sars_cov_2_image
+        with:
+          image_name: psga-pipeline
+          pathogen: "sars_cov_2"
+      - name: build_ncov2019_artic_nf_illumina_image
+        with:
+          image_name: ncov2019-artic-nf-illumina
+      - name: build_ncov2019_artic_nf_nanopore_image
+        with:
+          image_name: ncov2019-artic-nf-nanopore
+      - name: build_pangolin_image
+        with:
+          image_name: pangolin

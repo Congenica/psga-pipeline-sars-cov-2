@@ -17,9 +17,6 @@ commands:
         type: string
       ecrpath:
         type: string
-      gitsubmodules:
-        type: boolean
-        default: false
       pathogen:
         type: string
         default: ""
@@ -28,14 +25,6 @@ commands:
           version: << pipeline.parameters.docker_version >>
           docker_layer_caching: true
       - checkout
-      - when:
-          condition: << parameters.gitsubmodules >>
-          steps:
-            - run:
-                name: Install git submodules
-                command: |
-                  git submodule init
-                  git submodule update
       - run:
           name: Build docker image
           command: |
@@ -87,7 +76,6 @@ jobs:
       - build_and_push_docker_image:
           dockerfile: "Dockerfile.psga-pipeline"
           ecrpath: ${PSGA_PIPELINE_ECREPOPATH}
-          gitsubmodules: false
           pathogen: "sars_cov_2"
   build-ncov2019-artic-nf-illumina:
     executor: python
@@ -95,21 +83,18 @@ jobs:
       - build_and_push_docker_image:
           dockerfile: "Dockerfile.ncov2019-artic-nf-illumina"
           ecrpath: ${NCOV2019_ARTIC_NF_ILLUMINA_ECREPOPATH}
-          gitsubmodules: true
   build-ncov2019-artic-nf-nanopore:
     executor: python
     steps:
       - build_and_push_docker_image:
           dockerfile: "Dockerfile.ncov2019-artic-nf-nanopore"
           ecrpath: ${NCOV2019_ARTIC_NF_NANOPORE_ECREPOPATH}
-          gitsubmodules: true
   build-pangolin:
     executor: python
     steps:
       - build_and_push_docker_image:
           dockerfile: "Dockerfile.pangolin"
           ecrpath: ${PANGOLIN_ECREPOPATH}
-          gitsubmodules: true
 
 workflows:
   version: 2

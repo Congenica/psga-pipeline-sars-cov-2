@@ -1,0 +1,70 @@
+name: Build docker image
+on:
+  workflow_call:
+    inputs:
+      image_name:
+        description: 'The name of the docker image'
+        required: true
+        type: string
+      pathogen:
+        description: 'The pathogen name. Only used for building the master pipeline image'
+        default: ''
+        required: false
+        type: string
+
+jobs:
+  build-docker-images:
+    runs-on: ubuntu-22.04
+
+    env:
+      IMAGE_NAME: ${{ inputs.image_name }}
+      PATHOGEN: ${{ inputs.pathogen }}
+      PATHOGEN_IMAGE_NAME: ${{ inputs.pathogen //-/_ }}
+      DOCKER_BUILDKIT: 1
+
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v3
+
+      - name: Build docker image
+        run: |
+          if [ "${PATHOGEN}" == "" ];
+          then
+              docker build -t $IMAGE_NAME -f docker/Dockerfile.${IMAGE_NAME} .
+          else
+              docker build --build-arg pathogen=${PATHOGEN} -t $IMAGE_NAME -f docker/Dockerfile.${IMAGE_NAME} .
+          fi
+
+      - name: DEV - Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
+          aws-region: eu-west-2
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Tag and push image to Amazon ECR
+        id: tag-image
+        env:
+          DOCKER_REPO_URL: ${{ secrets.DOCKER_REPO_URL }}
+          COMMIT_TAG: ${{ github.sha }}
+          BRANCH_TAG: ${{ github.ref.name }}
+
+        run: |
+          IMG_NAME="${IMAGE_NAME}"
+          if [ "${PATHOGEN}" == "" ];
+              IMG_NAME="${PATHOGEN//_/-}-pipeline"
+          fi
+          docker tag ${IMAGE_NAME} $DOCKER_REPO_URL/${IMAGE_NAME}:${BRANCH_TAG}_latest
+          docker push $DOCKER_REPO_URL/${IMAGE_NAME}:${BRANCH_TAG}_latest
+          docker tag ${IMAGE_NAME} $DOCKER_REPO_URL/${IMAGE_NAME}:$COMMIT_TAG
+          docker push $DOCKER_REPO_URL/${IMAGE_NAME}:$COMMIT_TAG
+          docker tag ${IMAGE_NAME} $DOCKER_REPO_URL/${IMAGE_NAME}:latest
+          docker push $DOCKER_REPO_URL/${IMAGE_NAME}:latest
+
+      - name: Logout of Amazon ECR
+        if: always()
+        run: docker logout ${{ steps.login-ecr.outputs.registry }}
