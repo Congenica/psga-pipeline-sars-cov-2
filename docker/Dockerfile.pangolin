@@ -1,1 +1,1 @@
-FROM 144563655722.dkr.ecr.eu-west-1.amazonaws.com/congenica/dev/pangolin-base:1.0.3
+FROM 566277102435.dkr.ecr.eu-west-2.amazonaws.com/congenica/psga-dev/pangolin-base:1.0.3

@@ -17,9 +17,6 @@ commands:
         type: string
       ecrpath:
         type: string
-      gitsubmodules:
-        type: boolean
-        default: false
       pathogen:
         type: string
         default: ""
@@ -28,23 +25,15 @@ commands:
           version: << pipeline.parameters.docker_version >>
           docker_layer_caching: true
       - checkout
-      - when:
-          condition: << parameters.gitsubmodules >>
-          steps:
-            - run:
-                name: Install git submodules
-                command: |
-                  git submodule init
-                  git submodule update
       - run:
           name: Build docker image
           command: |
             pip install --progress-bar off awscli
-            eval $(aws ecr get-login --no-include-email --region eu-west-1)
+            eval $(aws ecr get-login --no-include-email --region eu-west-2)
             NORMALISED_SLASHES=${CIRCLE_BRANCH//\//_}
             DOCKER_TAG_BRANCH=${NORMALISED_SLASHES//-/_}
             DOCKER_TAG="${DOCKER_TAG_BRANCH}_${CIRCLE_BUILD_NUM}"
-            REGISTRY_URI="${ECREPOURI}<<parameters.ecrpath>>"
+            REGISTRY_URI="${ECREPOURI_PSGA}<<parameters.ecrpath>>"
             FULL_TAG="${REGISTRY_URI}:${DOCKER_TAG}"
             LATEST_IMAGE_TAG="${REGISTRY_URI}:${DOCKER_TAG_BRANCH}_latest"
             CIRCLE_TAG="${REGISTRY_URI}:circleci_${CIRCLE_BUILD_NUM}"
@@ -86,30 +75,26 @@ jobs:
     steps:
       - build_and_push_docker_image:
           dockerfile: "Dockerfile.psga-pipeline"
-          ecrpath: ${PSGA_PIPELINE_ECREPOPATH}
-          gitsubmodules: false
+          ecrpath: ${SARS_COV_2_PIPELINE_ECREPOPATH_PSGA}
           pathogen: "sars_cov_2"
   build-ncov2019-artic-nf-illumina:
     executor: python
     steps:
       - build_and_push_docker_image:
           dockerfile: "Dockerfile.ncov2019-artic-nf-illumina"
-          ecrpath: ${NCOV2019_ARTIC_NF_ILLUMINA_ECREPOPATH}
-          gitsubmodules: true
+          ecrpath: ${NCOV2019_ARTIC_NF_ILLUMINA_ECREPOPATH_PSGA}
   build-ncov2019-artic-nf-nanopore:
     executor: python
     steps:
       - build_and_push_docker_image:
           dockerfile: "Dockerfile.ncov2019-artic-nf-nanopore"
-          ecrpath: ${NCOV2019_ARTIC_NF_NANOPORE_ECREPOPATH}
-          gitsubmodules: true
+          ecrpath: ${NCOV2019_ARTIC_NF_NANOPORE_ECREPOPATH_PSGA}
   build-pangolin:
     executor: python
     steps:
       - build_and_push_docker_image:
           dockerfile: "Dockerfile.pangolin"
-          ecrpath: ${PANGOLIN_ECREPOPATH}
-          gitsubmodules: true
+          ecrpath: ${PANGOLIN_ECREPOPATH_PSGA}
 
 workflows:
   version: 2
@@ -119,20 +104,20 @@ workflows:
     - run-unit-tests:
         requires:
           - pre_commit_hooks
-        context: AWS_ECR_CREDENTIALS
+        context: AWS_ECR_CREDENTIALS_PSGA
     - build-sars-cov-2-pipeline:
         requires:
           - run-unit-tests
-        context: AWS_ECR_CREDENTIALS
+        context: AWS_ECR_CREDENTIALS_PSGA
     - build-ncov2019-artic-nf-illumina:
         requires:
           - run-unit-tests
-        context: AWS_ECR_CREDENTIALS
+        context: AWS_ECR_CREDENTIALS_PSGA
     - build-ncov2019-artic-nf-nanopore:
         requires:
           - run-unit-tests
-        context: AWS_ECR_CREDENTIALS
+        context: AWS_ECR_CREDENTIALS_PSGA
     - build-pangolin:
         requires:
           - run-unit-tests
-        context: AWS_ECR_CREDENTIALS
+        context: AWS_ECR_CREDENTIALS_PSGA
