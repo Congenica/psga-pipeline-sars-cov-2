@@ -26,6 +26,10 @@ spec:
       containers:
       - image: 566277102435.dkr.ecr.eu-west-2.amazonaws.com/congenica/psga-dev/sars-cov-2-pipeline:dev_latest
         name: sars-cov-2-pipeline
+        command:
+        - python
+        args:
+        - autoresumer.py
         imagePullPolicy: Always
         resources:
           limits:
