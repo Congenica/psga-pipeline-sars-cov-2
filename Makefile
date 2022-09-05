@@ -11,15 +11,10 @@ PANGOLIN_DOCKER_IMAGE_TAG=1.0.0
 
 # create base images
 base-images:
-	docker build -t ${DOCKER_IMAGE_PREFIX}/psga-pipeline-base:${PSGA_PIPELINE_DOCKER_IMAGE_TAG_BASE} -f docker/Dockerfile.psga-pipeline-base .
-	docker build -t ${DOCKER_IMAGE_PREFIX}/ncov2019-artic-nf-illumina-base:${NCOV2019_ARTIC_NF_ILLUMINA_DOCKER_IMAGE_TAG_BASE} -f docker/Dockerfile.ncov2019-artic-nf-illumina-base .
-	docker build -t ${DOCKER_IMAGE_PREFIX}/ncov2019-artic-nf-nanopore-base:${NCOV2019_ARTIC_NF_NANOPORE_DOCKER_IMAGE_TAG_BASE} -f docker/Dockerfile.ncov2019-artic-nf-nanopore-base .
-	docker build -t ${DOCKER_IMAGE_PREFIX}/pangolin-base:${PANGOLIN_DOCKER_IMAGE_TAG_BASE} -f docker/Dockerfile.pangolin-base .
-	docker build -t ${DOCKER_IMAGE_PREFIX_LEGACY}/psga-pipeline-base:${PSGA_PIPELINE_DOCKER_IMAGE_TAG_BASE} -f docker/Dockerfile.psga-pipeline-base .
-	docker build -t ${DOCKER_IMAGE_PREFIX_LEGACY}/ncov2019-artic-nf-illumina-base:${NCOV2019_ARTIC_NF_ILLUMINA_DOCKER_IMAGE_TAG_BASE} -f docker/Dockerfile.ncov2019-artic-nf-illumina-base .
-	docker build -t ${DOCKER_IMAGE_PREFIX_LEGACY}/ncov2019-artic-nf-nanopore-base:${NCOV2019_ARTIC_NF_NANOPORE_DOCKER_IMAGE_TAG_BASE} -f docker/Dockerfile.ncov2019-artic-nf-nanopore-base .
-	docker build -t ${DOCKER_IMAGE_PREFIX_LEGACY}/pangolin-base:${PANGOLIN_DOCKER_IMAGE_TAG_BASE} -f docker/Dockerfile.pangolin-base .
-
+	docker build -t ${DOCKER_IMAGE_PREFIX_LEGACY}/psga-pipeline-base:${PSGA_PIPELINE_DOCKER_IMAGE_TAG_BASE} -t ${DOCKER_IMAGE_PREFIX}/psga-pipeline-base:${PSGA_PIPELINE_DOCKER_IMAGE_TAG_BASE} -f docker/Dockerfile.psga-pipeline-base .
+	docker build -t ${DOCKER_IMAGE_PREFIX_LEGACY}/ncov2019-artic-nf-illumina-base:${NCOV2019_ARTIC_NF_ILLUMINA_DOCKER_IMAGE_TAG_BASE} -t ${DOCKER_IMAGE_PREFIX}/ncov2019-artic-nf-illumina-base:${NCOV2019_ARTIC_NF_ILLUMINA_DOCKER_IMAGE_TAG_BASE} -f docker/Dockerfile.ncov2019-artic-nf-illumina-base .
+	docker build -t ${DOCKER_IMAGE_PREFIX_LEGACY}/ncov2019-artic-nf-nanopore-base:${NCOV2019_ARTIC_NF_NANOPORE_DOCKER_IMAGE_TAG_BASE} -t ${DOCKER_IMAGE_PREFIX}/ncov2019-artic-nf-nanopore-base:${NCOV2019_ARTIC_NF_NANOPORE_DOCKER_IMAGE_TAG_BASE} -f docker/Dockerfile.ncov2019-artic-nf-nanopore-base .
+	docker build -t ${DOCKER_IMAGE_PREFIX_LEGACY}/pangolin-base:${PANGOLIN_DOCKER_IMAGE_TAG_BASE} -t ${DOCKER_IMAGE_PREFIX}/pangolin-base:${PANGOLIN_DOCKER_IMAGE_TAG_BASE} -f docker/Dockerfile.pangolin-base .
 
 # build images per pathogen
 sars-cov-2-images:
