@@ -17,6 +17,10 @@ commands:
         type: string
       ecrpath:
         type: string
+      ecrepouri:
+        type: string
+      awsregion:
+        type: string
       pathogen:
         type: string
         default: ""
@@ -29,11 +33,11 @@ commands:
           name: Build docker image
           command: |
             pip install --progress-bar off awscli
-            eval $(aws ecr get-login --no-include-email --region eu-west-2)
+            eval $(aws ecr get-login --no-include-email --region <<parameters.awsregion>>)
             NORMALISED_SLASHES=${CIRCLE_BRANCH//\//_}
             DOCKER_TAG_BRANCH=${NORMALISED_SLASHES//-/_}
             DOCKER_TAG="${DOCKER_TAG_BRANCH}_${CIRCLE_BUILD_NUM}"
-            REGISTRY_URI="${ECREPOURI_PSGA}<<parameters.ecrpath>>"
+            REGISTRY_URI="<<parameters.ecrepouri>><<parameters.ecrpath>>"
             FULL_TAG="${REGISTRY_URI}:${DOCKER_TAG}"
             LATEST_IMAGE_TAG="${REGISTRY_URI}:${DOCKER_TAG_BRANCH}_latest"
             CIRCLE_TAG="${REGISTRY_URI}:circleci_${CIRCLE_BUILD_NUM}"
@@ -76,6 +80,8 @@ jobs:
       - build_and_push_docker_image:
           dockerfile: "Dockerfile.psga-pipeline"
           ecrpath: ${SARS_COV_2_PIPELINE_ECREPOPATH_PSGA}
+          ecrepouri: ${ECREPOURI_PSGA}
+          awsregion: "eu-west-2"
           pathogen: "sars_cov_2"
   build-ncov2019-artic-nf-illumina:
     executor: python
@@ -83,19 +89,59 @@ jobs:
       - build_and_push_docker_image:
           dockerfile: "Dockerfile.ncov2019-artic-nf-illumina"
           ecrpath: ${NCOV2019_ARTIC_NF_ILLUMINA_ECREPOPATH_PSGA}
+          ecrepouri: ${ECREPOURI_PSGA}
+          awsregion: "eu-west-2"
   build-ncov2019-artic-nf-nanopore:
     executor: python
     steps:
       - build_and_push_docker_image:
           dockerfile: "Dockerfile.ncov2019-artic-nf-nanopore"
           ecrpath: ${NCOV2019_ARTIC_NF_NANOPORE_ECREPOPATH_PSGA}
+          ecrepouri: ${ECREPOURI_PSGA}
+          awsregion: "eu-west-2"
   build-pangolin:
     executor: python
     steps:
       - build_and_push_docker_image:
           dockerfile: "Dockerfile.pangolin"
           ecrpath: ${PANGOLIN_ECREPOPATH_PSGA}
-
+          ecrepouri: ${ECREPOURI_PSGA}
+          awsregion: "eu-west-2"
+  # LEGACY: send images to Congenica repo, so that Congenica account on Jenkins can continue pulling these images
+  # without adding new credentials
+  build-sars-cov-2-pipeline-legacy:
+    executor: python
+    steps:
+      - build_and_push_docker_image:
+          dockerfile: "Dockerfile.psga-pipeline-legacy"
+          ecrpath: ${PSGA_PIPELINE_ECREPOPATH}
+          ecrepouri: ${ECREPOURI}
+          awsregion: "eu-west-1"
+          pathogen: "sars_cov_2"
+  build-ncov2019-artic-nf-illumina-legacy:
+    executor: python
+    steps:
+      - build_and_push_docker_image:
+          dockerfile: "Dockerfile.ncov2019-artic-nf-illumina-legacy"
+          ecrpath: ${NCOV2019_ARTIC_NF_ILLUMINA_ECREPOPATH}
+          ecrepouri: ${ECREPOURI}
+          awsregion: "eu-west-1"
+  build-ncov2019-artic-nf-nanopore-legacy:
+    executor: python
+    steps:
+      - build_and_push_docker_image:
+          dockerfile: "Dockerfile.ncov2019-artic-nf-nanopore-legacy"
+          ecrpath: ${NCOV2019_ARTIC_NF_NANOPORE_ECREPOPATH}
+          ecrepouri: ${ECREPOURI}
+          awsregion: "eu-west-1"
+  build-pangolin-legacy:
+    executor: python
+    steps:
+      - build_and_push_docker_image:
+          dockerfile: "Dockerfile.pangolin-legacy"
+          ecrpath: ${PANGOLIN_ECREPOPATH}
+          ecrepouri: ${ECREPOURI}
+          awsregion: "eu-west-1"
 workflows:
   version: 2
   test_and_build_all:
@@ -121,3 +167,20 @@ workflows:
         requires:
           - run-unit-tests
         context: AWS_ECR_CREDENTIALS_PSGA
+    # LEGACY
+    - build-sars-cov-2-pipeline-legacy:
+        requires:
+          - run-unit-tests
+        context: AWS_ECR_CREDENTIALS
+    - build-ncov2019-artic-nf-illumina-legacy:
+        requires:
+          - run-unit-tests
+        context: AWS_ECR_CREDENTIALS
+    - build-ncov2019-artic-nf-nanopore-legacy:
+        requires:
+          - run-unit-tests
+        context: AWS_ECR_CREDENTIALS
+    - build-pangolin-legacy:
+        requires:
+          - run-unit-tests
+        context: AWS_ECR_CREDENTIALS
