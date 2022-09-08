@@ -267,11 +267,15 @@ def get_expected_output_files_per_sample(
         if sequencing_technology == ILLUMINA:
             contamination_removal_suffixes = [f"_{r}.fastq.gz" for r in [1, 2]]
             fastqc_suffixes = [f"{r}_fastqc.zip" for r in [1, 2]]
+            ncov_bam_suffixes = [".mapped.primertrimmed.sorted.bam"]
             ncov_fasta_suffixes = [".primertrimmed.consensus.fa"]
+            ncov_variants_suffixes = [".variants.tsv"]
         elif sequencing_technology == ONT:
             contamination_removal_suffixes = [".fastq.gz"]
             fastqc_suffixes = ["fastqc.zip"]
+            ncov_bam_suffixes = [".primertrimmed.rg.sorted.bam"]
             ncov_fasta_suffixes = [".consensus.fa", ".muscle.in.fa", ".muscle.out.fa", ".preconsensus.fa"]
+            ncov_variants_suffixes = [".pass.vcf.gz"]
         else:
             raise ValueError(f"Unsupported sequencing_technology: {sequencing_technology}")
 
@@ -289,7 +293,13 @@ def get_expected_output_files_per_sample(
         for sample_id in sample_ids_result_files.ncov_completed_samples:
             # expected files for samples which completed ncov
             output_files[sample_id].extend(
+                [output_path / "ncov2019-artic" / "output_bam" / f"{sample_id}{e}" for e in ncov_bam_suffixes]
+            )
+            output_files[sample_id].extend(
                 [output_path / "ncov2019-artic" / "output_fasta" / f"{sample_id}{e}" for e in ncov_fasta_suffixes]
+            )
+            output_files[sample_id].extend(
+                [output_path / "ncov2019-artic" / "output_variants" / f"{sample_id}{e}" for e in ncov_variants_suffixes]
             )
             output_files[sample_id].append(output_path / "ncov2019-artic" / "output_plots" / f"{sample_id}.depth.png")
 
