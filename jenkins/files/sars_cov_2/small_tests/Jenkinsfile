@@ -148,7 +148,7 @@ pipeline {
                                         string(name: 'NXF_WORK', value: "/data/work/unknown_short"),
                                         string(name: 'ANALYSIS_RUN', value: "unknown_short"),
                                         string(name: 'SEQUENCING_TECHNOLOGY', value: "unknown"),
-                                        string(name: 'KIT', value: "ARTIC_V3"),
+                                        string(name: 'KIT', value: "none"),
                                 ]
                             )
                         }
