@@ -267,15 +267,15 @@ def get_expected_output_files_per_sample(
         if sequencing_technology == ILLUMINA:
             contamination_removal_suffixes = [f"_{r}.fastq.gz" for r in [1, 2]]
             fastqc_suffixes = [f"{r}_fastqc.zip" for r in [1, 2]]
-            ncov_bam_suffixes = [".mapped.primertrimmed.sorted.bam"]
+            ncov_bam_suffixes = [".mapped.primertrimmed.sorted.bam", ".mapped.primertrimmed.sorted.bam.bai"]
             ncov_fasta_suffixes = [".primertrimmed.consensus.fa"]
             ncov_variants_suffixes = [".variants.tsv"]
         elif sequencing_technology == ONT:
             contamination_removal_suffixes = [".fastq.gz"]
             fastqc_suffixes = ["fastqc.zip"]
-            ncov_bam_suffixes = [".primertrimmed.rg.sorted.bam"]
+            ncov_bam_suffixes = [".primertrimmed.rg.sorted.bam", ".primertrimmed.rg.sorted.bam.bai"]
             ncov_fasta_suffixes = [".consensus.fa", ".muscle.in.fa", ".muscle.out.fa", ".preconsensus.fa"]
-            ncov_variants_suffixes = [".pass.vcf.gz"]
+            ncov_variants_suffixes = [".pass.vcf.gz", ".pass.vcf.gz.tbi"]
         else:
             raise ValueError(f"Unsupported sequencing_technology: {sequencing_technology}")
 
