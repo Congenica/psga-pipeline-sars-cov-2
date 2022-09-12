@@ -1,7 +1,7 @@
 FROM continuumio/miniconda3:4.10.3 AS condabuild
 
 ARG ncov=ncov2019-artic-nf
-ARG ncov_commit=3338ee7a3b9f6e33de621acf513c9cbd8b16debf
+ARG ncov_commit=afa4c7f2eb176212444bd6afe785a9251f95f792
 
 RUN git clone --recursive https://github.com/Congenica/${ncov}.git \
   && cd ${ncov} \
