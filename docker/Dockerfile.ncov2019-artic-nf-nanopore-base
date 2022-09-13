@@ -1,7 +1,7 @@
 FROM continuumio/miniconda3:4.10.3 AS condabuild
 
 ARG ncov=ncov2019-artic-nf
-ARG ncov_commit=3338ee7a3b9f6e33de621acf513c9cbd8b16debf
+ARG ncov_commit=afa4c7f2eb176212444bd6afe785a9251f95f792
 
 RUN git clone --recursive https://github.com/Congenica/${ncov}.git \
   && cd ${ncov} \
@@ -25,6 +25,14 @@ RUN apt-get update \
 COPY --from=condabuild /opt/conda/envs/artic /opt/conda/envs/artic
 COPY --from=condabuild ${ncov} ${ncov}
 ENV PATH=${ncov}/bin:/opt/conda/envs/artic/bin:$PATH
+
+# install medaka models
+RUN medaka tools download_models \
+        --models r103_fast_variant_g507 r103_hac_variant_g507 r103_prom_variant_g3210 r103_sup_variant_g507 \
+                 r941_min_fast_variant_g507 r941_min_hac_variant_g507 r941_min_sup_variant_g507 \
+                 r941_prom_fast_variant_g507 r941_prom_hac_variant_g507 r941_prom_sup_variant_g507 \
+                 r941_prom_variant_g303 r941_prom_variant_g322 r941_prom_variant_g360
+
 
 RUN wget -qO- https://github.com/nextflow-io/nextflow/releases/download/v21.10.6/nextflow | bash && chmod +x nextflow && mv nextflow /usr/bin
 

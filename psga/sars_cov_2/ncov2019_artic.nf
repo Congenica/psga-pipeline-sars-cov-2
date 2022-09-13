@@ -114,6 +114,9 @@ process ncov2019_artic_nf_pipeline_medaka {
   nextflow run /ncov2019-artic-nf \
       --medaka \
       --medakaModel !{params.medaka_model} \
+      --normalise !{params.normalise} \
+      --min_len !{params.min_len} \
+      --max_len !{params.max_len} \
       --prefix ${ncov_prefix} \
       --basecalled_fastq ${sample_id} \
       --outdir ${ncov_out_dir} \
