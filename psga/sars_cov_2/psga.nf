@@ -36,20 +36,32 @@ if( "[:]" in [
 }
 
 
-/* Store primers in ncov dockerfile with path:
- * PRIMERS (ARTIC, Midnight-IDT, Midnight-ONT, NEB-VarSkip)
- * Store primers in ncov dockerfile with path:
- * /primer_schemes/${scheme}/SARS-CoV-2/${scheme_version}
- * e.g. --kit ARTIC_V4 will use the primers stored in: /primer_schemes/ARTIC/SARS-CoV-2/V4
- */
-split_kit = params.kit.split('_')
-if ( split_kit.length != 2 ) {
-    throw new Exception("--kit must have the format: PRIMERNAME_PRIMERVERSION")
-}
-scheme = split_kit[0]
-scheme_version = split_kit[1]
+scheme = ""
+scheme_version = ""
 scheme_dir = "/primer_schemes"
 
+if ( params.sequencing_technology in ["illumina", "ont"] ) {
+
+    /* Store primers in ncov dockerfile with path:
+     * PRIMERS (ARTIC, Midnight-IDT, Midnight-ONT, NEB-VarSkip)
+     * Store primers in ncov dockerfile with path:
+     * /primer_schemes/${scheme}/SARS-CoV-2/${scheme_version}
+     * e.g. --kit ARTIC_V4 will use the primers stored in: /primer_schemes/ARTIC/SARS-CoV-2/V4
+     */
+    split_kit = params.kit.split('_')
+    if ( split_kit.length != 2 ) {
+        throw new Exception("--kit must have the format: PRIMERNAME_PRIMERVERSION for illumina/ont samples")
+    }
+    scheme = split_kit[0]
+    scheme_version = split_kit[1]
+
+} else if ( params.sequencing_technology == "unknown" ) {
+
+    if ( params.kit != "none" ) {
+        throw new Exception("--kit must be 'none' for FASTA samples")
+    }
+
+}
 
 /*
  * Main workflow for the pathogen: SARS-CoV-2.

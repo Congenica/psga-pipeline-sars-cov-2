@@ -88,7 +88,7 @@ pipeline {
                                             string(name: 'NXF_WORK', value: "/data/work/no_ncov_fasta_large"),
                                             string(name: 'ANALYSIS_RUN', value: "no_ncov_fasta_large"),
                                             string(name: 'SEQUENCING_TECHNOLOGY', value: "unknown"),
-                                            string(name: 'KIT', value: "ARTIC_V3"),
+                                            string(name: 'KIT', value: "none"),
                                             string(name: 'K8S_QUEUE_SIZE', value: "10"),
                                     ]
                                 )
