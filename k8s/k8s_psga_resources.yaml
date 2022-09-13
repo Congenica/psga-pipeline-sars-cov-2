@@ -14,7 +14,7 @@ spec:
     - ReadWriteMany
   persistentVolumeReclaimPolicy: Retain
   nfs:
-    server: efs.saas-dev.k8s.congenica.net
+    server: encrypted-efs.saas-dev.k8s.congenica.net
     path: "/data/ukhsa-covid"
 ---
 apiVersion: v1
