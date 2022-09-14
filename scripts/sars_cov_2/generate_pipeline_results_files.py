@@ -274,7 +274,7 @@ def get_expected_output_files_per_sample(
             contamination_removal_suffixes = [".fastq.gz"]
             fastqc_suffixes = ["fastqc.zip"]
             ncov_bam_suffixes = [".primertrimmed.rg.sorted.bam", ".primertrimmed.rg.sorted.bam.bai"]
-            ncov_fasta_suffixes = [".consensus.fa", ".muscle.in.fa", ".muscle.out.fa", ".preconsensus.fa"]
+            ncov_fasta_suffixes = [".consensus.fa", ".preconsensus.fa"]
             ncov_variants_suffixes = [".pass.vcf.gz", ".pass.vcf.gz.tbi"]
         else:
             raise ValueError(f"Unsupported sequencing_technology: {sequencing_technology}")
