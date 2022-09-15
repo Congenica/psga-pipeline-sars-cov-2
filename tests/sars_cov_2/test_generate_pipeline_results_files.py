@@ -29,7 +29,6 @@ def check_sample_list(input_path, expected_samples):
     assert sorted(expected_samples) == sorted(processed_samples)
 
 
-# TODO: need a case for each sequencing technology
 @pytest.mark.parametrize(
     "metadata,ncov_csv,pangolin_csv,analysis_run_name,sequencing_technology,"
     "exp_lists,exp_results_csv,exp_resultfiles_json",
@@ -143,9 +142,6 @@ def test_generate_pipeline_results_files(
         args,
     )
 
-    # TODO remove
-    print(rv.output)
-
     assert rv.exit_code == 0
 
     expected_output_df = pd.read_csv(test_data_path / "pipeline_results_files" / exp_results_csv)
@@ -181,7 +177,11 @@ def test_generate_pipeline_results_files(
         calc_resultfiles_json_dict = json.load(json_fd)
 
     exp_result_files_json_dict_full_path = {
-        sample_id: [f"{str(tmp_path)}/{f}" for f in files] for sample_id, files in exp_resultfiles_json_dict.items()
+        sample_id: sorted([f"{str(tmp_path)}/{f}" for f in files])
+        for sample_id, files in exp_resultfiles_json_dict.items()
+    }
+    calc_result_files_json_dict_sorted = {
+        sample_id: sorted(files) for sample_id, files in calc_resultfiles_json_dict.items()
     }
 
-    assert exp_result_files_json_dict_full_path, calc_resultfiles_json_dict
+    assert exp_result_files_json_dict_full_path == calc_result_files_json_dict_sorted
