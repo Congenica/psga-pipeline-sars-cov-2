@@ -113,7 +113,7 @@ jobs:
     executor: python
     steps:
       - build_and_push_docker_image:
-          dockerfile: "Dockerfile.psga-pipeline-legacy"
+          dockerfile: "Dockerfile.psga-pipeline"
           ecrpath: ${PSGA_PIPELINE_ECREPOPATH}
           ecrepouri: ${ECREPOURI}
           awsregion: "eu-west-1"
@@ -122,7 +122,7 @@ jobs:
     executor: python
     steps:
       - build_and_push_docker_image:
-          dockerfile: "Dockerfile.ncov2019-artic-nf-illumina-legacy"
+          dockerfile: "Dockerfile.ncov2019-artic-nf-illumina"
           ecrpath: ${NCOV2019_ARTIC_NF_ILLUMINA_ECREPOPATH}
           ecrepouri: ${ECREPOURI}
           awsregion: "eu-west-1"
@@ -130,7 +130,7 @@ jobs:
     executor: python
     steps:
       - build_and_push_docker_image:
-          dockerfile: "Dockerfile.ncov2019-artic-nf-nanopore-legacy"
+          dockerfile: "Dockerfile.ncov2019-artic-nf-nanopore"
           ecrpath: ${NCOV2019_ARTIC_NF_NANOPORE_ECREPOPATH}
           ecrepouri: ${ECREPOURI}
           awsregion: "eu-west-1"
@@ -138,7 +138,7 @@ jobs:
     executor: python
     steps:
       - build_and_push_docker_image:
-          dockerfile: "Dockerfile.pangolin-legacy"
+          dockerfile: "Dockerfile.pangolin"
           ecrpath: ${PANGOLIN_ECREPOPATH}
           ecrepouri: ${ECREPOURI}
           awsregion: "eu-west-1"
@@ -170,17 +170,17 @@ workflows:
     # LEGACY
     - build-sars-cov-2-pipeline-legacy:
         requires:
-          - run-unit-tests
+          - build-sars-cov-2-pipeline
         context: AWS_ECR_CREDENTIALS
     - build-ncov2019-artic-nf-illumina-legacy:
         requires:
-          - run-unit-tests
+          - build-ncov2019-artic-nf-illumina
         context: AWS_ECR_CREDENTIALS
     - build-ncov2019-artic-nf-nanopore-legacy:
         requires:
-          - run-unit-tests
+          - build-ncov2019-artic-nf-nanopore
         context: AWS_ECR_CREDENTIALS
     - build-pangolin-legacy:
         requires:
-          - run-unit-tests
+          - build-pangolin
         context: AWS_ECR_CREDENTIALS
