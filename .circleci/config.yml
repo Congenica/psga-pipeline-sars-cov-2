@@ -142,6 +142,7 @@ jobs:
           ecrpath: ${PANGOLIN_ECREPOPATH}
           ecrepouri: ${ECREPOURI}
           awsregion: "eu-west-1"
+# sars-cov-2-pipeline images are built after the others so that Jenkins starts when all images are generated
 workflows:
   version: 2
   test_and_build_all:
@@ -150,10 +151,6 @@ workflows:
     - run-unit-tests:
         requires:
           - pre_commit_hooks
-        context: AWS_ECR_CREDENTIALS_PSGA
-    - build-sars-cov-2-pipeline:
-        requires:
-          - run-unit-tests
         context: AWS_ECR_CREDENTIALS_PSGA
     - build-ncov2019-artic-nf-illumina:
         requires:
@@ -167,20 +164,28 @@ workflows:
         requires:
           - run-unit-tests
         context: AWS_ECR_CREDENTIALS_PSGA
-    # LEGACY
-    - build-sars-cov-2-pipeline-legacy:
-        requires:
-          - build-sars-cov-2-pipeline
-        context: AWS_ECR_CREDENTIALS
-    - build-ncov2019-artic-nf-illumina-legacy:
+    - build-sars-cov-2-pipeline:
         requires:
           - build-ncov2019-artic-nf-illumina
+          - build-ncov2019-artic-nf-nanopore
+          - build-pangolin
+        context: AWS_ECR_CREDENTIALS_PSGA
+    # LEGACY
+    - build-ncov2019-artic-nf-illumina-legacy:
+        requires:
+          - run-unit-tests
         context: AWS_ECR_CREDENTIALS
     - build-ncov2019-artic-nf-nanopore-legacy:
         requires:
-          - build-ncov2019-artic-nf-nanopore
+          - run-unit-tests
         context: AWS_ECR_CREDENTIALS
     - build-pangolin-legacy:
         requires:
-          - build-pangolin
+          - run-unit-tests
+        context: AWS_ECR_CREDENTIALS
+    - build-sars-cov-2-pipeline-legacy:
+        requires:
+          - build-ncov2019-artic-nf-illumina-legacy
+          - build-ncov2019-artic-nf-nanopore-legacy
+          - build-pangolin-legacy
         context: AWS_ECR_CREDENTIALS
