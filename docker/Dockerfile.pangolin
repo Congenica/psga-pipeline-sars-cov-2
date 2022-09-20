@@ -1,4 +1,4 @@
-FROM continuumio/miniconda3:4.10.3 AS condabuild
+FROM condaforge/mambaforge:4.14.0-0 AS condabuild
 
 ARG pangolin_commit=a85856bf4dbb128d8070c2557da18c2ab1b3686b
 
@@ -6,8 +6,9 @@ RUN git clone https://github.com/cov-lineages/pangolin.git \
   && cd pangolin \
   && git checkout ${pangolin_commit}
 
-RUN conda install mamba -c conda-forge \
-  && mamba env create -f pangolin/environment.yml -n pangolin
+RUN mamba env create -f pangolin/environment.yml -n pangolin \
+  && conda clean --all -y
+
 
 FROM debian:buster-slim
 RUN apt-get update \
