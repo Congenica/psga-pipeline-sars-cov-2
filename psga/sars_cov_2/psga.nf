@@ -27,6 +27,7 @@ include { submit_analysis_run_results } from './submit_analysis_run_results.nf'
 
 // Required environment variables
 if( "[:]" in [
+    SARS_COV_2_PIPELINE_DOCKER_IMAGE,
     SARS_COV_2_PIPELINE_DOCKER_IMAGE_TAG,
     NCOV2019_ARTIC_NF_ILLUMINA_DOCKER_IMAGE_TAG,
     NCOV2019_ARTIC_NF_NANOPORE_DOCKER_IMAGE_TAG,

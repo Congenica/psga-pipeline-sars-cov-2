@@ -49,6 +49,8 @@ spec:
           value: '60'
         - name: DOCKER_IMAGE_PREFIX
           value: '566277102435.dkr.ecr.eu-west-2.amazonaws.com/congenica/psga-dev'
+        - name: SARS_COV_2_PIPELINE_DOCKER_IMAGE
+          value: 'sars-cov-2-pipeline'
         - name: SARS_COV_2_PIPELINE_DOCKER_IMAGE_TAG
           value: 'dev_latest'
         - name: NCOV2019_ARTIC_NF_ILLUMINA_DOCKER_IMAGE_TAG
