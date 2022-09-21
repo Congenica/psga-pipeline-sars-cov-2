@@ -25,9 +25,6 @@ commands:
         type: string
         default: ""
     steps:
-      - setup_remote_docker:
-          version: << pipeline.parameters.docker_version >>
-          docker_layer_caching: true
       - checkout
       - run:
           name: Build docker image
@@ -77,6 +74,9 @@ jobs:
   build-sars-cov-2-pipeline:
     executor: python
     steps:
+      - setup_remote_docker:
+          version: << pipeline.parameters.docker_version >>
+          docker_layer_caching: true
       - build_and_push_docker_image:
           dockerfile: "Dockerfile.psga-pipeline"
           ecrpath: ${SARS_COV_2_PIPELINE_ECREPOPATH_PSGA}
@@ -86,6 +86,9 @@ jobs:
   build-ncov2019-artic-nf-illumina:
     executor: python
     steps:
+      - setup_remote_docker:
+          version: << pipeline.parameters.docker_version >>
+          docker_layer_caching: true
       - build_and_push_docker_image:
           dockerfile: "Dockerfile.ncov2019-artic-nf-illumina"
           ecrpath: ${NCOV2019_ARTIC_NF_ILLUMINA_ECREPOPATH_PSGA}
@@ -94,6 +97,9 @@ jobs:
   build-ncov2019-artic-nf-nanopore:
     executor: python
     steps:
+      - setup_remote_docker:
+          version: << pipeline.parameters.docker_version >>
+          docker_layer_caching: true
       - build_and_push_docker_image:
           dockerfile: "Dockerfile.ncov2019-artic-nf-nanopore"
           ecrpath: ${NCOV2019_ARTIC_NF_NANOPORE_ECREPOPATH_PSGA}
@@ -102,6 +108,9 @@ jobs:
   build-pangolin:
     executor: python
     steps:
+      - setup_remote_docker:
+          version: << pipeline.parameters.docker_version >>
+          docker_layer_caching: true
       - build_and_push_docker_image:
           dockerfile: "Dockerfile.pangolin"
           ecrpath: ${PANGOLIN_ECREPOPATH_PSGA}
@@ -112,6 +121,9 @@ jobs:
   build-sars-cov-2-pipeline-legacy:
     executor: python
     steps:
+      - setup_remote_docker:
+          version: << pipeline.parameters.docker_version >>
+          docker_layer_caching: true
       - build_and_push_docker_image:
           dockerfile: "Dockerfile.psga-pipeline"
           ecrpath: ${PSGA_PIPELINE_ECREPOPATH}
@@ -121,6 +133,9 @@ jobs:
   build-ncov2019-artic-nf-illumina-legacy:
     executor: python
     steps:
+      - setup_remote_docker:
+          version: << pipeline.parameters.docker_version >>
+          docker_layer_caching: true
       - build_and_push_docker_image:
           dockerfile: "Dockerfile.ncov2019-artic-nf-illumina"
           ecrpath: ${NCOV2019_ARTIC_NF_ILLUMINA_ECREPOPATH}
@@ -129,6 +144,9 @@ jobs:
   build-ncov2019-artic-nf-nanopore-legacy:
     executor: python
     steps:
+      - setup_remote_docker:
+          version: << pipeline.parameters.docker_version >>
+          docker_layer_caching: true
       - build_and_push_docker_image:
           dockerfile: "Dockerfile.ncov2019-artic-nf-nanopore"
           ecrpath: ${NCOV2019_ARTIC_NF_NANOPORE_ECREPOPATH}
@@ -137,6 +155,9 @@ jobs:
   build-pangolin-legacy:
     executor: python
     steps:
+      - setup_remote_docker:
+          version: << pipeline.parameters.docker_version >>
+          docker_layer_caching: true
       - build_and_push_docker_image:
           dockerfile: "Dockerfile.pangolin"
           ecrpath: ${PANGOLIN_ECREPOPATH}
