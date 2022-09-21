@@ -1,12 +1,10 @@
 FROM condaforge/mambaforge:4.14.0-0 AS condabuild
 
-ARG pangolin_commit=a85856bf4dbb128d8070c2557da18c2ab1b3686b
+# REQUIREMENT:
+# * run docker/clone_pangolin.sh and git add docker/pangolin_environment.yml
 
-RUN git clone https://github.com/cov-lineages/pangolin.git \
-  && cd pangolin \
-  && git checkout ${pangolin_commit}
-
-RUN mamba env create -f pangolin/environment.yml -n pangolin \
+COPY docker/pangolin_environment.yml /environment.yml
+RUN mamba env create -f /environment.yml -n pangolin \
   && conda clean --all -y
 
 
@@ -17,14 +15,14 @@ RUN apt-get update \
   && rm -rf /var/lib/apt/lists/*
 
 COPY --from=condabuild /opt/conda/envs/pangolin /opt/conda/envs/pangolin
-COPY --from=condabuild /pangolin /pangolin
 ENV PATH=/opt/conda/envs/pangolin/bin:$PATH
 
-ARG pangolin_data_commit=4d7220a4b0a67cec0d718b7415cafbc81120af38
-ARG scorpio_commit=300d4a8609d9e8c96a2bad37655063365d296eed
-ARG constellations_commit=61e2a6b12abc63ee488712f60a2c8d88d69bb9bc
+COPY docker/sars_cov_2.deps /
 
-RUN cd /pangolin \
+RUN . /sars_cov_2.deps \
+  && git clone https://github.com/cov-lineages/pangolin.git \
+  && cd pangolin \
+  && git checkout ${pangolin_commit} \
   && python setup.py install \
   && pip install --force-reinstall git+https://github.com/cov-lineages/pangolin-data.git@${pangolin_data_commit} \
   && pip install --force-reinstall git+https://github.com/cov-lineages/scorpio.git@${scorpio_commit} \

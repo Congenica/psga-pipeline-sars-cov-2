@@ -1,12 +1,10 @@
 
-# NOTES about LEGACY code.
+# Building notes:
 
-There is a lot of duplication here in order to avoid enabling Jenkins from pulling the images from the new PSGA ECR for the time being.
+To speed up the building of docker images, pangolin and ncov repositories are cloned externally in order to fetch the environment yaml files.
+These yaml files are then copied to the docker image.
+Similarly, the sars-cov-2 primer schemes are obtained locally and then copied over to the docker image.
 
-When this will happen, we will need to change the following:
-
-1. remove this file
-2. update `jenkins/files/sars_cov_2/Jenkinsfile` so that it uses the new ECR repo AND uses `sars-cov-2-pipeline` instead of `psga-pipeline` as docker image for the Jenkins pod
-3. update `psga/sars_cov_2/nextflow.config` so that is uses `sars-cov-2-pipeline` instead of `psga-pipeline` as docker image for the Jenkins pod
-4. remove all `docker/Dockerfile.*-legacy` files
-5. remove all references to legacy code in `.circleci/config.yml`, so that the legacy images are no longer build and pushed to Congenica ECR
+Important files:
+* sars_cov_2.deps : this contains the commits for upgrading ncov, pangolin and relevant data sets
+* bash scripts : for cloning the repositories and fetching the primers

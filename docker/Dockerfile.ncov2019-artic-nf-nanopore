@@ -1,16 +1,14 @@
 FROM condaforge/mambaforge:4.14.0-0 AS condabuild
 
-ARG ncov=ncov2019-artic-nf
-ARG ncov_commit=afa4c7f2eb176212444bd6afe785a9251f95f792
+# REQUIREMENTS:
+# * run docker/clone_ncov2019-artic-nf.sh and git add docker/ncov2019-artic-nf_illumina_environment.yml docker/ncov2019-artic-nf_illumina_environment.yml docker/ncov2019-artic-nf_extras.yml
+# * run docker/get_sars_cov_2_primers.sh and git add docker/primer_schemes
 
-RUN git clone --recursive https://github.com/Congenica/${ncov}.git \
-  && cd ${ncov} \
-  && git checkout ${ncov_commit}
-
+COPY docker/ncov2019-artic-nf_nanopore_environment.yml /environment.yml
+COPY docker/ncov2019-artic-nf_extras.yml /extras.yml
 # Also reinstall these two packages to their latest version, as the conda-selected downgraded ones fail to run
-RUN cd ${ncov}/environments \
-  && mamba env create -f nanopore/environment.yml \
-  && mamba env update -f extras.yml -n artic \
+RUN mamba env create -f /environment.yml \
+  && mamba env update -f /extras.yml -n artic \
   && mamba install -y -c conda-forge -c bioconda cutadapt==3.1 dnaio==0.4.4 -n artic \
   && conda clean --all -y
 
@@ -22,8 +20,8 @@ RUN apt-get update \
   && rm -rf /var/lib/apt/lists/*
 
 COPY --from=condabuild /opt/conda/envs/artic /opt/conda/envs/artic
-COPY --from=condabuild ${ncov} ${ncov}
-ENV PATH=${ncov}/bin:/opt/conda/envs/artic/bin:$PATH
+
+ENV PATH=/ncov2019-artic-nf/bin:/opt/conda/envs/artic/bin:$PATH
 
 RUN wget -qO- https://github.com/nextflow-io/nextflow/releases/download/v21.10.6/nextflow | bash && chmod +x nextflow && mv nextflow /usr/bin
 
@@ -34,8 +32,10 @@ RUN medaka tools download_models \
                  r941_prom_fast_variant_g507 r941_prom_hac_variant_g507 r941_prom_sup_variant_g507 \
                  r941_prom_variant_g303 r941_prom_variant_g322 r941_prom_variant_g360
 
-COPY docker/download_primer_schemes.sh psga/sars_cov_2/ncov-nanopore.config psga/sars_cov_2/ncov-common.config /
-ARG primer_schemes_commit=a60a1e1e73bde1971c680bd3d53076127dd63fc6
-ARG pathogen=SARS-CoV-2
+COPY docker/primer_schemes /primer_schemes
+COPY docker/sars_cov_2.deps psga/sars_cov_2/ncov-nanopore.config psga/sars_cov_2/ncov-common.config /
 
-RUN bash download_primer_schemes.sh ${primer_schemes_commit} ${pathogen}
+RUN . /sars_cov_2.deps \
+  && git clone --recursive https://github.com/Congenica/ncov2019-artic-nf.git \
+  && cd /ncov2019-artic-nf \
+  && git checkout ${ncov_commit}

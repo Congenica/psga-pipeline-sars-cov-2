@@ -1,7 +1,7 @@
 FROM python:3.9
 
 RUN apt-get update \
-  && apt-get install --yes --no-install-recommends build-essential procps wget default-jre openjdk-11-jre-headless libpq-dev rename liblzma-dev libbz2-dev zlib1g-dev \
+  && apt-get install --yes --no-install-recommends build-essential procps wget default-jre libpq-dev rename liblzma-dev libbz2-dev zlib1g-dev \
   && apt-get clean -y \
   && rm -rf /var/lib/apt/lists/*
 
@@ -11,7 +11,7 @@ ENV NXF_VER="22.08.0-edge"
 RUN wget -qO- https://github.com/nextflow-io/nextflow/releases/download/v${NXF_VER}/nextflow-${NXF_VER}-all | bash \
   && chmod +x nextflow \
   && mv nextflow /usr/bin \
-  && nextflow plugins install nf-amazon@1.10.0
+  && nextflow plugin install nf-amazon@1.10.0
 
 RUN wget https://repo1.maven.org/maven2/com/amazonaws/aws-java-sdk-sts/1.12.129/aws-java-sdk-sts-1.12.129.jar \
   && mv aws-java-sdk-sts-1.12.129.jar ~/.nextflow/plugins/nf-amazon-1.10.0/lib/aws-java-sdk-sts-1.12.129.jar
