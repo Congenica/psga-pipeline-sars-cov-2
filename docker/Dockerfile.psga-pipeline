@@ -56,7 +56,7 @@ RUN mkdir -p ${READ_IT_AND_KEEP_DIR} \
 
 
 # pin the versions of pip and poetry
-ENV PIP_VERSION=22.0.4 \
+ENV PIP_VERSION=22.2.2 \
     POETRY_VERSION=1.1.13
 
 ARG pathogen

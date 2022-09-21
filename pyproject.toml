@@ -3,7 +3,7 @@ name = "scripts"
 version = "1.0.0"
 description = ""
 authors = ["Congenica <dev@congenica.com>"]
-license = "Proprietary"
+license = "GNU AFFERO GENERAL PUBLIC LICENSE V3"
 
 [tool.poetry.dependencies]
 awscli = "1.22.50"
