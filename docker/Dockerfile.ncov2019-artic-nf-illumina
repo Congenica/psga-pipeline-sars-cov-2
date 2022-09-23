@@ -1,1 +1,34 @@
-FROM 566277102435.dkr.ecr.eu-west-2.amazonaws.com/congenica/psga-dev/ncov2019-artic-nf-illumina-base:1.0.6
+FROM condaforge/mambaforge:4.14.0-0 AS condabuild
+
+# REQUIREMENTS:
+# * run docker/clone_ncov2019-artic-nf.sh and git add docker/ncov2019-artic-nf_illumina_environment.yml docker/ncov2019-artic-nf_illumina_environment.yml docker/ncov2019-artic-nf_extras.yml
+# * run docker/get_sars_cov_2_primers.sh and git add docker/primer_schemes
+
+COPY docker/ncov2019-artic-nf_illumina_environment.yml /environment.yml
+COPY docker/ncov2019-artic-nf_extras.yml /extras.yml
+# Also reinstall packages to pinned versions, as the conda-selected downgraded ones fail to run
+RUN mamba env create -f /environment.yml \
+  && mamba env update -f /extras.yml -n artic-ncov2019-illumina \
+  && mamba install -y -c conda-forge -c bioconda cutadapt==3.1 dnaio==0.4.4 -n artic-ncov2019-illumina \
+  && conda clean --all -y
+
+
+FROM debian:buster-slim
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends git procps wget rename default-jre \
+  && apt-get clean -y \
+  && rm -rf /var/lib/apt/lists/*
+
+COPY --from=condabuild /opt/conda/envs/artic-ncov2019-illumina /opt/conda/envs/artic-ncov2019-illumina
+
+ENV PATH=/ncov2019-artic-nf/bin:/opt/conda/envs/artic-ncov2019-illumina/bin:$PATH
+
+RUN wget -qO- https://github.com/nextflow-io/nextflow/releases/download/v21.10.6/nextflow | bash && chmod +x nextflow && mv nextflow /usr/bin
+
+COPY docker/primer_schemes /primer_schemes
+COPY docker/sars_cov_2.deps psga/sars_cov_2/ncov-illumina.config psga/sars_cov_2/ncov-common.config /
+
+RUN . /sars_cov_2.deps \
+  && git clone --recursive https://github.com/Congenica/ncov2019-artic-nf.git \
+  && cd /ncov2019-artic-nf \
+  && git checkout ${ncov_commit}

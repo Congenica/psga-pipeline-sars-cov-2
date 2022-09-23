@@ -34,7 +34,6 @@ eval $(minikube -p minikube docker-env)
 
 Build the pipeline docker images in the minikube docker environment:
 ```commandline
-make base-images
 make sars-cov-2-images
 ```
 
@@ -84,6 +83,7 @@ In order to add the pathogen `pathogenX` to the pipeline, change dir to `psga` a
 `Poetry` manages Python dependencies. Dependencies are declared in `pyproject.toml` and exact versions of both dependencies and sub-dependencies are stored in `poetry.lock`. Both are committed to the git repo.
 
 #### Setting up your local environment
+The pipeline scripts and tests are code for Python 3.10.
 Follow the [instructions](https://python-poetry.org/docs/) to install Poetry depending on your local environment. Then run:
 ```commandline
 poetry install

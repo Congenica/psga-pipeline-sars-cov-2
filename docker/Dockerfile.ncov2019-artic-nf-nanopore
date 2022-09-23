@@ -1,1 +1,41 @@
-FROM 566277102435.dkr.ecr.eu-west-2.amazonaws.com/congenica/psga-dev/ncov2019-artic-nf-nanopore-base:1.0.6
+FROM condaforge/mambaforge:4.14.0-0 AS condabuild
+
+# REQUIREMENTS:
+# * run docker/clone_ncov2019-artic-nf.sh and git add docker/ncov2019-artic-nf_illumina_environment.yml docker/ncov2019-artic-nf_illumina_environment.yml docker/ncov2019-artic-nf_extras.yml
+# * run docker/get_sars_cov_2_primers.sh and git add docker/primer_schemes
+
+COPY docker/ncov2019-artic-nf_nanopore_environment.yml /environment.yml
+COPY docker/ncov2019-artic-nf_extras.yml /extras.yml
+# Also reinstall these two packages to their latest version, as the conda-selected downgraded ones fail to run
+RUN mamba env create -f /environment.yml \
+  && mamba env update -f /extras.yml -n artic \
+  && mamba install -y -c conda-forge -c bioconda cutadapt==3.1 dnaio==0.4.4 -n artic \
+  && conda clean --all -y
+
+
+FROM debian:buster-slim
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends git procps wget rename default-jre \
+  && apt-get clean -y \
+  && rm -rf /var/lib/apt/lists/*
+
+COPY --from=condabuild /opt/conda/envs/artic /opt/conda/envs/artic
+
+ENV PATH=/ncov2019-artic-nf/bin:/opt/conda/envs/artic/bin:$PATH
+
+RUN wget -qO- https://github.com/nextflow-io/nextflow/releases/download/v21.10.6/nextflow | bash && chmod +x nextflow && mv nextflow /usr/bin
+
+# install medaka models
+RUN medaka tools download_models \
+        --models r103_fast_variant_g507 r103_hac_variant_g507 r103_prom_variant_g3210 r103_sup_variant_g507 \
+                 r941_min_fast_variant_g507 r941_min_hac_variant_g507 r941_min_sup_variant_g507 \
+                 r941_prom_fast_variant_g507 r941_prom_hac_variant_g507 r941_prom_sup_variant_g507 \
+                 r941_prom_variant_g303 r941_prom_variant_g322 r941_prom_variant_g360
+
+COPY docker/primer_schemes /primer_schemes
+COPY docker/sars_cov_2.deps psga/sars_cov_2/ncov-nanopore.config psga/sars_cov_2/ncov-common.config /
+
+RUN . /sars_cov_2.deps \
+  && git clone --recursive https://github.com/Congenica/ncov2019-artic-nf.git \
+  && cd /ncov2019-artic-nf \
+  && git checkout ${ncov_commit}
