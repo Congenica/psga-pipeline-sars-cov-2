@@ -1,4 +1,5 @@
 from pathlib import Path
+from os.path import join as join_path  # used to join FS paths and S3 URIs
 from typing import List
 import click
 
@@ -13,7 +14,7 @@ from scripts.util.metadata import UNKNOWN
 logger = get_structlog_logger()
 
 
-def get_expected_output_files(output_path: Path, sample_ids: List[str], sequencing_technology: str) -> List[Path]:
+def get_expected_output_files(output_path: str, sample_ids: List[str], sequencing_technology: str) -> List[str]:
     """
     Return a list of ALL expected output paths
     """
@@ -34,7 +35,7 @@ def get_expected_output_files(output_path: Path, sample_ids: List[str], sequenci
     output_files = [path for sample_paths in output_files_per_sample.values() for path in sample_paths]
 
     output_files.extend(
-        [output_path / "logs" / f for f in ["check_metadata.log", "generate_pipeline_results_files.log"]]
+        [join_path(output_path, "logs", f) for f in ["check_metadata.log", "generate_pipeline_results_files.log"]]
     )
 
     notification_files = [
@@ -53,12 +54,12 @@ def get_expected_output_files(output_path: Path, sample_ids: List[str], sequenci
                 "samples_unknown_ncov_qc.txt",
             ]
         )
-        output_files.append(output_path / "ncov2019-artic" / "ncov_qc.csv")
+        output_files.append(join_path(output_path, "ncov2019-artic", "ncov_qc.csv"))
 
-    output_files.append(output_path / "pangolin" / "all_lineages_report.csv")
-    output_files.extend([output_path / "notifications" / p for p in notification_files])
-    output_files.append(output_path / "results.csv")
-    output_files.append(output_path / "resultfiles.json")
+    output_files.append(join_path(output_path, "pangolin", "all_lineages_report.csv"))
+    output_files.extend([join_path(output_path, "notifications", p) for p in notification_files])
+    output_files.append(join_path(output_path, "results.csv"))
+    output_files.append(join_path(output_path, "resultfiles.json"))
 
     return output_files
 
@@ -88,6 +89,6 @@ def sars_cov_2(ctx, sequencing_technology: str):
 
     logger.info("Validation of output files set STARTED")
     exp_output_files = get_expected_output_files(output_path, sample_ids, sequencing_technology)
-    calc_output_files = get_file_paths(output_path)
+    calc_output_files = get_file_paths(Path(output_path))
     compare_output_files_set(set(calc_output_files), set(exp_output_files))
     logger.info("Validation PASSED")

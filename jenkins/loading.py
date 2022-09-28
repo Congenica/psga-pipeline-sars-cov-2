@@ -39,14 +39,14 @@ def load_data_from_csv(config: Dict, csv_path: Path) -> pd.DataFrame:
     return _refine_df(config, df)
 
 
-def get_file_paths(root: Path) -> List[Path]:
+def get_file_paths(root: Path) -> List[str]:
     """
     Return a list of file paths in root. The search is recursive.
     """
     file_list = []
     for x in root.iterdir():
         if x.is_file():
-            file_list.append(x)
+            file_list.append(str(x))
         elif x.is_dir():
             file_list.extend(get_file_paths(x))
     return file_list

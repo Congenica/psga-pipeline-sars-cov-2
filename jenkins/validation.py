@@ -36,7 +36,7 @@ def validate(ctx, results_csv, expected_results_csv, output_path):
 
     ctx.obj["results_csv"] = Path(results_csv)
     ctx.obj["expected_results_csv"] = Path(expected_results_csv)
-    ctx.obj["output_path"] = Path(output_path)
+    ctx.obj["output_path"] = output_path  # leave this as a string as it can be FS path or S3 uri
 
 
 validate.add_command(sars_cov_2)

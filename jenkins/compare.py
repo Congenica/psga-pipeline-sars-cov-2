@@ -106,7 +106,7 @@ def compare_merged_output_file(
     return sample_names
 
 
-def compare_output_files_set(calc_output_files: Set[Path], exp_output_files: Set[Path]) -> None:
+def compare_output_files_set(calc_output_files: Set[str], exp_output_files: Set[str]) -> None:
     """
     Compare the expected set of output files against the actual set of output files.
     """
