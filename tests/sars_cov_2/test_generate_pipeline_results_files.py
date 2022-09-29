@@ -30,6 +30,10 @@ def check_sample_list(input_path, expected_samples):
 
 
 @pytest.mark.parametrize(
+    "use_s3_uri",
+    [False, True],
+)
+@pytest.mark.parametrize(
     "metadata,ncov_csv,pangolin_csv,analysis_run_name,sequencing_technology,"
     "exp_lists,exp_results_csv,exp_resultfiles_json",
     [
@@ -106,10 +110,13 @@ def test_generate_pipeline_results_files(
     exp_lists,
     exp_results_csv,
     exp_resultfiles_json,
+    use_s3_uri,
 ):
 
     output_csv_file = Path(tmp_path / "results.csv")
     output_json_file = Path(tmp_path / "resultfiles.json")
+
+    output_path = "s3://bucket/analysis_run" if use_s3_uri else tmp_path
 
     args = [
         "--analysis-run-name",
@@ -123,7 +130,7 @@ def test_generate_pipeline_results_files(
         "--output-json-file",
         output_json_file,
         "--output-path",
-        tmp_path,
+        output_path,
         "--sequencing-technology",
         sequencing_technology,
         "--notifications-path",
@@ -177,7 +184,7 @@ def test_generate_pipeline_results_files(
         calc_resultfiles_json_dict = json.load(json_fd)
 
     exp_result_files_json_dict_full_path = {
-        sample_id: sorted([f"{str(tmp_path)}/{f}" for f in files])
+        sample_id: sorted([f"{str(output_path)}/{f}" for f in files])
         for sample_id, files in exp_resultfiles_json_dict.items()
     }
     calc_result_files_json_dict_sorted = {
