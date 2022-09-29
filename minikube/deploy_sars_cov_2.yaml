@@ -51,6 +51,12 @@ spec:
           value: '1.0.0'
         - name: PANGOLIN_DOCKER_IMAGE_TAG
           value: '1.0.0'
+        - name: AWS_CONNECTION_TIMEOUT
+          value: '10000'
+        - name: AWS_MAX_CONNECTIONS
+          value: '20'
+        - name: AWS_MAX_PARALLEL_TRANSFERS
+          value: '5'
         - name: K8S_NODE
           value: farmNode
         - name: K8S_PULL_POLICY
