@@ -148,6 +148,9 @@ spec:
         OUTPUT_PATH                                 = "${params.OUTPUT_PATH}"
 
         // other configs
+        AWS_CONNECTION_TIMEOUT                      = "10000"
+        AWS_MAX_CONNECTIONS                         = "20"
+        AWS_MAX_PARALLEL_TRANSFERS                  = "5"
         K8S_NODE                                    = "${params.K8S_NODE}"
         K8S_PULL_POLICY                             = "${params.K8S_PULL_POLICY}"
         PSGA_ROOT_PATH                              = "/app"
