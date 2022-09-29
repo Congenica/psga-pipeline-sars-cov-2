@@ -1,3 +1,4 @@
+from os.path import join as join_path  # used to join FS paths and S3 URIs
 from pathlib import Path, PosixPath
 from typing import Dict, List, Set, Tuple
 from dataclasses import dataclass, field
@@ -245,18 +246,18 @@ def _generate_results_csv(
 
 
 def get_expected_output_files_per_sample(
-    output_path: Path,
+    output_path: str,
     sample_ids_result_files: SampleIdResultFiles,
     sequencing_technology: str,
-) -> Dict[str, List[Path]]:
+) -> Dict[str, List[str]]:
     """
     Return a dictionary {sample_id, list_of_expected_output_paths}
     """
     # initialise the dictionary keys
-    output_files: Dict[str, List[Path]] = {sample_id: [] for sample_id in sample_ids_result_files.all_samples}
+    output_files: Dict[str, List[str]] = {sample_id: [] for sample_id in sample_ids_result_files.all_samples}
 
     def _append_reheadered_fasta(output_path, sample_id, output_files):
-        output_files[sample_id].append(output_path / "reheadered-fasta" / f"{sample_id}.fasta")
+        output_files[sample_id].append(join_path(output_path, "reheadered-fasta", f"{sample_id}.fasta"))
 
     if sequencing_technology == UNKNOWN:
         # FASTA samples
@@ -283,25 +284,37 @@ def get_expected_output_files_per_sample(
             # expected files for all samples
             output_files[sample_id].extend(
                 [
-                    output_path / "contamination_removal" / "cleaned_fastq" / f"{sample_id}{e}"
+                    join_path(output_path, "contamination_removal", "cleaned_fastq", f"{sample_id}{e}")
                     for e in contamination_removal_suffixes
                 ]
             )
-            output_files[sample_id].append(output_path / "contamination_removal" / "counting" / f"{sample_id}.txt")
-            output_files[sample_id].extend([output_path / "fastqc" / f"{sample_id}_{e}" for e in fastqc_suffixes])
+            output_files[sample_id].append(
+                join_path(output_path, "contamination_removal", "counting", f"{sample_id}.txt")
+            )
+            output_files[sample_id].extend(
+                [join_path(output_path, "fastqc", f"{sample_id}_{e}") for e in fastqc_suffixes]
+            )
 
         for sample_id in sample_ids_result_files.ncov_completed_samples:
             # expected files for samples which completed ncov
             output_files[sample_id].extend(
-                [output_path / "ncov2019-artic" / "output_bam" / f"{sample_id}{e}" for e in ncov_bam_suffixes]
+                [join_path(output_path, "ncov2019-artic", "output_bam", f"{sample_id}{e}") for e in ncov_bam_suffixes]
             )
             output_files[sample_id].extend(
-                [output_path / "ncov2019-artic" / "output_fasta" / f"{sample_id}{e}" for e in ncov_fasta_suffixes]
+                [
+                    join_path(output_path, "ncov2019-artic", "output_fasta", f"{sample_id}{e}")
+                    for e in ncov_fasta_suffixes
+                ]
             )
             output_files[sample_id].extend(
-                [output_path / "ncov2019-artic" / "output_variants" / f"{sample_id}{e}" for e in ncov_variants_suffixes]
+                [
+                    join_path(output_path, "ncov2019-artic", "output_variants", f"{sample_id}{e}")
+                    for e in ncov_variants_suffixes
+                ]
             )
-            output_files[sample_id].append(output_path / "ncov2019-artic" / "output_plots" / f"{sample_id}.depth.png")
+            output_files[sample_id].append(
+                join_path(output_path, "ncov2019-artic", "output_plots", f"{sample_id}.depth.png")
+            )
 
         for sample_id in sample_ids_result_files.ncov_qc_passed_samples:
             # expected files for samples which passed ncov QC
@@ -313,7 +326,7 @@ def get_expected_output_files_per_sample(
 def _generate_resultfiles_json(
     sequencing_technology: str,
     sample_ids_result_files: SampleIdResultFiles,
-    output_path: Path,
+    output_path: str,
     output_json_file: Path,
 ) -> None:
     """
@@ -421,9 +434,7 @@ def generate_pipeline_results_files(
         else list(events[PASSED_NCOV].samples),
     )
 
-    _generate_resultfiles_json(
-        sequencing_technology, sample_ids_result_files, Path(output_path), Path(output_json_file)
-    )
+    _generate_resultfiles_json(sequencing_technology, sample_ids_result_files, output_path, Path(output_json_file))
 
 
 if __name__ == "__main__":

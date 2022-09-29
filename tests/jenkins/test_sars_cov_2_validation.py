@@ -16,7 +16,7 @@ from tests.jenkins.util import create_paths
 def create_output_files(samples: Path, root: Path, sequencing_technology: str):
     df = pd.read_csv(samples)
     sample_names = df[SAMPLE_ID].tolist()
-    paths = get_expected_output_files(root, sample_names, sequencing_technology)
+    paths = get_expected_output_files(str(root), sample_names, sequencing_technology)
     create_paths(paths)
 
 

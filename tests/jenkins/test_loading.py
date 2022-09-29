@@ -1,3 +1,4 @@
+import os
 import pytest
 
 import pandas as pd
@@ -86,7 +87,7 @@ def test_load_data_from_csv(tmp_path, test_data_path, csv_file, config, exc):
     ],
 )
 def test_get_file_paths(tmp_path, path_list):
-    paths = [tmp_path / f for f in path_list]
+    paths = [os.path.join(tmp_path, f) for f in path_list]
     create_paths(paths)
     fetched_paths = get_file_paths(tmp_path)
     assert set(fetched_paths) == set(paths)
