@@ -5,12 +5,16 @@ def printMainConfig() {
         =====================
         Global environment variables:
         * DOCKER_IMAGE_URI_PATH                       : ${DOCKER_IMAGE_URI_PATH}
+        * AWS_CONNECTION_TIMEOUT                      : ${AWS_CONNECTION_TIMEOUT}
+        * AWS_MAX_CONNECTIONS                         : ${AWS_MAX_CONNECTIONS}
+        * AWS_MAX_PARALLEL_TRANSFERS                  : ${AWS_MAX_PARALLEL_TRANSFERS}
         * K8S_NODE                                    : ${K8S_NODE}
         * K8S_PULL_POLICY                             : ${K8S_PULL_POLICY}
         * K8S_SERVICE_ACCOUNT                         : ${K8S_SERVICE_ACCOUNT}
-        * K8S_QUEUE_SIZE                              : ${K8S_QUEUE_SIZE}
         * K8S_STORAGE_CLAIM_NAME                      : ${K8S_STORAGE_CLAIM_NAME}
         * K8S_STORAGE_MOUNT_PATH                      : ${K8S_STORAGE_MOUNT_PATH}
+        * QUEUE                                       : ${QUEUE}
+        * QUEUE_SIZE                                  : ${QUEUE_SIZE}
         * NXF_WORK                                    : ${NXF_WORK}
         * NXF_EXECUTOR                                : ${NXF_EXECUTOR}
         * NXF_OPTS                                    : ${NXF_OPTS}
@@ -32,25 +36,32 @@ def printMainHelp() {
     Generic configuration for all pathogens:
       Mandatory environment variables:
         DOCKER_IMAGE_URI_PATH   The prefix of the docker image, excluded the image name
+        AWS_CONNECTION_TIMEOUT
+                                The amount of time to wait (in milliseconds) when initially establishing a connection before giving up and timing out
+        AWS_MAX_CONNECTIONS
+                                The maximum number of allowed open HTTP connections
+        AWS_MAX_PARALLEL_TRANSFERS
+                                Max parallel upload/download transfer operations per job
         K8S_NODE                The Kubernetes node for nodeAffinity
         K8S_PULL_POLICY         The Kubernetes docker image pull policy (e.g. Always, Never)
         K8S_SERVICE_ACCOUNT     The Kubernetes service account
-        K8S_QUEUE_SIZE          The maximum number of processes to run at the same time (default: 20)
         K8S_STORAGE_CLAIM_NAME  The Kubernetes PVC claim
         K8S_STORAGE_MOUNT_PATH  The Kubernetes mount path (default: /data)
-        K8S_PROCESS_MAX_RETRIES The maximum number that a process can be retried if a non-zero exit status is returned (default: 3)
-        K8S_PROCESS_CPU_LOW     Value for a process using little CPU. There is no need to change this as the pipeline was designed for high scalability (default: 1)
-        K8S_PROCESS_CPU_HIGH    Value for a process using a lot of CPU. There is no need to change this as the pipeline was designed for high scalability (default: 2)
-        K8S_PROCESS_MEMORY_VERY_LOW
+        QUEUE                   The name of the queue where jobs are scheduled when using a grid based executor in your pipeline
+        QUEUE_SIZE              The maximum number of processes to run at the same time (default: 20)
+        PROCESS_MAX_RETRIES     The maximum number that a process can be retried if a non-zero exit status is returned (default: 3)
+        PROCESS_CPU_LOW         Value for a process using little CPU. There is no need to change this as the pipeline was designed for high scalability (default: 1)
+        PROCESS_CPU_HIGH        Value for a process using a lot of CPU. There is no need to change this as the pipeline was designed for high scalability (default: 2)
+        PROCESS_MEMORY_VERY_LOW
                                 Value for a process using very low memory in MB (default: 250)
-        K8S_PROCESS_MEMORY_LOW  Value for a process using low memory in MB (default: 500)
-        K8S_PROCESS_MEMORY_MEDIUM
+        PROCESS_MEMORY_LOW  Value for a process using low memory in MB (default: 500)
+        PROCESS_MEMORY_MEDIUM
                                 Value for a process using medium memory in MB (default: 1500)
-        K8S_PROCESS_MEMORY_HIGH Value for a process using high memory in MB (default: 3000)
-        K8S_PROCESS_MEMORY_VERY_HIGH
+        PROCESS_MEMORY_HIGH Value for a process using high memory in MB (default: 3000)
+        PROCESS_MEMORY_VERY_HIGH
                                 Value for a process using very high memory in MB (default: 6000)
-        NXF_WORK                Set Nextflow work directory (e.g. /data/work)
-        NXF_EXECUTOR            Set Nextflow executor (default: k8s)
+        NXF_WORK                Set Nextflow work directory (e.g. /data/work; s3://work/dir)
+        NXF_EXECUTOR            Set Nextflow executor (e.g. k8s, awsbatch)
         NXF_OPTS                Pass JVM options to Nextflow (default: -Xms1g -Xmx4g)
 
       Mandatory parameters:

@@ -64,15 +64,15 @@ pipeline {
         string(name: 'K8S_NODE', defaultValue: 'farmNode', description: 'The Kubernetes node to use as a nodeAffinity for worker jobs')
         string(name: 'K8S_PULL_POLICY', defaultValue: 'Always', description: 'The Kubernetes pull policy for docker images')
         string(name: 'K8S_STORAGE_MOUNT_PATH', defaultValue: '/data', description: 'The K8S storage mount path')
-        string(name: 'K8S_QUEUE_SIZE', defaultValue: '5', description: 'The K8S job queue size')
-        string(name: 'K8S_PROCESS_MAX_RETRIES', defaultValue: '3', description: 'The number of maximum retries for pipeline jobs')
-        string(name: 'K8S_PROCESS_CPU_LOW', defaultValue: '1', description: 'The lowest number of cpus. The majority of jobs use this.')
-        string(name: 'K8S_PROCESS_CPU_HIGH', defaultValue: '2', description: 'The highest number of cpus')
-        string(name: 'K8S_PROCESS_MEMORY_VERY_LOW', defaultValue: '250', description: 'Memory setting')
-        string(name: 'K8S_PROCESS_MEMORY_LOW', defaultValue: '500', description: 'Memory setting')
-        string(name: 'K8S_PROCESS_MEMORY_MEDIUM', defaultValue: '1500', description: 'Memory setting')
-        string(name: 'K8S_PROCESS_MEMORY_HIGH', defaultValue: '3000', description: 'Memory setting')
-        string(name: 'K8S_PROCESS_MEMORY_VERY_HIGH', defaultValue: '6000', description: 'Memory setting')
+        string(name: 'QUEUE_SIZE', defaultValue: '5', description: 'The K8S job queue size')
+        string(name: 'PROCESS_MAX_RETRIES', defaultValue: '3', description: 'The number of maximum retries for pipeline jobs')
+        string(name: 'PROCESS_CPU_LOW', defaultValue: '1', description: 'The lowest number of cpus. The majority of jobs use this.')
+        string(name: 'PROCESS_CPU_HIGH', defaultValue: '2', description: 'The highest number of cpus')
+        string(name: 'PROCESS_MEMORY_VERY_LOW', defaultValue: '250', description: 'Memory setting')
+        string(name: 'PROCESS_MEMORY_LOW', defaultValue: '500', description: 'Memory setting')
+        string(name: 'PROCESS_MEMORY_MEDIUM', defaultValue: '1500', description: 'Memory setting')
+        string(name: 'PROCESS_MEMORY_HIGH', defaultValue: '3000', description: 'Memory setting')
+        string(name: 'PROCESS_MEMORY_VERY_HIGH', defaultValue: '6000', description: 'Memory setting')
         string(name: 'NXF_OPTS', defaultValue: '-Xms1g -Xmx4g', description: 'Nextflow options')
 
     }
@@ -153,18 +153,18 @@ spec:
         K8S_PULL_POLICY                             = "${params.K8S_PULL_POLICY}"
         PSGA_ROOT_PATH                              = "/app"
         DOCKER_IMAGE_URI_PATH                       = "${params.DOCKER_IMAGE_URI_PATH}"
-        K8S_QUEUE_SIZE                              = "${params.K8S_QUEUE_SIZE}"
+        QUEUE_SIZE                                  = "${params.QUEUE_SIZE}"
         K8S_SERVICE_ACCOUNT                         = "${params.NAMESPACE}-admin"
         K8S_STORAGE_CLAIM_NAME                      = "${params.NAMESPACE}-pvc"
         K8S_STORAGE_MOUNT_PATH                      = "${params.K8S_STORAGE_MOUNT_PATH}"
-        K8S_PROCESS_MAX_RETRIES                     = "${params.K8S_PROCESS_MAX_RETRIES}"
-        K8S_PROCESS_CPU_LOW                         = "${params.K8S_PROCESS_CPU_LOW}"
-        K8S_PROCESS_CPU_HIGH                        = "${params.K8S_PROCESS_CPU_HIGH}"
-        K8S_PROCESS_MEMORY_VERY_LOW                 = "${params.K8S_PROCESS_MEMORY_VERY_LOW}"
-        K8S_PROCESS_MEMORY_LOW                      = "${params.K8S_PROCESS_MEMORY_LOW}"
-        K8S_PROCESS_MEMORY_MEDIUM                   = "${params.K8S_PROCESS_MEMORY_MEDIUM}"
-        K8S_PROCESS_MEMORY_HIGH                     = "${params.K8S_PROCESS_MEMORY_HIGH}"
-        K8S_PROCESS_MEMORY_VERY_HIGH                = "${params.K8S_PROCESS_MEMORY_VERY_HIGH}"
+        PROCESS_MAX_RETRIES                         = "${params.PROCESS_MAX_RETRIES}"
+        PROCESS_CPU_LOW                             = "${params.PROCESS_CPU_LOW}"
+        PROCESS_CPU_HIGH                            = "${params.PROCESS_CPU_HIGH}"
+        PROCESS_MEMORY_VERY_LOW                     = "${params.PROCESS_MEMORY_VERY_LOW}"
+        PROCESS_MEMORY_LOW                          = "${params.PROCESS_MEMORY_LOW}"
+        PROCESS_MEMORY_MEDIUM                       = "${params.PROCESS_MEMORY_MEDIUM}"
+        PROCESS_MEMORY_HIGH                         = "${params.PROCESS_MEMORY_HIGH}"
+        PROCESS_MEMORY_VERY_HIGH                    = "${params.PROCESS_MEMORY_VERY_HIGH}"
         NXF_WORK                                    = "${params.NXF_WORK}"
         NXF_ANSI_LOG                                = "false"
         NXF_EXECUTOR                                = "k8s"
