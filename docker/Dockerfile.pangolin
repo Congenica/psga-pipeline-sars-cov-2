@@ -17,9 +17,10 @@ RUN apt-get update \
 COPY --from=condabuild /opt/conda/envs/pangolin /opt/conda/envs/pangolin
 ENV PATH=/opt/conda/envs/pangolin/bin:$PATH
 
-COPY docker/sars_cov_2.deps /
+ARG pathogen
+COPY docker/${pathogen}.deps /
 
-RUN . /sars_cov_2.deps \
+RUN . /${pathogen}.deps \
   && git clone https://github.com/cov-lineages/pangolin.git \
   && pip install awscli==1.22.50 \
   && cd pangolin \

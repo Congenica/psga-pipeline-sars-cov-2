@@ -1,3 +1,8 @@
+fastqc_version=0.11.9
+readitandkeep_version=0.3.0
+trimmomatic_version=0.39
+bowtie2_version=2.4.2
+samtools_version=1.16.1
 ncov_commit=afa4c7f2eb176212444bd6afe785a9251f95f792
 primer_schemes_commit=a60a1e1e73bde1971c680bd3d53076127dd63fc6
 pangolin_commit=d640422bb945ea4c6e9ad7397d650a51474226fc

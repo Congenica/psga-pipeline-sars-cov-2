@@ -1,0 +1,24 @@
+# FROM python:3.10.7-slim-bullseye
+FROM openjdk:11-jre-slim-bullseye
+# keep python instead of openjdk:11-jre-slim-bullseye, as the image above comes with all the required dependencies.
+
+# install default-jre as fastqc needs extra packages
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends procps wget unzip default-jre perl \
+  && apt-get clean -y \
+  && rm -rf /var/lib/apt/lists/*
+
+ARG pathogen
+COPY docker/${pathogen}.deps /
+
+# install fastqc
+RUN . /${pathogen}.deps \
+  && cd /opt \
+  && wget https://www.bioinformatics.babraham.ac.uk/projects/fastqc/fastqc_v${fastqc_version}.zip \
+  && unzip fastqc_v${fastqc_version}.zip \
+  && chmod 755 FastQC/fastqc \
+  && ln -s /opt/FastQC/fastqc /usr/local/bin/fastqc \
+  && rm fastqc_v${fastqc_version}.zip
+
+# overwrite fastqc configuration so that we only run the QC tests we need
+COPY data/fastqc_config_limits.txt /opt/FastQC/Configuration/limits.txt

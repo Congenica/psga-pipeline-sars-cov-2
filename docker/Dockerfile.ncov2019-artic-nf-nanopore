@@ -32,10 +32,11 @@ RUN medaka tools download_models \
                  r941_prom_fast_variant_g507 r941_prom_hac_variant_g507 r941_prom_sup_variant_g507 \
                  r941_prom_variant_g303 r941_prom_variant_g322 r941_prom_variant_g360
 
+ARG pathogen
+COPY docker/${pathogen}.deps psga/sars_cov_2/ncov-nanopore.config psga/sars_cov_2/ncov-common.config /
 COPY docker/primer_schemes /primer_schemes
-COPY docker/sars_cov_2.deps psga/sars_cov_2/ncov-nanopore.config psga/sars_cov_2/ncov-common.config /
 
-RUN . /sars_cov_2.deps \
+RUN . /${pathogen}.deps \
   && pip install awscli==1.22.50 \
   && git clone --recursive https://github.com/Congenica/ncov2019-artic-nf.git \
   && cd /ncov2019-artic-nf \

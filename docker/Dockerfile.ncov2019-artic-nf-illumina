@@ -25,10 +25,11 @@ ENV PATH=/ncov2019-artic-nf/bin:/opt/conda/envs/artic-ncov2019-illumina/bin:$PAT
 
 RUN wget -qO- https://github.com/nextflow-io/nextflow/releases/download/v21.10.6/nextflow | bash && chmod +x nextflow && mv nextflow /usr/bin
 
+ARG pathogen
+COPY docker/${pathogen}.deps psga/sars_cov_2/ncov-illumina.config psga/sars_cov_2/ncov-common.config /
 COPY docker/primer_schemes /primer_schemes
-COPY docker/sars_cov_2.deps psga/sars_cov_2/ncov-illumina.config psga/sars_cov_2/ncov-common.config /
 
-RUN . /sars_cov_2.deps \
+RUN . /${pathogen}.deps \
   && pip install awscli==1.22.50 \
   && git clone --recursive https://github.com/Congenica/ncov2019-artic-nf.git \
   && cd /ncov2019-artic-nf \
