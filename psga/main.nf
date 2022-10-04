@@ -26,8 +26,7 @@ include { psga } from "./psga.nf"
 // Required environment variables
 // Add new env variables to common/help.nf
 if( "[:]" in [
-    PSGA_ROOT_PATH,
-    DOCKER_IMAGE_PREFIX,
+    DOCKER_IMAGE_URI_PATH,
     AWS_CONNECTION_TIMEOUT,
     AWS_MAX_CONNECTIONS,
     AWS_MAX_PARALLEL_TRANSFERS,
@@ -47,7 +46,6 @@ if( "[:]" in [
     K8S_PROCESS_MEMORY_VERY_HIGH,
     NXF_WORK,
     NXF_EXECUTOR,
-    NXF_ANSI_LOG,
     NXF_OPTS
     ]) {
     throw new Exception("Found unset global environment variables. See '[:]' above. Abort")

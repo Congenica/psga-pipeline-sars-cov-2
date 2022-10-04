@@ -4,7 +4,7 @@ def printMainConfig() {
         ${workflow.manifest.name} v ${workflow.manifest.version}
         =====================
         Global environment variables:
-        * DOCKER_IMAGE_PREFIX                         : ${DOCKER_IMAGE_PREFIX}
+        * DOCKER_IMAGE_URI_PATH                       : ${DOCKER_IMAGE_URI_PATH}
         * K8S_NODE                                    : ${K8S_NODE}
         * K8S_PULL_POLICY                             : ${K8S_PULL_POLICY}
         * K8S_SERVICE_ACCOUNT                         : ${K8S_SERVICE_ACCOUNT}
@@ -31,7 +31,7 @@ def printMainHelp() {
 
     Generic configuration for all pathogens:
       Mandatory environment variables:
-        DOCKER_IMAGE_PREFIX     The prefix of the docker image, excluded the image name
+        DOCKER_IMAGE_URI_PATH   The prefix of the docker image, excluded the image name
         K8S_NODE                The Kubernetes node for nodeAffinity
         K8S_PULL_POLICY         The Kubernetes docker image pull policy (e.g. Always, Never)
         K8S_SERVICE_ACCOUNT     The Kubernetes service account
