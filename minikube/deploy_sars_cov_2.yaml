@@ -56,27 +56,27 @@ spec:
           value: Never
         - name: K8S_SERVICE_ACCOUNT
           value: psga-minikube-admin
-        - name: K8S_QUEUE_SIZE
+        - name: QUEUE_SIZE
           value: '5'
         - name: K8S_STORAGE_CLAIM_NAME
           value: psga-minikube-pvc
         - name: K8S_STORAGE_MOUNT_PATH
           value: /data
-        - name: K8S_PROCESS_MAX_RETRIES
+        - name: PROCESS_MAX_RETRIES
           value: '3'
-        - name: K8S_PROCESS_CPU_LOW
+        - name: PROCESS_CPU_LOW
           value: '1'
-        - name: K8S_PROCESS_CPU_HIGH
+        - name: PROCESS_CPU_HIGH
           value: '2'
-        - name: K8S_PROCESS_MEMORY_VERY_LOW
+        - name: PROCESS_MEMORY_VERY_LOW
           value: '250'
-        - name: K8S_PROCESS_MEMORY_LOW
+        - name: PROCESS_MEMORY_LOW
           value: '500'
-        - name: K8S_PROCESS_MEMORY_MEDIUM
+        - name: PROCESS_MEMORY_MEDIUM
           value: '1000'
-        - name: K8S_PROCESS_MEMORY_HIGH
+        - name: PROCESS_MEMORY_HIGH
           value: '2000'
-        - name: K8S_PROCESS_MEMORY_VERY_HIGH
+        - name: PROCESS_MEMORY_VERY_HIGH
           value: '4000'
         - name: NXF_WORK
           value: /data/work
