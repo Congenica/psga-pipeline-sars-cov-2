@@ -40,9 +40,7 @@ spec:
             cpu: "2"
             memory: 6Gi
         env:
-        - name: PSGA_ROOT_PATH
-          value: /app
-        - name: DOCKER_IMAGE_PREFIX
+        - name: DOCKER_IMAGE_URI_PATH
           value: '566277102435.dkr.ecr.eu-west-2.amazonaws.com/congenica/psga-dev'
         - name: SARS_COV_2_PIPELINE_DOCKER_IMAGE
           value: 'sars-cov-2-pipeline'

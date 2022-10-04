@@ -4,8 +4,7 @@ def printMainConfig() {
         ${workflow.manifest.name} v ${workflow.manifest.version}
         =====================
         Global environment variables:
-        * PSGA_ROOT_PATH                              : ${PSGA_ROOT_PATH}
-        * DOCKER_IMAGE_PREFIX                         : ${DOCKER_IMAGE_PREFIX}
+        * DOCKER_IMAGE_URI_PATH                       : ${DOCKER_IMAGE_URI_PATH}
         * K8S_NODE                                    : ${K8S_NODE}
         * K8S_PULL_POLICY                             : ${K8S_PULL_POLICY}
         * K8S_SERVICE_ACCOUNT                         : ${K8S_SERVICE_ACCOUNT}
@@ -14,7 +13,6 @@ def printMainConfig() {
         * K8S_STORAGE_MOUNT_PATH                      : ${K8S_STORAGE_MOUNT_PATH}
         * NXF_WORK                                    : ${NXF_WORK}
         * NXF_EXECUTOR                                : ${NXF_EXECUTOR}
-        * NXF_ANSI_LOG                                : ${NXF_ANSI_LOG}
         * NXF_OPTS                                    : ${NXF_OPTS}
 
         Global parameters:
@@ -33,9 +31,7 @@ def printMainHelp() {
 
     Generic configuration for all pathogens:
       Mandatory environment variables:
-        PSGA_ROOT_PATH
-                                Path to the pipeline code (e.g. git checkout). (e.g. /app) |
-        DOCKER_IMAGE_PREFIX     The prefix of the docker image, excluded the image name
+        DOCKER_IMAGE_URI_PATH   The prefix of the docker image, excluded the image name
         K8S_NODE                The Kubernetes node for nodeAffinity
         K8S_PULL_POLICY         The Kubernetes docker image pull policy (e.g. Always, Never)
         K8S_SERVICE_ACCOUNT     The Kubernetes service account
@@ -55,7 +51,6 @@ def printMainHelp() {
                                 Value for a process using very high memory in MB (default: 6000)
         NXF_WORK                Set Nextflow work directory (e.g. /data/work)
         NXF_EXECUTOR            Set Nextflow executor (default: k8s)
-        NXF_ANSI_LOG            Enable Nextflow ANSI log (default: false)
         NXF_OPTS                Pass JVM options to Nextflow (default: -Xms1g -Xmx4g)
 
       Mandatory parameters:
