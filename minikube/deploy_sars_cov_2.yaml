@@ -26,19 +26,14 @@ spec:
       - image: 566277102435.dkr.ecr.eu-west-2.amazonaws.com/congenica/psga-dev/sars-cov-2-pipeline:1.0.0
         name: sars-cov-2-pipeline-minikube
         command:
-        - python
+        - /bin/bash
         args:
-        - autoresumer.py
+        - -c
+        - "while true; do sleep 30; done;"
         imagePullPolicy: Never
         env:
         - name: PSGA_ROOT_PATH
           value: /app
-        - name: PSGA_INCOMPLETE_ANALYSIS_RUNS_PATH
-          value: /data/incomplete_analysis_runs
-        - name: PSGA_MAX_ATTEMPTS
-          value: '0'
-        - name: PSGA_SLEEP_TIME_BETWEEN_ATTEMPTS
-          value: '60'
         - name: DOCKER_IMAGE_PREFIX
           value: '566277102435.dkr.ecr.eu-west-2.amazonaws.com/congenica/psga-dev'
         - name: SARS_COV_2_PIPELINE_DOCKER_IMAGE

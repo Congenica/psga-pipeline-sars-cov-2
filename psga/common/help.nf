@@ -5,9 +5,6 @@ def printMainConfig() {
         =====================
         Global environment variables:
         * PSGA_ROOT_PATH                              : ${PSGA_ROOT_PATH}
-        * PSGA_INCOMPLETE_ANALYSIS_RUNS_PATH          : ${PSGA_INCOMPLETE_ANALYSIS_RUNS_PATH}
-        * PSGA_MAX_ATTEMPTS                           : ${PSGA_MAX_ATTEMPTS}
-        * PSGA_SLEEP_TIME_BETWEEN_ATTEMPTS            : ${PSGA_SLEEP_TIME_BETWEEN_ATTEMPTS}
         * DOCKER_IMAGE_PREFIX                         : ${DOCKER_IMAGE_PREFIX}
         * K8S_NODE                                    : ${K8S_NODE}
         * K8S_PULL_POLICY                             : ${K8S_PULL_POLICY}
@@ -38,12 +35,6 @@ def printMainHelp() {
       Mandatory environment variables:
         PSGA_ROOT_PATH
                                 Path to the pipeline code (e.g. git checkout). (e.g. /app) |
-        PSGA_INCOMPLETE_ANALYSIS_RUNS_PATH
-                                Path containing the analysis runs which are in progress or incomplete. (e.g. /data/incomplete_analysis_run)
-        PSGA_MAX_ATTEMPTS
-                                The maximum number of attempts to resume the an interrupted pipeline run
-        PSGA_SLEEP_TIME_BETWEEN_ATTEMPTS
-                                The sleep time between attempts in seconds
         DOCKER_IMAGE_PREFIX     The prefix of the docker image, excluded the image name
         K8S_NODE                The Kubernetes node for nodeAffinity
         K8S_PULL_POLICY         The Kubernetes docker image pull policy (e.g. Always, Never)
