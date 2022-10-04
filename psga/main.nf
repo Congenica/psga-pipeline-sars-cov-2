@@ -22,14 +22,11 @@ if (params.help) {
 
 include { psga } from "./psga.nf"
 
-include { pipeline_end } from './common/pipeline_lifespan.nf'
-
 
 // Required environment variables
 // Add new env variables to common/help.nf
 if( "[:]" in [
     PSGA_ROOT_PATH,
-    PSGA_INCOMPLETE_ANALYSIS_RUNS_PATH,
     DOCKER_IMAGE_PREFIX,
     AWS_CONNECTION_TIMEOUT,
     AWS_MAX_CONNECTIONS,
@@ -73,11 +70,5 @@ if ( params.output_path == "" ) {
 }
 
 workflow {
-
     psga_workflow = psga()
-
-    pipeline_end(
-        params.run,
-        psga_workflow.ch_analysis_run_results_submitted
-    )
 }

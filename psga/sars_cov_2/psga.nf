@@ -1,4 +1,3 @@
-include { pipeline_start } from './pipeline_lifespan.nf'
 include { check_metadata } from './check_metadata.nf'
 include { fastqc } from './common/fastqc.nf'
 
@@ -71,9 +70,6 @@ if ( params.sequencing_technology in ["illumina", "ont"] ) {
 workflow psga {
 
     main:
-
-        // save the session_id and command
-        pipeline_start()
 
         check_metadata(params.metadata)
         ch_metadata = check_metadata.out.ch_metadata

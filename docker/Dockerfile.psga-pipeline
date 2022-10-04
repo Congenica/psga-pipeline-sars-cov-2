@@ -62,7 +62,7 @@ ENV PIP_VERSION=22.2.2 \
 ARG pathogen
 
 COPY ./psga/common /app/psga/common
-COPY ./psga/${pathogen} ./psga/*.py ./psga/*.sh ./psga/main.nf /app/psga/
+COPY ./psga/${pathogen} ./psga/*.sh ./psga/main.nf /app/psga/
 COPY ./pyproject.toml ./poetry.lock ./app/
 COPY ./scripts/util /app/scripts/util
 COPY ./scripts/validation /app/scripts/validation
