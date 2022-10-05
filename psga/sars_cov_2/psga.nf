@@ -27,10 +27,6 @@ include { submit_analysis_run_results } from './submit_analysis_run_results.nf'
 // Required environment variables
 if( "[:]" in [
     SARS_COV_2_PIPELINE_DOCKER_IMAGE,
-    SARS_COV_2_PIPELINE_DOCKER_IMAGE_TAG,
-    NCOV2019_ARTIC_NF_ILLUMINA_DOCKER_IMAGE_TAG,
-    NCOV2019_ARTIC_NF_NANOPORE_DOCKER_IMAGE_TAG,
-    PANGOLIN_DOCKER_IMAGE_TAG,
     ]) {
     throw new Exception("Found unset environment variables specific to the sars_cov_2 pathogen. See '[:]' above. Abort")
 }
