@@ -29,6 +29,7 @@ COPY docker/primer_schemes /primer_schemes
 COPY docker/sars_cov_2.deps psga/sars_cov_2/ncov-illumina.config psga/sars_cov_2/ncov-common.config /
 
 RUN . /sars_cov_2.deps \
+  && pip install awscli==1.22.50 \
   && git clone --recursive https://github.com/Congenica/ncov2019-artic-nf.git \
   && cd /ncov2019-artic-nf \
   && git checkout ${ncov_commit}
