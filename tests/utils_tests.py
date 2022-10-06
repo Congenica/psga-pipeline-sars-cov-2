@@ -13,7 +13,7 @@ def assert_files_are_equal(file1: Path, file2: Path) -> None:
             assert content_1 == content_2
 
 
-def assert_dataframes_are_equal(file1: Path, file2: Path, sortby_col: str) -> None:
+def assert_csvs_are_equal(file1: Path, file2: Path, sortby_col: str) -> None:
     df = pd.read_csv(file1)
     df_exp = pd.read_csv(file2)
 
@@ -24,7 +24,7 @@ def assert_dataframes_are_equal(file1: Path, file2: Path, sortby_col: str) -> No
     # sort columns by column name
     df_sorted = df_sorted.reindex(columns=sorted(df_sorted.columns))
     df_exp_sorted = df_exp_sorted.reindex(columns=sorted(df_exp_sorted.columns))
-    assert_frame_equal(df_sorted, df_exp_sorted)
+    assert_frame_equal(df_sorted.reset_index(drop=True), df_exp_sorted.reset_index(drop=True))
 
 
 def json_to_dict(input_path: Path) -> Dict:

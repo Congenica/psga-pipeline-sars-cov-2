@@ -15,7 +15,7 @@ from scripts.common.primer_autodetection import (
     PRIMER_DATA_SUFFIX,
     UNKNOWN,
 )
-from tests.utils_tests import assert_dataframes_are_equal, assert_files_are_equal
+from tests.utils_tests import assert_csvs_are_equal, assert_files_are_equal
 
 DEFAULT_PRIMER = "ARTIC_V4-1"
 
@@ -24,14 +24,14 @@ def assert_primer_detection(sample_id, tmp_path, input_path):
     output_file = f"{sample_id}{PRIMER_DETECTION_SUFFIX}"
     output_path = tmp_path / output_file
     expected_output_path = input_path / output_file
-    assert_dataframes_are_equal(output_path, expected_output_path, PRIMER_AUTODETECTION_PRIMER_COL)
+    assert_csvs_are_equal(output_path, expected_output_path, PRIMER_AUTODETECTION_PRIMER_COL)
 
 
 def assert_primer_data(sample_id, tmp_path, input_path):
     output_file = f"{sample_id}{PRIMER_DATA_SUFFIX}"
     output_path = tmp_path / output_file
     expected_output_path = input_path / output_file
-    assert_dataframes_are_equal(output_path, expected_output_path, PRIMER_AUTODETECTION_SAMPLE_ID_COL)
+    assert_csvs_are_equal(output_path, expected_output_path, PRIMER_AUTODETECTION_SAMPLE_ID_COL)
 
 
 def assert_selected_primer_file(sample_id, test_data_path, tmp_path, found_dir):

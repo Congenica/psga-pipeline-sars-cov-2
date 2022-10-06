@@ -4,7 +4,7 @@ from click.testing import CliRunner
 
 from scripts.sars_cov_2.generate_pipeline_results_files import generate_pipeline_results_files
 from scripts.util.metadata import SAMPLE_ID
-from tests.utils_tests import assert_dataframes_are_equal, assert_jsons_are_equal
+from tests.utils_tests import assert_csvs_are_equal, assert_jsons_are_equal
 
 
 @pytest.mark.parametrize(
@@ -120,7 +120,7 @@ def test_generate_pipeline_results_files(
 
     # assert results.csv
     exp_output_results_csv_file = test_data_path / "pipeline_results_files" / exp_results_csv
-    assert_dataframes_are_equal(output_results_csv_file, exp_output_results_csv_file, SAMPLE_ID)
+    assert_csvs_are_equal(output_results_csv_file, exp_output_results_csv_file, SAMPLE_ID)
 
     # assert results.json
     exp_output_results_json_file = test_data_path / "pipeline_results_files" / exp_results_json
@@ -132,12 +132,9 @@ def test_generate_pipeline_results_files(
     with open(output_resultfiles_json_file) as json_fd:
         calc_resultfiles_json_dict = json.load(json_fd)
 
-    exp_result_files_json_dict_full_path = {
-        sample_id: sorted([f"{str(output_path)}/{f}" for f in files])
-        for sample_id, files in exp_resultfiles_json_dict.items()
-    }
-    calc_result_files_json_dict_sorted = {
-        sample_id: sorted(files) for sample_id, files in calc_resultfiles_json_dict.items()
+    exp_resultfiles_json_dict_full_path = {
+        sample_id: [{k: f"{output_path}/{v}" if k == "file" else v for k, v in d.items()} for d in list_of_dicts]
+        for sample_id, list_of_dicts in exp_resultfiles_json_dict.items()
     }
 
-    assert exp_result_files_json_dict_full_path == calc_result_files_json_dict_sorted
+    assert exp_resultfiles_json_dict_full_path == calc_resultfiles_json_dict
