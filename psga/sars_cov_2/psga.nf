@@ -99,7 +99,7 @@ workflow psga {
             // files are FASTA
             ch_fasta_files = stage_sample_file(ch_metadata_records_single_fasta)
             // mock ncov
-            ch_ncov_qc_csv = Channel.fromPath('/mock_file')
+            ch_ncov_qc_csv = Channel.empty()
 
         } else {
 
