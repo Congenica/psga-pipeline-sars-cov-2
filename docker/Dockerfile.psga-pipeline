@@ -11,7 +11,7 @@ ENV NXF_VER="22.09.7-edge"
 RUN wget -qO- https://github.com/nextflow-io/nextflow/releases/download/v${NXF_VER}/nextflow-${NXF_VER}-all | bash \
   && chmod +x nextflow \
   && mv nextflow /usr/bin \
-  && nextflow plugin install nf-amazon
+  && nextflow plugin install nf-amazon@1.10.7
 
 
 
