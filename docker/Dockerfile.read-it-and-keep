@@ -2,6 +2,7 @@ FROM python:3.10.7-slim-bullseye
 
 RUN apt-get update \
   && apt-get install -y --no-install-recommends procps wget build-essential liblzma-dev libbz2-dev zlib1g-dev \
+  && pip install awscli==1.22.50 \
   && apt-get clean -y \
   && rm -rf /var/lib/apt/lists/*
 

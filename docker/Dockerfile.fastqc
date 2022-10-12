@@ -4,7 +4,8 @@ FROM openjdk:11-jre-slim-bullseye
 
 # install default-jre as fastqc needs extra packages
 RUN apt-get update \
-  && apt-get install -y --no-install-recommends procps wget unzip default-jre perl \
+  && apt-get install -y --no-install-recommends procps wget unzip default-jre perl pip \
+  && pip install awscli==1.22.50 \
   && apt-get clean -y \
   && rm -rf /var/lib/apt/lists/*
 

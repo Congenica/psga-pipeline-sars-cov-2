@@ -5,6 +5,7 @@ FROM python:3.10.7-slim-bullseye
 
 RUN apt-get update \
   && apt-get install -y --no-install-recommends procps wget build-essential default-jre perl unzip libncurses5-dev libcurl4-openssl-dev libncursesw5-dev zlib1g-dev libbz2-dev liblzma-dev \
+  && pip install awscli==1.22.50 \
   && apt-get clean -y \
   && rm -rf /var/lib/apt/lists/*
 

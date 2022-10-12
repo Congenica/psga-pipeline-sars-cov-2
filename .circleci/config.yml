@@ -191,9 +191,9 @@ workflows:
         context: AWS_ECR_CREDENTIALS_PSGA
     - build-sars-cov-2-pipeline:
         requires:
-          - read-it-and-keep
-          - fastqc
-          - primer-autodetection
+          - build-read-it-and-keep
+          - build-fastqc
+          - build-primer-autodetection
           - build-ncov2019-artic-nf-illumina
           - build-ncov2019-artic-nf-nanopore
           - build-pangolin
