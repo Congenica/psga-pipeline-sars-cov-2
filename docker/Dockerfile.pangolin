@@ -10,7 +10,7 @@ RUN mamba env create -f /environment.yml -n pangolin \
 
 FROM debian:buster-slim
 RUN apt-get update \
-  && apt-get install -y --no-install-recommends git procps ca-certificates awscli \
+  && apt-get install -y --no-install-recommends git procps ca-certificates \
   && apt-get clean -y \
   && rm -rf /var/lib/apt/lists/*
 
@@ -21,6 +21,7 @@ COPY docker/sars_cov_2.deps /
 
 RUN . /sars_cov_2.deps \
   && git clone https://github.com/cov-lineages/pangolin.git \
+  && pip install awscli==1.22.50 \
   && cd pangolin \
   && git checkout ${pangolin_commit} \
   && python setup.py install \
