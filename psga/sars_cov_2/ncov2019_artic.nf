@@ -23,6 +23,9 @@ process ncov2019_artic_nf_pipeline_illumina {
 
   shell:
   '''
+  # set nextflow env vars
+  export NXF_ANSI_LOG="false"
+
   ncov_out_dir="ncov_output"
   ncov_bam_out_dir="${ncov_out_dir}/ncovIllumina_sequenceAnalysis_trimPrimerSequences"
   ncov_fasta_out_dir="${ncov_out_dir}/ncovIllumina_sequenceAnalysis_makeConsensus"
@@ -94,6 +97,9 @@ process ncov2019_artic_nf_pipeline_medaka {
 
   shell:
   '''
+  # set nextflow env vars
+  export NXF_ANSI_LOG="false"
+
   ncov_out_dir="ncov_output"
   ncov_minion_out_dir="${ncov_out_dir}/articNcovNanopore_sequenceAnalysisMedaka_articMinIONMedaka"
   ncov_qc_plots_dir="${ncov_out_dir}/qc_plots"
