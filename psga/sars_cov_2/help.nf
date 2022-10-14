@@ -5,10 +5,6 @@ def printPathogenConfig() {
         ===================
         Environment variables:
         * SARS_COV_2_PIPELINE_DOCKER_IMAGE            : ${SARS_COV_2_PIPELINE_DOCKER_IMAGE}
-        * SARS_COV_2_PIPELINE_DOCKER_IMAGE_TAG        : ${SARS_COV_2_PIPELINE_DOCKER_IMAGE_TAG}
-        * NCOV2019_ARTIC_NF_ILLUMINA_DOCKER_IMAGE_TAG : ${NCOV2019_ARTIC_NF_ILLUMINA_DOCKER_IMAGE_TAG}
-        * NCOV2019_ARTIC_NF_NANOPORE_DOCKER_IMAGE_TAG : ${NCOV2019_ARTIC_NF_NANOPORE_DOCKER_IMAGE_TAG}
-        * PANGOLIN_DOCKER_IMAGE_TAG                   : ${PANGOLIN_DOCKER_IMAGE_TAG}
     """.stripIndent()
 }
 
@@ -27,14 +23,6 @@ def printPathogenHelp() {
       Mandatory environment variables:
         SARS_COV_2_PIPELINE_DOCKER_IMAGE
                                 The name of the sars-cov-2 docker image
-        SARS_COV_2_PIPELINE_DOCKER_IMAGE_TAG
-                                The tag of the sars-cov-2 docker image
-        NCOV2019_ARTIC_NF_ILLUMINA_DOCKER_IMAGE_TAG
-                                The tag of the ncov2019-artic-nf-illumina docker image
-        NCOV2019_ARTIC_NF_NANOPORE_DOCKER_IMAGE_TAG
-                                The tag of the ncov2019-artic-nf-nanopore docker image
-        PANGOLIN_DOCKER_IMAGE_TAG
-                                The tag of the pangolin docker image
     """.stripIndent()
 }
 

@@ -59,18 +59,11 @@ pipeline {
         string(name: 'CLUSTER_NAME', defaultValue: 'saas-dev.k8s.congenica.net', description: 'The Kubernetes cluster where the Congenica platform is deployed that the tests will run against.')
         string(name: 'NAMESPACE', defaultValue: 'psga', description: 'The Kubernetes namespace where the Congenica platform is deployed that the tests will run against.')
 
-        string(name: 'SARS_COV_2_PIPELINE_DOCKER_IMAGE', defaultValue: 'psga-pipeline', description: 'The name of the main docker image. This is temporary until we detach from Congenica ECR and Congenica Jenkins account')
+        string(name: 'SARS_COV_2_PIPELINE_DOCKER_IMAGE', defaultValue: 'psga-pipeline', description: 'The name of the main docker image. Overrides the default sars-cov-2-pipeline. This is temporary until we detach from Congenica ECR and Congenica Jenkins account')
         string(name: 'DOCKER_IMAGE_URI_PATH', defaultValue: '144563655722.dkr.ecr.eu-west-1.amazonaws.com/congenica/dev', description: 'The docker image prefix to use')
         string(name: 'K8S_NODE', defaultValue: 'farmNode', description: 'The Kubernetes node to use as a nodeAffinity for worker jobs')
-        string(name: 'K8S_PULL_POLICY', defaultValue: 'Always', description: 'The Kubernetes pull policy for docker images')
         string(name: 'K8S_STORAGE_MOUNT_PATH', defaultValue: '/data', description: 'The K8S storage mount path')
         string(name: 'QUEUE_SIZE', defaultValue: '5', description: 'The K8S job queue size')
-        string(name: 'PROCESS_MAX_RETRIES', defaultValue: '3', description: 'The number of maximum retries for pipeline jobs')
-        string(name: 'PROCESS_CPU_LOW', defaultValue: '1', description: 'The lowest number of cpus. The majority of jobs use this.')
-        string(name: 'PROCESS_CPU_HIGH', defaultValue: '2', description: 'The highest number of cpus')
-        string(name: 'PROCESS_MEMORY_VERY_LOW', defaultValue: '250', description: 'Memory setting')
-        string(name: 'PROCESS_MEMORY_LOW', defaultValue: '500', description: 'Memory setting')
-        string(name: 'PROCESS_MEMORY_MEDIUM', defaultValue: '1500', description: 'Memory setting')
         string(name: 'PROCESS_MEMORY_HIGH', defaultValue: '3000', description: 'Memory setting')
         string(name: 'PROCESS_MEMORY_VERY_HIGH', defaultValue: '6000', description: 'Memory setting')
         string(name: 'NXF_OPTS', defaultValue: '-Xms1g -Xmx4g', description: 'Nextflow options')
@@ -98,7 +91,7 @@ spec:
   containers:
   - name: sars-cov-2
     image: ${params.DOCKER_IMAGE_URI_PATH}/${params.SARS_COV_2_PIPELINE_DOCKER_IMAGE}:${getDockerTagFromBranch()}
-    imagePullPolicy: ${params.K8S_PULL_POLICY}
+    imagePullPolicy: Always
     command:
     - "sleep"
     args:
@@ -134,10 +127,6 @@ spec:
     }
     environment {
         SARS_COV_2_PIPELINE_DOCKER_IMAGE            = "${params.SARS_COV_2_PIPELINE_DOCKER_IMAGE}"
-        SARS_COV_2_PIPELINE_DOCKER_IMAGE_TAG        = "${getDockerTagFromBranch()}"
-        NCOV2019_ARTIC_NF_ILLUMINA_DOCKER_IMAGE_TAG = "${getDockerTagFromBranch()}"
-        NCOV2019_ARTIC_NF_NANOPORE_DOCKER_IMAGE_TAG = "${getDockerTagFromBranch()}"
-        PANGOLIN_DOCKER_IMAGE_TAG                   = "${getDockerTagFromBranch()}"
 
         ANALYSIS_RUN                                = "${params.ANALYSIS_RUN}"
         METADATA                                    = "${params.METADATA}"
@@ -146,23 +135,16 @@ spec:
         OUTPUT_PATH                                 = "${params.OUTPUT_PATH}"
 
         // other configs
-        AWS_CONNECTION_TIMEOUT                      = "10000"
         AWS_MAX_CONNECTIONS                         = "20"
         AWS_MAX_PARALLEL_TRANSFERS                  = "5"
         K8S_NODE                                    = "${params.K8S_NODE}"
-        K8S_PULL_POLICY                             = "${params.K8S_PULL_POLICY}"
         PSGA_ROOT_PATH                              = "/app"
         DOCKER_IMAGE_URI_PATH                       = "${params.DOCKER_IMAGE_URI_PATH}"
+        DOCKER_IMAGE_TAG                            = "${getDockerTagFromBranch()}"
         QUEUE_SIZE                                  = "${params.QUEUE_SIZE}"
         K8S_SERVICE_ACCOUNT                         = "${params.NAMESPACE}-admin"
         K8S_STORAGE_CLAIM_NAME                      = "${params.NAMESPACE}-pvc"
         K8S_STORAGE_MOUNT_PATH                      = "${params.K8S_STORAGE_MOUNT_PATH}"
-        PROCESS_MAX_RETRIES                         = "${params.PROCESS_MAX_RETRIES}"
-        PROCESS_CPU_LOW                             = "${params.PROCESS_CPU_LOW}"
-        PROCESS_CPU_HIGH                            = "${params.PROCESS_CPU_HIGH}"
-        PROCESS_MEMORY_VERY_LOW                     = "${params.PROCESS_MEMORY_VERY_LOW}"
-        PROCESS_MEMORY_LOW                          = "${params.PROCESS_MEMORY_LOW}"
-        PROCESS_MEMORY_MEDIUM                       = "${params.PROCESS_MEMORY_MEDIUM}"
         PROCESS_MEMORY_HIGH                         = "${params.PROCESS_MEMORY_HIGH}"
         PROCESS_MEMORY_VERY_HIGH                    = "${params.PROCESS_MEMORY_VERY_HIGH}"
         NXF_WORK                                    = "${params.NXF_WORK}"

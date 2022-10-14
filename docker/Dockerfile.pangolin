@@ -20,6 +20,7 @@ ENV PATH=/opt/conda/envs/pangolin/bin:$PATH
 COPY docker/sars_cov_2.deps /
 
 RUN . /sars_cov_2.deps \
+  && pip install awscli==1.22.50 \
   && git clone https://github.com/cov-lineages/pangolin.git \
   && cd pangolin \
   && git checkout ${pangolin_commit} \

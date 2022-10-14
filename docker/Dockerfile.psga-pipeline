@@ -6,15 +6,13 @@ RUN apt-get update \
   && rm -rf /var/lib/apt/lists/*
 
 
-# fetch a version of nextflow including the nf-amazon plugin. Install the nf-amazon plugin once for all
-ENV NXF_VER="22.08.0-edge"
+# Install the nf-amazon plugin once for all
+ENV NXF_VER="22.09.7-edge"
 RUN wget -qO- https://github.com/nextflow-io/nextflow/releases/download/v${NXF_VER}/nextflow-${NXF_VER}-all | bash \
   && chmod +x nextflow \
   && mv nextflow /usr/bin \
-  && nextflow plugin install nf-amazon@1.10.0
+  && nextflow plugin install nf-amazon@1.10.7
 
-RUN wget https://repo1.maven.org/maven2/com/amazonaws/aws-java-sdk-sts/1.12.129/aws-java-sdk-sts-1.12.129.jar \
-  && mv aws-java-sdk-sts-1.12.129.jar ~/.nextflow/plugins/nf-amazon-1.10.0/lib/aws-java-sdk-sts-1.12.129.jar
 
 
 # install fastqc
