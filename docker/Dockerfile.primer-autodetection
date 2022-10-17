@@ -1,45 +1,18 @@
+FROM condaforge/mambaforge:4.14.0-0 AS condabuild
+
+ARG pathogen
+COPY docker/${pathogen}/primer_autodetection.yml /environment.yml
+
+RUN mamba env create -f /environment.yml -n custom_env \
+  && conda clean --all -y
+
 FROM python:3.10.7-slim-bullseye
-
-# REQUIREMENTS:
-# * run docker/get_sars_cov_2_primers.sh and git add docker/primer_schemes
-
 RUN apt-get update \
-  && apt-get install -y --no-install-recommends procps wget build-essential default-jre perl unzip libncurses5-dev libcurl4-openssl-dev libncursesw5-dev zlib1g-dev libbz2-dev liblzma-dev \
+  && apt-get install -y --no-install-recommends procps \
   && pip install awscli==1.22.50 \
   && apt-get clean -y \
   && rm -rf /var/lib/apt/lists/*
 
-ARG pathogen
-COPY docker/${pathogen}.deps /
 COPY docker/primer_schemes /primer_schemes
-
-# install trimmomatic
-RUN . /${pathogen}.deps \
-  && cd /opt \
-  && wget http://www.usadellab.org/cms/uploads/supplementary/Trimmomatic/Trimmomatic-${trimmomatic_version}.zip \
-  && unzip Trimmomatic-${trimmomatic_version}.zip \
-  && rm Trimmomatic-${trimmomatic_version}.zip \
-  && mv Trimmomatic-${trimmomatic_version} trimmomatic \
-  && cd trimmomatic \
-  && mv trimmomatic-${trimmomatic_version}.jar trimmomatic.jar
-
-# install bowtie2
-RUN . /${pathogen}.deps \
-  && cd /opt \
-  && wget https://sourceforge.net/projects/bowtie-bio/files/bowtie2/${bowtie2_version}/bowtie2-${bowtie2_version}-sra-linux-x86_64.zip/download \
-  && unzip download \
-  && mv bowtie2-${bowtie2_version}-sra-linux-x86_64 bowtie2 \
-  && rm download
-ENV PATH=/opt/bowtie2:$PATH
-
-# install samtools (disable options as not necessary at this stage)
-RUN . /${pathogen}.deps \
-  && cd /opt \
-  && wget https://github.com/samtools/samtools/releases/download/${samtools_version}/samtools-${samtools_version}.tar.bz2 \
-  && tar xjf samtools-${samtools_version}.tar.bz2 \
-  && rm samtools-${samtools_version}.tar.bz2 \
-  && cd samtools-${samtools_version} \
-  && ./configure --prefix /usr/local --without-curses \
-  && make \
-  && make install
-
+COPY --from=condabuild /opt/conda/envs/custom_env /opt/conda/envs/custom_env
+ENV PATH=/opt/conda/envs/custom_env/bin:$PATH
