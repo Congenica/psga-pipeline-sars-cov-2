@@ -32,12 +32,7 @@ if( "[:]" in [
 }
 
 
-scheme = ""
-scheme_version = ""
-scheme_dir = "/primer_schemes"
-
 if ( params.sequencing_technology in ["illumina", "ont"] ) {
-
     /* Store primers in ncov dockerfile with path:
      * PRIMERS (ARTIC, Midnight-IDT, Midnight-ONT, NEB-VarSkip)
      * Store primers in ncov dockerfile with path:
@@ -48,15 +43,10 @@ if ( params.sequencing_technology in ["illumina", "ont"] ) {
     if ( split_kit.length != 2 ) {
         throw new Exception("--kit must have the format: PRIMERNAME_PRIMERVERSION for illumina/ont samples")
     }
-    scheme = split_kit[0]
-    scheme_version = split_kit[1]
-
 } else if ( params.sequencing_technology == "unknown" ) {
-
     if ( params.kit != "none" ) {
         throw new Exception("--kit must be 'none' for FASTA samples")
     }
-
 }
 
 /*
@@ -130,10 +120,7 @@ workflow psga {
             fastqc(contamination_removal.out.ch_output_file)
 
             ncov2019_artic(
-                fastqc.out.ch_input_files,
-                scheme_dir,
-                scheme,
-                scheme_version
+                fastqc.out.ch_input_files
             )
             ch_ncov_qc_csv = ncov2019_artic.out.ch_ncov_qc_csv
             ch_fasta_files = ncov2019_artic.out.ch_ncov_sample_fasta

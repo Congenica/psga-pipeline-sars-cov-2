@@ -8,9 +8,6 @@ process ncov2019_artic_nf_pipeline_illumina {
   tag "${task.index} - ${fastq_file}"
   input:
     path fastq_file
-    val scheme_dir
-    val scheme
-    val scheme_version
 
   output:
     // retain the qc csv intentionally
@@ -37,6 +34,10 @@ process ncov2019_artic_nf_pipeline_illumina {
   output_plots="output_plots"
   output_variants="output_variants"
 
+  # extract scheme and version from kit
+  scheme="${!{params.kit}%_*}"
+  scheme_version="${!{params.kit}#*_}"
+
   # convert nextflow variables to Bash for convenience
   ncov_prefix=!{params.run}
 
@@ -49,7 +50,7 @@ process ncov2019_artic_nf_pipeline_illumina {
       --prefix ${ncov_prefix} \
       --directory `eval pwd` \
       --outdir ${ncov_out_dir} \
-      --schemeDir !{scheme_dir} \
+      --schemeDir /primer_schemes \
       --scheme !{scheme} \
       --schemeVersion !{scheme_version} \
       -work-dir /tmp \
@@ -82,9 +83,6 @@ process ncov2019_artic_nf_pipeline_medaka {
   tag "${task.index} - ${fastq_file}"
   input:
     path fastq_file
-    val scheme_dir
-    val scheme
-    val scheme_version
 
   output:
     // retain the qc csv intentionally
@@ -109,6 +107,10 @@ process ncov2019_artic_nf_pipeline_medaka {
   output_fasta="output_fasta"
   output_plots="output_plots"
   output_variants="output_variants"
+
+  # extract scheme and version from kit
+  scheme="${!{params.kit}%_*}"
+  scheme_version="${!{params.kit}#*_}"
 
   # convert nextflow variables to Bash for convenience
   fastq_file=!{fastq_file}
@@ -143,7 +145,7 @@ process ncov2019_artic_nf_pipeline_medaka {
       --prefix ${ncov_prefix} \
       --basecalled_fastq ${sample_id} \
       --outdir ${ncov_out_dir} \
-      --schemeDir !{scheme_dir} \
+      --schemeDir /primer_schemes \
       --scheme !{scheme} \
       --schemeVersion !{scheme_version} \
       -work-dir /tmp \
