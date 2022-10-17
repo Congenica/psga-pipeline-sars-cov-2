@@ -1,5 +1,6 @@
 include { check_metadata } from './check_metadata.nf'
 include { fastqc } from './common/fastqc.nf'
+include { primer_autodetection } from './common/primer_autodetection.nf'
 
 if ( params.sequencing_technology == "illumina" ) {
     include { contamination_removal_illumina as contamination_removal } from './common/contamination_removal.nf'
@@ -40,8 +41,8 @@ if ( params.sequencing_technology in ["illumina", "ont"] ) {
      * e.g. --kit ARTIC_V4 will use the primers stored in: /primer_schemes/ARTIC/SARS-CoV-2/V4
      */
     split_kit = params.kit.split('_')
-    if ( split_kit.length != 2 ) {
-        throw new Exception("--kit must have the format: PRIMERNAME_PRIMERVERSION for illumina/ont samples")
+    if ( split_kit.length != 2 && !(params.kit in ["unknown", "none"]) ) {
+        throw new Exception("--kit must be either PRIMERNAME_PRIMERVERSION, unknown or none for illumina/ont samples")
     }
 } else if ( params.sequencing_technology == "unknown" ) {
     if ( params.kit != "none" ) {
@@ -119,9 +120,24 @@ workflow psga {
 
             fastqc(contamination_removal.out.ch_output_file)
 
-            ncov2019_artic(
-                fastqc.out.ch_input_files
-            )
+            primer_autodetection(fastqc.out.ch_input_files)
+            ch_primer_data_csv = primer_autodetection.out.ch_primer_data
+            ch_primer_autodetection_files = primer_autodetection.out.ch_files
+            /*
+             * select the input files passing primer autodetection QC
+             * `it` is:
+             * [sample primer txt, fastq] (ont)
+             * [sample primer txt, [fastq_1, fastq_2]] (illumina)
+             * the code below, returns a tuple of files (e.g. [_,_] or [_,_,_]
+             */
+            ch_primer_autodetection_files
+                .branch { it ->
+                    pass: it[0].name =~ /primer_PASS.txt$/
+                        return it[1] instanceof List ? tuple(it[0], *it[1]) : it
+                }
+                .set { ch_ncov_input_files }
+
+            ncov2019_artic(ch_ncov_input_files)
             ch_ncov_qc_csv = ncov2019_artic.out.ch_ncov_qc_csv
             ch_fasta_files = ncov2019_artic.out.ch_ncov_sample_fasta
         }

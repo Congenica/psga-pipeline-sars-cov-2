@@ -2,7 +2,7 @@
  * Run: primer-autodetection (use first read only for illumina)
  */
 process primer_autodetection {
-  publishDir "${params.output_path}/primer_autodetection", mode: 'copy', overwrite: true, pattern: '{*_primer.txt,*_primer_data.csv,*_primer_detection.tsv,trimmomatic.out,*.bowtie2*}'
+  publishDir "${params.output_path}/primer_autodetection", mode: 'copy', overwrite: true, pattern: '{*_primer_data.csv,*_primer_detection.tsv,trimmomatic.out,*.bowtie2*}'
 
   tag "${task.index} - ${fastq}"
 
@@ -10,8 +10,7 @@ process primer_autodetection {
     path fastq
 
   output:
-    path fastq, emit: ch_input_files
-    path "*_primer.txt", emit: ch_primer
+    tuple path("*_primer_*.txt"), path(fastq), emit: ch_files
     path "*_primer_data.csv", emit: ch_primer_data
     path "*_primer_detection.tsv", emit: ch_primer_coverage
     path "trimmomatic.out"
@@ -32,8 +31,9 @@ process primer_autodetection {
     exit 1
   fi
 
-  sample_id=$( echo ${file_1} | cut -d '.' -f1 )
-  trimmed_sample="trimmed_sample.fastq"
+  # extract the sample id, whereas this is ID.fastq.gz or ID_1.fastq.gz
+  sample_id=$( echo ${file_1} | cut -d '.' -f1 | cut -d '_' -f1)
+  trimmed_sample="trimmed_sample.fastq.gz"
   crop="!{params.primer_minimum_length}"
 
   # trim sample reads so that they are long as the shortest primer
@@ -48,7 +48,7 @@ process primer_autodetection {
       # build the index for the primer fasta
       bowtie2-build ${primer_fasta} ${primer}.ref_idx &> ${primer}.bowtie2-build
 
-      # align the trimmed sample to the primer scheme fasta
+      # end-to-end align the trimmed sample to the primer scheme fasta
       bowtie2 --no-unal -x ${primer}.ref_idx -U ${trimmed_sample} 2> ${primer}.bowtie2 | samtools sort -o ${primer}.bam
 
       # extract the coverage and other metrics from the bam. `samtools coverage` complains if the bam is not sorted
@@ -59,34 +59,49 @@ process primer_autodetection {
   awk 'FNR==1 && NR!=1{next;}{print}' *.coverage.tsv > ${sample_id}_primer_detection.tsv
 
   # extract 1) the primer with the highest number of reads and 2) the number of reads
-  detected_primer="$(awk 'BEGIN{nreads=0;primer="unknown"}{if(NR>1 && $4>nreads) {nreads=$4; primer=$1}} END {print primer,nreads}' ${sample_id}_primer_detection.tsv)"
+  detected_primer="$(awk 'BEGIN{nreads=0;primer="none"}{if(NR>1 && $4>nreads) {nreads=$4; primer=$1}} END {print primer,nreads}' ${sample_id}_primer_detection.tsv)"
   primer="$(echo "${detected_primer}" | awk '{print $1}')"
   primer_nreads="$(echo "${detected_primer}" | awk '{print $2}')"
 
   # store the data for the selected primer. Use CSV for convenience here
   awk -v name="${primer}" 'NR==1 || $1==name {$1=$1; print}' OFS=, ${sample_id}_primer_detection.tsv > ${sample_id}_primer_data.csv.tmp
-  # store the primer scheme name/version
-  echo "${primer}" > ${sample_id}_primer.txt
 
   # add additional columns
   qc_col="primer_qc"
   autodetect_col="primer_autodetected"
+  orig_kit_col="input_kit"
   if [[ "${kit}" == "unknown" ]]; then
     autodetect_val="True"
     if [[ ${primer_nreads} -gt 0 ]]; then
-      qc_val="Pass"
+      qc_val="PASS"
     else
-      qc_val="Fail"
+      qc_val="FAIL"
+    fi
+  elif [[ "${kit}" == "none" ]]; then
+    autodetect_val="True"
+    if [[ ${primer_nreads} -gt 0 ]]; then
+      qc_val="FAIL"
+    else
+      qc_val="PASS"
     fi
   else
     autodetect_val="False"
     if [[ "${kit}" == "${primer}" ]]; then
-      qc_val="Pass"
+      qc_val="PASS"
     else
-      qc_val="Fail"
+      qc_val="FAIL"
     fi
   fi
-  awk -v qc="${qc_col}" -v ad="${autodetect_col}" -v qc_val="${qc_val}" -v ad_val="${autodetect_val}" 'BEGIN{FS=OFS=","}{print $0,(NR==1 ? qc OFS ad : qc_val OFS ad_val)}' ${sample_id}_primer_data.csv.tmp > ${sample_id}_primer_data.csv
+  awk -v qc="${qc_col}" -v ad="${autodetect_col}" -v kit="${orig_kit_col}" -v qc_val="${qc_val}" -v ad_val="${autodetect_val}" -v kit_val="${kit}" \
+    'BEGIN{FS=OFS=","} {print $0,(NR==1 ? qc OFS ad OFS kit : qc_val OFS ad_val OFS kit_val)}' \
+    ${sample_id}_primer_data.csv.tmp > ${sample_id}_primer_data.csv
 
+  # store the primer scheme name/version
+  echo "${primer}" > ${sample_id}_primer_${qc_val}.txt
+
+  # add a default line if no primer was autodetected
+  if [[ "${primer}" == "none" ]]; then
+      echo "${primer},,,0,0,0,0,0,0,${qc_val},${autodetect_val},${kit}" >> ${sample_id}_primer_data.csv
+  fi
   '''
 }
