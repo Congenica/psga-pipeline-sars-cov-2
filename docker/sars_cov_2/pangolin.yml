@@ -1,0 +1,10 @@
+name: pangolin
+channels:
+  - bioconda
+  - conda-forge # required for awscli
+dependencies:
+  - awscli=1.25.92
+  - pangolin=4.1.3
+  - pangolin-data=1.15.1
+  - scorpio=0.3.17
+  - constellations=0.1.10

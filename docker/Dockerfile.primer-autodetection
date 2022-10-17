@@ -1,18 +1,11 @@
 FROM condaforge/mambaforge:4.14.0-0 AS condabuild
 
 ARG pathogen
-COPY docker/${pathogen}/primer_autodetection.yml /environment.yml
+COPY docker/${pathogen}/primer-autodetection.yml /environment.yml
 
 RUN mamba env create -f /environment.yml -n custom_env \
   && conda clean --all -y
 
-FROM python:3.10.7-slim-bullseye
-RUN apt-get update \
-  && apt-get install -y --no-install-recommends procps \
-  && pip install awscli==1.22.50 \
-  && apt-get clean -y \
-  && rm -rf /var/lib/apt/lists/*
+ENV PATH=/opt/conda/envs/custom_env/bin:$PATH
 
 COPY docker/primer_schemes /primer_schemes
-COPY --from=condabuild /opt/conda/envs/custom_env /opt/conda/envs/custom_env
-ENV PATH=/opt/conda/envs/custom_env/bin:$PATH

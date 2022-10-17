@@ -1,31 +1,9 @@
 FROM condaforge/mambaforge:4.14.0-0 AS condabuild
 
-# REQUIREMENT:
-# * run docker/clone_pangolin.sh and git add docker/pangolin_environment.yml
+ARG pathogen
+COPY docker/${pathogen}/pangolin.yml /environment.yml
 
-COPY docker/pangolin_environment.yml /environment.yml
-RUN mamba env create -f /environment.yml -n pangolin \
+RUN mamba env create -f /environment.yml -n custom_env \
   && conda clean --all -y
 
-
-FROM debian:buster-slim
-RUN apt-get update \
-  && apt-get install -y --no-install-recommends git procps ca-certificates \
-  && apt-get clean -y \
-  && rm -rf /var/lib/apt/lists/*
-
-COPY --from=condabuild /opt/conda/envs/pangolin /opt/conda/envs/pangolin
-ENV PATH=/opt/conda/envs/pangolin/bin:$PATH
-
-ARG pathogen
-COPY docker/${pathogen}.deps /
-
-RUN . /${pathogen}.deps \
-  && git clone https://github.com/cov-lineages/pangolin.git \
-  && pip install awscli==1.22.50 \
-  && cd pangolin \
-  && git checkout ${pangolin_commit} \
-  && python setup.py install \
-  && pip install --force-reinstall git+https://github.com/cov-lineages/pangolin-data.git@${pangolin_data_commit} \
-  && pip install --force-reinstall git+https://github.com/cov-lineages/scorpio.git@${scorpio_commit} \
-  && pip install --force-reinstall git+https://github.com/cov-lineages/constellations.git@${constellations_commit}
+ENV PATH=/opt/conda/envs/custom_env/bin:$PATH

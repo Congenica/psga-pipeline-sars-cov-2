@@ -1,30 +1,13 @@
-FROM python:3.10.7-slim-bullseye
-
-RUN apt-get update \
-  && apt-get install -y --no-install-recommends procps wget build-essential liblzma-dev libbz2-dev zlib1g-dev \
-  && pip install awscli==1.22.50 \
-  && apt-get clean -y \
-  && rm -rf /var/lib/apt/lists/*
+FROM condaforge/mambaforge:4.14.0-0 AS condabuild
 
 ARG pathogen
-COPY docker/${pathogen}.deps /
+COPY docker/${pathogen}/read-it-and-keep.yml /environment.yml
 
-# install read-it-and-keep (tool for human reads removal for sars-cov-2)
-# Notes:
-# a) the instructions for Dockerfile, docker pull and conda available with read-it-and-keep are broken..
-# b) this block fixes the original installer and customise what we need
-ENV LANG=C.UTF-8
-RUN . /${pathogen}.deps \
-  && mkdir /opt/read-it-and-keep \
-  && cd /opt \
-  && wget https://github.com/GlobalPathogenAnalysisService/read-it-and-keep/archive/refs/tags/v${readitandkeep_version}.tar.gz \
-  && tar xzf v${readitandkeep_version}.tar.gz \
-  && rm v${readitandkeep_version}.tar.gz \
-  && cd read-it-and-keep-${readitandkeep_version}/src \
-  && pip3 install pyfastaq \
-  && make \
-  && mv readItAndKeep /opt/read-it-and-keep/ \
-  && mv ../tests/MN908947.3.fa /opt/read-it-and-keep/ \
-  && mv ../tests/MN908947.3.no_poly_A.fa /opt/read-it-and-keep/ \
-  && rm -rf /opt/read-it-and-keep-${readitandkeep_version}
-ENV PATH=/opt/read-it-and-keep:$PATH
+RUN mamba env create -f /environment.yml -n custom_env \
+  && conda clean --all -y
+
+ENV PATH=/opt/conda/envs/custom_env/bin:$PATH
+
+# copy the reference genome MN908947.3 without poly-A tail
+# see: https://www.biorxiv.org/content/10.1101/2022.01.21.477194v1
+COPY data/MN908947.3.no_poly_A.fa /

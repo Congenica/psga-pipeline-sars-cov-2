@@ -1,7 +1,0 @@
-name: primer_autodetection
-channels:
-  - bioconda
-dependencies:
-  - trimmomatic=0.39
-  - bowtie2=2.4.5
-  - samtools=1.16.1
