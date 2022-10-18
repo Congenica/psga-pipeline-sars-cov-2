@@ -1,0 +1,7 @@
+name: read-it-and-keep
+channels:
+  - bioconda
+  - conda-forge # required for awscli
+dependencies:
+  - awscli=1.25.92
+  - read-it-and-keep=0.3.0

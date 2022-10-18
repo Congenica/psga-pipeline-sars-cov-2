@@ -1,63 +1,16 @@
-FROM python:3.10.7-slim-bullseye
+FROM condaforge/mambaforge:4.14.0-0 AS condabuild
 
-RUN apt-get update \
-  && apt-get install --yes --no-install-recommends build-essential procps wget default-jre libpq-dev rename unzip liblzma-dev libbz2-dev zlib1g-dev \
-  && apt-get clean -y \
-  && rm -rf /var/lib/apt/lists/*
+ARG pathogen
+COPY docker/${pathogen}/psga.yml /environment.yml
 
+RUN mamba env create -f /environment.yml -n custom_env \
+  && conda clean --all -y
 
-# Install the nf-amazon plugin once for all
-ENV NXF_VER="22.09.7-edge"
-RUN wget -qO- https://github.com/nextflow-io/nextflow/releases/download/v${NXF_VER}/nextflow-${NXF_VER}-all | bash \
-  && chmod +x nextflow \
-  && mv nextflow /usr/bin \
-  && nextflow plugin install nf-amazon@1.10.7
-
-
-
-# install fastqc
-ENV FASTQC_VERSION="0.11.9"
-RUN cd /usr/local \
-  && wget https://www.bioinformatics.babraham.ac.uk/projects/fastqc/fastqc_v${FASTQC_VERSION}.zip \
-  && unzip fastqc_v${FASTQC_VERSION}.zip \
-  && chmod 755 FastQC/fastqc \
-  && ln -s /usr/local/FastQC/fastqc /usr/local/bin/fastqc \
-  && rm fastqc_v${FASTQC_VERSION}.zip
-# overwrite fastqc configuration so that we only run the QC tests we need
-COPY data/fastqc_config_limits.txt /usr/local/FastQC/Configuration/limits.txt
-
-
-# install read-it-and-keep (tool for human reads removal)
-# Notes:
-# a) the instructions for Dockerfile, docker pull and conda available with read-it-and-keep are broken..
-# b) this block fixes the original installer and customise what we need
-# c) these dependencies (see head of this file for reference) are required only by the code below:
-#    - apt-get deps: liblzma-dev libbz2-dev zlib1g-dev
-#    - python deps: pyfastaq
-ENV READ_IT_AND_KEEP_VERSION="0.3.0"
-ENV READ_IT_AND_KEEP_DIR="/usr/local/read-it-and-keep"
-ARG READ_IT_AND_KEEP_SRC_DIR="/usr/local/read-it-and-keep-${READ_IT_AND_KEEP_VERSION}"
-ENV PATH=${READ_IT_AND_KEEP_DIR}:$PATH
-ENV LANG=C.UTF-8
-RUN mkdir -p ${READ_IT_AND_KEEP_DIR} \
-  && cd /usr/local/ \
-  && wget https://github.com/GlobalPathogenAnalysisService/read-it-and-keep/archive/refs/tags/v${READ_IT_AND_KEEP_VERSION}.tar.gz \
-  && tar xzf v${READ_IT_AND_KEEP_VERSION}.tar.gz \
-  && rm v${READ_IT_AND_KEEP_VERSION}.tar.gz \
-  && pip3 install pyfastaq \
-  && cd ${READ_IT_AND_KEEP_SRC_DIR}/src \
-  && make \
-  && cd ${READ_IT_AND_KEEP_DIR} \
-  && cp -s ${READ_IT_AND_KEEP_SRC_DIR}/src/readItAndKeep . \
-  && cp -s ${READ_IT_AND_KEEP_SRC_DIR}/tests/MN908947.3.fa . \
-  && cp -s ${READ_IT_AND_KEEP_SRC_DIR}/tests/MN908947.3.no_poly_A.fa .
-
+ENV PATH=/opt/conda/envs/custom_env/bin:$PATH
 
 # pin the versions of pip and poetry
 ENV PIP_VERSION=22.2.2 \
     POETRY_VERSION=1.1.13
-
-ARG pathogen
 
 COPY ./psga/common /app/psga/common
 COPY ./psga/${pathogen} ./psga/*.sh ./psga/main.nf /app/psga/
@@ -72,7 +25,12 @@ COPY ./jenkins/*.py ./app/jenkins/
 WORKDIR /app/psga
 
 # make poetry install everything system wide, no need for a virtualenv in docker
-RUN pip install --progress-bar=off --no-cache-dir --upgrade pip==${PIP_VERSION} \
+# install setuptools here to avoid the warning / error:
+#  ModuleNotFoundError: No module named '_distutils_hack'
+# This error does not disappear if this is installed via conda
+RUN nextflow plugin install nf-amazon \
+  && pip install setuptools==63.1.0 \
+  && pip install --progress-bar=off --no-cache-dir --upgrade pip==${PIP_VERSION} \
   && pip install --progress-bar=off --no-cache-dir poetry==${POETRY_VERSION} \
   && poetry config virtualenvs.create false \
   && poetry install --no-interaction --no-ansi --no-dev

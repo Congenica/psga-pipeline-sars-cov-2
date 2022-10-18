@@ -1,0 +1,12 @@
+FROM condaforge/mambaforge:4.14.0-0 AS condabuild
+
+ARG pathogen
+COPY docker/${pathogen}/fastqc.yml /environment.yml
+
+RUN mamba env create -f /environment.yml -n custom_env \
+  && conda clean --all -y
+
+ENV PATH=/opt/conda/envs/custom_env/bin:$PATH
+
+# overwrite fastqc configuration so that we only run the QC tests we need
+COPY data/fastqc_config_limits.txt /opt/conda/envs/custom_env/opt/fastqc-0.11.9/Configuration/limits.txt
