@@ -102,6 +102,16 @@ process primer_autodetection {
   # add a default line if no primer was autodetected
   if [[ "${primer}" == "none" ]]; then
       echo "${primer},,,0,0,0,0,0,0,${qc_val},${autodetect_val},${kit}" >> ${sample_id}_primer_data.csv
+
+      # WARNING: this is a hack
+      # certain samples could not have primers at all (e.g. bam files in which adapters and primers were trimmed in the past)
+      # ncov and artic expect a primer scheme and version as input parameters, though.
+      # here we mock ncov by passing a primer scheme/version to make it run.
+      # This won't have consequences because none of the sequences in this primer was found in the sample,
+      # so they won't be trimmed
+      if [[ "${kit}" == "none" ]]; then
+          echo "ARTIC_V3" > ${sample_id}_primer_${qc_val}.txt
+      fi
   fi
   '''
 }
