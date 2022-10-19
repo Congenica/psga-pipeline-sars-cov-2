@@ -6,6 +6,10 @@ def printMainConfig() {
         Global environment variables:
         * DOCKER_IMAGE_URI_PATH                       : ${DOCKER_IMAGE_URI_PATH}
         * DOCKER_IMAGE_TAG                            : ${DOCKER_IMAGE_TAG}
+        * AWS_ACCESS_KEY                              : ${AWS_ACCESS_KEY}
+        * AWS_SECRET_ACCESS_KEY                       : ${AWS_SECRET_ACCESS_KEY}
+        * AWS_REGION                                  : ${AWS_REGION}
+        * AWS_ROLE_ARN                                : ${AWS_ROLE_ARN}
         * AWS_CONNECTION_TIMEOUT                      : ${AWS_CONNECTION_TIMEOUT}
         * AWS_MAX_CONNECTIONS                         : ${AWS_MAX_CONNECTIONS}
         * AWS_MAX_PARALLEL_TRANSFERS                  : ${AWS_MAX_PARALLEL_TRANSFERS}
@@ -39,6 +43,14 @@ def printMainHelp() {
         DOCKER_IMAGE_URI_PATH   The prefix of the docker image, excluded the image name
         DOCKER_IMAGE_TAG
                                 The tag of the docker images docker image
+        AWS_ACCESS_KEY
+                                The AWS access key
+        AWS_SECRET_ACCESS_KEY
+                                The AWS secret access key
+        AWS_REGION
+                                The AWS region
+        AWS_ROLE_ARN
+                                The AWS role ARN
         AWS_CONNECTION_TIMEOUT
                                 The amount of time to wait (in milliseconds) when initially establishing a connection before giving up and timing out
         AWS_MAX_CONNECTIONS

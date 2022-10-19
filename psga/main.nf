@@ -55,7 +55,11 @@ if( NXF_EXECUTOR == "k8s" && "[:]" in [
     ]) {
     throw new Exception("Found unset K8S environment variables when using k8s executor. See '[:]' above. Abort")
 } else if( NXF_EXECUTOR == "awsbatch" && "[:]" in [
-    QUEUE
+    QUEUE,
+    AWS_ACCESS_KEY,
+    AWS_SECRET_ACCESS_KEY,
+    AWS_REGION,
+    AWS_ROLE_ARN
     ]) {
     throw new Exception("Found unset AWS BATCH environment variables when using awsbatch executor. See '[:]' above. Abort")
 }
