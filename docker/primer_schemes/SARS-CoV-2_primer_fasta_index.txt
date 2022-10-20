@@ -1,0 +1,4 @@
+/primer_schemes/ARTIC/SARS-CoV-2/V2/SARS-CoV-2.scheme.fasta
+/primer_schemes/ARTIC/SARS-CoV-2/V3/SARS-CoV-2.scheme.fasta
+/primer_schemes/ARTIC/SARS-CoV-2/V4/SARS-CoV-2.scheme.fasta
+/primer_schemes/ARTIC/SARS-CoV-2/V4.1/SARS-CoV-2.scheme.fasta
