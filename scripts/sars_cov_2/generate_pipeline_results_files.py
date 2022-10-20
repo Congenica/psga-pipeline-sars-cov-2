@@ -17,8 +17,25 @@ from scripts.validation.check_csv_columns import check_csv_columns
 log_file = f"{Path(__file__).stem}.log"
 logger = get_structlog_logger(log_file=log_file)
 
+# header for primer-autodetection CSV file
+PRIMER_AUTODETECTION_SAMPLE_ID_COL = "sample_id"
+EXPECTED_PRIMER_AUTODETECTION_HEADERS = {
+    PRIMER_AUTODETECTION_SAMPLE_ID_COL,
+    "rname",
+    "startpos",
+    "endpos",
+    "numreads",
+    "covbases",
+    "coverage",
+    "meandepth",
+    "meanbaseq",
+    "meanmapq",
+    "primer_qc",
+    "primer_autodetected",
+    "input_kit",
+}
 
-# header of ncov qc summary CSV file
+# header for ncov qc summary CSV file
 NCOV_SAMPLE_ID_COL = "sample_name"
 EXPECTED_NCOV_HEADERS = {
     NCOV_SAMPLE_ID_COL,
@@ -31,7 +48,7 @@ EXPECTED_NCOV_HEADERS = {
     "bam",
 }
 
-# header of pangolin lineages CSV file
+# header for pangolin lineages CSV file
 PANGOLIN_SAMPLE_ID_COL = "taxon"
 EXPECTED_PANGOLIN_HEADERS = {
     PANGOLIN_SAMPLE_ID_COL,
@@ -118,15 +135,14 @@ def load_data_from_csv(
     return df
 
 
-def _generate_notifications(
+def _generate_ncov_notifications(
     analysis_run_name: str,
     all_samples: List[str],
     df_ncov: pd.DataFrame,
-    df_pangolin: pd.DataFrame,
     notifications_path: Path,
 ) -> Tuple[List[str], Notification]:
     """
-    Generate and publish output pipeline notifications.
+    Generate and publish ncov notifications.
     Return the list of samples which failed not due to QC
     """
     events = {}
@@ -166,6 +182,22 @@ def _generate_notifications(
             ),
         }
 
+    notifications = Notification(events=events)
+    notifications.publish()
+
+    return qc_unrelated_failing_ncov_samples, events
+
+
+def _generate_pangolin_notifications(
+    analysis_run_name: str,
+    ncov_samples_passing_qc: List[str],
+    df_pangolin: pd.DataFrame,
+    notifications_path: Path,
+) -> Tuple[List[str], Notification]:
+    """
+    Generate and publish pangolin notifications.
+    Return the list of samples which failed not due to QC
+    """
     # pangolin is executed after ncov, unless the latter is skipped (e.g. fasta files)
     pangolin_all_samples = df_pangolin[SAMPLE_ID].tolist()
     # NOTE: pangolin is not executed for samples failing ncov QC
@@ -174,7 +206,6 @@ def _generate_notifications(
     pangolin_samples_passing_qc = df_pangolin.loc[df_pangolin["qc_status"] == "pass"][SAMPLE_ID]
 
     events = {
-        **events,
         UNKNOWN_PANGOLIN: Event(
             analysis_run=analysis_run_name,
             path=Path(notifications_path / SAMPLES_UNKNOWN_PANGOLIN_FILE),
@@ -200,6 +231,39 @@ def _generate_notifications(
 
     notifications = Notification(events=events)
     notifications.publish()
+
+    return qc_unrelated_failing_pangolin_samples, events
+
+
+def _generate_notifications(
+    analysis_run_name: str,
+    all_samples: List[str],
+    # df_primer_autodetection: pd.DataFrame,
+    df_ncov: pd.DataFrame,
+    df_pangolin: pd.DataFrame,
+    notifications_path: Path,
+) -> Tuple[List[str], Notification]:
+    """
+    Generate and publish output pipeline notifications.
+    Return the list of samples which failed not due to QC
+    """
+    qc_unrelated_failing_ncov_samples, ncov_events = _generate_ncov_notifications(
+        analysis_run_name,
+        all_samples,
+        df_ncov,
+        Path(notifications_path),
+    )
+    pangolin_processed_samples = ncov_events[PASSED_NCOV].samples if ncov_events else all_samples
+    qc_unrelated_failing_pangolin_samples, pangolin_events = _generate_pangolin_notifications(
+        analysis_run_name,
+        pangolin_processed_samples,
+        df_pangolin,
+        Path(notifications_path),
+    )
+    events = {
+        **ncov_events,
+        **pangolin_events,
+    }
 
     qc_unrelated_failing_samples = list(
         set(qc_unrelated_failing_ncov_samples) | set(qc_unrelated_failing_pangolin_samples)
@@ -350,6 +414,11 @@ def _generate_resultfiles_json(
     required=True,
     help="the sample metadata file",
 )
+# @click.option(
+#    "--primer-autodetection-csv-file",
+#    type=click.Path(exists=True, file_okay=True, readable=True),
+#    help="primer autodetection pipeline resulting csv file",
+# )
 @click.option(
     "--ncov-qc-csv-file",
     type=click.Path(exists=True, file_okay=True, readable=True),
@@ -394,6 +463,7 @@ def _generate_resultfiles_json(
 def generate_pipeline_results_files(
     analysis_run_name: str,
     metadata_file: str,
+    # primer_autodetection_csv_file: str,
     ncov_qc_csv_file: str,
     pangolin_csv_file: str,
     output_csv_file: str,
@@ -407,6 +477,12 @@ def generate_pipeline_results_files(
     """
     df_metadata = load_data_from_csv(Path(metadata_file), EXPECTED_METADATA_HEADERS)
     all_samples = df_metadata[SAMPLE_ID].tolist()
+
+    # df_primer_autodetection = load_data_from_csv(
+    #     Path(primer_autodetection_csv_file),
+    #     EXPECTED_PRIMER_AUTODETECTION_HEADERS,
+    #     PRIMER_AUTODETECTION_SAMPLE_ID_COL,
+    # )
 
     if ncov_qc_csv_file:
         # ncov was executed
