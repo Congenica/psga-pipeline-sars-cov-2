@@ -95,10 +95,10 @@ pipeline:
         name: Sars-CoV-2
         slug: sars-cov-2
 
-    # ARTIC_V4.1
+    # ARTIC_V4-1
     - name: illumina-sars-cov-2-articv4-1
       kit:
-        name: ARTIC_V4.1
+        name: ARTIC_V4-1
         slug: articv4-1
       sequencer_technology:
         name: illumina
@@ -109,7 +109,7 @@ pipeline:
 
     - name: ont-sars-cov-2-articv4-1
       kit:
-        name: ARTIC_V4.1
+        name: ARTIC_V4-1
         slug: articv4-1
       sequencer_technology:
         name: ont
