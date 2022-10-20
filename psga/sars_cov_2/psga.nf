@@ -5,17 +5,17 @@ include { primer_autodetection } from './common/primer_autodetection.nf'
 if ( params.sequencing_technology == "illumina" ) {
     include { contamination_removal_illumina as contamination_removal } from './common/contamination_removal.nf'
     include { ncov2019_artic_nf_pipeline_illumina as ncov2019_artic } from './ncov2019_artic.nf'
-    include { stage_sample_file } from './common/fetch_sample_files.nf'
-    include { stage_sample_file_pair as stage_fastq_sample_file } from './common/fetch_sample_files.nf'
+    include { stage_sample_file as stage_sample_bam } from './common/fetch_sample_files.nf'
+    include { stage_sample_file_pair as stage_sample_fastq } from './common/fetch_sample_files.nf'
     include { bam_to_fastq_illumina as bam_to_fastq } from './common/utils.nf'
 } else if ( params.sequencing_technology == "ont" ) {
     include { contamination_removal_ont as contamination_removal } from './common/contamination_removal.nf'
     include { ncov2019_artic_nf_pipeline_medaka as ncov2019_artic } from './ncov2019_artic.nf'
-    include { stage_sample_file } from './common/fetch_sample_files.nf'
-    include { stage_sample_file as stage_fastq_sample_file } from './common/fetch_sample_files.nf'
+    include { stage_sample_file as stage_sample_bam } from './common/fetch_sample_files.nf'
+    include { stage_sample_file as stage_sample_fastq } from './common/fetch_sample_files.nf'
     include { bam_to_fastq_ont as bam_to_fastq } from './common/utils.nf'
 } else if ( params.sequencing_technology == "unknown" ) {
-    include { stage_sample_file } from './common/fetch_sample_files.nf'
+    include { stage_sample_file as stage_sample_fasta } from './common/fetch_sample_files.nf'
 } else {
     throw new Exception("Error: '--sequencing_technology' can only be 'illumina', 'ont' or 'unknown'")
 }
@@ -61,50 +61,37 @@ workflow psga {
         check_metadata(params.metadata)
         ch_metadata = check_metadata.out.ch_metadata
 
-        // split the metadata in "single" (1 single file) and "pair" (2 reads) branches
+        // organise sample input files by file type
         ch_metadata
             .splitCsv(header: true, sep: ',')
             .branch {
-                single: it.SEQ_FILE_2 == ''
-                pair: true
+                bam: it.SEQ_FILE_2 == '' && it.SEQ_FILE_1 =~ /\.bam$/
+                fastq: it.SEQ_FILE_2 == '' && it.SEQ_FILE_1 =~ /\.(fq|fastq?)(?:\.gz)?$/
+                fastq_pair: it.SEQ_FILE_2 =~ /\.(fq|fastq?)(?:\.gz)?$/ && it.SEQ_FILE_1 =~ /\.(fq|fastq?)(?:\.gz)?$/
+                fasta: it.SEQ_FILE_2 == '' && it.SEQ_FILE_1 =~ /\.(fa|fasta?)(?:\.gz)?$/
             }
-            .set { ch_metadata_records }
-
-
-        // organise ch_metadata_records.single by file type
-        ch_metadata_records.single
-            .filter { it.SEQ_FILE_1 =~ /\.bam$/ }
-            .set { ch_metadata_records_single_bam }
-        ch_metadata_records.single
-            .filter { it.SEQ_FILE_1 =~ /\.(fq|fastq?)(?:\.gz)?$/ }
-            .set { ch_metadata_records_single_fastq }
-        ch_metadata_records.single
-            .filter { it.SEQ_FILE_1 =~ /\.(fa|fasta?)(?:\.gz)?$/ }
-            .set { ch_metadata_records_single_fasta }
-
-        ch_metadata_records_pair_fastq = ch_metadata_records.pair
-
+            .set { ch_metadata_samples }
 
         if ( params.sequencing_technology == "unknown" ) {
 
             // files are FASTA
-            ch_fasta_files = stage_sample_file(ch_metadata_records_single_fasta)
+            ch_fasta_files = stage_sample_fasta(ch_metadata_samples.fasta)
             // mock ncov
             ch_ncov_qc_csv = Channel.empty()
 
         } else {
 
             // stage bam files
-            ch_bam_files = stage_sample_file(ch_metadata_records_single_bam)
+            ch_bam_files = stage_sample_bam(ch_metadata_samples.bam)
             // transform bam into 2 paired fastq files
             ch_bam_to_fastq = bam_to_fastq(ch_bam_files)
 
             if ( params.sequencing_technology == "illumina") {
-                // stage fastq file pair
-                ch_fastq_files = stage_fastq_sample_file(ch_metadata_records_pair_fastq)
+                // stage input file (2 reads)
+                ch_fastq_files = stage_sample_fastq(ch_metadata_samples.fastq_pair)
             } else if ( params.sequencing_technology == "ont" ) {
-                // stage fastq file
-                ch_fastq_files = stage_fastq_sample_file(ch_metadata_records_single_fastq)
+                // stage input file
+                ch_fastq_files = stage_sample_fastq(ch_metadata_samples.fastq)
             } else {
                 throw new Exception("Error: '--sequencing_technology' can only be 'illumina', 'ont' or 'unknown'")
             }
