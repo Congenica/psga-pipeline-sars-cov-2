@@ -21,18 +21,17 @@ logger = get_structlog_logger(log_file=log_file)
 PRIMER_AUTODETECTION_SAMPLE_ID_COL = "sample_id"
 EXPECTED_PRIMER_AUTODETECTION_HEADERS = {
     PRIMER_AUTODETECTION_SAMPLE_ID_COL,
-    "rname",
+    "primer_detected",
     "startpos",
     "endpos",
-    "numreads",
-    "covbases",
-    "coverage",
+    "primer_numreads",
+    "primer_covbases",
+    "primer_coverage",
     "meandepth",
     "meanbaseq",
     "meanmapq",
     "primer_qc",
-    "primer_autodetected",
-    "input_kit",
+    "primer_input",
 }
 
 # header for ncov qc summary CSV file
@@ -75,11 +74,19 @@ STATUS = "STATUS"
 
 # these columns point to specific files and are not needed
 COLUMNS_TO_REMOVE_FROM_RESULTS_CSV = {
+    "STARTPOS",
+    "ENDPOS",
+    "MEANDEPTH",
+    "MEANBASEQ",
+    "MEANMAPQ",
     "FASTA",
     "BAM",
 }
 
 # notification event names
+UNKNOWN_PRIMER_AUTODETECTION = "unknown_primer_autodetection"
+FAILED_PRIMER_AUTODETECTION = "failed_primer_autodetection"
+PASSED_PRIMER_AUTODETECTION = "passed_primer_autodetection"
 UNKNOWN_NCOV = "unknown_ncov"
 FAILED_NCOV = "failed_ncov"
 PASSED_NCOV = "passed_ncov"
@@ -87,7 +94,10 @@ UNKNOWN_PANGOLIN = "unknown_pangolin"
 FAILED_PANGOLIN = "failed_pangolin"
 PASSED_PANGOLIN = "passed_pangolin"
 
-# output files storing sample ids for unknown/failing/passed ncov/pangolin QC
+# output files storing sample ids for unknown/failing/passed primer_autodetection/ncov/pangolin QC
+SAMPLES_UNKNOWN_PRIMER_AUTODETECTION_FILE = f"samples_{UNKNOWN_PRIMER_AUTODETECTION}.txt"
+SAMPLES_FAILED_PRIMER_AUTODETECTION_FILE = f"samples_{FAILED_PRIMER_AUTODETECTION}.txt"
+SAMPLES_PASSED_PRIMER_AUTODETECTION_FILE = f"samples_{PASSED_PRIMER_AUTODETECTION}.txt"
 SAMPLES_UNKNOWN_NCOV_QC_FILE = f"samples_{UNKNOWN_NCOV}_qc.txt"
 SAMPLES_FAILED_NCOV_QC_FILE = f"samples_{FAILED_NCOV}_qc.txt"
 SAMPLES_PASSED_NCOV_QC_FILE = f"samples_{PASSED_NCOV}_qc.txt"
@@ -104,6 +114,8 @@ class SampleIdResultFiles:
 
     # all samples of the analysis run
     all_samples: List[str] = field(metadata={"required": True}, default_factory=list)
+    # samples which completed primer-autodetection, whether passing or failing primer-autodetection qc
+    primer_autodetection_completed_samples: List[str] = field(metadata={"required": True}, default_factory=list)
     # samples which completed ncov, whether passing or failing ncov qc
     ncov_completed_samples: List[str] = field(metadata={"required": True}, default_factory=list)
     # samples passing ncov qc
@@ -122,17 +134,82 @@ class PathJSONEncoder(JSONEncoder):
 
 
 def load_data_from_csv(
-    csv_path: Path, expected_columns: Set[str], sample_name_col_to_rename: str = None
+    csv_file: str, expected_columns: Set[str], sample_name_col_to_rename: str = None
 ) -> pd.DataFrame:
     """
     Load the CSV content to a Pandas dataframe. An arbitrary column name used to indentify the sample id
     can be renamed to "sample_id"
     """
-    df = pd.read_csv(csv_path)
-    check_csv_columns(set(df.columns), expected_columns)
-    if sample_name_col_to_rename:
+    if csv_file:
+        df = pd.read_csv(Path(csv_file))
+        check_csv_columns(set(df.columns), expected_columns)
+        if sample_name_col_to_rename:
+            df = df.rename(columns={sample_name_col_to_rename: SAMPLE_ID})
+    else:
+        # create a dataframe with header but no rows
+        df = pd.DataFrame({c: [] for c in expected_columns})
         df = df.rename(columns={sample_name_col_to_rename: SAMPLE_ID})
     return df
+
+
+def _generate_primer_autodetection_notifications(
+    analysis_run_name: str,
+    all_samples: List[str],
+    df_primer_autodetection: pd.DataFrame,
+    notifications_path: Path,
+) -> Tuple[List[str], Notification]:
+    """
+    Generate and publish primer_autodetection notifications.
+    Return the list of samples which failed not due to QC
+    """
+    events = {}
+
+    # initialise primer_autodetection as if it had not executed. This is the default case in which fastas were processed
+    primer_autodetection_all_samples = all_samples
+    qc_unrelated_failing_primer_autodetection_samples = []
+    primer_autodetection_samples_passing_qc = all_samples
+
+    if not df_primer_autodetection.empty:
+        primer_autodetection_all_samples = df_primer_autodetection[SAMPLE_ID].tolist()
+        qc_unrelated_failing_primer_autodetection_samples = [
+            s for s in all_samples if s not in primer_autodetection_all_samples
+        ]
+
+        primer_autodetection_samples_failing_qc = df_primer_autodetection.loc[
+            df_primer_autodetection["primer_qc"] == "FAIL"
+        ][SAMPLE_ID]
+        primer_autodetection_samples_passing_qc = df_primer_autodetection.loc[
+            df_primer_autodetection["primer_qc"] == "PASS"
+        ][SAMPLE_ID]
+
+        events = {
+            UNKNOWN_PRIMER_AUTODETECTION: Event(
+                analysis_run=analysis_run_name,
+                path=Path(notifications_path / SAMPLES_UNKNOWN_PRIMER_AUTODETECTION_FILE),
+                level=ERROR,
+                message="primer autodetection QC unknown",
+                samples=qc_unrelated_failing_primer_autodetection_samples,
+            ),
+            FAILED_PRIMER_AUTODETECTION: Event(
+                analysis_run=analysis_run_name,
+                path=Path(notifications_path / SAMPLES_FAILED_PRIMER_AUTODETECTION_FILE),
+                level=WARNING,
+                message="primer autodetection QC failed",
+                samples=primer_autodetection_samples_failing_qc,
+            ),
+            PASSED_PRIMER_AUTODETECTION: Event(
+                analysis_run=analysis_run_name,
+                path=Path(notifications_path / SAMPLES_PASSED_PRIMER_AUTODETECTION_FILE),
+                level=INFO,
+                message="primer autodetection QC passed",
+                samples=primer_autodetection_samples_passing_qc,
+            ),
+        }
+
+    notifications = Notification(events=events)
+    notifications.publish()
+
+    return qc_unrelated_failing_primer_autodetection_samples, events
 
 
 def _generate_ncov_notifications(
@@ -238,7 +315,7 @@ def _generate_pangolin_notifications(
 def _generate_notifications(
     analysis_run_name: str,
     all_samples: List[str],
-    # df_primer_autodetection: pd.DataFrame,
+    df_primer_autodetection: pd.DataFrame,
     df_ncov: pd.DataFrame,
     df_pangolin: pd.DataFrame,
     notifications_path: Path,
@@ -247,12 +324,26 @@ def _generate_notifications(
     Generate and publish output pipeline notifications.
     Return the list of samples which failed not due to QC
     """
-    qc_unrelated_failing_ncov_samples, ncov_events = _generate_ncov_notifications(
+    (
+        qc_unrelated_failing_primer_autodetection_samples,
+        primer_autodetection_events,
+    ) = _generate_primer_autodetection_notifications(
         analysis_run_name,
         all_samples,
+        df_primer_autodetection,
+        Path(notifications_path),
+    )
+
+    ncov_processed_samples = (
+        primer_autodetection_events[PASSED_PRIMER_AUTODETECTION].samples if primer_autodetection_events else all_samples
+    )
+    qc_unrelated_failing_ncov_samples, ncov_events = _generate_ncov_notifications(
+        analysis_run_name,
+        ncov_processed_samples,
         df_ncov,
         Path(notifications_path),
     )
+
     pangolin_processed_samples = ncov_events[PASSED_NCOV].samples if ncov_events else all_samples
     qc_unrelated_failing_pangolin_samples, pangolin_events = _generate_pangolin_notifications(
         analysis_run_name,
@@ -261,12 +352,14 @@ def _generate_notifications(
         Path(notifications_path),
     )
     events = {
+        **primer_autodetection_events,
         **ncov_events,
         **pangolin_events,
     }
-
     qc_unrelated_failing_samples = list(
-        set(qc_unrelated_failing_ncov_samples) | set(qc_unrelated_failing_pangolin_samples)
+        set(qc_unrelated_failing_primer_autodetection_samples)
+        | set(qc_unrelated_failing_ncov_samples)
+        | set(qc_unrelated_failing_pangolin_samples)
     )
 
     return qc_unrelated_failing_samples, events
@@ -274,6 +367,7 @@ def _generate_notifications(
 
 def _generate_results_csv(
     all_samples: List[str],
+    df_primer_autodetection: pd.DataFrame,
     df_ncov: pd.DataFrame,
     df_pangolin: pd.DataFrame,
     qc_unrelated_failing_samples: List[str],
@@ -290,7 +384,7 @@ def _generate_results_csv(
     df_status = pd.DataFrame(status_col_data)
 
     # list of dataframes to merge. They share 1 shared column: SAMPLE_ID
-    dfs_to_merge = [df_status, df_ncov, df_pangolin]
+    dfs_to_merge = [df_status, df_primer_autodetection, df_ncov, df_pangolin]
 
     # partial stores part of a function’s arguments resulting in a new object with a simplified signature.
     # reduce applies cumulatively the new partial object to the items of iterable (list of dataframes here).
@@ -359,6 +453,14 @@ def get_expected_output_files_per_sample(
                 [join_path(output_path, "fastqc", f"{sample_id}_{e}") for e in fastqc_suffixes]
             )
 
+        for sample_id in sample_ids_result_files.primer_autodetection_completed_samples:
+            output_files[sample_id].extend(
+                [
+                    join_path(output_path, "primer_autodetection", f"{sample_id}_{e}")
+                    for e in ["primer_data.csv", "primer_detection.tsv"]
+                ]
+            )
+
         for sample_id in sample_ids_result_files.ncov_completed_samples:
             # expected files for samples which completed ncov
             output_files[sample_id].extend(
@@ -414,11 +516,11 @@ def _generate_resultfiles_json(
     required=True,
     help="the sample metadata file",
 )
-# @click.option(
-#    "--primer-autodetection-csv-file",
-#    type=click.Path(exists=True, file_okay=True, readable=True),
-#    help="primer autodetection pipeline resulting csv file",
-# )
+@click.option(
+    "--primer-autodetection-csv-file",
+    type=click.Path(exists=True, file_okay=True, readable=True),
+    help="primer autodetection pipeline resulting csv file",
+)
 @click.option(
     "--ncov-qc-csv-file",
     type=click.Path(exists=True, file_okay=True, readable=True),
@@ -463,7 +565,7 @@ def _generate_resultfiles_json(
 def generate_pipeline_results_files(
     analysis_run_name: str,
     metadata_file: str,
-    # primer_autodetection_csv_file: str,
+    primer_autodetection_csv_file: str,
     ncov_qc_csv_file: str,
     pangolin_csv_file: str,
     output_csv_file: str,
@@ -475,33 +577,32 @@ def generate_pipeline_results_files(
     """
     Generate pipeline results files
     """
-    df_metadata = load_data_from_csv(Path(metadata_file), EXPECTED_METADATA_HEADERS)
+    # data loading
+    df_metadata = load_data_from_csv(metadata_file, EXPECTED_METADATA_HEADERS)
+    df_primer_autodetection = load_data_from_csv(
+        primer_autodetection_csv_file,
+        EXPECTED_PRIMER_AUTODETECTION_HEADERS,
+        PRIMER_AUTODETECTION_SAMPLE_ID_COL,
+    )
+    df_ncov = load_data_from_csv(ncov_qc_csv_file, EXPECTED_NCOV_HEADERS, NCOV_SAMPLE_ID_COL)
+    df_pangolin = load_data_from_csv(pangolin_csv_file, EXPECTED_PANGOLIN_HEADERS, PANGOLIN_SAMPLE_ID_COL)
+
     all_samples = df_metadata[SAMPLE_ID].tolist()
 
-    # df_primer_autodetection = load_data_from_csv(
-    #     Path(primer_autodetection_csv_file),
-    #     EXPECTED_PRIMER_AUTODETECTION_HEADERS,
-    #     PRIMER_AUTODETECTION_SAMPLE_ID_COL,
-    # )
-
-    if ncov_qc_csv_file:
-        # ncov was executed
-        df_ncov = load_data_from_csv(Path(ncov_qc_csv_file), EXPECTED_NCOV_HEADERS, NCOV_SAMPLE_ID_COL)
-    else:
-        # create a dataframe with header but no rows
-        df_ncov = pd.DataFrame({c: [] for c in EXPECTED_NCOV_HEADERS})
-        df_ncov = df_ncov.rename(columns={NCOV_SAMPLE_ID_COL: SAMPLE_ID})
-
-    df_pangolin = load_data_from_csv(Path(pangolin_csv_file), EXPECTED_PANGOLIN_HEADERS, PANGOLIN_SAMPLE_ID_COL)
-
     qc_unrelated_failing_samples, events = _generate_notifications(
-        analysis_run_name, all_samples, df_ncov, df_pangolin, Path(notifications_path)
+        analysis_run_name, all_samples, df_primer_autodetection, df_ncov, df_pangolin, Path(notifications_path)
     )
 
-    _generate_results_csv(all_samples, df_ncov, df_pangolin, qc_unrelated_failing_samples, output_csv_file)
+    _generate_results_csv(
+        all_samples, df_primer_autodetection, df_ncov, df_pangolin, qc_unrelated_failing_samples, output_csv_file
+    )
 
     sample_ids_result_files = SampleIdResultFiles(
         all_samples=all_samples,
+        primer_autodetection_completed_samples=[]
+        if sequencing_technology == UNKNOWN
+        or not {FAILED_PRIMER_AUTODETECTION, PASSED_PRIMER_AUTODETECTION} <= events.keys()
+        else list(set(events[FAILED_PRIMER_AUTODETECTION].samples) | set(events[PASSED_PRIMER_AUTODETECTION].samples)),
         ncov_completed_samples=[]
         if sequencing_technology == UNKNOWN or not {FAILED_NCOV, PASSED_NCOV} <= events.keys()
         else list(set(events[FAILED_NCOV].samples) | set(events[PASSED_NCOV].samples)),

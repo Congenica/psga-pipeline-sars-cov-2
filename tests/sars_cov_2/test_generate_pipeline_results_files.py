@@ -7,12 +7,18 @@ from pandas.testing import assert_frame_equal
 
 from scripts.sars_cov_2.generate_pipeline_results_files import (
     generate_pipeline_results_files,
+    SAMPLES_UNKNOWN_PRIMER_AUTODETECTION_FILE,
+    SAMPLES_FAILED_PRIMER_AUTODETECTION_FILE,
+    SAMPLES_PASSED_PRIMER_AUTODETECTION_FILE,
     SAMPLES_UNKNOWN_NCOV_QC_FILE,
     SAMPLES_FAILED_NCOV_QC_FILE,
     SAMPLES_PASSED_NCOV_QC_FILE,
     SAMPLES_UNKNOWN_PANGOLIN_FILE,
     SAMPLES_FAILED_PANGOLIN_FILE,
     SAMPLES_PASSED_PANGOLIN_FILE,
+    UNKNOWN_PRIMER_AUTODETECTION,
+    FAILED_PRIMER_AUTODETECTION,
+    PASSED_PRIMER_AUTODETECTION,
     UNKNOWN_NCOV,
     FAILED_NCOV,
     PASSED_NCOV,
@@ -34,16 +40,26 @@ def check_sample_list(input_path, expected_samples):
     [False, True],
 )
 @pytest.mark.parametrize(
-    "metadata,ncov_csv,pangolin_csv,analysis_run_name,sequencing_technology,"
+    "metadata,primer_autodetection_csv,ncov_csv,pangolin_csv,analysis_run_name,sequencing_technology,"
     "exp_lists,exp_results_csv,exp_resultfiles_json",
     [
         (
             "metadata_illumina.csv",
+            "primer_autodetection.csv",
             "ncov_test.qc.csv",
             "all_lineages_report.csv",
             "just_a_name",
             "illumina",
             {
+                UNKNOWN_PRIMER_AUTODETECTION: ["e2331432-cd94-45b5-96d5-b721c037a451"],
+                FAILED_PRIMER_AUTODETECTION: ["b1131432-cd94-45b5-96d5-b721c037a451"],
+                PASSED_PRIMER_AUTODETECTION: [
+                    "985347c5-ff6a-454c-ac34-bc353d05dd70",
+                    "0774181d-fb20-4a73-b887-38af7eda9b38",
+                    "e80f3c63-d139-4c14-bd72-7a43897ab40d",
+                    "56a63f60-764d-4fc7-8764-a46023cbe324",
+                    "a0951432-cd94-45b5-96d5-b721c037a451",
+                ],
                 UNKNOWN_NCOV: ["985347c5-ff6a-454c-ac34-bc353d05dd70"],
                 FAILED_NCOV: ["0774181d-fb20-4a73-b887-38af7eda9b38"],
                 PASSED_NCOV: [
@@ -60,11 +76,21 @@ def check_sample_list(input_path, expected_samples):
         ),
         (
             "metadata_ont.csv",
+            "primer_autodetection.csv",
             "ncov_test.qc.csv",
             "all_lineages_report.csv",
             "just_a_name",
             "ont",
             {
+                UNKNOWN_PRIMER_AUTODETECTION: ["e2331432-cd94-45b5-96d5-b721c037a451"],
+                FAILED_PRIMER_AUTODETECTION: ["b1131432-cd94-45b5-96d5-b721c037a451"],
+                PASSED_PRIMER_AUTODETECTION: [
+                    "985347c5-ff6a-454c-ac34-bc353d05dd70",
+                    "0774181d-fb20-4a73-b887-38af7eda9b38",
+                    "e80f3c63-d139-4c14-bd72-7a43897ab40d",
+                    "56a63f60-764d-4fc7-8764-a46023cbe324",
+                    "a0951432-cd94-45b5-96d5-b721c037a451",
+                ],
                 UNKNOWN_NCOV: ["985347c5-ff6a-454c-ac34-bc353d05dd70"],
                 FAILED_NCOV: ["0774181d-fb20-4a73-b887-38af7eda9b38"],
                 PASSED_NCOV: [
@@ -81,6 +107,7 @@ def check_sample_list(input_path, expected_samples):
         ),
         (
             "metadata_unknown.csv",
+            None,
             None,
             "all_lineages_report.csv",
             "just_a_name",
@@ -103,6 +130,7 @@ def test_generate_pipeline_results_files(
     tmp_path,
     test_data_path,
     metadata,
+    primer_autodetection_csv,
     ncov_csv,
     pangolin_csv,
     analysis_run_name,
@@ -140,6 +168,8 @@ def test_generate_pipeline_results_files(
     if ncov_csv:
         args.extend(
             [
+                "--primer-autodetection-csv-file",
+                test_data_path / "pipeline_results_files" / primer_autodetection_csv,
                 "--ncov-qc-csv-file",
                 test_data_path / "pipeline_results_files" / ncov_csv,
             ]
@@ -167,6 +197,18 @@ def test_generate_pipeline_results_files(
         calculated_output_df.reset_index(drop=True),
         expected_output_df.reset_index(drop=True),
     )
+
+    # check notifications
+    if primer_autodetection_csv:
+        check_sample_list(
+            Path(tmp_path / SAMPLES_UNKNOWN_PRIMER_AUTODETECTION_FILE), exp_lists[UNKNOWN_PRIMER_AUTODETECTION]
+        )
+        check_sample_list(
+            Path(tmp_path / SAMPLES_FAILED_PRIMER_AUTODETECTION_FILE), exp_lists[FAILED_PRIMER_AUTODETECTION]
+        )
+        check_sample_list(
+            Path(tmp_path / SAMPLES_PASSED_PRIMER_AUTODETECTION_FILE), exp_lists[PASSED_PRIMER_AUTODETECTION]
+        )
 
     if ncov_csv:
         check_sample_list(Path(tmp_path / SAMPLES_UNKNOWN_NCOV_QC_FILE), exp_lists[UNKNOWN_NCOV])
