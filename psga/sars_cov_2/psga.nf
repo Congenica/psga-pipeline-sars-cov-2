@@ -77,7 +77,7 @@ workflow psga {
             // files are FASTA
             ch_fasta_files = stage_sample_fasta(ch_metadata_samples.fasta)
             // mock primer autodetection and ncov
-            ch_primer_data_csv = Channel.empty()
+            ch_primer_autodetection_csv = Channel.empty()
             ch_ncov_qc_csv = Channel.empty()
 
         } else {
@@ -109,7 +109,7 @@ workflow psga {
             fastqc(contamination_removal.out.ch_output_file)
 
             primer_autodetection(fastqc.out.ch_input_files)
-            ch_primer_data_csv = primer_autodetection.out.ch_primer_data
+            ch_primer_autodetection_csv = primer_autodetection.out.ch_primer_data
             ch_primer_autodetection_files = primer_autodetection.out.ch_files
             /*
              * select the input files passing primer autodetection QC
@@ -136,6 +136,7 @@ workflow psga {
 
         submit_analysis_run_results(
             ch_metadata,
+            ch_primer_autodetection_csv.collect(),
             ch_ncov_qc_csv.collect(),
             pangolin.out.ch_pangolin_lineage_csv.collect()
         )

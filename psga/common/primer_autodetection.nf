@@ -92,11 +92,11 @@ process primer_autodetection {
     fi
   fi
   awk -v s="sample_id" -v qc="primer_qc" -v ip="primer_input" -v s_val="${sample_id}" -v qc_val="${qc_val}" -v ip_val="${input_primer_val}" \
-    'BEGIN{FS=OFS=","} {print $0,(NR==1 ? s OFS qc OFS ip : s_val OFS qc_val OFS ip_val)}' \
+    'BEGIN{FS=OFS=","} {print (NR==1 ? s OFS qc OFS ip : s_val OFS qc_val OFS ip_val), $0}' \
     ${sample_id}_primer_data.csv.tmp > ${sample_id}_primer_data.csv
 
   # reheader
-  new_header="sample_id,primer_detected,startpos,endpos,primer_numreads,primer_covbases,primer_coverage,meandepth,meanbaseq,meanmapq,primer_qc,primer_input"
+  new_header="sample_id,primer_qc,primer_input,primer_detected,startpos,endpos,primer_numreads,primer_covbases,primer_coverage,meandepth,meanbaseq,meanmapq"
   sed -i "1s/.*/${new_header}/" ${sample_id}_primer_data.csv
 
   # store the primer scheme name/version
@@ -104,7 +104,7 @@ process primer_autodetection {
 
   # add a default line if no primer was autodetected
   if [[ "${primer}" == "none" ]]; then
-      echo "${sample_id},${primer},,,0,0,0,0,0,0,${qc_val},${input_primer_val}" >> ${sample_id}_primer_data.csv
+      echo "${sample_id},${qc_val},${input_primer_val},${primer},,,0,0,0,0,0,0" >> ${sample_id}_primer_data.csv
 
       # WARNING: this is a hack
       # certain samples could not have primers at all (e.g. bam files in which adapters and primers were trimmed in the past)
