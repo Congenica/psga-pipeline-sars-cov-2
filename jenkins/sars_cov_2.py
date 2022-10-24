@@ -14,6 +14,16 @@ from scripts.util.metadata import UNKNOWN
 logger = get_structlog_logger()
 
 
+def get_primers() -> List[str]:
+    """
+    Return a list of ALL sars-cov-2 primers scheme/version (e.g. [ARTIC_V2, ARTIC_V3, ...])
+    """
+    primer_root = Path.cwd().parent / "docker" / "primer_schemes"
+    primer_paths = [p.relative_to(primer_root) for p in primer_root.glob("**/SARS-CoV-2/*") if p.is_dir()]
+    primers = [str(p).replace("/SARS-CoV-2/", "_") for p in primer_paths]
+    return primers
+
+
 def get_expected_output_files(output_path: str, sample_ids: List[str], sequencing_technology: str) -> List[str]:
     """
     Return a list of ALL expected output paths
@@ -22,6 +32,7 @@ def get_expected_output_files(output_path: str, sample_ids: List[str], sequencin
     # In integration tests, we expect all samples to pass ncov qc if this is executed
     sample_ids_result_files = SampleIdResultFiles(
         all_samples=sample_ids,
+        primer_autodetection_completed_samples=[] if sequencing_technology == UNKNOWN else sample_ids,
         ncov_completed_samples=[] if sequencing_technology == UNKNOWN else sample_ids,
         ncov_qc_passed_samples=[] if sequencing_technology == UNKNOWN else sample_ids,
     )
@@ -33,6 +44,11 @@ def get_expected_output_files(output_path: str, sample_ids: List[str], sequencin
     )
     # generate a unified list of paths as non-sample results files must also be included
     output_files = [path for sample_paths in output_files_per_sample.values() for path in sample_paths]
+
+    primer_autodetection_files = [
+        f"{primer}.{ext}" for primer in get_primers() for ext in ["bowtie2", "bowtie2-build"]
+    ] + ["trimmomatic.out"]
+    output_files.extend([join_path(output_path, "primer_autodetection", f) for f in primer_autodetection_files])
 
     output_files.extend(
         [join_path(output_path, "logs", f) for f in ["check_metadata.log", "generate_pipeline_results_files.log"]]
@@ -49,6 +65,9 @@ def get_expected_output_files(output_path: str, sample_ids: List[str], sequencin
     if sequencing_technology != UNKNOWN:
         notification_files.extend(
             [
+                "samples_failed_primer_autodetection.txt",
+                "samples_passed_primer_autodetection.txt",
+                "samples_unknown_primer_autodetection.txt",
                 "samples_failed_ncov_qc.txt",
                 "samples_passed_ncov_qc.txt",
                 "samples_unknown_ncov_qc.txt",
