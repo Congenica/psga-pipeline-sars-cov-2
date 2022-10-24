@@ -18,7 +18,7 @@ process primer_autodetection {
 
   shell:
   '''
-  kit=!{params.kit}
+  input_primer_val=!{params.kit}
 
   # select the input fastq file based on illumina or ont.
   # For illumina, 1 read is sufficient for primer autodetection
@@ -56,6 +56,10 @@ process primer_autodetection {
       samtools coverage ${primer}.bam > ${primer}.coverage.tsv
   done
 
+  ###############################
+  # THE FOLLOWING CODE WILL BE REFACTORED TO PYTHON IN https://jira.congenica.net/browse/PSG-1275
+  ###############################
+
   # concatenate the coverage files to 1 single file with 1 single header
   awk 'FNR==1 && NR!=1{next;}{print}' *.coverage.tsv > ${sample_id}_primer_detection.tsv
 
@@ -68,41 +72,39 @@ process primer_autodetection {
   awk -v name="${primer}" 'NR==1 || $1==name {$1=$1; print}' OFS=, ${sample_id}_primer_detection.tsv > ${sample_id}_primer_data.csv.tmp
 
   # add additional columns
-  qc_col="primer_qc"
-  autodetect_col="primer_autodetected"
-  orig_kit_col="input_kit"
-  if [[ "${kit}" == "unknown" ]]; then
-    autodetect_val="True"
+  if [[ "${input_primer_val}" == "unknown" ]]; then
     if [[ ${primer_nreads} -gt 0 ]]; then
       qc_val="PASS"
     else
       qc_val="FAIL"
     fi
-  elif [[ "${kit}" == "none" ]]; then
-    autodetect_val="True"
+  elif [[ "${input_primer_val}" == "none" ]]; then
     if [[ ${primer_nreads} -gt 0 ]]; then
       qc_val="FAIL"
     else
       qc_val="PASS"
     fi
   else
-    autodetect_val="False"
-    if [[ "${kit}" == "${primer}" ]]; then
+    if [[ "${input_primer_val}" == "${primer}" ]]; then
       qc_val="PASS"
     else
       qc_val="FAIL"
     fi
   fi
-  awk -v qc="${qc_col}" -v ad="${autodetect_col}" -v kit="${orig_kit_col}" -v qc_val="${qc_val}" -v ad_val="${autodetect_val}" -v kit_val="${kit}" \
-    'BEGIN{FS=OFS=","} {print $0,(NR==1 ? qc OFS ad OFS kit : qc_val OFS ad_val OFS kit_val)}' \
+  awk -v s="sample_id" -v qc="primer_qc" -v ip="primer_input" -v s_val="${sample_id}" -v qc_val="${qc_val}" -v ip_val="${input_primer_val}" \
+    'BEGIN{FS=OFS=","} {print $0,(NR==1 ? s OFS qc OFS ip : s_val OFS qc_val OFS ip_val)}' \
     ${sample_id}_primer_data.csv.tmp > ${sample_id}_primer_data.csv
+
+  # reheader
+  new_header="sample_id,primer_detected,startpos,endpos,primer_numreads,primer_covbases,primer_coverage,meandepth,meanbaseq,meanmapq,primer_qc,primer_input"
+  sed -i "1s/.*/${new_header}/" ${sample_id}_primer_data.csv
 
   # store the primer scheme name/version
   echo "${primer}" > ${sample_id}_primer_${qc_val}.txt
 
   # add a default line if no primer was autodetected
   if [[ "${primer}" == "none" ]]; then
-      echo "${primer},,,0,0,0,0,0,0,${qc_val},${autodetect_val},${kit}" >> ${sample_id}_primer_data.csv
+      echo "${sample_id},${primer},,,0,0,0,0,0,0,${qc_val},${input_primer_val}" >> ${sample_id}_primer_data.csv
 
       # WARNING: this is a hack
       # certain samples could not have primers at all (e.g. bam files in which adapters and primers were trimmed in the past)
@@ -110,7 +112,7 @@ process primer_autodetection {
       # here we mock ncov by passing a primer scheme/version to make it run.
       # This won't have consequences because none of the sequences in this primer was found in the sample,
       # so they won't be trimmed
-      if [[ "${kit}" == "none" ]]; then
+      if [[ "${input_primer_val}" == "none" ]]; then
           echo "ARTIC_V3" > ${sample_id}_primer_${qc_val}.txt
       fi
   fi

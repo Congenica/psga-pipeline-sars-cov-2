@@ -76,7 +76,8 @@ workflow psga {
 
             // files are FASTA
             ch_fasta_files = stage_sample_fasta(ch_metadata_samples.fasta)
-            // mock ncov
+            // mock primer autodetection and ncov
+            ch_primer_data_csv = Channel.empty()
             ch_ncov_qc_csv = Channel.empty()
 
         } else {
