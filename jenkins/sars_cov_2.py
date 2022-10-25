@@ -54,29 +54,10 @@ def get_expected_output_files(output_path: str, sample_ids: List[str], sequencin
         [join_path(output_path, "logs", f) for f in ["check_metadata.log", "generate_pipeline_results_files.log"]]
     )
 
-    notification_files = [
-        "samples_failed_pangolin.txt",
-        "samples_passed_pangolin.txt",
-        "samples_unknown_pangolin.txt",
-        "samples_with_invalid_metadata.txt",
-        "samples_with_valid_metadata.txt",
-    ]
-
     if sequencing_technology != UNKNOWN:
-        notification_files.extend(
-            [
-                "samples_failed_primer_autodetection.txt",
-                "samples_passed_primer_autodetection.txt",
-                "samples_unknown_primer_autodetection.txt",
-                "samples_failed_ncov_qc.txt",
-                "samples_passed_ncov_qc.txt",
-                "samples_unknown_ncov_qc.txt",
-            ]
-        )
         output_files.append(join_path(output_path, "ncov2019-artic", "ncov_qc.csv"))
 
     output_files.append(join_path(output_path, "pangolin", "all_lineages_report.csv"))
-    output_files.extend([join_path(output_path, "notifications", p) for p in notification_files])
     output_files.append(join_path(output_path, "results.csv"))
     output_files.append(join_path(output_path, "resultfiles.json"))
 

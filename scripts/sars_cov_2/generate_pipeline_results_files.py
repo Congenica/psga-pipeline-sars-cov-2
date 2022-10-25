@@ -94,17 +94,6 @@ UNKNOWN_PANGOLIN = "unknown_pangolin"
 FAILED_PANGOLIN = "failed_pangolin"
 PASSED_PANGOLIN = "passed_pangolin"
 
-# output files storing sample ids for unknown/failing/passed primer_autodetection/ncov/pangolin QC
-SAMPLES_UNKNOWN_PRIMER_AUTODETECTION_FILE = f"samples_{UNKNOWN_PRIMER_AUTODETECTION}.txt"
-SAMPLES_FAILED_PRIMER_AUTODETECTION_FILE = f"samples_{FAILED_PRIMER_AUTODETECTION}.txt"
-SAMPLES_PASSED_PRIMER_AUTODETECTION_FILE = f"samples_{PASSED_PRIMER_AUTODETECTION}.txt"
-SAMPLES_UNKNOWN_NCOV_QC_FILE = f"samples_{UNKNOWN_NCOV}_qc.txt"
-SAMPLES_FAILED_NCOV_QC_FILE = f"samples_{FAILED_NCOV}_qc.txt"
-SAMPLES_PASSED_NCOV_QC_FILE = f"samples_{PASSED_NCOV}_qc.txt"
-SAMPLES_UNKNOWN_PANGOLIN_FILE = f"samples_{UNKNOWN_PANGOLIN}.txt"
-SAMPLES_FAILED_PANGOLIN_FILE = f"samples_{FAILED_PANGOLIN}.txt"
-SAMPLES_PASSED_PANGOLIN_FILE = f"samples_{PASSED_PANGOLIN}.txt"
-
 
 @dataclass
 class SampleIdResultFiles:
@@ -156,7 +145,6 @@ def _generate_primer_autodetection_notifications(
     analysis_run_name: str,
     all_samples: List[str],
     df_primer_autodetection: pd.DataFrame,
-    notifications_path: Path,
 ) -> Tuple[List[str], Notification]:
     """
     Generate and publish primer_autodetection notifications.
@@ -185,21 +173,18 @@ def _generate_primer_autodetection_notifications(
         events = {
             UNKNOWN_PRIMER_AUTODETECTION: Event(
                 analysis_run=analysis_run_name,
-                path=Path(notifications_path / SAMPLES_UNKNOWN_PRIMER_AUTODETECTION_FILE),
                 level=ERROR,
                 message="primer autodetection QC unknown",
                 samples=qc_unrelated_failing_primer_autodetection_samples,
             ),
             FAILED_PRIMER_AUTODETECTION: Event(
                 analysis_run=analysis_run_name,
-                path=Path(notifications_path / SAMPLES_FAILED_PRIMER_AUTODETECTION_FILE),
                 level=WARNING,
                 message="primer autodetection QC failed",
                 samples=primer_autodetection_samples_failing_qc,
             ),
             PASSED_PRIMER_AUTODETECTION: Event(
                 analysis_run=analysis_run_name,
-                path=Path(notifications_path / SAMPLES_PASSED_PRIMER_AUTODETECTION_FILE),
                 level=INFO,
                 message="primer autodetection QC passed",
                 samples=primer_autodetection_samples_passing_qc,
@@ -216,7 +201,6 @@ def _generate_ncov_notifications(
     analysis_run_name: str,
     all_samples: List[str],
     df_ncov: pd.DataFrame,
-    notifications_path: Path,
 ) -> Tuple[List[str], Notification]:
     """
     Generate and publish ncov notifications.
@@ -238,21 +222,18 @@ def _generate_ncov_notifications(
         events = {
             UNKNOWN_NCOV: Event(
                 analysis_run=analysis_run_name,
-                path=Path(notifications_path / SAMPLES_UNKNOWN_NCOV_QC_FILE),
                 level=ERROR,
                 message="ncov QC unknown",
                 samples=qc_unrelated_failing_ncov_samples,
             ),
             FAILED_NCOV: Event(
                 analysis_run=analysis_run_name,
-                path=Path(notifications_path / SAMPLES_FAILED_NCOV_QC_FILE),
                 level=WARNING,
                 message="ncov QC failed",
                 samples=ncov_samples_failing_qc,
             ),
             PASSED_NCOV: Event(
                 analysis_run=analysis_run_name,
-                path=Path(notifications_path / SAMPLES_PASSED_NCOV_QC_FILE),
                 level=INFO,
                 message="ncov QC passed",
                 samples=ncov_samples_passing_qc,
@@ -269,7 +250,6 @@ def _generate_pangolin_notifications(
     analysis_run_name: str,
     ncov_samples_passing_qc: List[str],
     df_pangolin: pd.DataFrame,
-    notifications_path: Path,
 ) -> Tuple[List[str], Notification]:
     """
     Generate and publish pangolin notifications.
@@ -285,21 +265,18 @@ def _generate_pangolin_notifications(
     events = {
         UNKNOWN_PANGOLIN: Event(
             analysis_run=analysis_run_name,
-            path=Path(notifications_path / SAMPLES_UNKNOWN_PANGOLIN_FILE),
             level=ERROR,
             message="pangolin QC unknown",
             samples=qc_unrelated_failing_pangolin_samples,
         ),
         FAILED_PANGOLIN: Event(
             analysis_run=analysis_run_name,
-            path=Path(notifications_path / SAMPLES_FAILED_PANGOLIN_FILE),
             level=WARNING,
             message="pangolin QC failed",
             samples=pangolin_samples_failing_qc,
         ),
         PASSED_PANGOLIN: Event(
             analysis_run=analysis_run_name,
-            path=Path(notifications_path / SAMPLES_PASSED_PANGOLIN_FILE),
             level=INFO,
             message="pangolin QC passed",
             samples=pangolin_samples_passing_qc,
@@ -318,7 +295,6 @@ def _generate_notifications(
     df_primer_autodetection: pd.DataFrame,
     df_ncov: pd.DataFrame,
     df_pangolin: pd.DataFrame,
-    notifications_path: Path,
 ) -> Tuple[List[str], Notification]:
     """
     Generate and publish output pipeline notifications.
@@ -331,7 +307,6 @@ def _generate_notifications(
         analysis_run_name,
         all_samples,
         df_primer_autodetection,
-        Path(notifications_path),
     )
 
     ncov_processed_samples = (
@@ -341,7 +316,6 @@ def _generate_notifications(
         analysis_run_name,
         ncov_processed_samples,
         df_ncov,
-        Path(notifications_path),
     )
 
     pangolin_processed_samples = ncov_events[PASSED_NCOV].samples if ncov_events else all_samples
@@ -349,7 +323,6 @@ def _generate_notifications(
         analysis_run_name,
         pangolin_processed_samples,
         df_pangolin,
-        Path(notifications_path),
     )
     events = {
         **primer_autodetection_events,
@@ -556,12 +529,6 @@ def _generate_resultfiles_json(
     required=True,
     help="the sequencer technology used for sequencing the samples",
 )
-@click.option(
-    "--notifications-path",
-    type=click.Path(dir_okay=True, writable=True),
-    default=".",
-    help="path used for saving the output notification files. This is a directory",
-)
 def generate_pipeline_results_files(
     analysis_run_name: str,
     metadata_file: str,
@@ -572,7 +539,6 @@ def generate_pipeline_results_files(
     output_json_file: str,
     output_path: str,
     sequencing_technology: str,
-    notifications_path: str,
 ) -> None:
     """
     Generate pipeline results files
@@ -590,7 +556,7 @@ def generate_pipeline_results_files(
     all_samples = df_metadata[SAMPLE_ID].tolist()
 
     qc_unrelated_failing_samples, events = _generate_notifications(
-        analysis_run_name, all_samples, df_primer_autodetection, df_ncov, df_pangolin, Path(notifications_path)
+        analysis_run_name, all_samples, df_primer_autodetection, df_ncov, df_pangolin
     )
 
     _generate_results_csv(

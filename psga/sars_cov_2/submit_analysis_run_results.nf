@@ -67,7 +67,6 @@ process submit_pangolin_results {
  */
 process submit_pipeline_results_files {
   publishDir "${params.output_path}", mode: 'copy', overwrite: true, pattern: 'result{s.csv,files.json}'
-  publishDir "${params.output_path}/notifications", mode: 'copy', overwrite: true, pattern: 'samples_{unknown,failed,passed}_{ncov_qc,pangolin}.txt'
   publishDir "${params.output_path}/logs", mode: 'copy', overwrite: true, pattern: '*.log'
 
   input:
@@ -79,7 +78,6 @@ process submit_pipeline_results_files {
   output:
     path ch_output_csv_file, emit: ch_output_csv_file
     path ch_output_json_file, emit: ch_output_json_file
-    path "*.txt", emit: ch_samples_files_by_qc
     path "*.log"
 
   script:
