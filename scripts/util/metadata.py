@@ -1,4 +1,3 @@
-from uuid import UUID
 from typing import List
 from pathlib import Path
 from dataclasses import dataclass, field
@@ -19,14 +18,6 @@ UNKNOWN = "unknown"
 class ProcessedSamples:
     valid: List[str] = field(metadata={"required": True}, default_factory=list)
     invalid: List[str] = field(metadata={"required": True}, default_factory=list)
-
-
-def is_valid_uuid(uuid_str: str) -> bool:
-    try:
-        UUID(uuid_str)
-        return True
-    except ValueError:
-        return False
 
 
 def normalise_row(row):
