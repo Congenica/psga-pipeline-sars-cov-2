@@ -310,7 +310,7 @@ def _generate_notifications(
     )
 
     ncov_processed_samples = (
-        primer_autodetection_events[PASSED_PRIMER_AUTODETECTION].samples if primer_autodetection_events else all_samples
+        primer_autodetection_events[PASSED_PRIMER_AUTODETECTION].samples if primer_autodetection_events else []
     )
     qc_unrelated_failing_ncov_samples, ncov_events = _generate_ncov_notifications(
         analysis_run_name,
@@ -318,7 +318,15 @@ def _generate_notifications(
         df_ncov,
     )
 
-    pangolin_processed_samples = ncov_events[PASSED_NCOV].samples if ncov_events else all_samples
+    if primer_autodetection_events:
+        if ncov_events:
+            pangolin_processed_samples = ncov_events[PASSED_NCOV].samples
+        else:
+            pangolin_processed_samples = []
+    else:
+        # fasta files
+        pangolin_processed_samples = all_samples
+
     qc_unrelated_failing_pangolin_samples, pangolin_events = _generate_pangolin_notifications(
         analysis_run_name,
         pangolin_processed_samples,
