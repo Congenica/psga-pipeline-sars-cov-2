@@ -16,7 +16,7 @@ process submit_primer_autodetection_results {
     output_path = "primer_autodetection.csv"
 
   """
-  python ${PSGA_ROOT_PATH}/scripts/util/concat_csv.py --input-path . --output-csv-path ${output_path} --sortby-col sample_id
+  python ${PSGA_ROOT_PATH}/scripts/common/concat_csv.py --input-path . --output-csv-path ${output_path} --sortby-col sample_id
   """
 }
 
@@ -36,7 +36,7 @@ process submit_ncov_results {
     output_path = "ncov_qc.csv"
 
   """
-  python ${PSGA_ROOT_PATH}/scripts/util/concat_csv.py --input-path . --output-csv-path ${output_path} --sortby-col sample_name
+  python ${PSGA_ROOT_PATH}/scripts/common/concat_csv.py --input-path . --output-csv-path ${output_path} --sortby-col sample_name
   """
 }
 
@@ -57,7 +57,7 @@ process submit_pangolin_results {
     output_path = "all_lineages_report.csv"
 
   """
-  python ${PSGA_ROOT_PATH}/scripts/util/concat_csv.py --input-path . --output-csv-path ${output_path} --sortby-col taxon
+  python ${PSGA_ROOT_PATH}/scripts/common/concat_csv.py --input-path . --output-csv-path ${output_path} --sortby-col taxon
   """
 }
 
