@@ -1,0 +1,5 @@
+#rname,startpos,endpos,numreads,covbases,coverage,meandepth,meanbaseq,meanmapq
+ARTIC_V4-1,1,5233,0,0,0,0,0,0
+ARTIC_V4,1,4928,0,0,0,0,0,0
+ARTIC_V3,1,5288,0,0,0,0,0,0
+ARTIC_V2,1,4759,0,0,0,0,0,0

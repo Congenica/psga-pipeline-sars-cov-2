@@ -16,6 +16,7 @@ ENV PATH=/opt/conda/envs/custom_env/bin:$PATH
 ENV PIP_VERSION=22.2.2 \
     POETRY_VERSION=1.1.13
 
+ARG pathogen
 COPY ./psga/common /app/psga/common
 COPY ./psga/${pathogen} ./psga/*.sh ./psga/main.nf /app/psga/
 COPY ./pyproject.toml ./poetry.lock ./app/

@@ -1,5 +1,4 @@
 /*
- * samples per test: 2
  * processing time: few minutes
  */
 pipeline {
@@ -10,7 +9,7 @@ pipeline {
     stages {
         stage('Run PSGA pipeline: small tests') {
             parallel {
-                stage('ILLUMINA/ARTIC_V3') {
+                stage('ILLUMINA/unknown (ARTIC_V4-1)') {
                     steps {
                         script {
                             build (
@@ -18,17 +17,17 @@ pipeline {
                                 parameters: [
                                         booleanParam(name: 'VALIDATION_TEST', value: true),
                                         string(name: 'METADATA', value: "s3://synthetic-data-dev/UKHSA/small_tests/illumina/metadata.csv"),
-                                        string(name: 'OUTPUT_PATH', value: "/data/output/illumina_short"),
-                                        string(name: 'NXF_WORK', value: "/data/work/illumina_short"),
-                                        string(name: 'ANALYSIS_RUN', value: "illumina_short"),
+                                        string(name: 'OUTPUT_PATH', value: "/data/output/illumina_artic_v4-1"),
+                                        string(name: 'NXF_WORK', value: "/data/work/illumina_artic_v4-1"),
+                                        string(name: 'ANALYSIS_RUN', value: "illumina_artic_v4-1"),
                                         string(name: 'SEQUENCING_TECHNOLOGY', value: "illumina"),
-                                        string(name: 'KIT', value: "ARTIC_V3"),
+                                        string(name: 'KIT', value: "unknown"),
                                 ]
                             )
                         }
                     }
                 }
-                stage('ONT/ARTIC_V3') {
+                stage('ONT/none (set to none for the time being. This is NOT ARTIC for sure)') {
                     steps {
                         script {
                             build (
@@ -36,35 +35,17 @@ pipeline {
                                 parameters: [
                                         booleanParam(name: 'VALIDATION_TEST', value: true),
                                         string(name: 'METADATA', value: "s3://synthetic-data-dev/UKHSA/small_tests/ont/metadata.csv"),
-                                        string(name: 'OUTPUT_PATH', value: "/data/output/ont_short"),
-                                        string(name: 'NXF_WORK', value: "/data/work/ont_short"),
-                                        string(name: 'ANALYSIS_RUN', value: "ont_short"),
+                                        string(name: 'OUTPUT_PATH', value: "/data/output/ont_none"),
+                                        string(name: 'NXF_WORK', value: "/data/work/ont_none"),
+                                        string(name: 'ANALYSIS_RUN', value: "ont_none"),
                                         string(name: 'SEQUENCING_TECHNOLOGY', value: "ont"),
-                                        string(name: 'KIT', value: "ARTIC_V3"),
+                                        string(name: 'KIT', value: "none"),
                                 ]
                             )
                         }
                     }
                 }
-                stage('ILLUMINA/ARTIC_V4') {
-                    steps {
-                        script {
-                            build (
-                                job: "${PSGA_PIPELINE}/${env.BRANCH_NAME}",
-                                parameters: [
-                                        booleanParam(name: 'VALIDATION_TEST', value: true),
-                                        string(name: 'METADATA', value: "s3://synthetic-data-dev/UKHSA/requirements/CL0015b/illumina_v4_input/metadata.csv"),
-                                        string(name: 'OUTPUT_PATH', value: "/data/output/illumina_v4"),
-                                        string(name: 'NXF_WORK', value: "/data/work/illumina_v4"),
-                                        string(name: 'ANALYSIS_RUN', value: "illumina_v4"),
-                                        string(name: 'SEQUENCING_TECHNOLOGY', value: "illumina"),
-                                        string(name: 'KIT', value: "ARTIC_V4"),
-                                ]
-                            )
-                        }
-                    }
-                }
-                stage('ONT/ARTIC_V4') {
+                stage('ONT/unknown (ARTIC_V4-1)') {
                     steps {
                         script {
                             build (
@@ -72,47 +53,11 @@ pipeline {
                                 parameters: [
                                         booleanParam(name: 'VALIDATION_TEST', value: true),
                                         string(name: 'METADATA', value: "s3://synthetic-data-dev/UKHSA/requirements/CL0015b/ont_v4_input/metadata.csv"),
-                                        string(name: 'OUTPUT_PATH', value: "/data/output/ont_v4"),
-                                        string(name: 'NXF_WORK', value: "/data/work/ont_v4"),
-                                        string(name: 'ANALYSIS_RUN', value: "ont_v4"),
+                                        string(name: 'OUTPUT_PATH', value: "/data/output/ont_artic_v4-1"),
+                                        string(name: 'NXF_WORK', value: "/data/work/ont_artic_v4-1"),
+                                        string(name: 'ANALYSIS_RUN', value: "ont_artic_v4-1"),
                                         string(name: 'SEQUENCING_TECHNOLOGY', value: "ont"),
-                                        string(name: 'KIT', value: "ARTIC_V4"),
-                                ]
-                            )
-                        }
-                    }
-                }
-                stage('ILLUMINA/ARTIC_V4-1') {
-                    steps {
-                        script {
-                            build (
-                                job: "${PSGA_PIPELINE}/${env.BRANCH_NAME}",
-                                parameters: [
-                                        booleanParam(name: 'VALIDATION_TEST', value: true),
-                                        string(name: 'METADATA', value: "s3://synthetic-data-dev/UKHSA/requirements/CL0015b/illumina_v4_1_input/metadata.csv"),
-                                        string(name: 'OUTPUT_PATH', value: "/data/output/illumina_v4_1"),
-                                        string(name: 'NXF_WORK', value: "/data/work/illumina_v4_1"),
-                                        string(name: 'ANALYSIS_RUN', value: "illumina_v4_1"),
-                                        string(name: 'SEQUENCING_TECHNOLOGY', value: "illumina"),
-                                        string(name: 'KIT', value: "ARTIC_V4-1"),
-                                ]
-                            )
-                        }
-                    }
-                }
-                stage('ONT/ARTIC_V4-1') {
-                    steps {
-                        script {
-                            build (
-                                job: "${PSGA_PIPELINE}/${env.BRANCH_NAME}",
-                                parameters: [
-                                        booleanParam(name: 'VALIDATION_TEST', value: true),
-                                        string(name: 'METADATA', value: "s3://synthetic-data-dev/UKHSA/requirements/CL0015b/ont_v4_1_input/metadata.csv"),
-                                        string(name: 'OUTPUT_PATH', value: "/data/output/ont_v4_1"),
-                                        string(name: 'NXF_WORK', value: "/data/work/ont_v4_1"),
-                                        string(name: 'ANALYSIS_RUN', value: "ont_v4_1"),
-                                        string(name: 'SEQUENCING_TECHNOLOGY', value: "ont"),
-                                        string(name: 'KIT', value: "ARTIC_V4-1"),
+                                        string(name: 'KIT', value: "unknown"),
                                 ]
                             )
                         }
@@ -166,12 +111,13 @@ pipeline {
                                         string(name: 'NXF_WORK', value: "/data/work/empty_sample_and_sample_failing_ncov_qc"),
                                         string(name: 'ANALYSIS_RUN', value: "empty_sample_and_sample_failing_ncov_qc"),
                                         string(name: 'SEQUENCING_TECHNOLOGY', value: "illumina"),
-                                        string(name: 'KIT', value: "ARTIC_V4"),
+                                        string(name: 'KIT', value: "ARTIC_V4-1"),
                                 ]
                             )
                         }
                     }
-                }            }
+                }
+            }
         }
     }
 }
