@@ -1,6 +1,26 @@
 /* This workflow runs per sample analysis run */
 
 /*
+ * Submit primer_autodetection sample results
+ */
+process submit_primer_autodetection_results {
+  publishDir "${params.output_path}/primer_autodetection", mode: 'copy', overwrite: true, pattern: 'primer_autodetection.csv'
+
+  input:
+    path ch_primer_autodetection_csvs
+
+  output:
+    path "${output_path}", emit: ch_primer_autodetection_all_samples_csv
+
+  script:
+    output_path = "primer_autodetection.csv"
+
+  """
+  python ${PSGA_ROOT_PATH}/scripts/common/concat_csv.py --input-path . --output-csv-path ${output_path} --sortby-col sample_id
+  """
+}
+
+/*
  * Submit ncov sample results
  */
 process submit_ncov_results {
@@ -16,14 +36,7 @@ process submit_ncov_results {
     output_path = "ncov_qc.csv"
 
   """
-  # Merge ncov QC results into one single file
-
-  # extract the header from a lineage report
-  sample_qc="\$(ls *.qc.csv | head -n 1)"
-  # copy over the header only (first line)
-  awk 'FNR == 1' "\${sample_qc}" > ${output_path}
-  # copy over the record only from all files (second line)
-  awk 'FNR == 2' *.qc.csv >> ${output_path}
+  python ${PSGA_ROOT_PATH}/scripts/common/concat_csv.py --input-path . --output-csv-path ${output_path} --sortby-col sample_name
   """
 }
 
@@ -44,14 +57,7 @@ process submit_pangolin_results {
     output_path = "all_lineages_report.csv"
 
   """
-  # Merge pangolin lineages into one single file
-
-  # extract the header from a lineage report
-  a_lineage_report="\$(ls *_lineage_report.csv | head -n 1)"
-  # copy over the header only (first line)
-  awk 'FNR == 1' "\${a_lineage_report}" > ${output_path}
-  # copy over the record only from all files (second line)
-  awk 'FNR == 2' *_lineage_report.csv >> ${output_path}
+  python ${PSGA_ROOT_PATH}/scripts/common/concat_csv.py --input-path . --output-csv-path ${output_path} --sortby-col taxon
   """
 }
 
@@ -61,19 +67,17 @@ process submit_pangolin_results {
  */
 process submit_pipeline_results_files {
   publishDir "${params.output_path}", mode: 'copy', overwrite: true, pattern: 'result{s.csv,files.json}'
-  publishDir "${params.output_path}/notifications", mode: 'copy', overwrite: true, pattern: 'samples_{unknown,failed,passed}_{ncov_qc,pangolin}.txt'
   publishDir "${params.output_path}/logs", mode: 'copy', overwrite: true, pattern: '*.log'
 
   input:
-    val ch_analysis_run_name
     path ch_metadata
+    path ch_primer_autodetection_csv_file
     path ch_qc_ncov_result_csv_file
     path ch_pangolin_csv_file
 
   output:
     path ch_output_csv_file, emit: ch_output_csv_file
     path ch_output_json_file, emit: ch_output_json_file
-    path "*.txt", emit: ch_samples_files_by_qc
     path "*.log"
 
   script:
@@ -82,12 +86,12 @@ process submit_pipeline_results_files {
 
   """
   ncov_opt=""
-  if [[ -f "${ch_qc_ncov_result_csv_file}" ]]; then
-      ncov_opt="--ncov-qc-csv-file \"${ch_qc_ncov_result_csv_file}\""
+  if [[ -f "${ch_primer_autodetection_csv_file}" ]] && [[ -f "${ch_qc_ncov_result_csv_file}" ]]; then
+      ncov_opt="--primer-autodetection-csv-file \"${ch_primer_autodetection_csv_file}\" --ncov-qc-csv-file \"${ch_qc_ncov_result_csv_file}\""
   fi
 
   python ${PSGA_ROOT_PATH}/scripts/sars_cov_2/generate_pipeline_results_files.py \
-    --analysis-run-name "${ch_analysis_run_name}" \
+    --analysis-run-name "${params.run}" \
     --metadata-file "${ch_metadata}" \
     --pangolin-csv-file "${ch_pangolin_csv_file}" \
     --output-csv-file "${ch_output_csv_file}" \
@@ -106,14 +110,19 @@ process submit_pipeline_results_files {
 workflow submit_analysis_run_results {
     take:
         ch_metadata
+        ch_primer_autodetection_csvs
         ch_ncov_qc_csvs
         ch_pangolin_csvs
     main:
 
         if ( params.sequencing_technology == "unknown" ) {
-            // ncov was not executed. Therefore, mock ncov
+            // ncov was not executed. Therefore, mock primer_autodetection and ncov
+            ch_primer_autodetection_submitted = ch_primer_autodetection_csvs
             ch_ncov_submitted = ch_ncov_qc_csvs
         } else {
+            submit_primer_autodetection_results(ch_primer_autodetection_csvs)
+            ch_primer_autodetection_submitted = submit_primer_autodetection_results.out.ch_primer_autodetection_all_samples_csv
+
             submit_ncov_results(ch_ncov_qc_csvs)
             ch_ncov_submitted = submit_ncov_results.out.ch_ncov_qc_all_samples_csv
         }
@@ -123,8 +132,8 @@ workflow submit_analysis_run_results {
         // if the channel is empty, ifEmpty(file(<default_header>)) is used
         // so that this process is always triggered
         submit_pipeline_results_files(
-            params.run,
             ch_metadata,
+            ch_primer_autodetection_submitted.ifEmpty(file(params.primer_autodetection_empty_csv)),
             ch_ncov_submitted.ifEmpty(file(params.ncov_qc_empty_csv)),
             submit_pangolin_results.out.ch_pangolin_all_lineages.ifEmpty(file(params.pangolin_empty_csv)),
         )

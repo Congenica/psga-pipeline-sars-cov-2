@@ -4,3 +4,5 @@ e80f3c63-d139-4c14-bd72-7a43897ab40d,s3://synthetic-data-dev/ERR7150151_1.fastq.
 0774181d-fb20-4a73-b887-38af7eda9b38,s3://synthetic-data-dev/ERR7150153_1.fastq.gz,s3://synthetic-data-dev/ERR7150153_2.fastq.gz
 a0951432-cd94-45b5-96d5-b721c037a451,s3://synthetic-data-dev/ERR7150154_1.fastq.gz,s3://synthetic-data-dev/ERR7150154_2.fastq.gz
 985347c5-ff6a-454c-ac34-bc353d05dd70,s3://synthetic-data-dev/ERR7150243_1.fastq.gz,s3://synthetic-data-dev/ERR7150243_2.fastq.gz
+b1131432-cd94-45b5-96d5-b721c037a451,s3://synthetic-data-dev/ERR8150243_1.fastq.gz,s3://synthetic-data-dev/ERR8150243_2.fastq.gz
+e2331432-cd94-45b5-96d5-b721c037a451,s3://synthetic-data-dev/ERR9150243_1.fastq.gz,s3://synthetic-data-dev/ERR9150243_2.fastq.gz
