@@ -9,6 +9,10 @@ from json import JSONEncoder
 import click
 import pandas as pd
 
+from scripts.common.contamination_removal import (
+    CONTAMINATION_REMOVAL_SAMPLE_ID_COL,
+    EXPECTED_CONTAMINATION_REMOVAL_HEADERS,
+)
 from scripts.util.logging import get_structlog_logger, ERROR, WARNING, INFO
 from scripts.util.metadata import EXPECTED_HEADERS as EXPECTED_METADATA_HEADERS, SAMPLE_ID, ILLUMINA, ONT, UNKNOWN
 from scripts.util.notifications import Event, Notification
@@ -18,7 +22,7 @@ log_file = f"{Path(__file__).stem}.log"
 logger = get_structlog_logger(log_file=log_file)
 
 
-# header of ncov qc summary CSV file
+# header for ncov qc summary CSV file
 NCOV_SAMPLE_ID_COL = "sample_name"
 EXPECTED_NCOV_HEADERS = {
     NCOV_SAMPLE_ID_COL,
@@ -31,7 +35,7 @@ EXPECTED_NCOV_HEADERS = {
     "bam",
 }
 
-# header of pangolin lineages CSV file
+# header for pangolin lineages CSV file
 PANGOLIN_SAMPLE_ID_COL = "taxon"
 EXPECTED_PANGOLIN_HEADERS = {
     PANGOLIN_SAMPLE_ID_COL,
@@ -63,20 +67,15 @@ COLUMNS_TO_REMOVE_FROM_RESULTS_CSV = {
 }
 
 # notification event names
+UNKNOWN_CONTAMINATION_REMOVAL = "unknown_contamination_removal"
+FAILED_CONTAMINATION_REMOVAL = "failed_contamination_removal"
+PASSED_CONTAMINATION_REMOVAL = "passed_contamination_removal"
 UNKNOWN_NCOV = "unknown_ncov"
 FAILED_NCOV = "failed_ncov"
 PASSED_NCOV = "passed_ncov"
 UNKNOWN_PANGOLIN = "unknown_pangolin"
 FAILED_PANGOLIN = "failed_pangolin"
 PASSED_PANGOLIN = "passed_pangolin"
-
-# output files storing sample ids for unknown/failing/passed ncov/pangolin QC
-SAMPLES_UNKNOWN_NCOV_QC_FILE = f"samples_{UNKNOWN_NCOV}_qc.txt"
-SAMPLES_FAILED_NCOV_QC_FILE = f"samples_{FAILED_NCOV}_qc.txt"
-SAMPLES_PASSED_NCOV_QC_FILE = f"samples_{PASSED_NCOV}_qc.txt"
-SAMPLES_UNKNOWN_PANGOLIN_FILE = f"samples_{UNKNOWN_PANGOLIN}.txt"
-SAMPLES_FAILED_PANGOLIN_FILE = f"samples_{FAILED_PANGOLIN}.txt"
-SAMPLES_PASSED_PANGOLIN_FILE = f"samples_{PASSED_PANGOLIN}.txt"
 
 
 @dataclass
@@ -87,6 +86,8 @@ class SampleIdResultFiles:
 
     # all samples of the analysis run
     all_samples: List[str] = field(metadata={"required": True}, default_factory=list)
+    # samples which completed contamination-removal
+    contamination_removal_completed_samples: List[str] = field(metadata={"required": True}, default_factory=list)
     # samples which completed ncov, whether passing or failing ncov qc
     ncov_completed_samples: List[str] = field(metadata={"required": True}, default_factory=list)
     # samples passing ncov qc
@@ -105,28 +106,82 @@ class PathJSONEncoder(JSONEncoder):
 
 
 def load_data_from_csv(
-    csv_path: Path, expected_columns: Set[str], sample_name_col_to_rename: str = None
+    csv_file: str, expected_columns: Set[str], sample_name_col_to_rename: str = None
 ) -> pd.DataFrame:
     """
     Load the CSV content to a Pandas dataframe. An arbitrary column name used to indentify the sample id
     can be renamed to "sample_id"
     """
-    df = pd.read_csv(csv_path)
-    check_csv_columns(set(df.columns), expected_columns)
-    if sample_name_col_to_rename:
+    if csv_file:
+        df = pd.read_csv(Path(csv_file))
+        check_csv_columns(set(df.columns), expected_columns)
+        if sample_name_col_to_rename:
+            df = df.rename(columns={sample_name_col_to_rename: SAMPLE_ID})
+    else:
+        # create a dataframe with header but no rows
+        df = pd.DataFrame({c: [] for c in expected_columns})
         df = df.rename(columns={sample_name_col_to_rename: SAMPLE_ID})
     return df
 
 
-def _generate_notifications(
+def _generate_contamination_removal_notifications(
+    analysis_run_name: str,
+    all_samples: List[str],
+    df_contamination_removal: pd.DataFrame,
+) -> Tuple[List[str], Notification]:
+    """
+    Generate and publish contamination_removal notifications.
+    Return the list of samples which failed not due to QC
+    """
+    events = {}
+
+    # initialise contamination_removal as if it had not executed.
+    contamination_removal_all_samples = all_samples
+    qc_unrelated_failing_contamination_removal_samples = []
+    # Currently, there is no QC for contamination removal, so all sample pass
+    contamination_removal_samples_failing_qc: List[str] = []
+    contamination_removal_samples_passing_qc = all_samples
+
+    if not df_contamination_removal.empty:
+        contamination_removal_all_samples = df_contamination_removal[SAMPLE_ID].tolist()
+        qc_unrelated_failing_contamination_removal_samples = [
+            s for s in all_samples if s not in contamination_removal_all_samples
+        ]
+
+        events = {
+            UNKNOWN_CONTAMINATION_REMOVAL: Event(
+                analysis_run=analysis_run_name,
+                level=ERROR,
+                message="contamination removal QC unknown",
+                samples=qc_unrelated_failing_contamination_removal_samples,
+            ),
+            FAILED_CONTAMINATION_REMOVAL: Event(
+                analysis_run=analysis_run_name,
+                level=WARNING,
+                message="contamination removal QC failed",
+                samples=contamination_removal_samples_failing_qc,
+            ),
+            PASSED_CONTAMINATION_REMOVAL: Event(
+                analysis_run=analysis_run_name,
+                level=INFO,
+                message="contamination removal QC passed",
+                samples=contamination_removal_samples_passing_qc,
+            ),
+        }
+
+    notifications = Notification(events=events)
+    notifications.publish()
+
+    return qc_unrelated_failing_contamination_removal_samples, events
+
+
+def _generate_ncov_notifications(
     analysis_run_name: str,
     all_samples: List[str],
     df_ncov: pd.DataFrame,
-    df_pangolin: pd.DataFrame,
-    notifications_path: Path,
 ) -> Tuple[List[str], Notification]:
     """
-    Generate and publish output pipeline notifications.
+    Generate and publish ncov notifications.
     Return the list of samples which failed not due to QC
     """
     events = {}
@@ -145,27 +200,39 @@ def _generate_notifications(
         events = {
             UNKNOWN_NCOV: Event(
                 analysis_run=analysis_run_name,
-                path=Path(notifications_path / SAMPLES_UNKNOWN_NCOV_QC_FILE),
                 level=ERROR,
                 message="ncov QC unknown",
                 samples=qc_unrelated_failing_ncov_samples,
             ),
             FAILED_NCOV: Event(
                 analysis_run=analysis_run_name,
-                path=Path(notifications_path / SAMPLES_FAILED_NCOV_QC_FILE),
                 level=WARNING,
                 message="ncov QC failed",
                 samples=ncov_samples_failing_qc,
             ),
             PASSED_NCOV: Event(
                 analysis_run=analysis_run_name,
-                path=Path(notifications_path / SAMPLES_PASSED_NCOV_QC_FILE),
                 level=INFO,
                 message="ncov QC passed",
                 samples=ncov_samples_passing_qc,
             ),
         }
 
+    notifications = Notification(events=events)
+    notifications.publish()
+
+    return qc_unrelated_failing_ncov_samples, events
+
+
+def _generate_pangolin_notifications(
+    analysis_run_name: str,
+    ncov_samples_passing_qc: List[str],
+    df_pangolin: pd.DataFrame,
+) -> Tuple[List[str], Notification]:
+    """
+    Generate and publish pangolin notifications.
+    Return the list of samples which failed not due to QC
+    """
     # pangolin is executed after ncov, unless the latter is skipped (e.g. fasta files)
     pangolin_all_samples = df_pangolin[SAMPLE_ID].tolist()
     # NOTE: pangolin is not executed for samples failing ncov QC
@@ -174,24 +241,20 @@ def _generate_notifications(
     pangolin_samples_passing_qc = df_pangolin.loc[df_pangolin["qc_status"] == "pass"][SAMPLE_ID]
 
     events = {
-        **events,
         UNKNOWN_PANGOLIN: Event(
             analysis_run=analysis_run_name,
-            path=Path(notifications_path / SAMPLES_UNKNOWN_PANGOLIN_FILE),
             level=ERROR,
             message="pangolin QC unknown",
             samples=qc_unrelated_failing_pangolin_samples,
         ),
         FAILED_PANGOLIN: Event(
             analysis_run=analysis_run_name,
-            path=Path(notifications_path / SAMPLES_FAILED_PANGOLIN_FILE),
             level=WARNING,
             message="pangolin QC failed",
             samples=pangolin_samples_failing_qc,
         ),
         PASSED_PANGOLIN: Event(
             analysis_run=analysis_run_name,
-            path=Path(notifications_path / SAMPLES_PASSED_PANGOLIN_FILE),
             level=INFO,
             message="pangolin QC passed",
             samples=pangolin_samples_passing_qc,
@@ -201,8 +264,61 @@ def _generate_notifications(
     notifications = Notification(events=events)
     notifications.publish()
 
+    return qc_unrelated_failing_pangolin_samples, events
+
+
+def _generate_notifications(
+    analysis_run_name: str,
+    all_samples: List[str],
+    df_contamination_removal: pd.DataFrame,
+    df_ncov: pd.DataFrame,
+    df_pangolin: pd.DataFrame,
+) -> Tuple[List[str], Notification]:
+    """
+    Generate and publish output pipeline notifications.
+    Return the list of samples which failed not due to QC
+    """
+    (
+        qc_unrelated_failing_contamination_removal_samples,
+        contamination_removal_events,
+    ) = _generate_contamination_removal_notifications(
+        analysis_run_name,
+        all_samples,
+        df_contamination_removal,
+    )
+
+    ncov_processed_samples = (
+        contamination_removal_events[PASSED_CONTAMINATION_REMOVAL].samples if contamination_removal_events else []
+    )
+    qc_unrelated_failing_ncov_samples, ncov_events = _generate_ncov_notifications(
+        analysis_run_name,
+        ncov_processed_samples,
+        df_ncov,
+    )
+
+    if contamination_removal_events:
+        if ncov_events:
+            pangolin_processed_samples = ncov_events[PASSED_NCOV].samples
+        else:
+            pangolin_processed_samples = []
+    else:
+        # fasta files
+        pangolin_processed_samples = all_samples
+
+    qc_unrelated_failing_pangolin_samples, pangolin_events = _generate_pangolin_notifications(
+        analysis_run_name,
+        pangolin_processed_samples,
+        df_pangolin,
+    )
+    events = {
+        **contamination_removal_events,
+        **ncov_events,
+        **pangolin_events,
+    }
     qc_unrelated_failing_samples = list(
-        set(qc_unrelated_failing_ncov_samples) | set(qc_unrelated_failing_pangolin_samples)
+        set(qc_unrelated_failing_contamination_removal_samples)
+        | set(qc_unrelated_failing_ncov_samples)
+        | set(qc_unrelated_failing_pangolin_samples)
     )
 
     return qc_unrelated_failing_samples, events
@@ -210,6 +326,7 @@ def _generate_notifications(
 
 def _generate_results_csv(
     all_samples: List[str],
+    df_contamination_removal: pd.DataFrame,
     df_ncov: pd.DataFrame,
     df_pangolin: pd.DataFrame,
     qc_unrelated_failing_samples: List[str],
@@ -226,7 +343,7 @@ def _generate_results_csv(
     df_status = pd.DataFrame(status_col_data)
 
     # list of dataframes to merge. They share 1 shared column: SAMPLE_ID
-    dfs_to_merge = [df_status, df_ncov, df_pangolin]
+    dfs_to_merge = [df_status, df_contamination_removal, df_ncov, df_pangolin]
 
     # partial stores part of a function’s arguments resulting in a new object with a simplified signature.
     # reduce applies cumulatively the new partial object to the items of iterable (list of dataframes here).
@@ -291,6 +408,9 @@ def get_expected_output_files_per_sample(
             output_files[sample_id].append(
                 join_path(output_path, "contamination_removal", "counting", f"{sample_id}.txt")
             )
+            output_files[sample_id].append(
+                join_path(output_path, "contamination_removal", f"{sample_id}_contamination_removal.csv")
+            )
             output_files[sample_id].extend(
                 [join_path(output_path, "fastqc", f"{sample_id}_{e}") for e in fastqc_suffixes]
             )
@@ -351,6 +471,11 @@ def _generate_resultfiles_json(
     help="the sample metadata file",
 )
 @click.option(
+    "--contamination-removal-csv-file",
+    type=click.Path(exists=True, file_okay=True, readable=True),
+    help="contamination removal pipeline resulting csv file",
+)
+@click.option(
     "--ncov-qc-csv-file",
     type=click.Path(exists=True, file_okay=True, readable=True),
     help="ncov pipeline resulting qc csv file",
@@ -385,47 +510,48 @@ def _generate_resultfiles_json(
     required=True,
     help="the sequencer technology used for sequencing the samples",
 )
-@click.option(
-    "--notifications-path",
-    type=click.Path(dir_okay=True, writable=True),
-    default=".",
-    help="path used for saving the output notification files. This is a directory",
-)
 def generate_pipeline_results_files(
     analysis_run_name: str,
     metadata_file: str,
+    contamination_removal_csv_file: str,
     ncov_qc_csv_file: str,
     pangolin_csv_file: str,
     output_csv_file: str,
     output_json_file: str,
     output_path: str,
     sequencing_technology: str,
-    notifications_path: str,
 ) -> None:
     """
     Generate pipeline results files
     """
-    df_metadata = load_data_from_csv(Path(metadata_file), EXPECTED_METADATA_HEADERS)
+    # data loading
+    df_metadata = load_data_from_csv(metadata_file, EXPECTED_METADATA_HEADERS)
+    df_contamination_removal = load_data_from_csv(
+        contamination_removal_csv_file,
+        EXPECTED_CONTAMINATION_REMOVAL_HEADERS,
+        CONTAMINATION_REMOVAL_SAMPLE_ID_COL,
+    )
+    df_ncov = load_data_from_csv(ncov_qc_csv_file, EXPECTED_NCOV_HEADERS, NCOV_SAMPLE_ID_COL)
+    df_pangolin = load_data_from_csv(pangolin_csv_file, EXPECTED_PANGOLIN_HEADERS, PANGOLIN_SAMPLE_ID_COL)
+
     all_samples = df_metadata[SAMPLE_ID].tolist()
 
-    if ncov_qc_csv_file:
-        # ncov was executed
-        df_ncov = load_data_from_csv(Path(ncov_qc_csv_file), EXPECTED_NCOV_HEADERS, NCOV_SAMPLE_ID_COL)
-    else:
-        # create a dataframe with header but no rows
-        df_ncov = pd.DataFrame({c: [] for c in EXPECTED_NCOV_HEADERS})
-        df_ncov = df_ncov.rename(columns={NCOV_SAMPLE_ID_COL: SAMPLE_ID})
-
-    df_pangolin = load_data_from_csv(Path(pangolin_csv_file), EXPECTED_PANGOLIN_HEADERS, PANGOLIN_SAMPLE_ID_COL)
-
     qc_unrelated_failing_samples, events = _generate_notifications(
-        analysis_run_name, all_samples, df_ncov, df_pangolin, Path(notifications_path)
+        analysis_run_name, all_samples, df_contamination_removal, df_ncov, df_pangolin
     )
 
-    _generate_results_csv(all_samples, df_ncov, df_pangolin, qc_unrelated_failing_samples, output_csv_file)
+    _generate_results_csv(
+        all_samples, df_contamination_removal, df_ncov, df_pangolin, qc_unrelated_failing_samples, output_csv_file
+    )
 
     sample_ids_result_files = SampleIdResultFiles(
         all_samples=all_samples,
+        contamination_removal_completed_samples=[]
+        if sequencing_technology == UNKNOWN
+        or not {FAILED_CONTAMINATION_REMOVAL, PASSED_CONTAMINATION_REMOVAL} <= events.keys()
+        else list(
+            set(events[FAILED_CONTAMINATION_REMOVAL].samples) | set(events[PASSED_CONTAMINATION_REMOVAL].samples)
+        ),
         ncov_completed_samples=[]
         if sequencing_technology == UNKNOWN or not {FAILED_NCOV, PASSED_NCOV} <= events.keys()
         else list(set(events[FAILED_NCOV].samples) | set(events[PASSED_NCOV].samples)),

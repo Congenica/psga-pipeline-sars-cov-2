@@ -1,5 +1,4 @@
 from typing import List
-from pathlib import Path
 from dataclasses import dataclass, field
 
 from scripts.util.notifications import Event, Notification
@@ -32,9 +31,7 @@ def normalise_row(row):
 def generate_notifications(
     analysis_run_name: str,
     valid_samples: List[str],
-    passed_qc_path: Path,
     invalid_samples: List[str],
-    failed_qc_path: Path,
 ) -> None:
     """
     Generate and publish the notifications for ncov
@@ -43,14 +40,12 @@ def generate_notifications(
         events={
             "failed_qc": Event(
                 analysis_run=analysis_run_name,
-                path=failed_qc_path,
                 level="ERROR",
                 message="metadata validation failed",
                 samples=invalid_samples,
             ),
             "passed_qc": Event(
                 analysis_run=analysis_run_name,
-                path=passed_qc_path,
                 level="INFO",
                 message="metadata validation passed",
                 samples=valid_samples,

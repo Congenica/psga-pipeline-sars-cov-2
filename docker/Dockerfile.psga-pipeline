@@ -62,6 +62,7 @@ ARG pathogen
 COPY ./psga/common /app/psga/common
 COPY ./psga/${pathogen} ./psga/*.sh ./psga/main.nf /app/psga/
 COPY ./pyproject.toml ./poetry.lock ./app/
+COPY ./scripts/common /app/scripts/common
 COPY ./scripts/util /app/scripts/util
 COPY ./scripts/validation /app/scripts/validation
 COPY ./scripts/${pathogen} /app/scripts/${pathogen}
