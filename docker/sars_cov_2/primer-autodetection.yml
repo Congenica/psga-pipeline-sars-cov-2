@@ -1,9 +1,12 @@
 name: primer-autodetection
 channels:
   - bioconda
-  - conda-forge # required for awscli
+  - conda-forge # required for awscli, click, pandas
 dependencies:
   - awscli=1.25.92
   - bowtie2=2.4.5
   - samtools=1.16.1
   - trimmomatic=0.39
+  - pip:
+    - click==7.1.2
+    - pandas==1.5.0
