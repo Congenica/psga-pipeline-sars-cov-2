@@ -173,10 +173,8 @@ spec:
                     sh 'nextflow -log ${ANALYSIS_RUN}.log run ${PSGA_ROOT_PATH}/psga/main.nf --run ${ANALYSIS_RUN} --sequencing_technology ${SEQUENCING_TECHNOLOGY} --kit ${KIT} --metadata ${METADATA} --output_path ${OUTPUT_PATH} -with-trace'
 
                     if (params.VALIDATION_TEST) {
-                        // fetch the expected output from s3
-                        sh 'aws s3 cp s3://synthetic-data-dev/UKHSA/integration_tests_expected_output/sars_cov_2/${ANALYSIS_RUN}/pipeline_output.csv ${PSGA_ROOT_PATH}/jenkins/expected_results.csv'
                         // run validations
-                        sh 'cd ${PSGA_ROOT_PATH}/jenkins && pytest test_validation.py --expected-results-csv ${PSGA_ROOT_PATH}/jenkins/expected_results.csv --results-csv ${OUTPUT_PATH}/results.csv --output-path ${OUTPUT_PATH} --pathogen sars_cov_2 --sequencing-technology ${SEQUENCING_TECHNOLOGY} && cd -'
+                        sh 'cd ${PSGA_ROOT_PATH}/jenkins && pytest test_validation.py --expected-results-csv ${PSGA_ROOT_PATH}/jenkins/files/sars_cov_2/expected_results/${ANALYSIS_RUN}/results.csv --results-csv ${OUTPUT_PATH}/results.csv --output-path ${OUTPUT_PATH} --pathogen sars_cov_2 --sequencing-technology ${SEQUENCING_TECHNOLOGY} && cd -'
                     }
 
                     // copy main log, nxf work dir logs and reports to OUTPUT_PATH

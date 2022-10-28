@@ -69,6 +69,7 @@ COPY ./scripts/${pathogen} /app/scripts/${pathogen}
 
 # scripts for running the validation following integration tests execution
 COPY ./jenkins/*.py ./app/jenkins/
+COPY ./jenkins/files/${pathogen} ./app/jenkins/files/${pathogen}
 
 WORKDIR /app/psga
 

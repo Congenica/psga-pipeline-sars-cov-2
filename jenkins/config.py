@@ -7,6 +7,7 @@ data_config = {
             "columns_to_validate": [
                 "SAMPLE_ID",
                 "STATUS",
+                "CONTAMINATED_READS",
                 "PCT_N_BASES",
                 "PCT_COVERED_BASES",
                 "LONGEST_NO_N_RUN",
