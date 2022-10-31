@@ -76,7 +76,8 @@ workflow psga {
 
             // files are FASTA
             ch_fasta_files = stage_sample_fasta(ch_metadata_samples.fasta)
-            // mock primer autodetection and ncov
+            // mock channels
+            ch_contamination_removal_csv = Channel.empty()
             ch_primer_autodetection_csv = Channel.empty()
             ch_ncov_qc_csv = Channel.empty()
 
@@ -105,6 +106,7 @@ workflow psga {
                 params.rik_ref_genome_fasta,
                 ch_input_files_fastq
             )
+            ch_contamination_removal_csv = contamination_removal.out.ch_contamination_removal_csv
 
             fastqc(contamination_removal.out.ch_output_file)
 
@@ -136,6 +138,7 @@ workflow psga {
 
         submit_analysis_run_results(
             ch_metadata,
+            ch_contamination_removal_csv.collect(),
             ch_primer_autodetection_csv.collect(),
             ch_ncov_qc_csv.collect(),
             pangolin.out.ch_pangolin_lineage_csv.collect()
