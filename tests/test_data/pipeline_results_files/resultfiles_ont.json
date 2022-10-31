@@ -2,6 +2,7 @@
     "0774181d-fb20-4a73-b887-38af7eda9b38": [
         "contamination_removal/cleaned_fastq/0774181d-fb20-4a73-b887-38af7eda9b38.fastq.gz",
         "contamination_removal/counting/0774181d-fb20-4a73-b887-38af7eda9b38.txt",
+        "contamination_removal/0774181d-fb20-4a73-b887-38af7eda9b38_contamination_removal.csv",
         "fastqc/0774181d-fb20-4a73-b887-38af7eda9b38_fastqc.zip",
         "ncov2019-artic/output_bam/0774181d-fb20-4a73-b887-38af7eda9b38.primertrimmed.rg.sorted.bam",
         "ncov2019-artic/output_bam/0774181d-fb20-4a73-b887-38af7eda9b38.primertrimmed.rg.sorted.bam.bai",
@@ -14,6 +15,7 @@
     "56a63f60-764d-4fc7-8764-a46023cbe324": [
         "contamination_removal/cleaned_fastq/56a63f60-764d-4fc7-8764-a46023cbe324.fastq.gz",
         "contamination_removal/counting/56a63f60-764d-4fc7-8764-a46023cbe324.txt",
+        "contamination_removal/56a63f60-764d-4fc7-8764-a46023cbe324_contamination_removal.csv",
         "fastqc/56a63f60-764d-4fc7-8764-a46023cbe324_fastqc.zip",
         "ncov2019-artic/output_bam/56a63f60-764d-4fc7-8764-a46023cbe324.primertrimmed.rg.sorted.bam",
         "ncov2019-artic/output_bam/56a63f60-764d-4fc7-8764-a46023cbe324.primertrimmed.rg.sorted.bam.bai",
@@ -27,11 +29,13 @@
     "985347c5-ff6a-454c-ac34-bc353d05dd70": [
         "contamination_removal/cleaned_fastq/985347c5-ff6a-454c-ac34-bc353d05dd70.fastq.gz",
         "contamination_removal/counting/985347c5-ff6a-454c-ac34-bc353d05dd70.txt",
+        "contamination_removal/985347c5-ff6a-454c-ac34-bc353d05dd70_contamination_removal.csv",
         "fastqc/985347c5-ff6a-454c-ac34-bc353d05dd70_fastqc.zip"
     ],
     "a0951432-cd94-45b5-96d5-b721c037a451": [
         "contamination_removal/cleaned_fastq/a0951432-cd94-45b5-96d5-b721c037a451.fastq.gz",
         "contamination_removal/counting/a0951432-cd94-45b5-96d5-b721c037a451.txt",
+        "contamination_removal/a0951432-cd94-45b5-96d5-b721c037a451_contamination_removal.csv",
         "fastqc/a0951432-cd94-45b5-96d5-b721c037a451_fastqc.zip",
         "ncov2019-artic/output_bam/a0951432-cd94-45b5-96d5-b721c037a451.primertrimmed.rg.sorted.bam",
         "ncov2019-artic/output_bam/a0951432-cd94-45b5-96d5-b721c037a451.primertrimmed.rg.sorted.bam.bai",
@@ -45,6 +49,7 @@
     "e80f3c63-d139-4c14-bd72-7a43897ab40d": [
         "contamination_removal/cleaned_fastq/e80f3c63-d139-4c14-bd72-7a43897ab40d.fastq.gz",
         "contamination_removal/counting/e80f3c63-d139-4c14-bd72-7a43897ab40d.txt",
+        "contamination_removal/e80f3c63-d139-4c14-bd72-7a43897ab40d_contamination_removal.csv",
         "fastqc/e80f3c63-d139-4c14-bd72-7a43897ab40d_fastqc.zip",
         "ncov2019-artic/output_bam/e80f3c63-d139-4c14-bd72-7a43897ab40d.primertrimmed.rg.sorted.bam",
         "ncov2019-artic/output_bam/e80f3c63-d139-4c14-bd72-7a43897ab40d.primertrimmed.rg.sorted.bam.bai",

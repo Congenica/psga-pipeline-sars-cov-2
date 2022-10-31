@@ -122,24 +122,10 @@ def validate_metadata(
     type=click.Choice(SEQUENCING_TECHNOLOGIES, case_sensitive=True),
     help="the sequencer technology used for sequencing the samples",
 )
-@click.option(
-    "--samples-with-valid-metadata-file",
-    required=True,
-    type=click.Path(file_okay=True, writable=True),
-    help="Output file path which will contain the samples with valid metadata",
-)
-@click.option(
-    "--samples-with-invalid-metadata-file",
-    required=True,
-    type=click.Path(file_okay=True, writable=True),
-    help="Output file path which will contain the samples with invalid metadata",
-)
 def check_metadata(
     metadata_path,
     analysis_run_name,
     sequencing_technology,
-    samples_with_valid_metadata_file,
-    samples_with_invalid_metadata_file,
 ):
     """
     Read a CSV metadata and check that is sound
@@ -153,9 +139,7 @@ def check_metadata(
     generate_notifications(
         analysis_run_name,
         samples.valid,
-        Path(samples_with_valid_metadata_file),
         samples.invalid,
-        Path(samples_with_invalid_metadata_file),
     )
 
     if samples.invalid:

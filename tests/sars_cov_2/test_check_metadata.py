@@ -1,8 +1,10 @@
 import pytest
 from click.testing import CliRunner
+import structlog
 
 from scripts.sars_cov_2.check_metadata import check_metadata, validate_metadata
-from utils_tests import read_samples_from_file
+from scripts.util.logging import get_structlog_logger
+from tests.util.test_notification import load_log_file_to_dict
 
 
 @pytest.mark.parametrize(
@@ -211,7 +213,7 @@ def test_validate_metadata(
                 "#()aadd",
             ],
             [
-                '""',
+                "",
                 "185347c5-ff6a-454c-ac34-bc353d05dd70",
                 "186647c5-ff6a-454c-ac34-bc353d05dd70",
                 "27a36d1c-5985-4836-87b5-b36bac75d81b",
@@ -247,8 +249,10 @@ def test_check_metadata(
     exception_msg,
 ):
 
-    valid_samples_path = tmp_path / "valid_samples.txt"
-    invalid_samples_path = tmp_path / "invalid_samples.txt"
+    log_file = tmp_path / "messages.log"
+    assert not log_file.is_file()
+    structlog.reset_defaults()
+    get_structlog_logger(log_file=f"{log_file}")
 
     cmd_config = [
         "--metadata-path",
@@ -257,10 +261,6 @@ def test_check_metadata(
         analysis_run_name,
         "--sequencing-technology",
         sequencing_technology,
-        "--samples-with-valid-metadata-file",
-        valid_samples_path,
-        "--samples-with-invalid-metadata-file",
-        invalid_samples_path,
     ]
 
     rv = CliRunner().invoke(
@@ -277,11 +277,13 @@ def test_check_metadata(
         if exit_code == 1:
             assert rv.output == exception_msg
 
+        assert log_file.is_file()
+        log_dict = load_log_file_to_dict(log_file, "sample")
+
         if valid_samples is not None:
-            # check lists of valid and invalid samples
-            processed_valid_samples = read_samples_from_file(valid_samples_path)
+            processed_valid_samples = [k for k, v in log_dict.items() if v["level"] == "info"]
             assert sorted(valid_samples) == sorted(processed_valid_samples)
 
         if invalid_samples is not None:
-            processed_invalid_samples = read_samples_from_file(invalid_samples_path)
+            processed_invalid_samples = [k for k, v in log_dict.items() if v["level"] == "error"]
             assert sorted(invalid_samples) == sorted(processed_invalid_samples)
