@@ -14,11 +14,12 @@ from scripts.util.metadata import SAMPLE_ID
     [False, True],
 )
 @pytest.mark.parametrize(
-    "metadata,primer_autodetection_csv,ncov_csv,pangolin_csv,analysis_run_name,sequencing_technology,"
-    "exp_results_csv,exp_resultfiles_json",
+    "metadata,contamination_removal_csv,primer_autodetection_csv,ncov_csv,pangolin_csv,"
+    "analysis_run_name,sequencing_technology,exp_results_csv,exp_resultfiles_json",
     [
         (
             "metadata_illumina.csv",
+            "contamination_removal.csv",
             "primer_autodetection.csv",
             "ncov_test.qc.csv",
             "all_lineages_report.csv",
@@ -29,6 +30,7 @@ from scripts.util.metadata import SAMPLE_ID
         ),
         (
             "metadata_ont.csv",
+            "contamination_removal.csv",
             "primer_autodetection.csv",
             "ncov_test.qc.csv",
             "all_lineages_report.csv",
@@ -39,6 +41,7 @@ from scripts.util.metadata import SAMPLE_ID
         ),
         (
             "metadata_unknown.csv",
+            None,
             None,
             None,
             "all_lineages_report.csv",
@@ -53,6 +56,7 @@ def test_generate_pipeline_results_files(
     tmp_path,
     test_data_path,
     metadata,
+    contamination_removal_csv,
     primer_autodetection_csv,
     ncov_csv,
     pangolin_csv,
@@ -88,6 +92,8 @@ def test_generate_pipeline_results_files(
     if ncov_csv:
         args.extend(
             [
+                "--contamination-removal-csv-file",
+                test_data_path / "pipeline_results_files" / contamination_removal_csv,
                 "--primer-autodetection-csv-file",
                 test_data_path / "pipeline_results_files" / primer_autodetection_csv,
                 "--ncov-qc-csv-file",

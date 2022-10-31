@@ -1,399 +1,316 @@
 pipeline:
-  name: sars-cov-2
-  docker_image: 'sars-cov-2-pipeline'
+  name: SARS CoV 2
+  docker_image: "sars-cov-2-pipeline"
   protocols:
-
     # ARTIC_V1
     - name: illumina-sars-cov-2-articv1
       kit:
-        name: ARTIC_V1
-        slug: articv1
+        name: ARTIC V1
+        slug: ARTIC_V1
       sequencer_technology:
-        name: illumina
+        name: Illumina
         slug: illumina
       pathogen:
-        name: Sars-CoV-2
+        name: SARS CoV 2
         slug: sars-cov-2
 
     - name: ont-sars-cov-2-articv1
       kit:
-        name: ARTIC_V1
-        slug: articv1
+        name: ARTIC V1
+        slug: ARTIC_V1
       sequencer_technology:
-        name: ont
+        name: ONT
         slug: ont
       pathogen:
-        name: Sars-CoV-2
+        name: SARS CoV 2
         slug: sars-cov-2
 
     # ARTIC_V2
     - name: illumina-sars-cov-2-articv2
       kit:
-        name: ARTIC_V2
-        slug: articv2
+        name: ARTIC V2
+        slug: ARTIC_V2
       sequencer_technology:
-        name: illumina
+        name: Illumina
         slug: illumina
       pathogen:
-        name: Sars-CoV-2
+        name: SARS CoV 2
         slug: sars-cov-2
 
     - name: ont-sars-cov-2-articv2
       kit:
-        name: ARTIC_V2
-        slug: articv2
+        name: ARTIC V2
+        slug: ARTIC_V2
       sequencer_technology:
-        name: ont
+        name: ONT
         slug: ont
       pathogen:
-        name: Sars-CoV-2
+        name: SARS CoV 2
         slug: sars-cov-2
 
-    # ARTIC_V3
+    # ARTIC V3
     - name: illumina-sars-cov-2-articv3
       kit:
-        name: ARTIC_V3
-        slug: articv3
+        name: ARTIC V3
+        slug: ARTIC_V3
       sequencer_technology:
-        name: illumina
+        name: Illumina
         slug: illumina
       pathogen:
-        name: Sars-CoV-2
+        name: SARS CoV 2
         slug: sars-cov-2
 
     - name: ont-sars-cov-2-articv3
       kit:
-        name: ARTIC_V3
-        slug: articv3
+        name: ARTIC V3
+        slug: ARTIC_V3
       sequencer_technology:
-        name: ont
+        name: ONT
         slug: ont
       pathogen:
-        name: Sars-CoV-2
+        name: SARS CoV 2
         slug: sars-cov-2
 
-    # ARTIC_V4
+    # ARTIC V4
     - name: illumina-sars-cov-2-articv4
       kit:
-        name: ARTIC_V4
-        slug: articv4
+        name: ARTIC V4
+        slug: ARTIC_V4
       sequencer_technology:
-        name: illumina
+        name: Illumina
         slug: illumina
       pathogen:
-        name: Sars-CoV-2
+        name: SARS CoV 2
         slug: sars-cov-2
 
     - name: ont-sars-cov-2-articv4
       kit:
-        name: ARTIC_V4
-        slug: articv4
+        name: ARTIC V4
+        slug: ARTIC_V4
       sequencer_technology:
-        name: ont
+        name: ONT
         slug: ont
       pathogen:
-        name: Sars-CoV-2
+        name: SARS CoV 2
         slug: sars-cov-2
 
-    # ARTIC_V4-1
+    # ARTIC V4.1
     - name: illumina-sars-cov-2-articv4-1
       kit:
-        name: ARTIC_V4-1
-        slug: articv4-1
+        name: ARTIC V4.1
+        slug: ARTIC_V4-1
       sequencer_technology:
-        name: illumina
+        name: Illumina
         slug: illumina
       pathogen:
-        name: Sars-CoV-2
+        name: SARS CoV 2
         slug: sars-cov-2
 
     - name: ont-sars-cov-2-articv4-1
       kit:
-        name: ARTIC_V4-1
-        slug: articv4-1
+        name: ARTIC V4.1
+        slug: ARTIC_V4-1
       sequencer_technology:
-        name: ont
+        name: ONT
         slug: ont
       pathogen:
-        name: Sars-CoV-2
+        name: SARS CoV 2
         slug: sars-cov-2
 
     # Midnight-IDT_V1
-    - name: illumina-sars-cov-2-midnight-idt-v1
-      kit:
-        name: Midnight-IDT_V1
-        slug: midnight-idt-v1
-      sequencer_technology:
-        name: illumina
-        slug: illumina
-      pathogen:
-        name: Sars-CoV-2
-        slug: sars-cov-2
-
     - name: ont-sars-cov-2-midnight-idt-v1
       kit:
-        name: Midnight-IDT_V1
-        slug: midnight-idt-v1
+        name: Midnight IDT V1
+        slug: Midnight-IDT_v1
       sequencer_technology:
-        name: ont
+        name: ONT
         slug: ont
       pathogen:
-        name: Sars-CoV-2
+        name: SARS CoV 2
         slug: sars-cov-2
 
     # Midnight-ONT_V1
-    - name: illumina-sars-cov-2-midnight-ont-v1
-      kit:
-        name: Midnight-ONT_V1
-        slug: midnight-ont-v1
-      sequencer_technology:
-        name: illumina
-        slug: illumina
-      pathogen:
-        name: Sars-CoV-2
-        slug: sars-cov-2
 
     - name: ont-sars-cov-2-midnight-ont-v1
       kit:
-        name: Midnight-ONT_V1
-        slug: midnight-ont-v1
+        name: Midnight ONT V1
+        slug: Midnight-ONT_V1
       sequencer_technology:
-        name: ont
+        name: ONT
         slug: ont
       pathogen:
-        name: Sars-CoV-2
+        name: SARS CoV 2
         slug: sars-cov-2
 
-    # Midnight-ONT_V2
-    - name: illumina-sars-cov-2-midnight-ont-v2
-      kit:
-        name: Midnight-ONT_V2
-        slug: midnight-ont-v2
-      sequencer_technology:
-        name: illumina
-        slug: illumina
-      pathogen:
-        name: Sars-CoV-2
-        slug: sars-cov-2
+    # Midnight ONT V2
 
     - name: ont-sars-cov-2-midnight-ont-v2
       kit:
-        name: Midnight-ONT_V2
-        slug: midnight-ont-v2
+        name: Midnight ONT V2
+        slug: Midnight-ONT_V2
       sequencer_technology:
-        name: ont
+        name: ONT
         slug: ont
       pathogen:
-        name: Sars-CoV-2
+        name: SARS CoV 2
         slug: sars-cov-2
 
-    # Midnight-ONT_V3
-    - name: illumina-sars-cov-2-midnight-ont-v13
-      kit:
-        name: Midnight-ONT_V3
-        slug: midnight-ont-v3
-      sequencer_technology:
-        name: illumina
-        slug: illumina
-      pathogen:
-        name: Sars-CoV-2
-        slug: sars-cov-2
+    # Midnight ONT V3
 
     - name: ont-sars-cov-2-midnight-ont-v3
       kit:
-        name: Midnight-ONT_V3
-        slug: midnight-ont-v3
+        name: Midnight ONT V3
+        slug: Midnight-ONT_V3
       sequencer_technology:
-        name: ont
+        name: ONT
         slug: ont
       pathogen:
-        name: Sars-CoV-2
+        name: SARS CoV 2
+        slug: sars-cov-2
+
+    # FASTA
+    - name: sars-cov-2-fasta
+      kit:
+        name: None
+        slug: none
+      sequencer_technology:
+        name: Unknown
+        slug: unknown
+      pathogen:
+        name: SARS CoV 2
         slug: sars-cov-2
 
 #    # NEB-VarSkip_v1a
-#    - name: illumina-sars-cov-2-neb-varskip-v1a
-#      kit:
-#        name: NEB-VarSkip_v1a
-#        slug: neb-varskip-v1a
-#      sequencer_technology:
-#        name: illumina
-#        slug: illumina
-#      pathogen:
-#        name: Sars-CoV-2
-#        slug: sars-cov-2
 #
 #    - name: ont-sars-cov-2-neb-varskip-v1a
 #      kit:
-#        name: NEB-VarSkip_v1a
+#        name: NEB VarSkip v1a
 #        slug: neb-varskip-v1a
 #      sequencer_technology:
-#        name: ont
+#        name: ONT
 #        slug: ont
 #      pathogen:
-#        name: Sars-CoV-2
+#        name: SARS CoV 2
 #        slug: sars-cov-2
 #
-#    # NEB-VarSkip_v1a-long
-#    - name: illumina-sars-cov-2-neb-varskip-v1a-long
-#      kit:
-#        name: NEB-VarSkip_v1a-long
-#        slug: neb-varskip-v1a-long
-#      sequencer_technology:
-#        name: illumina
-#        slug: illumina
-#      pathogen:
-#        name: Sars-CoV-2
-#        slug: sars-cov-2
+#    # NEB VarSkip v1a-long
 #
 #    - name: ont-sars-cov-2-neb-varskip-v1a-long
 #      kit:
-#        name: NEB-VarSkip_v1a-long
+#        name: NEB VarSkip v1a-long
 #        slug: neb-varskip-v1a-long
 #      sequencer_technology:
-#        name: ont
+#        name: ONT
 #        slug: ont
 #      pathogen:
-#        name: Sars-CoV-2
+#        name: SARS CoV 2
 #        slug: sars-cov-2
 #
-#    # NEB-VarSkip_v2
-#    - name: illumina-sars-cov-2-neb-varskip-v2
-#      kit:
-#        name: NEB-VarSkip_v2
-#        slug: neb-varskip-v2
-#      sequencer_technology:
-#        name: illumina
-#        slug: illumina
-#      pathogen:
-#        name: Sars-CoV-2
-#        slug: sars-cov-2
+#    # NEB VarSkip v2
 #
 #    - name: ont-sars-cov-2-neb-varskip-v2
 #      kit:
-#        name: NEB-VarSkip_v2
+#        name: NEB VarSkip v2
 #        slug: neb-varskip-v2
 #      sequencer_technology:
-#        name: ont
+#        name: ONT
 #        slug: ont
 #      pathogen:
-#        name: Sars-CoV-2
+#        name: SARS CoV 2
 #        slug: sars-cov-2
 #
-#    # NEB-VarSkip_v2b
-#    - name: illumina-sars-cov-2-neb-varskip-v2b
-#      kit:
-#        name: NEB-VarSkip_v2b
-#        slug: neb-varskip-v2b
-#      sequencer_technology:
-#        name: illumina
-#        slug: illumina
-#      pathogen:
-#        name: Sars-CoV-2
-#        slug: sars-cov-2
-#
+#    # NEB VarSkip v2b
 #    - name: ont-sars-cov-2-neb-varskip-v2b
 #      kit:
-#        name: NEB-VarSkip_v2b
+#        name: NEB VarSkip v2b
 #        slug: neb-varskip-v2b
 #      sequencer_technology:
-#        name: ont
+#        name: ONT
 #        slug: ont
 #      pathogen:
-#        name: Sars-CoV-2
+#        name: SARS CoV 2
 #        slug: sars-cov-2
 
 pipeline_version:
   docker_tag: dev_latest
 
 input_fields:
-  - field_name: SAMPLE_ID
+  - field_name: sample_id
     field_type: string
     required: true
     validation_rules:
-    - rule_type: min_max
-      min: 36
-      max: 36
-    - rule_type: regex
-      expression: "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"
+      - rule_type: min_max
+        min: 36
+        max: 36
+      - rule_type: regex
+        expression: "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"
 
-  - field_name: SEQ_FILE_1
-    field_type: string
-    required: true
-    validation_rules:
-    - rule_type: not_null
-
-  - field_name: SEQ_FILE_2
-    field_type: string
-    required: true
-    validation_rules:
-    - rule_type: not_null
-
-input_row_validation_rules:
-- {}
-
-input_set_validation_rules:
-- {}
+#input_row_validation_rules:
+#- {}
+#
+#input_set_validation_rules:
+#- {}
 
 output_fields:
   - field_name: SAMPLE_ID
     field_type: string
     required: true
     validation_rules:
-    - rule_type: min_max
-      min: 36
-      max: 36
-    - rule_type: regex
-      expression: "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"
+      - rule_type: min_max
+        min: 36
+        max: 36
+      - rule_type: regex
+        expression: "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"
 
   - field_name: STATUS
     field_type: string
     required: true
     validation_rules:
-    - rule_type: not_null
+      - rule_type: not_null
 
   - field_name: PCT_N_BASES
     field_type: number
     required: true
     validation_rules:
-    - rule_type: integer
-    - rule_type: not_null
+      - rule_type: integer
+      - rule_type: not_null
 
   - field_name: PCT_COVERED_BASES
     field_type: number
     required: true
     validation_rules:
-    - rule_type: integer
-    - rule_type: not_null
+      - rule_type: integer
+      - rule_type: not_null
 
   - field_name: LONGEST_NO_N_RUN
     field_type: number
     required: true
     validation_rules:
-    - rule_type: integer
-    - rule_type: not_null
+      - rule_type: integer
+      - rule_type: not_null
 
   - field_name: NUM_ALIGNED_READS
     field_type: number
     required: true
     validation_rules:
-    - rule_type: integer
-    - rule_type: not_null
+      - rule_type: integer
+      - rule_type: not_null
 
   - field_name: QC_PASS
     field_type: string
     required: true
     validation_rules:
-    - rule_type: enum
-      values:
-      - "True"
-      - "False"
-    - rule_type: not_null
+      - rule_type: enum
+        values:
+          - "True"
+          - "False"
+      - rule_type: not_null
 
   - field_name: LINEAGE
     field_type: string
     required: true
     validation_rules:
-    - rule_type: not_null
+      - rule_type: not_null
 
   - field_name: CONFLICT
     field_type: string
@@ -423,53 +340,52 @@ output_fields:
     field_type: string
     required: true
     validation_rules:
-    - rule_type: not_null
+      - rule_type: not_null
 
   - field_name: PANGOLIN_VERSION
     field_type: string
     required: true
     validation_rules:
-    - rule_type: not_null
+      - rule_type: not_null
 
   - field_name: SCORPIO_VERSION
     field_type: string
     required: true
     validation_rules:
-    - rule_type: not_null
+      - rule_type: not_null
 
   - field_name: CONSTELLATION_VERSION
     field_type: string
     required: true
     validation_rules:
-    - rule_type: not_null
+      - rule_type: not_null
 
   - field_name: IS_DESIGNATED
     field_type: string
     required: true
     validation_rules:
-    - rule_type: enum
-      values:
-      - "True"
-      - "False"
+      - rule_type: enum
+        values:
+          - "True"
+          - "False"
 
   - field_name: QC_STATUS
     field_type: string
     required: true
     validation_rules:
-    - rule_type: not_null
+      - rule_type: not_null
 
   - field_name: QC_NOTES
     field_type: string
     required: true
     validation_rules:
-    - rule_type: not_null
+      - rule_type: not_null
 
   - field_name: NOTE
     field_type: string
     required: true
-
-output_row_validation_rules:
-- {}
-
-output_set_validation_rules:
-- {}
+#output_row_validation_rules:
+#- {}
+#
+#output_set_validation_rules:
+#- {}

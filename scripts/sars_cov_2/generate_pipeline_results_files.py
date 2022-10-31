@@ -9,6 +9,10 @@ from json import JSONEncoder
 import click
 import pandas as pd
 
+from scripts.common.contamination_removal import (
+    CONTAMINATION_REMOVAL_SAMPLE_ID_COL,
+    EXPECTED_CONTAMINATION_REMOVAL_HEADERS,
+)
 from scripts.util.logging import get_structlog_logger, ERROR, WARNING, INFO
 from scripts.util.metadata import EXPECTED_HEADERS as EXPECTED_METADATA_HEADERS, SAMPLE_ID, ILLUMINA, ONT, UNKNOWN
 from scripts.util.notifications import Event, Notification
@@ -84,6 +88,9 @@ COLUMNS_TO_REMOVE_FROM_RESULTS_CSV = {
 }
 
 # notification event names
+UNKNOWN_CONTAMINATION_REMOVAL = "unknown_contamination_removal"
+FAILED_CONTAMINATION_REMOVAL = "failed_contamination_removal"
+PASSED_CONTAMINATION_REMOVAL = "passed_contamination_removal"
 UNKNOWN_PRIMER_AUTODETECTION = "unknown_primer_autodetection"
 FAILED_PRIMER_AUTODETECTION = "failed_primer_autodetection"
 PASSED_PRIMER_AUTODETECTION = "passed_primer_autodetection"
@@ -103,6 +110,8 @@ class SampleIdResultFiles:
 
     # all samples of the analysis run
     all_samples: List[str] = field(metadata={"required": True}, default_factory=list)
+    # samples which completed contamination-removal
+    contamination_removal_completed_samples: List[str] = field(metadata={"required": True}, default_factory=list)
     # samples which completed primer-autodetection, whether passing or failing primer-autodetection qc
     primer_autodetection_completed_samples: List[str] = field(metadata={"required": True}, default_factory=list)
     # samples which completed ncov, whether passing or failing ncov qc
@@ -141,6 +150,55 @@ def load_data_from_csv(
     return df
 
 
+def _generate_contamination_removal_notifications(
+    analysis_run_name: str,
+    all_samples: List[str],
+    df_contamination_removal: pd.DataFrame,
+) -> Tuple[List[str], Notification]:
+    """
+    Generate and publish contamination_removal notifications.
+    """
+    events = {}
+
+    # initialise contamination_removal as if it had not executed.
+    contamination_removal_all_samples = all_samples
+    qc_unrelated_failing_contamination_removal_samples = []
+    # Currently, there is no QC for contamination removal, so all sample pass
+    contamination_removal_samples_failing_qc: List[str] = []
+    contamination_removal_samples_passing_qc = all_samples
+
+    if not df_contamination_removal.empty:
+        contamination_removal_all_samples = df_contamination_removal[SAMPLE_ID].tolist()
+        qc_unrelated_failing_contamination_removal_samples = [
+            s for s in all_samples if s not in contamination_removal_all_samples
+        ]
+
+        events = {
+            UNKNOWN_CONTAMINATION_REMOVAL: Event(
+                analysis_run=analysis_run_name,
+                level=ERROR,
+                message="contamination removal QC unknown",
+                samples=qc_unrelated_failing_contamination_removal_samples,
+            ),
+            FAILED_CONTAMINATION_REMOVAL: Event(
+                analysis_run=analysis_run_name,
+                level=WARNING,
+                message="contamination removal QC failed",
+                samples=contamination_removal_samples_failing_qc,
+            ),
+            PASSED_CONTAMINATION_REMOVAL: Event(
+                analysis_run=analysis_run_name,
+                level=INFO,
+                message="contamination removal QC passed",
+                samples=contamination_removal_samples_passing_qc,
+            ),
+        }
+
+    notifications = Notification(events=events)
+    notifications.publish()
+    return qc_unrelated_failing_contamination_removal_samples, events
+
+
 def _generate_primer_autodetection_notifications(
     analysis_run_name: str,
     all_samples: List[str],
@@ -148,7 +206,6 @@ def _generate_primer_autodetection_notifications(
 ) -> Tuple[List[str], Notification]:
     """
     Generate and publish primer_autodetection notifications.
-    Return the list of samples which failed not due to QC
     """
     events = {}
 
@@ -193,7 +250,6 @@ def _generate_primer_autodetection_notifications(
 
     notifications = Notification(events=events)
     notifications.publish()
-
     return qc_unrelated_failing_primer_autodetection_samples, events
 
 
@@ -292,6 +348,7 @@ def _generate_pangolin_notifications(
 def _generate_notifications(
     analysis_run_name: str,
     all_samples: List[str],
+    df_contamination_removal: pd.DataFrame,
     df_primer_autodetection: pd.DataFrame,
     df_ncov: pd.DataFrame,
     df_pangolin: pd.DataFrame,
@@ -301,24 +358,37 @@ def _generate_notifications(
     Return the list of samples which failed not due to QC
     """
     (
+        qc_unrelated_failing_contamination_removal_samples,
+        contamination_removal_events,
+    ) = _generate_contamination_removal_notifications(
+        analysis_run_name,
+        all_samples,
+        df_contamination_removal,
+    )
+
+    contamination_removal_processed_samples = (
+        contamination_removal_events[PASSED_CONTAMINATION_REMOVAL].samples if contamination_removal_events else []
+    )
+
+    (
         qc_unrelated_failing_primer_autodetection_samples,
         primer_autodetection_events,
     ) = _generate_primer_autodetection_notifications(
         analysis_run_name,
-        all_samples,
+        contamination_removal_processed_samples,
         df_primer_autodetection,
     )
 
-    ncov_processed_samples = (
+    primer_autodetection_processed_samples = (
         primer_autodetection_events[PASSED_PRIMER_AUTODETECTION].samples if primer_autodetection_events else []
     )
     qc_unrelated_failing_ncov_samples, ncov_events = _generate_ncov_notifications(
         analysis_run_name,
-        ncov_processed_samples,
+        primer_autodetection_processed_samples,
         df_ncov,
     )
 
-    if primer_autodetection_events:
+    if contamination_removal_events:
         if ncov_events:
             pangolin_processed_samples = ncov_events[PASSED_NCOV].samples
         else:
@@ -333,12 +403,14 @@ def _generate_notifications(
         df_pangolin,
     )
     events = {
+        **contamination_removal_events,
         **primer_autodetection_events,
         **ncov_events,
         **pangolin_events,
     }
     qc_unrelated_failing_samples = list(
-        set(qc_unrelated_failing_primer_autodetection_samples)
+        set(qc_unrelated_failing_contamination_removal_samples)
+        | set(qc_unrelated_failing_primer_autodetection_samples)
         | set(qc_unrelated_failing_ncov_samples)
         | set(qc_unrelated_failing_pangolin_samples)
     )
@@ -348,6 +420,7 @@ def _generate_notifications(
 
 def _generate_results_csv(
     all_samples: List[str],
+    df_contamination_removal: pd.DataFrame,
     df_primer_autodetection: pd.DataFrame,
     df_ncov: pd.DataFrame,
     df_pangolin: pd.DataFrame,
@@ -365,7 +438,7 @@ def _generate_results_csv(
     df_status = pd.DataFrame(status_col_data)
 
     # list of dataframes to merge. They share 1 shared column: SAMPLE_ID
-    dfs_to_merge = [df_status, df_primer_autodetection, df_ncov, df_pangolin]
+    dfs_to_merge = [df_status, df_contamination_removal, df_primer_autodetection, df_ncov, df_pangolin]
 
     # partial stores part of a function’s arguments resulting in a new object with a simplified signature.
     # reduce applies cumulatively the new partial object to the items of iterable (list of dataframes here).
@@ -429,6 +502,9 @@ def get_expected_output_files_per_sample(
             )
             output_files[sample_id].append(
                 join_path(output_path, "contamination_removal", "counting", f"{sample_id}.txt")
+            )
+            output_files[sample_id].append(
+                join_path(output_path, "contamination_removal", f"{sample_id}_contamination_removal.csv")
             )
             output_files[sample_id].extend(
                 [join_path(output_path, "fastqc", f"{sample_id}_{e}") for e in fastqc_suffixes]
@@ -498,6 +574,11 @@ def _generate_resultfiles_json(
     help="the sample metadata file",
 )
 @click.option(
+    "--contamination-removal-csv-file",
+    type=click.Path(exists=True, file_okay=True, readable=True),
+    help="contamination removal pipeline resulting csv file",
+)
+@click.option(
     "--primer-autodetection-csv-file",
     type=click.Path(exists=True, file_okay=True, readable=True),
     help="primer autodetection pipeline resulting csv file",
@@ -540,6 +621,7 @@ def _generate_resultfiles_json(
 def generate_pipeline_results_files(
     analysis_run_name: str,
     metadata_file: str,
+    contamination_removal_csv_file: str,
     primer_autodetection_csv_file: str,
     ncov_qc_csv_file: str,
     pangolin_csv_file: str,
@@ -553,6 +635,11 @@ def generate_pipeline_results_files(
     """
     # data loading
     df_metadata = load_data_from_csv(metadata_file, EXPECTED_METADATA_HEADERS)
+    df_contamination_removal = load_data_from_csv(
+        contamination_removal_csv_file,
+        EXPECTED_CONTAMINATION_REMOVAL_HEADERS,
+        CONTAMINATION_REMOVAL_SAMPLE_ID_COL,
+    )
     df_primer_autodetection = load_data_from_csv(
         primer_autodetection_csv_file,
         EXPECTED_PRIMER_AUTODETECTION_HEADERS,
@@ -564,15 +651,27 @@ def generate_pipeline_results_files(
     all_samples = df_metadata[SAMPLE_ID].tolist()
 
     qc_unrelated_failing_samples, events = _generate_notifications(
-        analysis_run_name, all_samples, df_primer_autodetection, df_ncov, df_pangolin
+        analysis_run_name, all_samples, df_contamination_removal, df_primer_autodetection, df_ncov, df_pangolin
     )
 
     _generate_results_csv(
-        all_samples, df_primer_autodetection, df_ncov, df_pangolin, qc_unrelated_failing_samples, output_csv_file
+        all_samples,
+        df_contamination_removal,
+        df_primer_autodetection,
+        df_ncov,
+        df_pangolin,
+        qc_unrelated_failing_samples,
+        output_csv_file,
     )
 
     sample_ids_result_files = SampleIdResultFiles(
         all_samples=all_samples,
+        contamination_removal_completed_samples=[]
+        if sequencing_technology == UNKNOWN
+        or not {FAILED_CONTAMINATION_REMOVAL, PASSED_CONTAMINATION_REMOVAL} <= events.keys()
+        else list(
+            set(events[FAILED_CONTAMINATION_REMOVAL].samples) | set(events[PASSED_CONTAMINATION_REMOVAL].samples)
+        ),
         primer_autodetection_completed_samples=[]
         if sequencing_technology == UNKNOWN
         or not {FAILED_PRIMER_AUTODETECTION, PASSED_PRIMER_AUTODETECTION} <= events.keys()

@@ -15,7 +15,6 @@ from scripts.util.metadata import (
     SEQ_FILE_2,
     EXPECTED_HEADERS,
     generate_notifications,
-    is_valid_uuid,
     normalise_row,
     ProcessedSamples,
 )
@@ -75,8 +74,6 @@ def validate_metadata(
             # check sample_id
             if not sample_id:
                 errs.append(f"{SAMPLE_ID} not available")
-            elif not is_valid_uuid(sample_id):
-                errs.append(f'{SAMPLE_ID} "{sample_id}" is not a UUID')
 
             # check file_1
             if not row[SEQ_FILE_1]:

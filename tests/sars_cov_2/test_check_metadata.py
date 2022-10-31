@@ -26,10 +26,12 @@ from tests.util.test_notification import load_log_file_to_dict
         (
             "bad_metadata.csv",
             "illumina",
-            ["385347c5-ff6a-454c-ac34-bc353d05dd70"],
+            [
+                "385347c5-ff6a-454c-ac34-bc353d05dd70",
+                "#()aadd",
+            ],
             [
                 "",
-                "#()aadd",
                 "185347c5-ff6a-454c-ac34-bc353d05dd70",
                 "186647c5-ff6a-454c-ac34-bc353d05dd70",
                 "27a36d1c-5985-4836-87b5-b36bac75d81b",
@@ -206,10 +208,12 @@ def test_validate_metadata(
             "bad_metadata.csv",
             "invalid_rows",
             "illumina",
-            ["385347c5-ff6a-454c-ac34-bc353d05dd70"],
+            [
+                "385347c5-ff6a-454c-ac34-bc353d05dd70",
+                "#()aadd",
+            ],
             [
                 "",
-                "#()aadd",
                 "185347c5-ff6a-454c-ac34-bc353d05dd70",
                 "186647c5-ff6a-454c-ac34-bc353d05dd70",
                 "27a36d1c-5985-4836-87b5-b36bac75d81b",
@@ -218,8 +222,6 @@ def test_validate_metadata(
             1,
             "Invalid row for SAMPLE_ID :\n"
             + "SAMPLE_ID not available\n"
-            + "Invalid row for SAMPLE_ID #()aadd:\n"
-            + 'SAMPLE_ID "#()aadd" is not a UUID\n'
             + "Invalid row for SAMPLE_ID 185347c5-ff6a-454c-ac34-bc353d05dd70:\n"
             + "SEQ_FILE_1 for 185347c5-ff6a-454c-ac34-bc353d05dd70 not available\n"
             + "Invalid row for SAMPLE_ID 186647c5-ff6a-454c-ac34-bc353d05dd70:\n"
@@ -229,7 +231,7 @@ def test_validate_metadata(
             + "SEQ_FILE_2 for 27a36d1c-5985-4836-87b5-b36bac75d81b not available\n"
             + "Invalid row for SAMPLE_ID 286647c5-ff6a-454c-ac34-bc353d05dd70:\n"
             + "SEQ_FILE_1 and SEQ_FILE_2 for 286647c5-ff6a-454c-ac34-bc353d05dd70 have different file types\n"
-            + "Error: Errors encountered for sample ids: , #()aadd, "
+            + "Error: Errors encountered for sample ids: , "
             + "185347c5-ff6a-454c-ac34-bc353d05dd70, 186647c5-ff6a-454c-ac34-bc353d05dd70, "
             + "27a36d1c-5985-4836-87b5-b36bac75d81b, 286647c5-ff6a-454c-ac34-bc353d05dd70\n",
         ),
