@@ -9,7 +9,7 @@ COPY docker/ncov2019-artic-nf_extras.yml /extras.yml
 # Also reinstall these two packages to their latest version, as the conda-selected downgraded ones fail to run
 RUN mamba env create -f /environment.yml \
   && mamba env update -f /extras.yml -n artic \
-  && mamba install -y -c conda-forge -c bioconda cutadapt==3.1 dnaio==0.4.4 -n artic \
+  && mamba install -y -c conda-forge -c bioconda cutadapt==3.1 dnaio==0.4.4 openjdk==11.0.8 -n artic \
   && conda clean --all -y
 
 
