@@ -13,6 +13,10 @@ from scripts.common.contamination_removal import (
     CONTAMINATION_REMOVAL_SAMPLE_ID_COL,
     EXPECTED_CONTAMINATION_REMOVAL_HEADERS,
 )
+from scripts.common.primer_autodetection import (
+    PRIMER_AUTODETECTION_SAMPLE_ID_COL,
+    EXPECTED_PRIMER_AUTODETECTION_HEADERS,
+)
 from scripts.util.logging import get_structlog_logger, ERROR, WARNING, INFO
 from scripts.util.metadata import EXPECTED_HEADERS as EXPECTED_METADATA_HEADERS, SAMPLE_ID, ILLUMINA, ONT, UNKNOWN
 from scripts.util.notifications import Event, Notification
@@ -21,22 +25,6 @@ from scripts.validation.check_csv_columns import check_csv_columns
 log_file = f"{Path(__file__).stem}.log"
 logger = get_structlog_logger(log_file=log_file)
 
-# header for primer-autodetection CSV file
-PRIMER_AUTODETECTION_SAMPLE_ID_COL = "sample_id"
-EXPECTED_PRIMER_AUTODETECTION_HEADERS = {
-    PRIMER_AUTODETECTION_SAMPLE_ID_COL,
-    "primer_detected",
-    "startpos",
-    "endpos",
-    "primer_numreads",
-    "primer_covbases",
-    "primer_coverage",
-    "meandepth",
-    "meanbaseq",
-    "meanmapq",
-    "primer_qc",
-    "primer_input",
-}
 
 # header for ncov qc summary CSV file
 NCOV_SAMPLE_ID_COL = "sample_name"

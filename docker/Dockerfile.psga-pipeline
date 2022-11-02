@@ -6,12 +6,17 @@ COPY docker/${pathogen}/psga.yml /environment.yml
 RUN mamba env create -f /environment.yml -n custom_env \
   && conda clean --all -y
 
+# multi stage to reduce docker image size and avoid conda env activation
+FROM debian:buster-slim
+
+COPY --from=condabuild /opt/conda/envs/custom_env /opt/conda/envs/custom_env
 ENV PATH=/opt/conda/envs/custom_env/bin:$PATH
 
 # pin the versions of pip and poetry
 ENV PIP_VERSION=22.2.2 \
     POETRY_VERSION=1.1.13
 
+ARG pathogen
 COPY ./psga/common /app/psga/common
 COPY ./psga/${pathogen} ./psga/*.sh ./psga/main.nf /app/psga/
 COPY ./pyproject.toml ./poetry.lock ./app/
