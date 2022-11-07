@@ -21,6 +21,7 @@ marshmallow = "^3.15.0"
 structlog = "^21.5.0"
 types-requests = "^2.27.28"
 urllib3 = "1.26.12"
+GitPython = "^3.1.29"
 
 [tool.poetry.dev-dependencies]
 pytest = "~7.1"
