@@ -10,7 +10,7 @@ process primer_autodetection {
     path fastq
 
   output:
-    tuple path("*_primer_*.txt"), path(fastq), emit: ch_files
+    tuple path("*_primer.txt"), path(fastq), emit: ch_files
     path "*_primer_data.csv", emit: ch_primer_data
     path "*_primer_detection.csv", emit: ch_primer_coverage
     path "trimmomatic.out"

@@ -38,8 +38,8 @@ process ncov2019_artic_nf_pipeline_illumina {
   sample_id="$(ls *.fastq.gz | head -n 1 | cut -d"_" -f1)"
 
   # extract scheme and version from primer
-  scheme="$(cat ${sample_id}_primer_PASS.txt | cut -d_ -f1)"
-  scheme_version="$(cat ${sample_id}_primer_PASS.txt | cut -d_ -f2)"
+  scheme="$(cat ${sample_id}_primer.txt | cut -d_ -f1)"
+  scheme_version="$(cat ${sample_id}_primer.txt | cut -d_ -f2)"
 
   # convert nextflow variables to Bash for convenience
   ncov_prefix=!{params.run}
@@ -115,8 +115,8 @@ process ncov2019_artic_nf_pipeline_medaka {
   fastq_file="${sample_id}.fastq.gz"
 
   # extract scheme and version from primer
-  scheme="$(cat ${sample_id}_primer_PASS.txt | cut -d_ -f1)"
-  scheme_version="$(cat ${sample_id}_primer_PASS.txt | cut -d_ -f2)"
+  scheme="$(cat ${sample_id}_primer.txt | cut -d_ -f1)"
+  scheme_version="$(cat ${sample_id}_primer.txt | cut -d_ -f2)"
 
   # convert nextflow variables to Bash for convenience
   ncov_prefix=!{params.run}

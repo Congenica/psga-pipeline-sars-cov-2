@@ -1,4 +1,5 @@
 from pathlib import Path
+from typing import Tuple
 import pandas as pd
 import click
 
@@ -7,12 +8,9 @@ from concat_csv import concat
 SAMTOOLS_COVERAGE_TSV_EXTENSION = ".coverage.tsv"
 PRIMER_DETECTION_SUFFIX = "_primer_detection.csv"
 PRIMER_DATA_SUFFIX = "_primer_data.csv"
-PRIMER_QC_PASS = "PASS"
-PRIMER_QC_FAIL = "FAIL"
 
 RNAME_COL = "#rname"
 PRIMER_AUTODETECTION_SAMPLE_ID_COL = "sample_id"
-PRIMER_AUTODETECTION_QC_COL = "primer_qc"
 PRIMER_AUTODETECTION_PRIMER_INPUT_COL = "primer_input"
 PRIMER_AUTODETECTION_PRIMER_COL = "primer_detected"
 PRIMER_AUTODETECTION_NUMREADS_COL = "primer_numreads"
@@ -20,7 +18,6 @@ PRIMER_AUTODETECTION_COVBASES_COL = "primer_covbases"
 PRIMER_AUTODETECTION_COVERAGE_COL = "primer_coverage"
 EXPECTED_PRIMER_AUTODETECTION_HEADERS = {
     PRIMER_AUTODETECTION_SAMPLE_ID_COL,
-    PRIMER_AUTODETECTION_QC_COL,
     PRIMER_AUTODETECTION_PRIMER_INPUT_COL,
     PRIMER_AUTODETECTION_PRIMER_COL,
     "startpos",
@@ -32,7 +29,7 @@ EXPECTED_PRIMER_AUTODETECTION_HEADERS = {
     "meanbaseq",
     "meanmapq",
 }
-PRIMER_AUTODETECTION_PRIMER_SCORE_COL = PRIMER_AUTODETECTION_NUMREADS_COL  # primer_coverage might be more correct.
+PRIMER_AUTODETECTION_PRIMER_SCORE_COL = PRIMER_AUTODETECTION_NUMREADS_COL
 # columns to be renamed
 SAMTOOLS_COVERAGE_TO_PSGA_COLS = {
     RNAME_COL: PRIMER_AUTODETECTION_PRIMER_COL,
@@ -42,9 +39,10 @@ SAMTOOLS_COVERAGE_TO_PSGA_COLS = {
 }
 
 
-def select_primer(input_path: Path, output_path: Path, sample_id: str) -> pd.DataFrame:
+def select_primer(input_path: Path, output_path: Path, sample_id: str) -> Tuple[pd.DataFrame, str]:
     """
-    Concatenate the input coverage TSV files and select the record with the highest score
+    Concatenate the input coverage TSV files and select the record with the highest score.
+    Return the selected primer data and the name of the selected primer.
     """
     # concatenate the coverage files to 1 single file with 1 single header
     # important: sort the primer records so that the latest version is at the top.
@@ -65,40 +63,32 @@ def select_primer(input_path: Path, output_path: Path, sample_id: str) -> pd.Dat
         primer_detection_df[PRIMER_AUTODETECTION_PRIMER_SCORE_COL].idxmax()
     ].copy(deep=True)
 
+    detected_primer = detected_primer_df_slice[PRIMER_AUTODETECTION_PRIMER_COL]
+
     if detected_primer_df_slice[PRIMER_AUTODETECTION_PRIMER_SCORE_COL] <= 0:
         # no primer can be used as no match was found.
         # overwrite the record
         detected_primer_df_slice[:] = 0
         detected_primer_df_slice[PRIMER_AUTODETECTION_PRIMER_COL] = "none"
+        # WARNING: this is a hack in order to run ncov.
+        # certain samples could not have primers at all
+        # (e.g. bam files in which adapters and primers were trimmed in the past)
+        # ncov and artic expect a primer scheme and version as input parameters, though.
+        # here we mock ncov by passing the latest ARTIC primer to make it run.
+        # This won't have consequences because none of the sequences in this primer was found in the sample,
+        # so they won't be trimmed
+        # extract the first (=latest version) primer name matching ARTIC
+        detected_primer = primer_detection_df[
+            primer_detection_df[PRIMER_AUTODETECTION_PRIMER_COL].str.startswith("ARTIC_")
+        ][PRIMER_AUTODETECTION_PRIMER_COL].iloc[0]
 
-    return detected_primer_df_slice
-
-
-def calculate_primer_qc(primer_input: str, primer_detected: str, primer_score: float) -> str:
-    """
-    Calculate the primer qc for the detected primer
-    """
-    if (primer_detected == "none" and primer_score > 0) or (primer_detected != "none" and primer_score == 0):
-        raise ValueError(
-            "Error in computing primer QC: "
-            f"primer_detected={primer_detected}, primer_score={primer_score} are incompatible"
-        )
-
-    if primer_input == "unknown":
-        primer_qc = PRIMER_QC_PASS if primer_score > 0 else PRIMER_QC_FAIL
-    elif primer_input == "none":
-        primer_qc = PRIMER_QC_FAIL if primer_score > 0 else PRIMER_QC_PASS
-    else:
-        primer_qc = PRIMER_QC_PASS if primer_input == primer_detected else PRIMER_QC_FAIL
-
-    return primer_qc
+    return detected_primer_df_slice, detected_primer
 
 
 def write_primer_data(
     output_path: Path,
     detected_primer_df_slice: pd.DataFrame,
     sample_id: str,
-    primer_qc: str,
     primer_input: str,
 ) -> None:
     """
@@ -108,29 +98,18 @@ def write_primer_data(
     primer_data_df = primer_data_df.assign(
         **{
             PRIMER_AUTODETECTION_SAMPLE_ID_COL: sample_id,
-            PRIMER_AUTODETECTION_QC_COL: primer_qc,
             PRIMER_AUTODETECTION_PRIMER_INPUT_COL: primer_input,
         }
     )
     primer_data_df.to_csv(output_path / f"{sample_id}{PRIMER_DATA_SUFFIX}", index=False)
 
 
-def write_selected_primer(output_path: Path, sample_id: str, primer_input: str, primer: str, primer_qc: str) -> None:
+def write_selected_primer(output_path: Path, sample_id: str, detected_primer: str) -> None:
     """
     Store the primer scheme name/version
     """
-    with open(output_path / f"{sample_id}_primer_{primer_qc}.txt", "w") as of:
-        if primer == "none" and primer_input == "none":
-            # WARNING: this is a hack
-            # certain samples could not have primers at all
-            # (e.g. bam files in which adapters and primers were trimmed in the past)
-            # ncov and artic expect a primer scheme and version as input parameters, though.
-            # here we mock ncov by passing a primer scheme/version to make it run.
-            # This won't have consequences because none of the sequences in this primer was found in the sample,
-            # so they won't be trimmed
-            of.write("ARTIC_V4")
-        else:
-            of.write(primer)
+    with open(output_path / f"{sample_id}_primer.txt", "w") as of:
+        of.write(detected_primer)
 
 
 def generate_primer_autodetection_output_files(
@@ -139,15 +118,9 @@ def generate_primer_autodetection_output_files(
     """
     Generate the primer autodetection output files
     """
-    detected_primer_df_slice = select_primer(input_path, output_path, sample_id)
-    primer_score = detected_primer_df_slice[PRIMER_AUTODETECTION_PRIMER_SCORE_COL]
-    primer = detected_primer_df_slice[PRIMER_AUTODETECTION_PRIMER_COL]
-
-    primer_qc = calculate_primer_qc(primer_input, primer, primer_score)
-
-    write_primer_data(output_path, detected_primer_df_slice, sample_id, primer_qc, primer_input)
-
-    write_selected_primer(output_path, sample_id, primer_input, primer, primer_qc)
+    detected_primer_df_slice, detected_primer = select_primer(input_path, output_path, sample_id)
+    write_primer_data(output_path, detected_primer_df_slice, sample_id, primer_input)
+    write_selected_primer(output_path, sample_id, detected_primer)
 
 
 @click.command()

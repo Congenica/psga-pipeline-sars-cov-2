@@ -200,6 +200,8 @@ def _generate_primer_autodetection_notifications(
     # initialise primer_autodetection as if it had not executed. This is the default case in which fastas were processed
     primer_autodetection_all_samples = all_samples
     qc_unrelated_failing_primer_autodetection_samples = []
+    # Currently, there is no QC for primer autodetection, so all sample pass
+    primer_autodetection_samples_failing_qc: List[str] = []
     primer_autodetection_samples_passing_qc = all_samples
 
     if not df_primer_autodetection.empty:
@@ -207,13 +209,6 @@ def _generate_primer_autodetection_notifications(
         qc_unrelated_failing_primer_autodetection_samples = [
             s for s in all_samples if s not in primer_autodetection_all_samples
         ]
-
-        primer_autodetection_samples_failing_qc = df_primer_autodetection.loc[
-            df_primer_autodetection["primer_qc"] == "FAIL"
-        ][SAMPLE_ID]
-        primer_autodetection_samples_passing_qc = df_primer_autodetection.loc[
-            df_primer_autodetection["primer_qc"] == "PASS"
-        ][SAMPLE_ID]
 
         events = {
             UNKNOWN_PRIMER_AUTODETECTION: Event(
@@ -502,7 +497,7 @@ def get_expected_output_files_per_sample(
             output_files[sample_id].extend(
                 [
                     join_path(output_path, "primer_autodetection", f"{sample_id}_{e}")
-                    for e in ["primer_data.csv", "primer_detection.tsv"]
+                    for e in ["primer_data.csv", "primer_detection.csv"]
                 ]
             )
 

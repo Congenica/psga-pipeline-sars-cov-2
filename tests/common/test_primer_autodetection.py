@@ -4,7 +4,6 @@ from click.testing import CliRunner
 
 from scripts.common.primer_autodetection import (
     select_primer,
-    calculate_primer_qc,
     write_primer_data,
     write_selected_primer,
     generate_primer_autodetection_output_files,
@@ -12,13 +11,13 @@ from scripts.common.primer_autodetection import (
     PRIMER_AUTODETECTION_PRIMER_COL,
     PRIMER_AUTODETECTION_PRIMER_SCORE_COL,
     PRIMER_AUTODETECTION_SAMPLE_ID_COL,
-    PRIMER_QC_PASS,
-    PRIMER_QC_FAIL,
     PRIMER_DETECTION_SUFFIX,
     PRIMER_DATA_SUFFIX,
     RNAME_COL,
 )
 from tests.utils_tests import assert_dataframes_are_equal, assert_files_are_equal
+
+DEFAULT_PRIMER = "ARTIC_V4-1"
 
 
 def assert_primer_detection(sample_id, tmp_path, input_path):
@@ -35,110 +34,81 @@ def assert_primer_data(sample_id, tmp_path, input_path):
     assert_dataframes_are_equal(output_path, expected_output_path, PRIMER_AUTODETECTION_SAMPLE_ID_COL)
 
 
-def assert_selected_primer_file(sample_id, primer_qc, test_data_path, tmp_path, qc_dir):
-    primer_file = f"{sample_id}_primer_{primer_qc}.txt"
-    expected_output_path = test_data_path / "primer_autodetection" / qc_dir / primer_file
+def assert_selected_primer_file(sample_id, test_data_path, tmp_path, found_dir):
+    primer_file = f"{sample_id}_primer.txt"
+    expected_output_path = test_data_path / "primer_autodetection" / found_dir / primer_file
     output_path = tmp_path / primer_file
     assert_files_are_equal(output_path, expected_output_path)
 
 
 @pytest.mark.parametrize(
-    "qc_dir,sample_id,primer,score",
+    "found_dir,sample_id,primer,score",
     [
-        ("pass", "9729bce7-f0a9-4617-b6e0-6145307741d1", "ARTIC_V4-1", 4),
-        ("fail", "a0446f6f-7d24-478c-8d92-7c77036930d8", "none", 0),
+        ("found", "9729bce7-f0a9-4617-b6e0-6145307741d1", "ARTIC_V4-1", 4),
+        ("not_found", "a0446f6f-7d24-478c-8d92-7c77036930d8", "none", 0),
     ],
 )
-def test_select_primer(tmp_path, test_data_path, qc_dir, sample_id, primer, score):
-    input_path = test_data_path / "primer_autodetection" / qc_dir
-    detected_primer_df = select_primer(input_path, tmp_path, sample_id)
+def test_select_primer(tmp_path, test_data_path, found_dir, sample_id, primer, score):
+    input_path = test_data_path / "primer_autodetection" / found_dir
+    detected_primer_df, detected_primer = select_primer(input_path, tmp_path, sample_id)
     assert primer == detected_primer_df[PRIMER_AUTODETECTION_PRIMER_COL]
     assert score == detected_primer_df[PRIMER_AUTODETECTION_PRIMER_SCORE_COL]
     assert_primer_detection(sample_id, tmp_path, input_path)
+    if primer == "none":
+        # assert the hack
+        assert detected_primer == DEFAULT_PRIMER
 
 
 @pytest.mark.parametrize(
-    "primer_detected, primer_score",
+    "found_dir,sample_id,primer_input",
     [
-        ("none", 4),
-        ("ARTIC_V4", 0),
+        ("found", "9729bce7-f0a9-4617-b6e0-6145307741d1", "unknown"),
+        ("not_found", "a0446f6f-7d24-478c-8d92-7c77036930d8", "unknown"),
     ],
 )
-def test_calculate_primer_qc_error(primer_detected, primer_score):
-    with pytest.raises(ValueError, match="Error in computing primer QC"):
-        calculate_primer_qc("fake", primer_detected, primer_score)
-
-
-@pytest.mark.parametrize(
-    "primer_input, primer_detected, primer_score, expected_qc",
-    [
-        # user expects sample to have primer sequences but does not know the primer
-        ("unknown", "ARTIC_V4", 4, PRIMER_QC_PASS),
-        ("unknown", "none", 0, PRIMER_QC_FAIL),
-        # user knows that sample has no primer sequences
-        ("none", "ARTIC_V4", 4, PRIMER_QC_FAIL),
-        ("none", "none", 0, PRIMER_QC_PASS),
-        # user thinks to know the primer
-        ("ARTIC_V4", "ARTIC_V4", 4, PRIMER_QC_PASS),
-        ("ARTIC_V3", "ARTIC_V4", 4, PRIMER_QC_FAIL),
-    ],
-)
-def test_calculate_primer_qc(primer_input, primer_detected, primer_score, expected_qc):
-    assert calculate_primer_qc(primer_input, primer_detected, primer_score) == expected_qc
-
-
-@pytest.mark.parametrize(
-    "qc_dir,sample_id,primer_input,primer_qc",
-    [
-        ("pass", "9729bce7-f0a9-4617-b6e0-6145307741d1", "unknown", PRIMER_QC_PASS),
-        ("fail", "a0446f6f-7d24-478c-8d92-7c77036930d8", "unknown", PRIMER_QC_FAIL),
-    ],
-)
-def test_write_primer_data(tmp_path, test_data_path, qc_dir, sample_id, primer_input, primer_qc):
-    input_path = test_data_path / "primer_autodetection" / qc_dir
-    detected_primer_df = select_primer(input_path, tmp_path, sample_id)
-    write_primer_data(tmp_path, detected_primer_df, sample_id, primer_qc, primer_input)
+def test_write_primer_data(tmp_path, test_data_path, found_dir, sample_id, primer_input):
+    input_path = test_data_path / "primer_autodetection" / found_dir
+    detected_primer_df, _ = select_primer(input_path, tmp_path, sample_id)
+    write_primer_data(tmp_path, detected_primer_df, sample_id, primer_input)
     assert_primer_data(sample_id, tmp_path, input_path)
 
 
 @pytest.mark.parametrize(
-    "qc_dir,sample_id,primer_input,detected_primer,primer_qc",
+    "found_dir,sample_id,detected_primer",
     [
-        ("pass", "9729bce7-f0a9-4617-b6e0-6145307741d1", "unknown", "ARTIC_V4-1", PRIMER_QC_PASS),
-        ("fail", "a0446f6f-7d24-478c-8d92-7c77036930d8", "unknown", "none", PRIMER_QC_FAIL),
+        ("found", "9729bce7-f0a9-4617-b6e0-6145307741d1", "ARTIC_V4-1"),
+        ("not_found", "a0446f6f-7d24-478c-8d92-7c77036930d8", DEFAULT_PRIMER),
     ],
 )
-def test_write_selected_primer(tmp_path, test_data_path, qc_dir, sample_id, primer_input, detected_primer, primer_qc):
-    write_selected_primer(tmp_path, sample_id, primer_input, detected_primer, primer_qc)
-    assert_selected_primer_file(sample_id, primer_qc, test_data_path, tmp_path, qc_dir)
+def test_write_selected_primer(tmp_path, test_data_path, found_dir, sample_id, detected_primer):
+    write_selected_primer(tmp_path, sample_id, detected_primer)
+    assert_selected_primer_file(sample_id, test_data_path, tmp_path, found_dir)
 
 
 @pytest.mark.parametrize(
-    "qc_dir,sample_id,primer_input,primer_qc",
+    "found_dir,sample_id,primer_input",
     [
-        ("pass", "9729bce7-f0a9-4617-b6e0-6145307741d1", "unknown", PRIMER_QC_PASS),
-        ("fail", "a0446f6f-7d24-478c-8d92-7c77036930d8", "unknown", PRIMER_QC_FAIL),
+        ("found", "9729bce7-f0a9-4617-b6e0-6145307741d1", "unknown"),
+        ("not_found", "a0446f6f-7d24-478c-8d92-7c77036930d8", "unknown"),
     ],
 )
-def test_generate_primer_autodetection_output_files(
-    tmp_path, test_data_path, qc_dir, sample_id, primer_input, primer_qc
-):
-    input_path = test_data_path / "primer_autodetection" / qc_dir
+def test_generate_primer_autodetection_output_files(tmp_path, test_data_path, found_dir, sample_id, primer_input):
+    input_path = test_data_path / "primer_autodetection" / found_dir
     generate_primer_autodetection_output_files(input_path, tmp_path, sample_id, primer_input)
     assert_primer_detection(sample_id, tmp_path, input_path)
     assert_primer_data(sample_id, tmp_path, input_path)
-    assert_selected_primer_file(sample_id, primer_qc, test_data_path, tmp_path, qc_dir)
+    assert_selected_primer_file(sample_id, test_data_path, tmp_path, found_dir)
 
 
 @pytest.mark.parametrize(
-    "qc_dir,sample_id,primer_input,primer_qc",
+    "found_dir,sample_id,primer_input",
     [
-        ("pass", "9729bce7-f0a9-4617-b6e0-6145307741d1", "unknown", PRIMER_QC_PASS),
-        ("fail", "a0446f6f-7d24-478c-8d92-7c77036930d8", "unknown", PRIMER_QC_FAIL),
+        ("found", "9729bce7-f0a9-4617-b6e0-6145307741d1", "unknown"),
+        ("not_found", "a0446f6f-7d24-478c-8d92-7c77036930d8", "unknown"),
     ],
 )
-def test_primer_autodetection(tmp_path, test_data_path, qc_dir, sample_id, primer_input, primer_qc):
-    input_path = test_data_path / "primer_autodetection" / qc_dir
+def test_primer_autodetection(tmp_path, test_data_path, found_dir, sample_id, primer_input):
+    input_path = test_data_path / "primer_autodetection" / found_dir
 
     rv = CliRunner().invoke(
         primer_autodetection,
@@ -157,4 +127,4 @@ def test_primer_autodetection(tmp_path, test_data_path, qc_dir, sample_id, prime
 
     assert_primer_detection(sample_id, tmp_path, input_path)
     assert_primer_data(sample_id, tmp_path, input_path)
-    assert_selected_primer_file(sample_id, primer_qc, test_data_path, tmp_path, qc_dir)
+    assert_selected_primer_file(sample_id, test_data_path, tmp_path, found_dir)
