@@ -10,7 +10,6 @@ data_config = {
                 "CONTAMINATED_READS",
                 "PRIMER_INPUT",
                 "PRIMER_DETECTED",
-                "PRIMER_QC",
                 "PRIMER_NUMREADS",
                 "PRIMER_COVBASES",
                 "PRIMER_COVERAGE",

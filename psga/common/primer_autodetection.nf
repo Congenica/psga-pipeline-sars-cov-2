@@ -2,7 +2,7 @@
  * Run: primer-autodetection (use first read only for illumina)
  */
 process primer_autodetection {
-  publishDir "${params.output_path}/primer_autodetection", mode: 'copy', overwrite: true, pattern: '{*_primer_data.csv,*_primer_detection.csv,trimmomatic.out,*.bowtie2*}'
+  publishDir "${params.output_path}/primer_autodetection", mode: 'copy', overwrite: true, pattern: '{*_primer_data.csv,*_primer_detection.csv}'
 
   tag "${task.index} - ${fastq}"
 
@@ -13,8 +13,6 @@ process primer_autodetection {
     tuple path("*_primer.txt"), path(fastq), emit: ch_files
     path "*_primer_data.csv", emit: ch_primer_data
     path "*_primer_detection.csv", emit: ch_primer_coverage
-    path "trimmomatic.out"
-    path "*.bowtie2*"
 
   shell:
   '''
