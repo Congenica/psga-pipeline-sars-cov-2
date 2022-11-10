@@ -41,8 +41,8 @@ if ( params.sequencing_technology in ["illumina", "ont"] ) {
      * e.g. --kit ARTIC_V4 will use the primers stored in: /primer_schemes/ARTIC/SARS-CoV-2/V4
      */
     split_kit = params.kit.split('_')
-    if ( split_kit.length != 2 && !(params.kit in ["unknown", "none"]) ) {
-        throw new Exception("--kit must be either PRIMERNAME_PRIMERVERSION, unknown or none for illumina/ont samples")
+    if ( split_kit.length != 2 && params.kit != "unknown" ) {
+        throw new Exception("--kit must be either PRIMERNAME_PRIMERVERSION or unknown for illumina/ont samples")
     }
 } else if ( params.sequencing_technology == "unknown" ) {
     if ( params.kit != "none" ) {
@@ -114,16 +114,15 @@ workflow psga {
             ch_primer_autodetection_csv = primer_autodetection.out.ch_primer_data
             ch_primer_autodetection_files = primer_autodetection.out.ch_files
             /*
-             * select the input files passing primer autodetection QC
+             * re-organise ncov input files processed by primer autodetection
              * `it` is:
              * [sample primer txt, fastq] (ont)
              * [sample primer txt, [fastq_1, fastq_2]] (illumina)
              * the code below, returns a tuple of files (e.g. [_,_] or [_,_,_]
              */
             ch_primer_autodetection_files
-                .branch { it ->
-                    pass: it[0].name =~ /primer_PASS.txt$/
-                        return it[1] instanceof List ? tuple(it[0], *it[1]) : it
+                .map {
+                    it[1] instanceof List ? tuple(it[0], *it[1]) : it
                 }
                 .set { ch_ncov_input_files }
 
