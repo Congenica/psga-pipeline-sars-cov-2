@@ -71,6 +71,18 @@ jobs:
           command: |
             poetry install
             poetry run pytest tests/
+  build-synthetic-pipeline:
+    executor: python
+    steps:
+      - setup_remote_docker:
+          version: << pipeline.parameters.docker_version >>
+          docker_layer_caching: true
+      - build_and_push_docker_image:
+          dockerfile: "Dockerfile.psga-pipeline"
+          ecrpath: ${SYNTHETIC_PIPELINE_ECREPOPATH_PSGA}
+          ecrepouri: ${ECREPOURI_PSGA}
+          awsregion: "eu-west-2"
+          pathogen: "synthetic"
   build-sars-cov-2-pipeline:
     executor: python
     steps:
@@ -190,6 +202,10 @@ workflows:
           - build-ncov2019-artic-nf-illumina
           - build-ncov2019-artic-nf-nanopore
           - build-pangolin
+        context: AWS_ECR_CREDENTIALS_PSGA
+    - build-synthetic-pipeline:
+        requires:
+          - run-unit-tests
         context: AWS_ECR_CREDENTIALS_PSGA
     # LEGACY
     - build-ncov2019-artic-nf-illumina-legacy:

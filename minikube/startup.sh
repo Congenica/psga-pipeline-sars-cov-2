@@ -28,3 +28,10 @@ kubectl apply -f deploy_sars_cov_2.yaml
 pipeline_pod="$( kubectl get pods -l app=sars-cov-2-pipeline-minikube --no-headers -o custom-columns=':metadata.name' )"
 wait_for_pod "${pipeline_pod}"
 kubectl cp ${HOME}/.aws ${pipeline_pod}:/root/
+
+
+## deploy synthetic pipeline
+kubectl apply -f deploy_synthetic_pipeline.yaml
+pipeline_pod="$( kubectl get pods -l app=synthetic-pipeline-minikube --no-headers -o custom-columns=':metadata.name' )"
+wait_for_pod "${pipeline_pod}"
+kubectl cp ${HOME}/.aws ${pipeline_pod}:/root/
