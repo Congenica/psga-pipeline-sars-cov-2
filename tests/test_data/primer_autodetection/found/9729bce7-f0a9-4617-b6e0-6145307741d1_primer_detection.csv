@@ -1,5 +1,5 @@
-#rname,startpos,endpos,numreads,covbases,coverage,meandepth,meanbaseq,meanmapq
-ARTIC_V4-1,1,5233,4,61,1.16568,0.0152876,20.3,41.5
-ARTIC_V4,1,4928,2,40,0.811688,0.00811688,21.1,33.0
-ARTIC_V3,1,5288,2,40,0.75643,0.0075643,20.9,42.0
-ARTIC_V2,1,4759,1,20,0.420256,0.00420256,23.1,42.0
+primer_detected,total_num_primers,primer_numreads,primer_unique_numreads
+ARTIC_V4-1,209,423,200
+ARTIC_V4,219,398,199
+ARTIC_V3,180,308,156
+ARTIC_V2,180,409,116

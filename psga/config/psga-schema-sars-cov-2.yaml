@@ -292,6 +292,36 @@ output_fields:
     validation_rules:
       - rule_type: not_null
 
+  - field_name: PRIMER_INPUT
+    field_type: string
+    required: true
+    validation_rules:
+      - rule_type: not_null
+
+  - field_name: PRIMER_DETECTED
+    field_type: string
+    required: true
+    validation_rules:
+      - rule_type: not_null
+
+  - field_name: PRIMER_NUMREADS
+    field_type: number
+    required: true
+    validation_rules:
+      - rule_type: integer
+      - rule_type: not_null
+
+  - field_name: PRIMER_UNIQUE_NUMREADS
+    field_type: number
+    required: true
+    validation_rules:
+      - rule_type: integer
+      - rule_type: not_null
+
+  - field_name: PRIMER_COVERAGE
+    field_type: string
+    required: true
+
   - field_name: PCT_N_BASES
     field_type: number
     required: true

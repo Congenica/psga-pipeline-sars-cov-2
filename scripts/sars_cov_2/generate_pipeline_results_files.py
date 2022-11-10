@@ -66,11 +66,6 @@ STATUS = "STATUS"
 
 # these columns point to specific files and are not needed
 COLUMNS_TO_REMOVE_FROM_RESULTS_CSV = {
-    "STARTPOS",
-    "ENDPOS",
-    "MEANDEPTH",
-    "MEANBASEQ",
-    "MEANMAPQ",
     "FASTA",
     "BAM",
 }

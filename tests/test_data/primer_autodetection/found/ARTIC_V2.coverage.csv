@@ -1,5 +1,2 @@
 primer_detected,total_num_primers,primer_numreads,primer_unique_numreads
-ARTIC_V4-1,209,0,0
-ARTIC_V4,219,0,0
-ARTIC_V3,180,0,0
-ARTIC_V2,180,0,0
+ARTIC_V2,180,409,116

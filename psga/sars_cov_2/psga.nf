@@ -110,7 +110,7 @@ workflow psga {
 
             fastqc(contamination_removal.out.ch_output_file)
 
-            primer_autodetection(fastqc.out.ch_input_files)
+            primer_autodetection(fastqc.out.ch_input_files, "SARS-CoV-2")
             ch_primer_autodetection_csv = primer_autodetection.out.ch_primer_data
             ch_primer_autodetection_files = primer_autodetection.out.ch_files
             /*

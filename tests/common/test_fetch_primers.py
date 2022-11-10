@@ -1,15 +1,13 @@
 from pathlib import Path
 import shutil
 import pytest
-from collections import Counter
+from Bio import SeqIO
 
 from scripts.common.fetch_primers import (
     get_version,
     extract_primer_sequences,
     ORGANISE_PRIMERS,
     SARS_COV_2,
-    PRIMER_KEY,
-    STRAND_KEY,
 )
 from tests.utils_tests import assert_files_are_equal
 
@@ -51,7 +49,7 @@ def test_get_version(test_data_path, dependency_file, key, expected_value):
 @pytest.mark.parametrize(
     "ref_fasta,scheme_bed,scheme_fasta,expected_primer_counter",
     [
-        (".reference.fasta", ".scheme.bed", ".scheme.fasta", Counter({PRIMER_KEY: 8, STRAND_KEY: 4})),
+        (".reference.fasta", ".scheme.bed", ".scheme.fasta", 8),
     ],
 )
 def test_extract_primer_sequences(
@@ -63,8 +61,9 @@ def test_extract_primer_sequences(
     expected_scheme_fasta_path = primer_dir / f"{pathogen}{scheme_fasta}"
     scheme_fasta_path = tmp_path / f"{pathogen}{scheme_fasta}"
 
-    primer_counter = extract_primer_sequences(ref_fasta_path, scheme_bed_path, scheme_fasta_path, f"{primer}_{version}")
+    extract_primer_sequences(ref_fasta_path, scheme_bed_path, scheme_fasta_path, f"{primer}_{version}")
 
+    primer_counter = len(list(SeqIO.parse(scheme_fasta_path, "fasta")))
     assert primer_counter == expected_primer_counter
     assert_files_are_equal(scheme_fasta_path, expected_scheme_fasta_path)
 

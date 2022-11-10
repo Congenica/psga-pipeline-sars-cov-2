@@ -13,7 +13,6 @@ from scripts.common.primer_autodetection import (
     PRIMER_AUTODETECTION_SAMPLE_ID_COL,
     PRIMER_DETECTION_SUFFIX,
     PRIMER_DATA_SUFFIX,
-    RNAME_COL,
 )
 from tests.utils_tests import assert_dataframes_are_equal, assert_files_are_equal
 
@@ -24,7 +23,7 @@ def assert_primer_detection(sample_id, tmp_path, input_path):
     output_file = f"{sample_id}{PRIMER_DETECTION_SUFFIX}"
     output_path = tmp_path / output_file
     expected_output_path = input_path / output_file
-    assert_dataframes_are_equal(output_path, expected_output_path, RNAME_COL)
+    assert_dataframes_are_equal(output_path, expected_output_path, PRIMER_AUTODETECTION_PRIMER_COL)
 
 
 def assert_primer_data(sample_id, tmp_path, input_path):
@@ -44,7 +43,7 @@ def assert_selected_primer_file(sample_id, test_data_path, tmp_path, found_dir):
 @pytest.mark.parametrize(
     "found_dir,sample_id,primer,score",
     [
-        ("found", "9729bce7-f0a9-4617-b6e0-6145307741d1", "ARTIC_V4-1", 4),
+        ("found", "9729bce7-f0a9-4617-b6e0-6145307741d1", "ARTIC_V4-1", 423),
         ("not_found", "a0446f6f-7d24-478c-8d92-7c77036930d8", "none", 0),
     ],
 )

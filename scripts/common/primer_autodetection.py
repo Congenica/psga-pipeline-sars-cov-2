@@ -5,43 +5,31 @@ import click
 
 from concat_csv import concat
 
-SAMTOOLS_COVERAGE_TSV_EXTENSION = ".coverage.tsv"
+COVERAGE_SUFFIX = ".coverage.csv"
 PRIMER_DETECTION_SUFFIX = "_primer_detection.csv"
 PRIMER_DATA_SUFFIX = "_primer_data.csv"
 
-RNAME_COL = "#rname"
+TOTAL_NUM_PRIMER_COL = "total_num_primers"
 PRIMER_AUTODETECTION_SAMPLE_ID_COL = "sample_id"
 PRIMER_AUTODETECTION_PRIMER_INPUT_COL = "primer_input"
 PRIMER_AUTODETECTION_PRIMER_COL = "primer_detected"
 PRIMER_AUTODETECTION_NUMREADS_COL = "primer_numreads"
-PRIMER_AUTODETECTION_COVBASES_COL = "primer_covbases"
+PRIMER_AUTODETECTION_UNIQUE_NUMREADS_COL = "primer_unique_numreads"
 PRIMER_AUTODETECTION_COVERAGE_COL = "primer_coverage"
 EXPECTED_PRIMER_AUTODETECTION_HEADERS = {
     PRIMER_AUTODETECTION_SAMPLE_ID_COL,
     PRIMER_AUTODETECTION_PRIMER_INPUT_COL,
     PRIMER_AUTODETECTION_PRIMER_COL,
-    "startpos",
-    "endpos",
     PRIMER_AUTODETECTION_NUMREADS_COL,
-    PRIMER_AUTODETECTION_COVBASES_COL,
+    PRIMER_AUTODETECTION_UNIQUE_NUMREADS_COL,
     PRIMER_AUTODETECTION_COVERAGE_COL,
-    "meandepth",
-    "meanbaseq",
-    "meanmapq",
 }
 PRIMER_AUTODETECTION_PRIMER_SCORE_COL = PRIMER_AUTODETECTION_NUMREADS_COL
-# columns to be renamed
-SAMTOOLS_COVERAGE_TO_PSGA_COLS = {
-    RNAME_COL: PRIMER_AUTODETECTION_PRIMER_COL,
-    "numreads": PRIMER_AUTODETECTION_NUMREADS_COL,
-    "covbases": PRIMER_AUTODETECTION_COVBASES_COL,
-    "coverage": PRIMER_AUTODETECTION_COVERAGE_COL,
-}
 
 
 def select_primer(input_path: Path, output_path: Path, sample_id: str) -> Tuple[pd.DataFrame, str]:
     """
-    Concatenate the input coverage TSV files and select the record with the highest score.
+    Concatenate the input coverage files and select the record with the highest score.
     Return the selected primer data and the name of the selected primer.
     """
     # concatenate the coverage files to 1 single file with 1 single header
@@ -50,12 +38,17 @@ def select_primer(input_path: Path, output_path: Path, sample_id: str) -> Tuple[
     primer_detection_df = concat(
         input_path=input_path,
         output_csv_path=output_path / f"{sample_id}{PRIMER_DETECTION_SUFFIX}",
-        sortby_col=RNAME_COL,
+        sortby_col=PRIMER_AUTODETECTION_PRIMER_COL,
         ascending=False,
-        input_glob_pattern="*.tsv",
-        input_sep="\t",
+        input_glob_pattern=f"*{COVERAGE_SUFFIX}",
+        input_sep=",",
     )
-    primer_detection_df.rename(columns=SAMTOOLS_COVERAGE_TO_PSGA_COLS, inplace=True)
+
+    # calculate coverage as a percentage of primer sequences hit for a certain primer scheme
+    primer_detection_df[PRIMER_AUTODETECTION_COVERAGE_COL] = (
+        primer_detection_df[PRIMER_AUTODETECTION_UNIQUE_NUMREADS_COL] / primer_detection_df[TOTAL_NUM_PRIMER_COL]
+    )
+    primer_detection_df.drop(columns=[TOTAL_NUM_PRIMER_COL], inplace=True)
 
     # extract the primer with the highest score
     # use deep copy to suppress the warning: SettingWithCopyWarning
