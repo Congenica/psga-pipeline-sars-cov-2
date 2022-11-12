@@ -23,7 +23,7 @@ STATUS = "STATUS"
 # Synthetic data from TB (fig 2 in https://genomemedicine.biomedcentral.com/articles/10.1186/s13073-020-00817-3)
 PASS = "pass"
 FAIL = "fail"
-QC = "qc"
+QC = "qc_status"
 LINEAGE = "lineage"
 RD = "region_of_difference"
 SYNTHETIC_DATA = [
