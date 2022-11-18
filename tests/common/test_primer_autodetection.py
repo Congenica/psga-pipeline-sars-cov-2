@@ -13,6 +13,7 @@ from scripts.common.primer_autodetection import (
     PRIMER_AUTODETECTION_SAMPLE_ID_COL,
     PRIMER_DETECTION_SUFFIX,
     PRIMER_DATA_SUFFIX,
+    UNKNOWN,
 )
 from tests.utils_tests import assert_dataframes_are_equal, assert_files_are_equal
 
@@ -41,21 +42,32 @@ def assert_selected_primer_file(sample_id, test_data_path, tmp_path, found_dir):
 
 
 @pytest.mark.parametrize(
-    "found_dir,sample_id,primer,score",
+    "found_dir,sample_id,primer_input,expected_score,expected_detected_primer,expected_selected_primer",
     [
-        ("found", "9729bce7-f0a9-4617-b6e0-6145307741d1", "ARTIC_V4-1", 423),
-        ("not_found", "a0446f6f-7d24-478c-8d92-7c77036930d8", "none", 0),
+        ("found", "9729bce7-f0a9-4617-b6e0-6145307741d1", "ARTIC_V3", 423, "ARTIC_V4-1", "ARTIC_V3"),
+        ("found", "9729bce7-f0a9-4617-b6e0-6145307741d1", UNKNOWN, 423, "ARTIC_V4-1", "ARTIC_V4-1"),
+        ("not_found", "a0446f6f-7d24-478c-8d92-7c77036930d8", "ARTIC_V3", 0, "none", "ARTIC_V3"),
+        # test the hack
+        ("not_found", "a0446f6f-7d24-478c-8d92-7c77036930d8", UNKNOWN, 0, "none", DEFAULT_PRIMER),
     ],
 )
-def test_select_primer(tmp_path, test_data_path, found_dir, sample_id, primer, score):
+def test_select_primer(
+    tmp_path,
+    test_data_path,
+    found_dir,
+    sample_id,
+    primer_input,
+    expected_score,
+    expected_detected_primer,
+    expected_selected_primer,
+):
     input_path = test_data_path / "primer_autodetection" / found_dir
-    detected_primer_df, detected_primer = select_primer(input_path, tmp_path, sample_id)
-    assert primer == detected_primer_df[PRIMER_AUTODETECTION_PRIMER_COL]
-    assert score == detected_primer_df[PRIMER_AUTODETECTION_PRIMER_SCORE_COL]
+    detected_primer_df, selected_primer = select_primer(input_path, tmp_path, sample_id, primer_input)
+
+    assert expected_detected_primer == detected_primer_df[PRIMER_AUTODETECTION_PRIMER_COL]
+    assert expected_score == detected_primer_df[PRIMER_AUTODETECTION_PRIMER_SCORE_COL]
+    assert expected_selected_primer == selected_primer
     assert_primer_detection(sample_id, tmp_path, input_path)
-    if primer == "none":
-        # assert the hack
-        assert detected_primer == DEFAULT_PRIMER
 
 
 @pytest.mark.parametrize(
@@ -67,7 +79,7 @@ def test_select_primer(tmp_path, test_data_path, found_dir, sample_id, primer, s
 )
 def test_write_primer_data(tmp_path, test_data_path, found_dir, sample_id, primer_input):
     input_path = test_data_path / "primer_autodetection" / found_dir
-    detected_primer_df, _ = select_primer(input_path, tmp_path, sample_id)
+    detected_primer_df, _ = select_primer(input_path, tmp_path, sample_id, primer_input)
     write_primer_data(tmp_path, detected_primer_df, sample_id, primer_input)
     assert_primer_data(sample_id, tmp_path, input_path)
 

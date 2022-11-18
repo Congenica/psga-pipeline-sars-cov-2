@@ -5,6 +5,8 @@ import click
 
 from concat_csv import concat
 
+UNKNOWN = "unknown"
+
 COVERAGE_SUFFIX = ".coverage.csv"
 PRIMER_DETECTION_SUFFIX = "_primer_detection.csv"
 PRIMER_DATA_SUFFIX = "_primer_data.csv"
@@ -27,7 +29,7 @@ EXPECTED_PRIMER_AUTODETECTION_HEADERS = {
 PRIMER_AUTODETECTION_PRIMER_SCORE_COL = PRIMER_AUTODETECTION_NUMREADS_COL
 
 
-def select_primer(input_path: Path, output_path: Path, sample_id: str) -> Tuple[pd.DataFrame, str]:
+def select_primer(input_path: Path, output_path: Path, sample_id: str, primer_input: str) -> Tuple[pd.DataFrame, str]:
     """
     Concatenate the input coverage files and select the record with the highest score.
     Return the selected primer data and the name of the selected primer.
@@ -63,19 +65,23 @@ def select_primer(input_path: Path, output_path: Path, sample_id: str) -> Tuple[
         # overwrite the record
         detected_primer_df_slice[:] = 0
         detected_primer_df_slice[PRIMER_AUTODETECTION_PRIMER_COL] = "none"
-        # WARNING: this is a hack in order to run ncov.
+        # WARNING: this is a hack in order to run ncov, in the case that the input primer is unknown.
         # certain samples could not have primers at all
         # (e.g. bam files in which adapters and primers were trimmed in the past)
         # ncov and artic expect a primer scheme and version as input parameters, though.
-        # here we mock ncov by passing the latest ARTIC primer to make it run.
-        # This won't have consequences because none of the sequences in this primer was found in the sample,
-        # so they won't be trimmed
+        # here we mock ncov passing the latest ARTIC primer to make it run.
+        # This won't have consequences because no primer sequences were found in the sample,
+        # so they won't be trimmed.
         # extract the first (=latest version) primer name matching ARTIC
         detected_primer = primer_detection_df[
             primer_detection_df[PRIMER_AUTODETECTION_PRIMER_COL].str.startswith("ARTIC_")
         ][PRIMER_AUTODETECTION_PRIMER_COL].iloc[0]
 
-    return detected_primer_df_slice, detected_primer
+    # if known, the input primer has precedence over this primer autodetection.
+    # both the input and the detected primers are reported, so that the infrastructure can raise a QC warning
+    selected_primer = detected_primer if primer_input == UNKNOWN else primer_input
+
+    return detected_primer_df_slice, selected_primer
 
 
 def write_primer_data(
@@ -97,12 +103,12 @@ def write_primer_data(
     primer_data_df.to_csv(output_path / f"{sample_id}{PRIMER_DATA_SUFFIX}", index=False)
 
 
-def write_selected_primer(output_path: Path, sample_id: str, detected_primer: str) -> None:
+def write_selected_primer(output_path: Path, sample_id: str, selected_primer: str) -> None:
     """
     Store the primer scheme name/version
     """
     with open(output_path / f"{sample_id}_primer.txt", "w") as of:
-        of.write(detected_primer)
+        of.write(selected_primer)
 
 
 def generate_primer_autodetection_output_files(
@@ -111,9 +117,9 @@ def generate_primer_autodetection_output_files(
     """
     Generate the primer autodetection output files
     """
-    detected_primer_df_slice, detected_primer = select_primer(input_path, output_path, sample_id)
+    detected_primer_df_slice, selected_primer = select_primer(input_path, output_path, sample_id, primer_input)
     write_primer_data(output_path, detected_primer_df_slice, sample_id, primer_input)
-    write_selected_primer(output_path, sample_id, detected_primer)
+    write_selected_primer(output_path, sample_id, selected_primer)
 
 
 @click.command()
