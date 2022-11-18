@@ -1,2 +1,2 @@
-primer_detected,startpos,endpos,primer_numreads,primer_covbases,primer_coverage,meandepth,meanbaseq,meanmapq,sample_id,primer_input
-ARTIC_V4-1,1,5233,4,61,1.16568,0.0152876,20.3,41.5,9729bce7-f0a9-4617-b6e0-6145307741d1,unknown
+primer_detected,primer_numreads,primer_unique_numreads,primer_coverage,sample_id,primer_input
+ARTIC_V4-1,423,200,0.9569377990430622,9729bce7-f0a9-4617-b6e0-6145307741d1,unknown

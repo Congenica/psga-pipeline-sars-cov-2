@@ -11,7 +11,7 @@ data_config = {
                 "PRIMER_INPUT",
                 "PRIMER_DETECTED",
                 "PRIMER_NUMREADS",
-                "PRIMER_COVBASES",
+                "PRIMER_UNIQUE_NUMREADS",
                 "PRIMER_COVERAGE",
                 "PCT_N_BASES",
                 "PCT_COVERED_BASES",

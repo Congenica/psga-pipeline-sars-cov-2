@@ -5,43 +5,33 @@ import click
 
 from concat_csv import concat
 
-SAMTOOLS_COVERAGE_TSV_EXTENSION = ".coverage.tsv"
+UNKNOWN = "unknown"
+
+COVERAGE_SUFFIX = ".coverage.csv"
 PRIMER_DETECTION_SUFFIX = "_primer_detection.csv"
 PRIMER_DATA_SUFFIX = "_primer_data.csv"
 
-RNAME_COL = "#rname"
+TOTAL_NUM_PRIMER_COL = "total_num_primers"
 PRIMER_AUTODETECTION_SAMPLE_ID_COL = "sample_id"
 PRIMER_AUTODETECTION_PRIMER_INPUT_COL = "primer_input"
 PRIMER_AUTODETECTION_PRIMER_COL = "primer_detected"
 PRIMER_AUTODETECTION_NUMREADS_COL = "primer_numreads"
-PRIMER_AUTODETECTION_COVBASES_COL = "primer_covbases"
+PRIMER_AUTODETECTION_UNIQUE_NUMREADS_COL = "primer_unique_numreads"
 PRIMER_AUTODETECTION_COVERAGE_COL = "primer_coverage"
 EXPECTED_PRIMER_AUTODETECTION_HEADERS = {
     PRIMER_AUTODETECTION_SAMPLE_ID_COL,
     PRIMER_AUTODETECTION_PRIMER_INPUT_COL,
     PRIMER_AUTODETECTION_PRIMER_COL,
-    "startpos",
-    "endpos",
     PRIMER_AUTODETECTION_NUMREADS_COL,
-    PRIMER_AUTODETECTION_COVBASES_COL,
+    PRIMER_AUTODETECTION_UNIQUE_NUMREADS_COL,
     PRIMER_AUTODETECTION_COVERAGE_COL,
-    "meandepth",
-    "meanbaseq",
-    "meanmapq",
 }
 PRIMER_AUTODETECTION_PRIMER_SCORE_COL = PRIMER_AUTODETECTION_NUMREADS_COL
-# columns to be renamed
-SAMTOOLS_COVERAGE_TO_PSGA_COLS = {
-    RNAME_COL: PRIMER_AUTODETECTION_PRIMER_COL,
-    "numreads": PRIMER_AUTODETECTION_NUMREADS_COL,
-    "covbases": PRIMER_AUTODETECTION_COVBASES_COL,
-    "coverage": PRIMER_AUTODETECTION_COVERAGE_COL,
-}
 
 
-def select_primer(input_path: Path, output_path: Path, sample_id: str) -> Tuple[pd.DataFrame, str]:
+def select_primer(input_path: Path, output_path: Path, sample_id: str, primer_input: str) -> Tuple[pd.DataFrame, str]:
     """
-    Concatenate the input coverage TSV files and select the record with the highest score.
+    Concatenate the input coverage files and select the record with the highest score.
     Return the selected primer data and the name of the selected primer.
     """
     # concatenate the coverage files to 1 single file with 1 single header
@@ -50,12 +40,17 @@ def select_primer(input_path: Path, output_path: Path, sample_id: str) -> Tuple[
     primer_detection_df = concat(
         input_path=input_path,
         output_csv_path=output_path / f"{sample_id}{PRIMER_DETECTION_SUFFIX}",
-        sortby_col=RNAME_COL,
+        sortby_col=PRIMER_AUTODETECTION_PRIMER_COL,
         ascending=False,
-        input_glob_pattern="*.tsv",
-        input_sep="\t",
+        input_glob_pattern=f"*{COVERAGE_SUFFIX}",
+        input_sep=",",
     )
-    primer_detection_df.rename(columns=SAMTOOLS_COVERAGE_TO_PSGA_COLS, inplace=True)
+
+    # calculate coverage as a percentage of primer sequences hit for a certain primer scheme
+    primer_detection_df[PRIMER_AUTODETECTION_COVERAGE_COL] = (
+        primer_detection_df[PRIMER_AUTODETECTION_UNIQUE_NUMREADS_COL] / primer_detection_df[TOTAL_NUM_PRIMER_COL]
+    )
+    primer_detection_df.drop(columns=[TOTAL_NUM_PRIMER_COL], inplace=True)
 
     # extract the primer with the highest score
     # use deep copy to suppress the warning: SettingWithCopyWarning
@@ -70,19 +65,23 @@ def select_primer(input_path: Path, output_path: Path, sample_id: str) -> Tuple[
         # overwrite the record
         detected_primer_df_slice[:] = 0
         detected_primer_df_slice[PRIMER_AUTODETECTION_PRIMER_COL] = "none"
-        # WARNING: this is a hack in order to run ncov.
+        # WARNING: this is a hack in order to run ncov, in the case that the input primer is unknown.
         # certain samples could not have primers at all
         # (e.g. bam files in which adapters and primers were trimmed in the past)
         # ncov and artic expect a primer scheme and version as input parameters, though.
-        # here we mock ncov by passing the latest ARTIC primer to make it run.
-        # This won't have consequences because none of the sequences in this primer was found in the sample,
-        # so they won't be trimmed
+        # here we mock ncov passing the latest ARTIC primer to make it run.
+        # This won't have consequences because no primer sequences were found in the sample,
+        # so they won't be trimmed.
         # extract the first (=latest version) primer name matching ARTIC
         detected_primer = primer_detection_df[
             primer_detection_df[PRIMER_AUTODETECTION_PRIMER_COL].str.startswith("ARTIC_")
         ][PRIMER_AUTODETECTION_PRIMER_COL].iloc[0]
 
-    return detected_primer_df_slice, detected_primer
+    # if known, the input primer has precedence over this primer autodetection.
+    # both the input and the detected primers are reported, so that the infrastructure can raise a QC warning
+    selected_primer = detected_primer if primer_input == UNKNOWN else primer_input
+
+    return detected_primer_df_slice, selected_primer
 
 
 def write_primer_data(
@@ -104,12 +103,12 @@ def write_primer_data(
     primer_data_df.to_csv(output_path / f"{sample_id}{PRIMER_DATA_SUFFIX}", index=False)
 
 
-def write_selected_primer(output_path: Path, sample_id: str, detected_primer: str) -> None:
+def write_selected_primer(output_path: Path, sample_id: str, selected_primer: str) -> None:
     """
     Store the primer scheme name/version
     """
     with open(output_path / f"{sample_id}_primer.txt", "w") as of:
-        of.write(detected_primer)
+        of.write(selected_primer)
 
 
 def generate_primer_autodetection_output_files(
@@ -118,9 +117,9 @@ def generate_primer_autodetection_output_files(
     """
     Generate the primer autodetection output files
     """
-    detected_primer_df_slice, detected_primer = select_primer(input_path, output_path, sample_id)
+    detected_primer_df_slice, selected_primer = select_primer(input_path, output_path, sample_id, primer_input)
     write_primer_data(output_path, detected_primer_df_slice, sample_id, primer_input)
-    write_selected_primer(output_path, sample_id, detected_primer)
+    write_selected_primer(output_path, sample_id, selected_primer)
 
 
 @click.command()
