@@ -1,12 +1,11 @@
 import shutil
 from pathlib import Path
-from typing import List
+from typing import Dict, List
 import csv
 import tempfile
 import click
 from git import Repo
 from Bio import SeqIO
-from Bio.Seq import Seq
 
 
 SARS_COV_2 = "SARS-CoV-2"
@@ -53,11 +52,15 @@ def extract_primer_sequences(
     scheme_fasta: Path,
     primer: str,
     strands_in_name: List[str] = None,
-    right_strand: str = None,
+    left_strand: str = None,
 ) -> None:
     """
     Extract primer sequences from ref_fasta using coordinates in scheme_bed
     and generate a scheme_fasta containing these sequences.
+    Both left and right primer are needed in PCR sequecing, but here we only need the left primer,
+    which aligns with the forward read, in order to detect the primers in samples.
+    * left primer: forward read
+    * right primer: reverse/complement read
 
     Some scheme bed files do not have `strand`.
     In these cases, the strand is obtained from the sequence name (e.g. _LEFT, _RIGHT).
@@ -66,7 +69,7 @@ def extract_primer_sequences(
 
     if not strands_in_name:
         strands_in_name = ["LEFT", "RIGHT"]
-        right_strand = "RIGHT"
+        left_strand = "LEFT"
 
     if not (ref_fasta and ref_fasta.is_file()):
         raise FileNotFoundError(f"File {ref_fasta} was not found")
@@ -81,27 +84,32 @@ def extract_primer_sequences(
 
     with open(scheme_bed, newline="") as bedfile, open(scheme_fasta, "w") as outputfile:
         write = _decorate_with_new_line(outputfile.write)
-        bed_reader = csv.DictReader(bedfile, fieldnames=BED_COLS, delimiter="\t")
-        for seq_idx, bed_row in enumerate(bed_reader):
+
+        def _write_primer(primer: str, bed_row: Dict[str, str], seq_idx: int) -> None:
             start = int(bed_row[START])
             end = int(bed_row[END])
             primer_sequence = ref_sequence[start:end]
+            write(f">{primer}_cropped_primer_seq_{seq_idx}")
+            write(primer_sequence[0:CROP])
+
+        bed_reader = csv.DictReader(bedfile, fieldnames=BED_COLS, delimiter="\t")
+        for seq_idx, bed_row in enumerate(bed_reader):
+            # we only extract the forward primer, which matches the forward read
+            # and, if present, is stored at the beginning of the read
             if bed_row[STRAND]:
-                if bed_row[STRAND] == "-":
-                    # RIGHT strand
-                    primer_sequence = Seq(primer_sequence).reverse_complement()
+                if bed_row[STRAND] == "+":
+                    # forward strand, extract the sequence
+                    _write_primer(primer, bed_row, seq_idx)
             else:
                 # bed_row[STRAND] is None, infer the strand from name if possible or raise error
                 try:
                     inferred_strand = next(s for s in strands_in_name if s in bed_row[NAME])
-                    if inferred_strand == right_strand:
-                        primer_sequence = Seq(primer_sequence).reverse_complement()
+                    if inferred_strand == left_strand:
+                        _write_primer(primer, bed_row, seq_idx)
                 except StopIteration as unknown_strand:
                     raise ValueError(
                         f"Unknown strand in {scheme_bed}. Cannot extract primer sequences"
                     ) from unknown_strand
-            write(f">{primer}_cropped_primer_seq_{seq_idx}")
-            write(primer_sequence[0:CROP])
 
 
 def organise_sars_cov_2_primers(source_schemes_path: Path, dest_schemes_path: Path) -> None:

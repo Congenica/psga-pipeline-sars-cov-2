@@ -49,7 +49,7 @@ def test_get_version(test_data_path, dependency_file, key, expected_value):
 @pytest.mark.parametrize(
     "ref_fasta,scheme_bed,scheme_fasta,expected_primer_counter",
     [
-        (".reference.fasta", ".scheme.bed", ".scheme.fasta", 8),
+        (".reference.fasta", ".scheme.bed", ".scheme.fasta", 4),
     ],
 )
 def test_extract_primer_sequences(
