@@ -13,7 +13,7 @@ if ( params.sequencing_technology == "illumina" ) {
     throw new Exception("Error: '--sequencing_technology' can only be 'illumina', 'ont' or 'unknown'")
 }
 
-include { reheader } from './reheader.nf'
+include { reheader } from './common/reheader.nf'
 include { pangolin_pipeline as pangolin } from './pangolin.nf'
 include { submit_analysis_run_results } from './submit_analysis_run_results.nf'
 
