@@ -1,11 +1,15 @@
 # Pathogen Sequence Genome Analysis (PSGA) pipeline
 The architecture of the PSGA pipeline is described [here](https://confluence.congenica.net/display/PSG/PSGA+Pipeline+Architecture).
 
-Currently, the only supported pathogen is: SARS-CoV-2. For this pathogen, Congenica sequencing protocol is based on the ARTIC consortium and works as follows:
+## Supported pathogens
+
+### SARS-CoV-2
+Congenica sequencing protocol is based on the ARTIC consortium and works as follows:
 - produce viral genome assemblies from sequence data (ncov2019-artic-nf);
 - assign epidemiological lineages (Pangolin-Scorpio)
 
-Support for other pathogens will be added.
+### Synthetic
+This is a proof-of-concept pathogen pipeline which can also be used as a template.
 
 ## Operation
 This pipeline runs on a Kubernetes environment. The main workflow coordinates the execution of processes within Kubernetes jobs.
@@ -18,11 +22,8 @@ The help can also be printed with the command: `nextflow run . --help`.
 The current configuration can be printed with the command: `nextflow run . --print_config`.
 
 
-### Input files stored in aws s3
-To process samples stored in s3, set up a metadata CSV file (see tests/test_data/good_metadata.csv for reference) including the paths to the sample input files. Two files are required for running illumina fastq samples. 1 file is required for running illumina bam / nanopore medaka fastq / no_ncov fasta samples.
-
-For each pathogen, test datasets can be found in `jenkins/files`.
-
+### Pipeline metadata.csv
+To process samples, set up a metadata CSV file (e.g. tests/test_data/good_metadata_illumina.csv) which stores the sample id and the sample files. Two files are required for running illumina fastq samples. 1 file is required for running illumina bam / nanopore medaka fastq / fasta samples.
 
 ### Running the pipeline using K8s Minikube (local testing)
 Download and install Minikube using the instructions provided here: https://minikube.sigs.k8s.io/docs/start/ .
@@ -63,21 +64,15 @@ exit
 ```
 
 
-### Running the pipeline using K8s (currently in Congenica saas-dev cluster)
-The easiest way is to configure the pipeline via Jenkins.
-* sars-cov-2: https://jenkins.services.congenica.net/job/psga-pipeline-sars-cov-2/
-
-
 ## Development
 
 ### Add new pathogens
 In order to add the pathogen `pathogenX` to the pipeline, change dir to `psga` and follow the instructions below:
-1. run the script: `python initialise_pathogen.py --pathogen-name pathogenX`
-2. write the nextflow pipeline `pathogenX/psga.nf` and update `pathogenX/help.nf` accordingly
-3. add Python scripts to: `../scripts/pathogenX/`
-4. add Python unit tests to: `../tests/pathogenX/`
-5. create dockerfile in `../docker/Dockerfile.pathogenX-pipeline (see Dockerfile.sars-cov-2-pipeline for reference)
-6. add Jenkins integration tests to: `../jenkins/files/pathogenX/Jenkinsfile` (see sars-cov-2 for reference)
+1. write the nextflow pipeline `pathogenX/psga.nf` and update `pathogenX/help.nf` accordingly
+2. add Python scripts to: `../scripts/pathogenX/`
+3. add Python unit tests to: `../tests/pathogenX/`
+4. create dockerfiles in `../docker/` and dependencies in `../docker/pathogenX`
+5. add Jenkins integration tests to: `../jenkins/files/pathogenX/Jenkinsfile` (see sars-cov-2 for reference)
 
 ### Install dependency packages using Python Poetry tool
 `Poetry` manages Python dependencies. Dependencies are declared in `pyproject.toml` and exact versions of both dependencies and sub-dependencies are stored in `poetry.lock`. Both are committed to the git repo.
@@ -104,7 +99,7 @@ For a description of these environment variables, see section `Environment varia
 #### Run the unit tests
 Unit tests are implemented with pytest and stored in the project tests dir
 ```commandline
-cd ${PSGA_ROOT_PATH}/tests
+cd tests
 pytest
 ```
 
