@@ -1,13 +1,9 @@
-import os
 import json
 from typing import Dict, List
 
 # pylint: disable=import-self
 import logging
 import structlog
-import requests
-from requests.adapters import HTTPAdapter
-from requests.packages.urllib3.util.retry import Retry
 
 CRITICAL = "CRITICAL"
 ERROR = "ERROR"
@@ -16,76 +12,6 @@ INFO = "INFO"
 DEBUG = "DEBUG"
 
 LOG_LEVELS = {CRITICAL, ERROR, WARNING, INFO, DEBUG}
-
-
-# pylint: disable=no-member
-class HECHandler(logging.Handler):  # type: ignore
-    """
-    HEC logging handler.
-    Posts logs to HEC endpoint (currently Splunk).
-    Retries failed POST requests up to 3 times, but otherwise
-    has no error handling: if log messages cannot be sent to
-    the HEC an error is raised.
-
-    :param endpoint: HEC endpoint
-    :param token: authorisation token for endpoint
-    :param hostname: identifier for the entity posting to the HEC (e.g. active pod name)
-    :param source: identifier for source of logs (e.g. cluster)
-    :param sourcetype: identifier for application sending logs (e.g. name of application)
-    :param backoff_factor: the requests lib backoff factor
-    :param total_retries: number of retry attempts on a failed/erroring connection
-    """
-
-    def __init__(
-        self,
-        endpoint: str,
-        token: str,
-        hostname: str,
-        source: str,
-        sourcetype: str,
-        backoff_factor: float = 0.5,
-        total_retries: int = 3,
-    ) -> None:
-
-        super().__init__()
-
-        self.endpoint = endpoint
-        self.token = token
-
-        self.hostname = hostname
-        self.source = source
-        self.sourcetype = sourcetype
-
-        self.session = requests.Session()
-        self.session.headers.update(self.headers)
-
-        retries = Retry(
-            total=total_retries,
-            backoff_factor=backoff_factor,
-            status_forcelist=(500, 502, 503, 504),
-            method_whitelist=["POST"],
-        )
-
-        self.session.mount(self.endpoint, HTTPAdapter(max_retries=retries))
-
-    @property
-    def headers(self) -> Dict[str, str]:
-        """
-        Authorisation (Splunk specific).
-        """
-        return {"Authorization": f"Splunk {self.token}"}
-
-    def emit(self, record) -> None:
-        """
-        Send a log record to the HEC.
-        """
-        record = self.format(record)
-
-        event = json.loads(record)
-        payload = {"hostname": self.hostname, "source": self.source, "sourcetype": self.sourcetype, "event": event}
-
-        r = self.session.post(self.endpoint, json=payload)
-        r.raise_for_status()
 
 
 def key_ordering_serialiser(data: Dict, **kwargs) -> str:
@@ -164,21 +90,6 @@ def get_structlog_logger(
     file_handler = logging.FileHandler(log_file, mode="w", encoding="utf-8")  # type: ignore
     file_handler.setFormatter(formatter)
     logger.addHandler(file_handler)
-
-    # hec handler
-    if os.environ.get("HEC_ENABLED_CHILD") == "true":
-        hostname = os.environ.get("HOSTNAME")
-        if hostname is None:
-            raise Exception("Cannot set logger hostname: HOSTNAME must be set")
-        hec_handler = HECHandler(
-            endpoint=os.environ["HEC_ENDPOINT"],
-            token=os.environ["HEC_TOKEN"],
-            hostname=hostname,
-            source=os.environ["HEC_SOURCE"],
-            sourcetype=os.environ["HEC_SOURCETYPE"],
-        )
-        hec_handler.setFormatter(formatter)
-        logger.addHandler(hec_handler)
 
     # Setup structlog
     processors = create_structlog_processors()

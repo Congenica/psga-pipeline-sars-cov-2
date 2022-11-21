@@ -2,7 +2,7 @@ from typing import Dict, List
 from dataclasses import dataclass, field
 from marshmallow import validate
 
-from scripts.util.logging import LOG_LEVELS, get_structlog_logger
+from scripts.util.logger import LOG_LEVELS, get_structlog_logger
 
 
 @dataclass

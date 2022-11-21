@@ -5,7 +5,7 @@ import csv
 import click
 from click import ClickException
 
-from scripts.util.logging import get_structlog_logger
+from scripts.util.logger import get_structlog_logger
 from scripts.util.metadata import (
     ILLUMINA,
     ONT,
