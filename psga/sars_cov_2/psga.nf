@@ -63,6 +63,10 @@ workflow psga {
             ch_primer_autodetection_csv = Channel.empty()
             ch_ncov_qc_csv = Channel.empty()
 
+            // these are not needed as all fasta samples will be reheadered
+            ch_samples_passing_qc = Channel.empty()
+            ch_samples_failing_qc = Channel.empty()
+
         } else {
 
             // files are FASTQ
@@ -95,9 +99,27 @@ workflow psga {
             ncov2019_artic(ch_ncov_input_files)
             ch_ncov_qc_csv = ncov2019_artic.out.ch_ncov_qc_csv
             ch_fasta_files = ncov2019_artic.out.ch_ncov_sample_fasta
+
+            // define whether sample is QC_PASSED or QC_FAILED
+            // the ncov qc file contains 1 record only
+            ch_ncov_qc_csv
+                .splitCsv(header:true)
+                .branch {
+                    qc_passed: it.qc_pass =~ /TRUE/
+                        return it.sample_name
+                    qc_failed: true
+                        return it.sample_name
+                }
+                .set{ ch_sample_name_by_qc }
+            ch_samples_passing_qc = ch_sample_name_by_qc.qc_passed
+            ch_samples_failing_qc = ch_sample_name_by_qc.qc_failed
         }
 
-        ch_qc_passed_fasta = reheader(ch_fasta_files)
+        ch_qc_passed_fasta = reheader(
+            ch_fasta_files,
+            ch_samples_passing_qc,
+            ch_samples_failing_qc
+        )
 
         pangolin(ch_qc_passed_fasta)
 
