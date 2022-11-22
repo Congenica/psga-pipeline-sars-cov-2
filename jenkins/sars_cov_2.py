@@ -6,7 +6,7 @@ import click
 from jenkins.loading import load_data_from_csv, get_file_paths
 from jenkins.compare import compare_merged_output_file, compare_output_files_set
 from jenkins.config import data_config
-from scripts.sars_cov_2.check_metadata import SEQUENCING_TECHNOLOGIES
+from scripts.common.check_metadata import SEQUENCING_TECHNOLOGIES
 from scripts.sars_cov_2.generate_pipeline_results_files import get_expected_output_files_per_sample, SampleIdResultFiles
 from scripts.util.logging import get_structlog_logger
 from scripts.util.metadata import UNKNOWN

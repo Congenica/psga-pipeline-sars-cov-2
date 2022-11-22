@@ -1,21 +1,14 @@
-include { check_metadata } from './check_metadata.nf'
+include { organise_metadata_sample_files } from './common/organise_metadata_sample_files.nf'
 include { fastqc } from './common/fastqc.nf'
 include { primer_autodetection } from './common/primer_autodetection.nf'
 
 if ( params.sequencing_technology == "illumina" ) {
     include { contamination_removal_illumina as contamination_removal } from './common/contamination_removal.nf'
     include { ncov2019_artic_nf_pipeline_illumina as ncov2019_artic } from './ncov2019_artic.nf'
-    include { stage_sample_file as stage_sample_bam } from './common/fetch_sample_files.nf'
-    include { stage_sample_file_pair as stage_sample_fastq } from './common/fetch_sample_files.nf'
-    include { bam_to_fastq_illumina as bam_to_fastq } from './common/utils.nf'
 } else if ( params.sequencing_technology == "ont" ) {
     include { contamination_removal_ont as contamination_removal } from './common/contamination_removal.nf'
     include { ncov2019_artic_nf_pipeline_medaka as ncov2019_artic } from './ncov2019_artic.nf'
-    include { stage_sample_file as stage_sample_bam } from './common/fetch_sample_files.nf'
-    include { stage_sample_file as stage_sample_fastq } from './common/fetch_sample_files.nf'
-    include { bam_to_fastq_ont as bam_to_fastq } from './common/utils.nf'
 } else if ( params.sequencing_technology == "unknown" ) {
-    include { stage_sample_file as stage_sample_fasta } from './common/fetch_sample_files.nf'
 } else {
     throw new Exception("Error: '--sequencing_technology' can only be 'illumina', 'ont' or 'unknown'")
 }
@@ -58,53 +51,26 @@ workflow psga {
 
     main:
 
-        check_metadata(params.metadata)
-        ch_metadata = check_metadata.out.ch_metadata
-
-        // organise sample input files by file type
-        ch_metadata
-            .splitCsv(header: true, sep: ',')
-            .branch {
-                bam: it.SEQ_FILE_2 == '' && it.SEQ_FILE_1 =~ /\.bam$/
-                fastq: it.SEQ_FILE_2 == '' && it.SEQ_FILE_1 =~ /\.(fq|fastq?)(?:\.gz)?$/
-                fastq_pair: it.SEQ_FILE_2 =~ /\.(fq|fastq?)(?:\.gz)?$/ && it.SEQ_FILE_1 =~ /\.(fq|fastq?)(?:\.gz)?$/
-                fasta: it.SEQ_FILE_2 == '' && it.SEQ_FILE_1 =~ /\.(fa|fasta?)(?:\.gz)?$/
-            }
-            .set { ch_metadata_samples }
+        organise_metadata_sample_files()
+        ch_metadata = organise_metadata_sample_files.out.ch_metadata
+        ch_sample_files = organise_metadata_sample_files.out.ch_sample_files
 
         if ( params.sequencing_technology == "unknown" ) {
 
             // files are FASTA
-            ch_fasta_files = stage_sample_fasta(ch_metadata_samples.fasta)
-            // mock channels
+            ch_fasta_files = ch_sample_files
             ch_contamination_removal_csv = Channel.empty()
             ch_primer_autodetection_csv = Channel.empty()
             ch_ncov_qc_csv = Channel.empty()
 
         } else {
 
-            // stage bam files
-            ch_bam_files = stage_sample_bam(ch_metadata_samples.bam)
-            // transform bam into 2 paired fastq files
-            ch_bam_to_fastq = bam_to_fastq(ch_bam_files)
-
-            if ( params.sequencing_technology == "illumina") {
-                // stage input file (2 reads)
-                ch_fastq_files = stage_sample_fastq(ch_metadata_samples.fastq_pair)
-            } else if ( params.sequencing_technology == "ont" ) {
-                // stage input file
-                ch_fastq_files = stage_sample_fastq(ch_metadata_samples.fastq)
-            } else {
-                throw new Exception("Error: '--sequencing_technology' can only be 'illumina', 'ont' or 'unknown'")
-            }
-
-            // unify the input fastq files with fastq files converted from bam files into one channel. Order of sample tuples is irrelevant.
-            ch_input_files_fastq = ch_fastq_files.mix(ch_bam_to_fastq)
-
+            // files are FASTQ
+            ch_fastq_files = ch_sample_files
 
             contamination_removal(
                 params.rik_ref_genome_fasta,
-                ch_input_files_fastq
+                ch_fastq_files
             )
             ch_contamination_removal_csv = contamination_removal.out.ch_contamination_removal_csv
 

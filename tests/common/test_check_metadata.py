@@ -2,7 +2,7 @@ import pytest
 from click.testing import CliRunner
 import structlog
 
-from scripts.sars_cov_2.check_metadata import check_metadata, validate_metadata
+from scripts.common.check_metadata import check_metadata, validate_metadata
 from scripts.util.logging import get_structlog_logger
 from tests.util.test_notification import load_log_file_to_dict
 
