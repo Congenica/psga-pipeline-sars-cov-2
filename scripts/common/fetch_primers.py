@@ -207,7 +207,7 @@ def fetch_primers(
     e.g.
     python fetch_primers.py \
         --dependencies-file ../../docker/sars_cov_2/ncov.deps \
-        --dest-schemes ../../docker/primer_schemes \
+        --dest-schemes ../../data/sars_cov_2/primer_schemes \
         --pathogen sars-cov-2
     """
     dest_schemes_path = Path(dest_schemes)

@@ -8,10 +8,12 @@ RUN mamba env create -f /environment.yml -n custom_env \
 
 FROM debian:buster-slim
 
+ARG pathogen
+
 COPY --from=condabuild /opt/conda/envs/custom_env /opt/conda/envs/custom_env
 ENV PATH=/opt/conda/envs/custom_env/bin:$PATH
 
 # copy the reference genome MN908947.3 without poly-A tail
 # see: https://www.biorxiv.org/content/10.1101/2022.01.21.477194v1
-COPY data/MN908947.3.no_poly_A.fa /
+COPY data/${pathogen}/MN908947.3.no_poly_A.fa /
 COPY scripts/common /app/scripts/common
