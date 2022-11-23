@@ -50,3 +50,7 @@ jobs:
             PATHOGEN_ARG="--build-arg pathogen=${{ inputs.pathogen }}"
           fi
           docker build ${PATHOGEN_ARG} -t $ECR_IMAGE_NAME -t $ECR_BRANCH_LATEST_NAME -f docker/${{ inputs.dockerfile }} .
+          if [[ "${{ inputs.push }}" == "true" ]] then
+            docker push $ECR_IMAGE_NAME
+            docker push $ECR_BRANCH_LATEST_NAME
+          fi
