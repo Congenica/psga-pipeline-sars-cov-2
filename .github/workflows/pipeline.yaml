@@ -3,26 +3,20 @@ on:
   push:
     branches-ignore:
       - "release/**"
-env:
-  IMAGE_TAG: ${{ github.sha }}
-
 jobs:
   synthetic-pipeline:
-    uses: ./.github/workflows/build_image.yml
+    uses: ./.github/workflows/build_image.yaml
     secrets: inherit
     with:
       name: synthetic-pipeline
       dockerfile_path: docker/Dockefile.psga-pipeline
       pathogen: synthetic
-      ecr_path: ${{ secrets.ECR_PATH_DEV }}
   pangolin:
     uses: ./.github/workflows/build_image.yml
     secrets: inherit
     with:
       name: pangolin
       dockerfile_path: docker/Dockerfile.pangolin
-      ecr_path: ${{ secrets.ECR_PATH_DEV }}
-
   check_and_test:
     name: Install dependencies and run tests
     runs-on: ubuntu-22.04
