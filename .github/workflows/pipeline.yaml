@@ -1,0 +1,49 @@
+name: Build, test and push
+on:
+  push:
+    branches-ignore:
+      - "release/**"
+env:
+  ECR_PATH: ${{ secrets.ECR_PATH_DEV }}
+  IMAGE_TAG: ${{ github.sha }}
+
+jobs:
+  synthetic-pipeline:
+    #requires: check_and_test
+    steps:
+      - name: Build synthetic-pipeline
+        uses: ./.github/workflows/build_image.yml
+        secrets: inherit
+        with:
+          name: synthetic-pipeline
+          dockerfile_path: docker/Dockefile.psga-pipeline
+          pathogen: synthetic
+          ecr_path: ${{ env.ECR_PATH }}
+          version: ${{ github.sha }}
+
+    pangolin:
+      #requires: check_and_test
+      steps:
+        - name: Build pangolin
+          uses: ./.github/workflows/build_image.yml
+          secrets: inherit
+          with:
+            name: pangolin
+            dockerfile_path: docker/Dockerfile.pangolin
+            ecr_path: ${{ env.ECR_PATH }}
+            version: ${{ github.sha }}
+
+  check_and_test:
+    name: Install dependencies and run tests
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v3
+      - name: Pre-commit checks
+        run: |
+          pip install pre-commit==2.17.0
+          pre-commit run --all-files
+      - name: Install dependencies and run tests
+        run: |
+          poetry install
+          poetry run pytest tests/
