@@ -27,6 +27,7 @@ ENV PATH=/ncov2019-artic-nf/bin:/opt/conda/envs/custom_env/bin:$PATH
 ARG pathogen
 COPY docker/${pathogen}/ncov.deps psga/${pathogen}/ncov-illumina.config psga/${pathogen}/ncov-common.config /
 COPY data/${pathogen}/primer_schemes /primer_schemes
+COPY data/${pathogen}/ncov2019-artic-nf/* /
 
 # install awscli here because the conda version requires a much more updated Python version
 RUN . /ncov.deps \
