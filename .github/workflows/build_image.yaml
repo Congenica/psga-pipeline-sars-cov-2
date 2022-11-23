@@ -49,4 +49,4 @@ jobs:
           if [[ ! -z "${{ inputs.pathogen }}" ]]; then
             PATHOGEN_ARG="--build-arg pathogen=${{ inputs.pathogen }}"
           fi
-          docker build ${PATHOGEN_ARG} -t $ECR_IMAGE_NAME -t $ECR_BRANCH_LATEST_NAME -f docker/${{ inputs.dockerfile_path }} .
+          docker build ${PATHOGEN_ARG} -t $ECR_IMAGE_NAME -t $ECR_BRANCH_LATEST_NAME -f ${{ inputs.dockerfile_path }} .
