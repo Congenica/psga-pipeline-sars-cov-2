@@ -13,5 +13,4 @@ ARG pathogen
 COPY --from=condabuild /opt/conda/envs/custom_env /opt/conda/envs/custom_env
 ENV PATH=/opt/conda/envs/custom_env/bin:$PATH
 
-# overwrite fastqc configuration so that we only run the QC tests we need
-COPY data/${pathogen}/fastqc_config_limits.txt /opt/conda/envs/custom_env/opt/fastqc-0.11.9/Configuration/limits.txt
+COPY data/${pathogen}/fastqc/* /
