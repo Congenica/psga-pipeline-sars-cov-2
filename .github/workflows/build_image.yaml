@@ -14,7 +14,8 @@ on:
         default: ~
       ecr_path:
         type: string
-        required: true
+        required: false
+        default: dev
       push:
         type: boolean
         default: false
