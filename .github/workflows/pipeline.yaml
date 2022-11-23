@@ -5,18 +5,42 @@ on:
       - "release/**"
 jobs:
   synthetic-pipeline:
+    requires: check_and_test
     uses: ./.github/workflows/build_image.yaml
     secrets: inherit
     with:
       name: synthetic-pipeline
-      dockerfile: Dockefile.psga-pipeline
+      dockerfile: Dockerfile.psga-pipeline
       pathogen: synthetic
+  sars-cov-2-pipeline:
+    requires: check_and_test
+    uses: ./.github/workflows/build_image.yaml
+    secrets: inherit
+    with:
+      name: sars-cov-2-pipeline
+      dockerfile: Dockerfile.psga-pipeline
+      pathogen: sars-cov-2
   pangolin:
+    requires: check_and_test
     uses: ./.github/workflows/build_image.yaml
     secrets: inherit
     with:
       name: pangolin
       dockerfile: Dockerfile.pangolin
+  ncov2019-artic-nf-nanopore:
+    requires: check_and_test
+    uses: ./.github/workflows/build_image.yaml
+    secrets: inherit
+    with:
+      name: ncov2019-artic-nf-nanopore
+      dockerfile: Dockerfile.ncov2019-artic-nf-nanopore
+  ncov2019-artic-nf-illumina:
+    requires: check_and_test
+    uses: ./.github/workflows/build_image.yaml
+    secrets: inherit
+    with:
+      name: ncov2019-artic-nf-illumina
+      dockerfile: Dockerfile.ncov2019-artic-nf-illumina
   check_and_test:
     name: Install dependencies and run tests
     runs-on: ubuntu-22.04
