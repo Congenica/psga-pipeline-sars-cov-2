@@ -15,9 +15,6 @@ on:
       ecr_path:
         type: string
         required: true
-      version:
-        type: string
-        required: true
       push:
         type: boolean
         default: false
@@ -31,9 +28,9 @@ jobs:
       - run: |
           set -e
           BRANCH_NAME=${GITHUB_REF/refs\/heads\//}
-          IMAGE_NAME="${{ inputs.name }}:${{ inputs.version }}"
-          ECR_IMAGE_NAME="${{ env.ECR_PATH_DEV }}/${IMAGE_NAME}"
-          ECR_BRANCH_LATEST_NAME="${{ env.ECR_PATH_DEV }}/${IMAGE_NAME}:${BRANCH_NAME}_latest"
+          IMAGE_NAME="${{ inputs.name }}:${{ github.sha }}"
+          ECR_IMAGE_NAME="${{ inputs.ecr_path }}/${IMAGE_NAME}"
+          ECR_BRANCH_LATEST_NAME="${{ inputs.ecr_path }}/${IMAGE_NAME}:${BRANCH_NAME}_latest"
           PATHOGEN_ARG=""
           if [[ ! -z "${{ inputs.pathogen }}" ]]; then
             PATHOGEN_ARG="--build-arg pathogen=${{ inputs.pathogen }}"

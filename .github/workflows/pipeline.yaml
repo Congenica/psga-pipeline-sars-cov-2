@@ -4,7 +4,6 @@ on:
     branches-ignore:
       - "release/**"
 env:
-  ECR_PATH: ${{ secrets.ECR_PATH_DEV }}
   IMAGE_TAG: ${{ github.sha }}
 
 jobs:
@@ -15,17 +14,14 @@ jobs:
       name: synthetic-pipeline
       dockerfile_path: docker/Dockefile.psga-pipeline
       pathogen: synthetic
-      ecr_path: ${{ env.ECR_PATH }}
-      version: ${{ github.sha }}
-
+      ecr_path: ${{ secrets.ECR_PATH_DEV }}
   pangolin:
     uses: ./.github/workflows/build_image.yml
     secrets: inherit
     with:
       name: pangolin
       dockerfile_path: docker/Dockerfile.pangolin
-      ecr_path: ${{ env.ECR_PATH }}
-      version: ${{ github.sha }}
+      ecr_path: ${{ secrets.ECR_PATH_DEV }}
 
   check_and_test:
     name: Install dependencies and run tests
