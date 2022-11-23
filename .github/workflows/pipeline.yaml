@@ -9,14 +9,14 @@ jobs:
     secrets: inherit
     with:
       name: synthetic-pipeline
-      dockerfile_path: docker/Dockefile.psga-pipeline
+      dockerfile: Dockefile.psga-pipeline
       pathogen: synthetic
   pangolin:
     uses: ./.github/workflows/build_image.yaml
     secrets: inherit
     with:
       name: pangolin
-      dockerfile_path: docker/Dockerfile.pangolin
+      dockerfile: Dockerfile.pangolin
   check_and_test:
     name: Install dependencies and run tests
     runs-on: ubuntu-22.04
