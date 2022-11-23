@@ -9,29 +9,23 @@ env:
 
 jobs:
   synthetic-pipeline:
-    #requires: check_and_test
-    steps:
-      - name: Build synthetic-pipeline
-        uses: ./.github/workflows/build_image.yml
-        secrets: inherit
-        with:
-          name: synthetic-pipeline
-          dockerfile_path: docker/Dockefile.psga-pipeline
-          pathogen: synthetic
-          ecr_path: ${{ env.ECR_PATH }}
-          version: ${{ github.sha }}
+    uses: ./.github/workflows/build_image.yml
+    secrets: inherit
+    with:
+      name: synthetic-pipeline
+      dockerfile_path: docker/Dockefile.psga-pipeline
+      pathogen: synthetic
+      ecr_path: ${{ env.ECR_PATH }}
+      version: ${{ github.sha }}
 
-    pangolin:
-      #requires: check_and_test
-      steps:
-        - name: Build pangolin
-          uses: ./.github/workflows/build_image.yml
-          secrets: inherit
-          with:
-            name: pangolin
-            dockerfile_path: docker/Dockerfile.pangolin
-            ecr_path: ${{ env.ECR_PATH }}
-            version: ${{ github.sha }}
+  pangolin:
+    uses: ./.github/workflows/build_image.yml
+    secrets: inherit
+    with:
+      name: pangolin
+      dockerfile_path: docker/Dockerfile.pangolin
+      ecr_path: ${{ env.ECR_PATH }}
+      version: ${{ github.sha }}
 
   check_and_test:
     name: Install dependencies and run tests
