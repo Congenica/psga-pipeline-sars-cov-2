@@ -19,7 +19,7 @@ jobs:
     with:
       name: sars-cov-2-pipeline
       dockerfile: Dockerfile.psga-pipeline
-      pathogen: sars-cov-2
+      pathogen: sars_cov_2
   pangolin:
     needs: check_and_test
     uses: ./.github/workflows/build_image.yaml
