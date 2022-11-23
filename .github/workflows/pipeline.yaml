@@ -12,7 +12,7 @@ jobs:
       dockerfile_path: docker/Dockefile.psga-pipeline
       pathogen: synthetic
   pangolin:
-    uses: ./.github/workflows/build_image.yml
+    uses: ./.github/workflows/build_image.yaml
     secrets: inherit
     with:
       name: pangolin
