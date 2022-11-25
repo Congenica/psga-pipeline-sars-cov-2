@@ -4,7 +4,7 @@ repos:
     rev: v1.28.0
     hooks:
       - id: yamllint
-        files: ^psga\/configs\/.*
+        files: ^psga\/config\/.*
 
   - repo: https://github.com/ambv/black
     rev: 22.3.0
