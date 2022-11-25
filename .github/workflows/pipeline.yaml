@@ -4,7 +4,7 @@ on:
     branches-ignore:
       - "release/**"
 env:
-  PUSH_ENABLED: 0
+  PUSH_ENABLED: "false"
 jobs:
   pipeline_setup:
     name: Setup the workflow variables
@@ -15,7 +15,7 @@ jobs:
       - name: Override vars on branches
         if: github.ref == 'refs/heads/main'
         run: |
-          echo "PUSH_ENABLED=1" >> $GITHUB_ENV
+          echo "PUSH_ENABLED=true" >> $GITHUB_ENV
   synthetic-pipeline:
     needs:
       - check_and_test
