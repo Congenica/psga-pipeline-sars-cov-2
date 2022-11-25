@@ -18,7 +18,7 @@ on:
         default: dev
       push_enabled:
         type: string
-        default: "false"
+        default: 0
         required: false
       version:
         type: string
@@ -36,6 +36,11 @@ jobs:
           VERSION=${{ github.sha }}
           if [[ ! -z "${{ inputs.version }}" ]]; then
             VERSION=${{ inputs.version }}
+          fi
+          if [[ "${{ inputs.ecr_path }}" == "prod" ]]; then
+            ECR_PATH=${{ secrets.ECR_PATH_PROD }}
+          else
+            ECR_PATH=${{ secrets.ECR_PATH_DEV }}
           fi
           IMAGE_NAME="${{ inputs.name }}:${VERSION}"
           ECR_IMAGE_NAME="${{ inputs.ecr_path }}/${IMAGE_NAME}"
