@@ -1,0 +1,25 @@
+name: Publish config files
+on:
+  workflow_call:
+    inputs:
+      versions:
+        type: string
+        required: true
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v3
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: eu-west-2
+      - name: Publish configs to artefacts S3 bucket
+        run: |
+          for version in $(echo ${{ inputs.versions }} | sed "s/,/ /g"); do
+            aws s3 cp psga/config/psga-schema-sars-cov-2.yaml ${{ secrets.S3_BUCKET_PATH }}/${version}/psga-schema-sars-cov-2.yaml
+            aws s3 cp psga/config/psga-schema-synthetic.yaml ${{ secrets.S3_BUCKET_PATH }}/${version}/psga-schema-synthetic.yaml
+          done
