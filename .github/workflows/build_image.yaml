@@ -37,7 +37,8 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: eu-west-2
-      - run: |
+      - name: Build (and push) the image
+        run: |
           set -e
           BRANCH_NAME=${GITHUB_REF/refs\/heads\//}
           VERSION=${{ github.sha }}
@@ -50,8 +51,8 @@ jobs:
             ECR_PATH=${{ secrets.ECR_PATH_DEV }}
           fi
           IMAGE_NAME="${{ inputs.name }}:${VERSION}"
-          ECR_IMAGE_NAME="${{ inputs.ecr_path }}/${IMAGE_NAME}"
-          ECR_BRANCH_LATEST_NAME="${{ inputs.ecr_path }}/${{ inputs.name }}:${BRANCH_NAME}_latest"
+          ECR_IMAGE_NAME="${ECR_PATH}/${IMAGE_NAME}"
+          ECR_BRANCH_LATEST_NAME="${ECR_PATH}/${{ inputs.name }}:${BRANCH_NAME}_latest"
           PATHOGEN_ARG=""
           if [[ ! -z "${{ inputs.pathogen }}" ]]; then
             PATHOGEN_ARG="--build-arg pathogen=${{ inputs.pathogen }}"
