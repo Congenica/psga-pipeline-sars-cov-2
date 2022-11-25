@@ -33,6 +33,7 @@ jobs:
       dockerfile: Dockerfile.psga-pipeline
       pathogen: synthetic
       push_enabled: needs.pipeline_setup.outputs.push_enabled
+      ecr_path: env.ECR_PATH
   # sars-cov-2-pipeline:
   #   needs: check_and_test
   #   uses: ./.github/workflows/build_image.yaml

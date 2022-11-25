@@ -37,14 +37,9 @@ jobs:
           if [[ ! -z "${{ inputs.version }}" ]]; then
             VERSION=${{ inputs.version }}
           fi
-          if [[ "${{ inputs.ecr_path }}" == "prod" ]]; then
-            ECR_PATH=${{ secrets.ECR_PATH_PROD }}
-          else
-            ECR_PATH=${{ secrets.ECR_PATH_DEV }}
-          fi
           IMAGE_NAME="${{ inputs.name }}:${VERSION}"
-          ECR_IMAGE_NAME="${ECR_PATH}/${IMAGE_NAME}"
-          ECR_BRANCH_LATEST_NAME="${ECR_PATH}/${{ inputs.name }}:${BRANCH_NAME}_latest"
+          ECR_IMAGE_NAME="${{ inputs.ecr_path }}/${IMAGE_NAME}"
+          ECR_BRANCH_LATEST_NAME="${{ inputs.ecr_path }}/${{ inputs.name }}:${BRANCH_NAME}_latest"
           PATHOGEN_ARG=""
           if [[ ! -z "${{ inputs.pathogen }}" ]]; then
             PATHOGEN_ARG="--build-arg pathogen=${{ inputs.pathogen }}"
