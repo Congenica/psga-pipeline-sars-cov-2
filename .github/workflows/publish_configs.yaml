@@ -27,6 +27,7 @@ jobs:
       - name: Publish configs to artefacts S3 bucket
         run: |
           for version in $(echo ${{ inputs.versions }} | sed "s/,/ /g"); do
+            echo "Publishing version $version"
             aws s3 cp psga/config/psga-schema-sars-cov-2.yaml ${{ secrets.S3_BUCKET_PATH }}/${version}/psga-schema-sars-cov-2.yaml
             aws s3 cp psga/config/psga-schema-synthetic.yaml ${{ secrets.S3_BUCKET_PATH }}/${version}/psga-schema-synthetic.yaml
           done
