@@ -4,7 +4,7 @@ on:
     branches-ignore:
       - "release/**"
 env:
-  ECR_PATH: secrets.ECR_PATH_DEV
+  ECR_PATH: ${{ secrets.ECR_PATH_DEV }}
 jobs:
   pipeline_setup:
     name: Setup the workflow variables
