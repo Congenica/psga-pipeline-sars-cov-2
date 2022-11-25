@@ -8,7 +8,7 @@ jobs:
     name: Setup the workflow variables
     runs-on: ubuntu-22.04
     outputs:
-      push_enabled: ${{ steps.setup.outputs.test }}
+      push_enabled: ${{ steps.setup.outputs.push_enabled }}
     steps:
       - name: Check out repo
         uses: actions/checkout@v3

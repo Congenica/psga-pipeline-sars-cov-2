@@ -18,7 +18,7 @@ on:
         default: dev
       push_enabled:
         type: string
-        default: 0
+        default: "false"
         required: false
       version:
         type: string
