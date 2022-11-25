@@ -11,6 +11,7 @@ jobs:
     runs-on: ubuntu-22.04
     outputs:
       push_enabled: ${{ steps.setup.outputs.test }}
+      ecr_path: ${{ steps.setup.outputs.ecr_path }}
     steps:
       - name: Check out repo
         uses: actions/checkout@v3
@@ -22,6 +23,7 @@ jobs:
           else
             echo "push_enabled=false" >> $GITHUB_OUTPUT
           fi
+          echo "ecr_path=${{ env.ECR_PATH }}" >> $GITHUB_OUTPUT
   synthetic-pipeline:
     needs:
       - check_and_test
@@ -33,7 +35,7 @@ jobs:
       dockerfile: Dockerfile.psga-pipeline
       pathogen: synthetic
       push_enabled: ${{ needs.pipeline_setup.outputs.push_enabled }}
-      ecr_path: ${{ env.ECR_PATH }}
+      ecr_path: ${{ needs.pipeline_setup.outputs.ecr_path }}
   # sars-cov-2-pipeline:
   #   needs: check_and_test
   #   uses: ./.github/workflows/build_image.yaml
