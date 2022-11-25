@@ -2,9 +2,9 @@ repos:
 
   - repo: https://github.com/adrienverge/yamllint.git
     rev: v1.28.0
-    files: psga/configs/
     hooks:
       - id: yamllint
+        files: ^psga/configs/.*
 
   - repo: https://github.com/ambv/black
     rev: 22.3.0
