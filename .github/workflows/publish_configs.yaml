@@ -5,6 +5,13 @@ on:
       versions:
         type: string
         required: true
+    secrets:
+      S3_BUCKET_PATH:
+        required: true
+      AWS_ACCESS_KEY_ID:
+        required: true
+      AWS_SECRET_ACCESS_KEY:
+        required: true
 jobs:
   build:
     runs-on: ubuntu-22.04
