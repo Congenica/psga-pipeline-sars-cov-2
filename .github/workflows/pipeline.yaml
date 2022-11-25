@@ -4,18 +4,24 @@ on:
     branches-ignore:
       - "release/**"
 env:
-  PUSH_ENABLED: "false"
+  ECR_PATH: secrets.ECR_PATH_DEV
 jobs:
   pipeline_setup:
     name: Setup the workflow variables
     runs-on: ubuntu-22.04
+    outputs:
+      push_enabled: ${{ steps.setup.outputs.test }}
     steps:
       - name: Check out repo
         uses: actions/checkout@v3
       - name: Override vars on branches
-        if: github.ref == 'refs/heads/main'
+        id: setup
         run: |
-          echo "PUSH_ENABLED=true" >> $GITHUB_ENV
+          if [[ "${{ github.ref }}" == 'refs/heads/main' || "${{ github.ref }}" == 'refs/heads/dev' ]]; then
+            echo "push_enabled=true" >> $GITHUB_OUTPUT
+          else
+            echo "push_enabled=false" >> $GITHUB_OUTPUT
+          fi
   synthetic-pipeline:
     needs:
       - check_and_test
@@ -26,7 +32,7 @@ jobs:
       name: synthetic-pipeline
       dockerfile: Dockerfile.psga-pipeline
       pathogen: synthetic
-      push_enabled: env.PUSH_ENABLED
+      push_enabled: needs.pipeline_setup.outputs.push_enabled
   # sars-cov-2-pipeline:
   #   needs: check_and_test
   #   uses: ./.github/workflows/build_image.yaml
