@@ -3,15 +3,30 @@ on:
   push:
     branches-ignore:
       - "release/**"
+env:
+  PUSH_ENABLED: 0
 jobs:
-  # synthetic-pipeline:
-  #   needs: check_and_test
-  #   uses: ./.github/workflows/build_image.yaml
-  #   secrets: inherit
-  #   with:
-  #     name: synthetic-pipeline
-  #     dockerfile: Dockerfile.psga-pipeline
-  #     pathogen: synthetic
+  pipeline_setup:
+    name: Setup the workflow variables
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v3
+      - name: Override vars on branches
+        if: github.ref == 'refs/heads/main'
+        run: |
+          echo "PUSH_ENABLED=1" >> $GITHUB_ENV
+  synthetic-pipeline:
+    needs:
+      - check_and_test
+      - pipeline_setup
+    uses: ./.github/workflows/build_image.yaml
+    secrets: inherit
+    with:
+      name: synthetic-pipeline
+      dockerfile: Dockerfile.psga-pipeline
+      pathogen: synthetic
+      push_enabled: env.PUSH_ENABLED
   # sars-cov-2-pipeline:
   #   needs: check_and_test
   #   uses: ./.github/workflows/build_image.yaml
@@ -43,9 +58,9 @@ jobs:
   #     dockerfile: Dockerfile.ncov2019-artic-nf-illumina
   publish_configs_dev:
     #if: github.ref == 'refs/heads/dev'
-    # needs:
-    #   - sars-cov-2-pipeline
-    #   - synthetic-pipeline
+    needs:
+      #- sars-cov-2-pipeline
+      - synthetic-pipeline
     uses: ./.github/workflows/publish_configs.yaml
     secrets:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
@@ -53,33 +68,35 @@ jobs:
       S3_BUCKET_PATH: ${{ secrets.S3_BUCKET_PATH_DEV }}
     with:
       versions: "${{ github.sha }},dev_latest"
-  # publish_configs_main:
-  #   if: github.ref == 'refs/heads/main'
-  #   needs:
-  #     - sars-cov-2-pipeline
-  #     - synthetic-pipeline
-  #   uses: ./.github/workflows/publish_configs.yaml
-  #   secrets: inherit
-  #   with:
-  #     bucket_path: env.S3_BUCKET_PATH
-  #     versions: "${{ github.sha }},main_latest"
-  # check_and_test:
-  #   name: Install dependencies and run tests
-  #   runs-on: ubuntu-22.04
-  #   steps:
-  #     - name: Check out repo
-  #       uses: actions/checkout@v3
-  #     - name: Install python
-  #       uses: actions/setup-python@v4
-  #       with:
-  #         python-version: '3.10'
-  #     - name: Install Poetry
-  #       run: curl -sSL https://install.python-poetry.org | python3 -
-  #     - name: Pre-commit checks
-  #       run: |
-  #         pip install pre-commit==2.17.0
-  #         pre-commit run --all-files
-  #     - name: Install dependencies and run tests
-  #       run: |
-  #         poetry install
-  #         poetry run pytest tests/
+  publish_configs_main:
+    if: github.ref == 'refs/heads/main'
+    needs:
+      #- sars-cov-2-pipeline
+      - synthetic-pipeline
+    uses: ./.github/workflows/publish_configs.yaml
+    secrets:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      S3_BUCKET_PATH: ${{ secrets.S3_BUCKET_PATH_DEV }}
+    with:
+      versions: "${{ github.sha }},main_latest"
+  check_and_test:
+    name: Install dependencies and run tests
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v3
+      - name: Install python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+      - name: Install Poetry
+        run: curl -sSL https://install.python-poetry.org | python3 -
+      - name: Pre-commit checks
+        run: |
+          pip install pre-commit==2.17.0
+          pre-commit run --all-files
+      - name: Install dependencies and run tests
+        run: |
+          poetry install
+          poetry run pytest tests/
