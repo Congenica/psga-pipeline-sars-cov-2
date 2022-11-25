@@ -4,6 +4,8 @@ repos:
     rev: v1.28.0
     hooks:
       - id: yamllint
+        args:
+          - "-d relaxed"
         files: ^psga\/config\/.*
 
   - repo: https://github.com/ambv/black
