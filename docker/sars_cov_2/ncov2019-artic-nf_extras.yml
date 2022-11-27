@@ -8,4 +8,5 @@ dependencies:
   - pandas
   - samtools
   - libxcb
+  - openjdk=11.0.8
   - nextflow=21.10.6
