@@ -1,7 +1,7 @@
 from pathlib import Path
 import click
 
-from scripts.util.logging import get_structlog_logger
+from scripts.util.logger import get_structlog_logger
 from jenkins.sars_cov_2 import sars_cov_2
 
 log_file = f"{Path(__file__).stem}.log"

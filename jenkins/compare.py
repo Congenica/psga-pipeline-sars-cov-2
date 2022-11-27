@@ -3,7 +3,7 @@ from typing import Callable, Dict, List, Set
 from math import isclose
 import pandas as pd
 
-from scripts.util.logging import get_structlog_logger
+from scripts.util.logger import get_structlog_logger
 
 logger = get_structlog_logger()
 

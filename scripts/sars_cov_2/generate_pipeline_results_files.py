@@ -17,7 +17,7 @@ from scripts.common.primer_autodetection import (
     PRIMER_AUTODETECTION_SAMPLE_ID_COL,
     EXPECTED_PRIMER_AUTODETECTION_HEADERS,
 )
-from scripts.util.logging import get_structlog_logger, ERROR, WARNING, INFO
+from scripts.util.logger import get_structlog_logger, ERROR, WARNING, INFO
 from scripts.util.metadata import EXPECTED_HEADERS as EXPECTED_METADATA_HEADERS, SAMPLE_ID, ILLUMINA, ONT, UNKNOWN
 from scripts.util.notifications import Event, Notification
 from scripts.validation.check_csv_columns import check_csv_columns

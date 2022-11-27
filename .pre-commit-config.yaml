@@ -12,7 +12,6 @@ repos:
     hooks:
     - id: mypy
       args: [--no-strict-optional, --ignore-missing-imports, --show-error-codes]
-      additional_dependencies: [types-requests]
 
 -   repo: https://github.com/pre-commit/pygrep-hooks
     rev: v1.9.0
