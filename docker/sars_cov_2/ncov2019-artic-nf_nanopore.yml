@@ -1,0 +1,12 @@
+name: artic
+channels:
+    - epi2melabs
+    - bioconda
+    - conda-forge
+    - defaults
+dependencies:
+    - aplanat=0.5.4
+    - fastcat=0.3.6
+    - np-artic=1.3.0
+    - pomoxis=0.3.6
+    - setuptools=59.8.0

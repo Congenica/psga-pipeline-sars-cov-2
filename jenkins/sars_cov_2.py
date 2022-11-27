@@ -22,6 +22,7 @@ def get_expected_output_files(output_path: str, sample_ids: List[str], sequencin
     # In integration tests, we expect all samples to pass ncov qc if this is executed
     sample_ids_result_files = SampleIdResultFiles(
         all_samples=sample_ids,
+        primer_autodetection_completed_samples=[] if sequencing_technology == UNKNOWN else sample_ids,
         ncov_completed_samples=[] if sequencing_technology == UNKNOWN else sample_ids,
         ncov_qc_passed_samples=[] if sequencing_technology == UNKNOWN else sample_ids,
     )

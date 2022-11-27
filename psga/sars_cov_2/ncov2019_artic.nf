@@ -5,12 +5,9 @@
 process ncov2019_artic_nf_pipeline_illumina {
   publishDir "${params.output_path}/ncov2019-artic", mode: 'copy', overwrite: true, pattern: 'output_{bam,fasta,plots,variants}/*'
 
-  tag "${task.index} - ${fastq_file}"
+  tag "${task.index} - ${input_files}"
   input:
-    path fastq_file
-    val scheme_dir
-    val scheme
-    val scheme_version
+    path input_files
 
   output:
     // retain the qc csv intentionally
@@ -23,6 +20,9 @@ process ncov2019_artic_nf_pipeline_illumina {
 
   shell:
   '''
+  # set nextflow env vars
+  export NXF_ANSI_LOG="false"
+
   ncov_out_dir="ncov_output"
   ncov_bam_out_dir="${ncov_out_dir}/ncovIllumina_sequenceAnalysis_trimPrimerSequences"
   ncov_fasta_out_dir="${ncov_out_dir}/ncovIllumina_sequenceAnalysis_makeConsensus"
@@ -33,6 +33,13 @@ process ncov2019_artic_nf_pipeline_illumina {
   output_fasta="output_fasta"
   output_plots="output_plots"
   output_variants="output_variants"
+
+  # extract the sample name from one of the reads
+  sample_id="$(ls *.fastq.gz | head -n 1 | cut -d"_" -f1)"
+
+  # extract scheme and version from primer
+  scheme="$(cat ${sample_id}_primer.txt | cut -d_ -f1)"
+  scheme_version="$(cat ${sample_id}_primer.txt | cut -d_ -f2)"
 
   # convert nextflow variables to Bash for convenience
   ncov_prefix=!{params.run}
@@ -46,9 +53,9 @@ process ncov2019_artic_nf_pipeline_illumina {
       --prefix ${ncov_prefix} \
       --directory `eval pwd` \
       --outdir ${ncov_out_dir} \
-      --schemeDir !{scheme_dir} \
-      --scheme !{scheme} \
-      --schemeVersion !{scheme_version} \
+      --schemeDir /primer_schemes \
+      --scheme ${scheme} \
+      --schemeVersion ${scheme_version} \
       -work-dir /tmp \
       -c /ncov-illumina.config
 
@@ -58,8 +65,7 @@ process ncov2019_artic_nf_pipeline_illumina {
   mv ${ncov_qc_plots_dir}/*.png ${output_plots}
   mv ${ncov_tsv_out_dir}/*.variants.tsv ${output_variants}
 
-  # extract the sample name from one of the reads and rename the qc csv
-  sample_id="$(ls *.gz | head -n 1 | cut -d"_" -f1)"
+  # rename the qc csv
   mv ${ncov_out_dir}/${ncov_prefix}.qc.csv ${ncov_out_dir}/${sample_id}.qc.csv
 
   # index bam file
@@ -76,12 +82,9 @@ process ncov2019_artic_nf_pipeline_illumina {
 process ncov2019_artic_nf_pipeline_medaka {
   publishDir "${params.output_path}/ncov2019-artic", mode: 'copy', overwrite: true, pattern: 'output_{bam,fasta,plots,variants}/*'
 
-  tag "${task.index} - ${fastq_file}"
+  tag "${task.index} - ${input_files}"
   input:
-    path fastq_file
-    val scheme_dir
-    val scheme
-    val scheme_version
+    path input_files
 
   output:
     // retain the qc csv intentionally
@@ -94,6 +97,9 @@ process ncov2019_artic_nf_pipeline_medaka {
 
   shell:
   '''
+  # set nextflow env vars
+  export NXF_ANSI_LOG="false"
+
   ncov_out_dir="ncov_output"
   ncov_minion_out_dir="${ncov_out_dir}/articNcovNanopore_sequenceAnalysisMedaka_articMinIONMedaka"
   ncov_qc_plots_dir="${ncov_out_dir}/qc_plots"
@@ -104,8 +110,15 @@ process ncov2019_artic_nf_pipeline_medaka {
   output_plots="output_plots"
   output_variants="output_variants"
 
+  # extract the sample name from the fastq file
+  sample_id="$(ls *.fastq.gz | head -n 1 | cut -d"." -f1)"
+  fastq_file="${sample_id}.fastq.gz"
+
+  # extract scheme and version from primer
+  scheme="$(cat ${sample_id}_primer.txt | cut -d_ -f1)"
+  scheme_version="$(cat ${sample_id}_primer.txt | cut -d_ -f2)"
+
   # convert nextflow variables to Bash for convenience
-  fastq_file=!{fastq_file}
   ncov_prefix=!{params.run}
 
   # ncov/ONT expects decompressed fastq in artic 1.1.3
@@ -120,7 +133,6 @@ process ncov2019_artic_nf_pipeline_medaka {
   # sample_id is the sample UUID (=file name of the fastq file)
 
   # there is only one input fastq file here as ncov is executed per sample
-  sample_id=$( echo ${fastq_file} | cut -d '.' -f1)
   mkdir -p ${sample_id}
   mv -f ${fastq_file} ${sample_id}
 
@@ -137,9 +149,9 @@ process ncov2019_artic_nf_pipeline_medaka {
       --prefix ${ncov_prefix} \
       --basecalled_fastq ${sample_id} \
       --outdir ${ncov_out_dir} \
-      --schemeDir !{scheme_dir} \
-      --scheme !{scheme} \
-      --schemeVersion !{scheme_version} \
+      --schemeDir /primer_schemes \
+      --scheme ${scheme} \
+      --schemeVersion ${scheme_version} \
       -work-dir /tmp \
       -c /ncov-nanopore.config
 

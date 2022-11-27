@@ -17,7 +17,7 @@ process fastqc {
   '''
   # at this stage, all our sample files have extension: .fastq.gz (illumina) or .fastq (nanopore)
   for fq in `ls *.fastq*`; do
-      fastqc ${fq}
+      fastqc --limits !{params.fastqc_limits} ${fq}
   done
   '''
 }
