@@ -15,7 +15,7 @@ process check_metadata {
 
   shell:
   '''
-  python ${PSGA_ROOT_PATH}/scripts/sars_cov_2/check_metadata.py \
+  python ${PSGA_ROOT_PATH}/scripts/common/check_metadata.py \
     --metadata-path "!{metadata}" \
     --analysis-run-name "!{params.run}" \
     --sequencing-technology "!{params.sequencing_technology}"
