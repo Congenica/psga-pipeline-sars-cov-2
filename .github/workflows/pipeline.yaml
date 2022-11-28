@@ -31,39 +31,39 @@ jobs:
       dockerfile: Dockerfile.psga-pipeline
       pathogen: synthetic
       push_enabled: ${{ needs.pipeline_setup.outputs.push_enabled }}
-  # sars-cov-2-pipeline:
-  #   needs: check_and_test
-  #   uses: ./.github/workflows/build_image.yaml
-  #   secrets: inherit
-  #   with:
-  #     name: sars-cov-2-pipeline
-  #     dockerfile: Dockerfile.psga-pipeline
-  #     pathogen: sars_cov_2
-  # pangolin:
-  #   needs: check_and_test
-  #   uses: ./.github/workflows/build_image.yaml
-  #   secrets: inherit
-  #   with:
-  #     name: pangolin
-  #     dockerfile: Dockerfile.pangolin
-  # ncov2019-artic-nf-nanopore:
-  #   needs: check_and_test
-  #   uses: ./.github/workflows/build_image.yaml
-  #   secrets: inherit
-  #   with:
-  #     name: ncov2019-artic-nf-nanopore
-  #     dockerfile: Dockerfile.ncov2019-artic-nf-nanopore
-  # ncov2019-artic-nf-illumina:
-  #   needs: check_and_test
-  #   uses: ./.github/workflows/build_image.yaml
-  #   secrets: inherit
-  #   with:
-  #     name: ncov2019-artic-nf-illumina
-  #     dockerfile: Dockerfile.ncov2019-artic-nf-illumina
+  sars-cov-2-pipeline:
+    needs: check_and_test
+    uses: ./.github/workflows/build_image.yaml
+    secrets: inherit
+    with:
+      name: sars-cov-2-pipeline
+      dockerfile: Dockerfile.psga-pipeline
+      pathogen: sars_cov_2
+  pangolin:
+    needs: check_and_test
+    uses: ./.github/workflows/build_image.yaml
+    secrets: inherit
+    with:
+      name: pangolin
+      dockerfile: Dockerfile.pangolin
+  ncov2019-artic-nf-nanopore:
+    needs: check_and_test
+    uses: ./.github/workflows/build_image.yaml
+    secrets: inherit
+    with:
+      name: ncov2019-artic-nf-nanopore
+      dockerfile: Dockerfile.ncov2019-artic-nf-nanopore
+  ncov2019-artic-nf-illumina:
+    needs: check_and_test
+    uses: ./.github/workflows/build_image.yaml
+    secrets: inherit
+    with:
+      name: ncov2019-artic-nf-illumina
+      dockerfile: Dockerfile.ncov2019-artic-nf-illumina
   publish_configs_dev:
     #if: github.ref == 'refs/heads/dev'
     needs:
-      #- sars-cov-2-pipeline
+      - sars-cov-2-pipeline
       - synthetic-pipeline
     uses: ./.github/workflows/publish_configs.yaml
     secrets:
@@ -75,7 +75,7 @@ jobs:
   publish_configs_main:
     if: github.ref == 'refs/heads/main'
     needs:
-      #- sars-cov-2-pipeline
+      - sars-cov-2-pipeline
       - synthetic-pipeline
     uses: ./.github/workflows/publish_configs.yaml
     secrets:
