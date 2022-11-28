@@ -1,0 +1,28 @@
+FROM condaforge/mambaforge:4.14.0-0 AS condabuild
+
+# ARG pathogen
+COPY docker/bactopia/bactopia.yml /environment.yml
+
+RUN mamba env create -f /environment.yml -n custom_env \
+  && conda clean --all -y
+
+# This SHELL command mocks the login. Note conda run is an "experimental" command
+SHELL ["conda", "run", "-n", "custom_env", "/bin/bash", "-c"]
+
+# This command takes about 1hr to run
+RUN bactopia datasets --species "Staphylococcus aureus" --include_genus
+
+# 3.95GB after bactopia datasets --species "Staphylococcus aureus" --include_genus
+
+# Download and build all of the conda dependancies
+RUN bactopia download --use-defaults --build-all --verbose
+
+# 20.5GB after bactopia download --use-defaults --build-all --verbose
+
+# FINISH now we can run a pipeline that uses Bactopia
+
+### To get to the bactopia cli do the following
+## login (with exec bash)
+## mamba init
+## logout and log back in
+## mamba activate bactopia
