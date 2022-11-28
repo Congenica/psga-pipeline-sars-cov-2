@@ -62,6 +62,7 @@ workflow psga {
             ch_contamination_removal_csv = Channel.empty()
             ch_primer_autodetection_csv = Channel.empty()
             ch_ncov_qc_csv = Channel.empty()
+            ch_ncov_typing_csv = Channel.empty()
 
             // these are not needed as all fasta samples will be reheadered
             ch_samples_passing_qc = Channel.empty()
@@ -98,6 +99,7 @@ workflow psga {
 
             ncov2019_artic(ch_ncov_input_files)
             ch_ncov_qc_csv = ncov2019_artic.out.ch_ncov_qc_csv
+            ch_ncov_typing_csv = ncov2019_artic.out.ch_ncov_typing_csv
             ch_fasta_files = ncov2019_artic.out.ch_ncov_sample_fasta
 
             // define whether sample is QC_PASSED or QC_FAILED
@@ -128,6 +130,7 @@ workflow psga {
             ch_contamination_removal_csv.collect(),
             ch_primer_autodetection_csv.collect(),
             ch_ncov_qc_csv.collect(),
+            ch_ncov_typing_csv.collect(),
             pangolin.out.ch_pangolin_lineage_csv.collect()
         )
 

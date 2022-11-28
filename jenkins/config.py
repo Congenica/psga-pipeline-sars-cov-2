@@ -13,6 +13,7 @@ data_config = {
                 "PRIMER_NUMREADS",
                 "PRIMER_UNIQUE_NUMREADS",
                 "PRIMER_COVERAGE",
+                "GENOTYPING",
                 "PCT_N_BASES",
                 "PCT_COVERED_BASES",
                 "LONGEST_NO_N_RUN",

@@ -10,3 +10,5 @@ dependencies:
   - libxcb
   - openjdk=11.0.8
   - nextflow=21.10.6
+  - pip:
+    - click==7.1.2

@@ -322,6 +322,10 @@ output_fields:
     field_type: string
     required: true
 
+  - field_name: GENOTYPING
+    field_type: dictionary
+    required: true
+
   - field_name: PCT_N_BASES
     field_type: number
     required: true
