@@ -1,3 +1,5 @@
+# TODO - export NXF_ANSI_LOG="false" - Minimise resources
+# TODO - export NXF_EXECUTOR='local' - Just for the bactopia process
 apiVersion: apps/v1
 kind: Deployment
 metadata:
