@@ -1,0 +1,7 @@
+sample_id,primer_detected,primer_numreads,primer_unique_numreads,primer_coverage,primer_input
+985347c5-ff6a-454c-ac34-bc353d05dd70,ARTIC_V4-1,905,76,93.1779,ARTIC_V4-1
+0774181d-fb20-4a73-b887-38af7eda9b38,ARTIC_V4,905,86,93.1779,unknown
+e80f3c63-d139-4c14-bd72-7a43897ab40d,Midnight-ONT_V2,605,87,93.1779,unknown
+56a63f60-764d-4fc7-8764-a46023cbe324,ARTIC_V3,805,48,93.1779,unknown
+a0951432-cd94-45b5-96d5-b721c037a451,ARTIC_V2,905,48,93.1779,unknown
+b1131432-cd94-45b5-96d5-b721c037a451,ARTIC_V4-1,806,99,93.1779,ARTIC_V3

@@ -9,7 +9,7 @@ from json import JSONEncoder
 import click
 import pandas as pd
 
-from scripts.util.logging import get_structlog_logger
+from scripts.util.logger import get_structlog_logger
 from scripts.util.metadata import EXPECTED_HEADERS as EXPECTED_METADATA_HEADERS, SAMPLE_ID, ILLUMINA, ONT
 from scripts.validation.check_csv_columns import check_csv_columns
 
@@ -23,7 +23,7 @@ STATUS = "STATUS"
 # Synthetic data from TB (fig 2 in https://genomemedicine.biomedcentral.com/articles/10.1186/s13073-020-00817-3)
 PASS = "pass"
 FAIL = "fail"
-QC = "qc"
+QC = "qc_status"
 LINEAGE = "lineage"
 RD = "region_of_difference"
 SYNTHETIC_DATA = [

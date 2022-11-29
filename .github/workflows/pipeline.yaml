@@ -39,6 +39,30 @@ jobs:
       name: sars-cov-2-pipeline
       dockerfile: Dockerfile.psga-pipeline
       pathogen: sars_cov_2
+  fastqc:
+    needs: check_and_test
+    uses: ./.github/workflows/build_image.yaml
+    secrets: inherit
+    with:
+      name: fastqc
+      dockerfile: Dockerfile.fastqc
+      pathogen: sars_cov_2
+  read_it_and_keep:
+    needs: check_and_test
+    uses: ./.github/workflows/build_image.yaml
+    secrets: inherit
+    with:
+      name: read-it-and-keep
+      dockerfile: Dockerfile.read-it-and-keep
+      pathogen: sars_cov_2
+  primer-autodetection:
+    needs: check_and_test
+    uses: ./.github/workflows/build_image.yaml
+    secrets: inherit
+    with:
+      name: primer-autodetection
+      dockerfile: Dockerfile.primer-autodetection
+      pathogen: sars_cov_2
   pangolin:
     needs: check_and_test
     uses: ./.github/workflows/build_image.yaml
@@ -61,7 +85,7 @@ jobs:
       name: ncov2019-artic-nf-illumina
       dockerfile: Dockerfile.ncov2019-artic-nf-illumina
   publish_configs_dev:
-    #if: github.ref == 'refs/heads/dev'
+    if: github.ref == 'refs/heads/dev'
     needs:
       - sars-cov-2-pipeline
       - synthetic-pipeline

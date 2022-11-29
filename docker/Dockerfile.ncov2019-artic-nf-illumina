@@ -1,35 +1,38 @@
 FROM condaforge/mambaforge:4.14.0-0 AS condabuild
 
 # REQUIREMENTS:
-# * run docker/clone_ncov2019-artic-nf.sh and git add docker/ncov2019-artic-nf_illumina_environment.yml docker/ncov2019-artic-nf_illumina_environment.yml docker/ncov2019-artic-nf_extras.yml
+# * run docker/clone_ncov2019-artic-nf.sh and git add docker/sars_cov_2/ncov2019-artic-nf_illumina.yml docker/sars_cov_2/ncov2019-artic-nf_nanopore.yml docker/sars_cov_2/ncov2019-artic-nf_extras.yml
 # * run docker/get_sars_cov_2_primers.sh and git add docker/primer_schemes
 
-COPY docker/ncov2019-artic-nf_illumina_environment.yml /environment.yml
-COPY docker/ncov2019-artic-nf_extras.yml /extras.yml
+ARG pathogen
+COPY docker/${pathogen}/ncov2019-artic-nf_illumina.yml /environment.yml
+COPY docker/${pathogen}/ncov2019-artic-nf_extras.yml /extras.yml
 # Also reinstall packages to pinned versions, as the conda-selected downgraded ones fail to run
-RUN mamba env create -f /environment.yml \
-  && mamba env update -f /extras.yml -n artic-ncov2019-illumina \
-  && mamba install -y -c conda-forge -c bioconda cutadapt==3.1 dnaio==0.4.4 openjdk==11.0.8 -n artic-ncov2019-illumina \
+RUN mamba env create -f /environment.yml -n custom_env \
+  && mamba env update -f /extras.yml -n custom_env \
+  && mamba install -y -c conda-forge -c bioconda cutadapt==3.1 dnaio==0.4.4 -n custom_env \
   && conda clean --all -y
 
 
 FROM debian:buster-slim
 RUN apt-get update \
-  && apt-get install -y --no-install-recommends git procps wget rename default-jre \
+  && apt-get install -y --no-install-recommends git procps rename \
   && apt-get clean -y \
   && rm -rf /var/lib/apt/lists/*
 
-COPY --from=condabuild /opt/conda/envs/artic-ncov2019-illumina /opt/conda/envs/artic-ncov2019-illumina
+COPY --from=condabuild /opt/conda/envs/custom_env /opt/conda/envs/custom_env
 
-ENV PATH=/ncov2019-artic-nf/bin:/opt/conda/envs/artic-ncov2019-illumina/bin:$PATH
+ENV PATH=/ncov2019-artic-nf/bin:/opt/conda/envs/custom_env/bin:$PATH
 
-RUN wget -qO- https://github.com/nextflow-io/nextflow/releases/download/v21.10.6/nextflow | bash && chmod +x nextflow && mv nextflow /usr/bin
+ARG pathogen
+COPY docker/${pathogen}/ncov.deps psga/${pathogen}/ncov-illumina.config psga/${pathogen}/ncov-common.config /
+COPY data/${pathogen}/primer_schemes /primer_schemes
+COPY data/${pathogen}/ncov2019-artic-nf/* /
 
-COPY docker/primer_schemes /primer_schemes
-COPY docker/sars_cov_2.deps psga/sars_cov_2/ncov-illumina.config psga/sars_cov_2/ncov-common.config /
-
-RUN . /sars_cov_2.deps \
-  && pip install awscli==1.22.50 \
+# install awscli here because the conda version requires a much more updated Python version
+RUN . /ncov.deps \
+  && pip install awscli==1.20.50 \
+  && export GIT_SSL_NO_VERIFY=1 \
   && git clone --recursive https://github.com/Congenica/ncov2019-artic-nf.git \
   && cd /ncov2019-artic-nf \
   && git checkout ${ncov_commit}

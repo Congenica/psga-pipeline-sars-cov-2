@@ -1,0 +1,10 @@
+name: psga
+channels:
+  - bioconda
+  - conda-forge
+  - defaults
+dependencies:
+  - nextflow=22.10.0
+  - make=4.3
+  - gcc=12.1.0
+  - python=3.10.6

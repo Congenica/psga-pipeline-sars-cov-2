@@ -1,6 +1,26 @@
 /* This workflow runs per sample analysis run */
 
 /*
+ * Submit primer_autodetection sample results
+ */
+process submit_primer_autodetection_results {
+  publishDir "${params.output_path}/primer_autodetection", mode: 'copy', overwrite: true, pattern: 'primer_autodetection.csv'
+
+  input:
+    path ch_primer_autodetection_csvs
+
+  output:
+    path "${output_path}", emit: ch_primer_autodetection_all_samples_csv
+
+  script:
+    output_path = "primer_autodetection.csv"
+
+  """
+  python ${PSGA_ROOT_PATH}/scripts/common/concat_csv.py --input-path . --output-csv-path ${output_path} --sortby-col sample_id
+  """
+}
+
+/*
  * Submit contamination_removal sample results
  */
 process submit_contamination_removal_results {
@@ -72,6 +92,7 @@ process submit_pipeline_results_files {
   input:
     path ch_metadata
     path ch_contamination_removal_csv_file
+    path ch_primer_autodetection_csv_file
     path ch_qc_ncov_result_csv_file
     path ch_pangolin_csv_file
 
@@ -86,8 +107,8 @@ process submit_pipeline_results_files {
 
   """
   ncov_opt=""
-  if [[ -f "${ch_contamination_removal_csv_file}" ]] && [[ -f "${ch_qc_ncov_result_csv_file}" ]]; then
-      ncov_opt="--contamination-removal-csv-file \"${ch_contamination_removal_csv_file}\" --ncov-qc-csv-file \"${ch_qc_ncov_result_csv_file}\""
+  if [[ -f "${ch_contamination_removal_csv_file}" ]] && [[ -f "${ch_primer_autodetection_csv_file}" ]] && [[ -f "${ch_qc_ncov_result_csv_file}" ]]; then
+      ncov_opt="--contamination-removal-csv-file \"${ch_contamination_removal_csv_file}\" --primer-autodetection-csv-file \"${ch_primer_autodetection_csv_file}\" --ncov-qc-csv-file \"${ch_qc_ncov_result_csv_file}\""
   fi
 
   python ${PSGA_ROOT_PATH}/scripts/sars_cov_2/generate_pipeline_results_files.py \
@@ -111,19 +132,22 @@ workflow submit_analysis_run_results {
     take:
         ch_metadata
         ch_contamination_removal_csvs
+        ch_primer_autodetection_csvs
         ch_ncov_qc_csvs
         ch_pangolin_csvs
     main:
 
         if ( params.sequencing_technology == "unknown" ) {
-            // ncov was not executed. Therefore, mock contamination_removal and ncov
+            // ncov was not executed. Therefore, mock contamination removal, primer_autodetection and ncov
             ch_contamination_removal_submitted = ch_contamination_removal_csvs
+            ch_primer_autodetection_submitted = ch_primer_autodetection_csvs
             ch_ncov_submitted = ch_ncov_qc_csvs
         } else {
             submit_contamination_removal_results(ch_contamination_removal_csvs)
-            ch_contamination_removal_submitted = submit_contamination_removal_results.out.ch_contamination_removal_all_samples_csv
-
+            submit_primer_autodetection_results(ch_primer_autodetection_csvs)
             submit_ncov_results(ch_ncov_qc_csvs)
+            ch_contamination_removal_submitted = submit_contamination_removal_results.out.ch_contamination_removal_all_samples_csv
+            ch_primer_autodetection_submitted = submit_primer_autodetection_results.out.ch_primer_autodetection_all_samples_csv
             ch_ncov_submitted = submit_ncov_results.out.ch_ncov_qc_all_samples_csv
         }
 
@@ -134,6 +158,7 @@ workflow submit_analysis_run_results {
         submit_pipeline_results_files(
             ch_metadata,
             ch_contamination_removal_submitted.ifEmpty(file(params.contamination_removal_empty_csv)),
+            ch_primer_autodetection_submitted.ifEmpty(file(params.primer_autodetection_empty_csv)),
             ch_ncov_submitted.ifEmpty(file(params.ncov_qc_empty_csv)),
             submit_pangolin_results.out.ch_pangolin_all_lineages.ifEmpty(file(params.pangolin_empty_csv)),
         )
