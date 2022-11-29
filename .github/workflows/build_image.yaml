@@ -7,11 +7,12 @@ on:
         required: true
       dockerfile:
         type: string
-        required: true
+        required: false
+        default: ""
       pathogen:
         type: string
         required: false
-        default: ~
+        default: ""
       ecr_path:
         type: string
         required: false
