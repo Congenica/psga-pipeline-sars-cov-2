@@ -128,30 +128,30 @@ jobs:
   #     dockerfile: Dockerfile.ncov2019-artic-nf-illumina
   #     pathogen: sars_cov_2
   #     push_enabled: ${{ needs.pipeline_setup.outputs.push_enabled }}
-  publish_configs_dev:
-    if: github.ref == 'refs/heads/dev'
-    needs:
-      - sars-cov-2-pipeline
-      - synthetic-pipeline
-    uses: ./.github/workflows/publish_configs.yaml
-    secrets:
-      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      S3_BUCKET_PATH: ${{ secrets.S3_BUCKET_PATH_DEV }}
-    with:
-      versions: "${{ github.sha }},dev_latest"
-  publish_configs_main:
-    if: github.ref == 'refs/heads/main'
-    needs:
-      - sars-cov-2-pipeline
-      - synthetic-pipeline
-    uses: ./.github/workflows/publish_configs.yaml
-    secrets:
-      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      S3_BUCKET_PATH: ${{ secrets.S3_BUCKET_PATH_DEV }}
-    with:
-      versions: "${{ github.sha }},main_latest"
+  # publish_configs_dev:
+  #   if: github.ref == 'refs/heads/dev'
+  #   needs:
+  #     - sars-cov-2-pipeline
+  #     - synthetic-pipeline
+  #   uses: ./.github/workflows/publish_configs.yaml
+  #   secrets:
+  #     AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  #     AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  #     S3_BUCKET_PATH: ${{ secrets.S3_BUCKET_PATH_DEV }}
+  #   with:
+  #     versions: "${{ github.sha }},dev_latest"
+  # publish_configs_main:
+  #   if: github.ref == 'refs/heads/main'
+  #   needs:
+  #     - sars-cov-2-pipeline
+  #     - synthetic-pipeline
+  #   uses: ./.github/workflows/publish_configs.yaml
+  #   secrets:
+  #     AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  #     AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  #     S3_BUCKET_PATH: ${{ secrets.S3_BUCKET_PATH_DEV }}
+  #   with:
+  #     versions: "${{ github.sha }},main_latest"
   check_and_test:
     name: Install dependencies and run tests
     runs-on: ubuntu-22.04
