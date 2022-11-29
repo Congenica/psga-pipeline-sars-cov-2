@@ -39,6 +39,7 @@ jobs:
       name: sars-cov-2-pipeline
       dockerfile: Dockerfile.psga-pipeline
       pathogen: sars_cov_2
+      push_enabled: ${{ needs.pipeline_setup.outputs.push_enabled }}
   fastqc:
     needs: check_and_test
     uses: ./.github/workflows/build_image.yaml
@@ -47,6 +48,7 @@ jobs:
       name: fastqc
       dockerfile: Dockerfile.fastqc
       pathogen: sars_cov_2
+      push_enabled: ${{ needs.pipeline_setup.outputs.push_enabled }}
   read_it_and_keep:
     needs: check_and_test
     uses: ./.github/workflows/build_image.yaml
@@ -55,6 +57,7 @@ jobs:
       name: read-it-and-keep
       dockerfile: Dockerfile.read-it-and-keep
       pathogen: sars_cov_2
+      push_enabled: ${{ needs.pipeline_setup.outputs.push_enabled }}
   primer-autodetection:
     needs: check_and_test
     uses: ./.github/workflows/build_image.yaml
@@ -63,6 +66,7 @@ jobs:
       name: primer-autodetection
       dockerfile: Dockerfile.primer-autodetection
       pathogen: sars_cov_2
+      push_enabled: ${{ needs.pipeline_setup.outputs.push_enabled }}
   pangolin:
     needs: check_and_test
     uses: ./.github/workflows/build_image.yaml
@@ -71,6 +75,7 @@ jobs:
       name: pangolin
       dockerfile: Dockerfile.pangolin
       pathogen: sars_cov_2
+      push_enabled: ${{ needs.pipeline_setup.outputs.push_enabled }}
   ncov2019-artic-nf-nanopore:
     needs: check_and_test
     uses: ./.github/workflows/build_image.yaml
@@ -79,6 +84,7 @@ jobs:
       name: ncov2019-artic-nf-nanopore
       dockerfile: Dockerfile.ncov2019-artic-nf-nanopore
       pathogen: sars_cov_2
+      push_enabled: ${{ needs.pipeline_setup.outputs.push_enabled }}
   ncov2019-artic-nf-illumina:
     needs: check_and_test
     uses: ./.github/workflows/build_image.yaml
@@ -87,6 +93,7 @@ jobs:
       name: ncov2019-artic-nf-illumina
       dockerfile: Dockerfile.ncov2019-artic-nf-illumina
       pathogen: sars_cov_2
+      push_enabled: ${{ needs.pipeline_setup.outputs.push_enabled }}
   publish_configs_dev:
     if: github.ref == 'refs/heads/dev'
     needs:
