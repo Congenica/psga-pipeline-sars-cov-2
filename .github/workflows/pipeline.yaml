@@ -20,7 +20,7 @@ jobs:
           else
             echo "push_enabled=true" >> $GITHUB_OUTPUT
           fi
-  synthetic-pipeline:
+  build_image:
     needs:
       - check_and_test
       - pipeline_setup
@@ -33,6 +33,18 @@ jobs:
           - name: sars-cov-2-pipeline
             dockerfile: Dockerfile.psga-pipeline
             pathogen: sars_cov_2
+          - name: fastqc
+            pathogen: sars_cov_2
+          - name: read-it-and-keep
+            pathogen: sars_cov_2
+          - name: primer-autodetection
+            pathogen: sars_cov_2
+          - name: pangolin
+            pathogen: sars_cov_2
+          - name: ncov2019-artic-nf-nanopore
+            pathogen: sars_cov_2
+          - name: ncov2019-artic-nf-illumina
+            pathogen: sars_cov_2
     uses: ./.github/workflows/build_image.yaml
     secrets: inherit
     with:
@@ -40,118 +52,26 @@ jobs:
       dockerfile: ${{ matrix.image.dockerfile }}
       pathogen: ${{ matrix.image.pathogen }}
       push_enabled: ${{ needs.pipeline_setup.outputs.push_enabled }}
-  # synthetic-pipeline:
-  #   needs:
-  #     - check_and_test
-  #     - pipeline_setup
-  #   uses: ./.github/workflows/build_image.yaml
-  #   secrets: inherit
-  #   with:
-  #     name: synthetic-pipeline
-  #     dockerfile: Dockerfile.psga-pipeline
-  #     pathogen: synthetic
-  #     push_enabled: ${{ needs.pipeline_setup.outputs.push_enabled }}
-  # sars-cov-2-pipeline:
-  #   needs:
-  #     - check_and_test
-  #     - pipeline_setup
-  #   uses: ./.github/workflows/build_image.yaml
-  #   secrets: inherit
-  #   with:
-  #     name: sars-cov-2-pipeline
-  #     dockerfile: Dockerfile.psga-pipeline
-  #     pathogen: sars_cov_2
-  #     push_enabled: ${{ needs.pipeline_setup.outputs.push_enabled }}
-  # fastqc:
-  #   needs:
-  #     - check_and_test
-  #     - pipeline_setup
-  #   uses: ./.github/workflows/build_image.yaml
-  #   secrets: inherit
-  #   with:
-  #     name: fastqc
-  #     dockerfile: Dockerfile.fastqc
-  #     pathogen: sars_cov_2
-  #     push_enabled: ${{ needs.pipeline_setup.outputs.push_enabled }}
-  # read_it_and_keep:
-  #   needs:
-  #     - check_and_test
-  #     - pipeline_setup
-  #   uses: ./.github/workflows/build_image.yaml
-  #   secrets: inherit
-  #   with:
-  #     name: read-it-and-keep
-  #     dockerfile: Dockerfile.read-it-and-keep
-  #     pathogen: sars_cov_2
-  #     push_enabled: ${{ needs.pipeline_setup.outputs.push_enabled }}
-  # primer-autodetection:
-  #   needs:
-  #     - check_and_test
-  #     - pipeline_setup
-  #   uses: ./.github/workflows/build_image.yaml
-  #   secrets: inherit
-  #   with:
-  #     name: primer-autodetection
-  #     dockerfile: Dockerfile.primer-autodetection
-  #     pathogen: sars_cov_2
-  #     push_enabled: ${{ needs.pipeline_setup.outputs.push_enabled }}
-  # pangolin:
-  #   needs:
-  #     - check_and_test
-  #     - pipeline_setup
-  #   uses: ./.github/workflows/build_image.yaml
-  #   secrets: inherit
-  #   with:
-  #     name: pangolin
-  #     dockerfile: Dockerfile.pangolin
-  #     pathogen: sars_cov_2
-  #     push_enabled: ${{ needs.pipeline_setup.outputs.push_enabled }}
-  # ncov2019-artic-nf-nanopore:
-  #   needs:
-  #     - check_and_test
-  #     - pipeline_setup
-  #   uses: ./.github/workflows/build_image.yaml
-  #   secrets: inherit
-  #   with:
-  #     name: ncov2019-artic-nf-nanopore
-  #     dockerfile: Dockerfile.ncov2019-artic-nf-nanopore
-  #     pathogen: sars_cov_2
-  #     push_enabled: ${{ needs.pipeline_setup.outputs.push_enabled }}
-  # ncov2019-artic-nf-illumina:
-  #   needs:
-  #     - check_and_test
-  #     - pipeline_setup
-  #   uses: ./.github/workflows/build_image.yaml
-  #   secrets: inherit
-  #   with:
-  #     name: ncov2019-artic-nf-illumina
-  #     dockerfile: Dockerfile.ncov2019-artic-nf-illumina
-  #     pathogen: sars_cov_2
-  #     push_enabled: ${{ needs.pipeline_setup.outputs.push_enabled }}
-  # publish_configs_dev:
-  #   if: github.ref == 'refs/heads/dev'
-  #   needs:
-  #     - sars-cov-2-pipeline
-  #     - synthetic-pipeline
-  #   uses: ./.github/workflows/publish_configs.yaml
-  #   secrets:
-  #     AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-  #     AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-  #     S3_BUCKET_PATH: ${{ secrets.S3_BUCKET_PATH_DEV }}
-  #   with:
-  #     versions: "${{ github.sha }},dev_latest"
-  # publish_configs_main:
-  #   if: github.ref == 'refs/heads/main'
-  #   needs:
-  #     - sars-cov-2-pipeline
-  #     - synthetic-pipeline
-  #   uses: ./.github/workflows/publish_configs.yaml
-  #   secrets:
-  #     AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-  #     AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-  #     S3_BUCKET_PATH: ${{ secrets.S3_BUCKET_PATH_DEV }}
-  #   with:
-  #     versions: "${{ github.sha }},main_latest"
+  publish_configs_dev:
+    if: github.ref == 'refs/heads/dev'
+    needs: build_image
+    uses: ./.github/workflows/publish_configs.yaml
+    secrets:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      S3_BUCKET_PATH: ${{ secrets.S3_BUCKET_PATH_DEV }}
+    with:
+      versions: "${{ github.sha }},dev_latest"
+  publish_configs_main:
+    if: github.ref == 'refs/heads/main'
+    needs: build_image
+    uses: ./.github/workflows/publish_configs.yaml
+    secrets:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      S3_BUCKET_PATH: ${{ secrets.S3_BUCKET_PATH_DEV }}
+    with:
+      versions: "${{ github.sha }},main_latest"
   check_and_test:
     name: Install dependencies and run tests
     runs-on: ubuntu-22.04
