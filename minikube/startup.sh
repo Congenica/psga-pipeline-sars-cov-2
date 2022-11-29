@@ -39,7 +39,7 @@ kubectl cp ${HOME}/.aws ${pipeline_pod}:/root/
 
 ## deploy bactopia pipeline
 kubectl apply -f deploy_bactopia_pipeline.yaml
-pipeline_pod="$( kubectl get pods -l app=bactopia-pipeline-minikube --no-headers -o custom-columns=':metadata.name' )"
+pipeline_pod="$( kubectl get pods -l app=s-aureus-pipeline-minikube --no-headers -o custom-columns=':metadata.name' )"
 wait_for_pod "${pipeline_pod}"
 kubectl cp ${HOME}/.aws ${pipeline_pod}:/root/
 

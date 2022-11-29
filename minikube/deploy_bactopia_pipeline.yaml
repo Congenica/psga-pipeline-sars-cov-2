@@ -3,17 +3,17 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: bactopia-pipeline-minikube
+  name: s-aureus-pipeline-minikube
 spec:
   selector:
     matchLabels:
-      app: bactopia-pipeline-minikube
+      app: s-aureus-pipeline-minikube
   strategy:
     type: Recreate
   template:
     metadata:
       labels:
-        app: bactopia-pipeline-minikube
+        app: s-aureus-pipeline-minikube
     spec:
       affinity:
         nodeAffinity:
@@ -26,8 +26,8 @@ spec:
                 - "true"
       containers:
       # currently deploying the worker. Need to deploy the head node
-      - image: 566277102435.dkr.ecr.eu-west-2.amazonaws.com/congenica/psga-dev/bactopia-pipeline-worker:1.0.0
-        name: bactopia-pipeline-minikube
+      - image: 566277102435.dkr.ecr.eu-west-2.amazonaws.com/congenica/psga-dev/s-aureus-pipeline:1.0.0
+        name: s-aureus-pipeline-minikube
         command:
         - /bin/bash
         args:

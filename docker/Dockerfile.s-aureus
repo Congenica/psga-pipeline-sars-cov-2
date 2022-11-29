@@ -1,7 +1,7 @@
 FROM condaforge/mambaforge:4.14.0-0 AS condabuild
 
 # ARG pathogen
-COPY docker/bactopia/bactopia.yml /environment.yml
+COPY docker/bactopia/s-aureus.yml /environment.yml
 
 RUN mamba env create -f /environment.yml -n custom_env \
   && conda clean --all -y
@@ -25,4 +25,4 @@ RUN bactopia download --use-defaults --build-all --verbose
 ## login (with exec bash)
 ## mamba init
 ## logout and log back in
-## mamba activate bactopia
+## mamba activate custom_env

@@ -17,4 +17,6 @@ synthetic-images:
 	docker build --build-arg pathogen=${SYNTHETIC} -t ${DOCKER_IMAGE_URI_PATH}/synthetic-pipeline:${DOCKER_IMAGE_TAG} -f docker/Dockerfile.psga-pipeline .
 	docker build --build-arg pathogen=${SYNTHETIC} -t ${DOCKER_IMAGE_URI_PATH}/fastqc:${DOCKER_IMAGE_TAG} -f docker/Dockerfile.fastqc .
 bactopia-images:
-	docker build --progress=plain --build-arg pathogen=s_aureus -t ${DOCKER_IMAGE_URI_PATH}/bactopia-pipeline-worker:${DOCKER_IMAGE_TAG} -f docker/Dockerfile.bactopia-pipeline-worker .
+	docker build --progress=plain -t ${DOCKER_IMAGE_URI_PATH}/s-aureus-pipeline:${DOCKER_IMAGE_TAG} -f docker/Dockerfile.s-aureus-pipeline .
+	docker build --progress=plain --build-arg pathogen=s_aureus -t ${DOCKER_IMAGE_URI_PATH}/s-aureus:${DOCKER_IMAGE_TAG} -f docker/Dockerfile.s-aureus .
+
