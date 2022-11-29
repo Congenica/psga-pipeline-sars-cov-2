@@ -1,9 +1,5 @@
 FROM condaforge/mambaforge:4.14.0-0 AS condabuild
 
-# REQUIREMENTS:
-# * run docker/clone_ncov2019-artic-nf.sh and git add docker/sars_cov_2/ncov2019-artic-nf_illumina.yml docker/sars_cov_2/ncov2019-artic-nf_nanopore.yml docker/sars_cov_2/ncov2019-artic-nf_extras.yml
-# * run docker/get_sars_cov_2_primers.sh and git add docker/primer_schemes
-
 ARG pathogen
 COPY docker/${pathogen}/ncov2019-artic-nf_nanopore.yml /environment.yml
 COPY docker/${pathogen}/ncov2019-artic-nf_extras.yml /extras.yml
@@ -23,6 +19,9 @@ RUN apt-get update \
 COPY --from=condabuild /opt/conda/envs/custom_env /opt/conda/envs/custom_env
 
 ENV PATH=/ncov2019-artic-nf/bin:/opt/conda/envs/custom_env/bin:$PATH
+# otherwise python click complains
+ENV LC_ALL=C.UTF-8
+ENV LANG=C.UTF-8
 
 # install medaka models
 RUN medaka tools download_models \
@@ -33,8 +32,9 @@ RUN medaka tools download_models \
 
 ARG pathogen
 COPY docker/${pathogen}/ncov.deps psga/${pathogen}/ncov-nanopore.config psga/${pathogen}/ncov-common.config /
-COPY data/${pathogen}/primer_schemes /primer_schemes
 COPY data/${pathogen}/ncov2019-artic-nf/* /
+COPY data/${pathogen}/primer_schemes /primer_schemes
+COPY scripts/common /app/scripts/common
 
 RUN . /ncov.deps \
   && pip install awscli==1.20.50 \

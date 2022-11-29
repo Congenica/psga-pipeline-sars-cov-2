@@ -17,9 +17,14 @@ from scripts.common.primer_autodetection import (
     PRIMER_AUTODETECTION_SAMPLE_ID_COL,
     EXPECTED_PRIMER_AUTODETECTION_HEADERS,
 )
+from scripts.common.format_genotyping import (
+    TYPING_SAMPLE_ID_COL,
+    EXPECTED_TYPING_HEADERS,
+)
 from scripts.util.logger import get_structlog_logger, ERROR, WARNING, INFO
 from scripts.util.metadata import EXPECTED_HEADERS as EXPECTED_METADATA_HEADERS, SAMPLE_ID, ILLUMINA, ONT, UNKNOWN
 from scripts.util.notifications import Event, Notification
+from scripts.util.convert import csv_to_json
 from scripts.validation.check_csv_columns import check_csv_columns
 
 log_file = f"{Path(__file__).stem}.log"
@@ -234,7 +239,7 @@ def _generate_primer_autodetection_notifications(
 def _generate_ncov_notifications(
     analysis_run_name: str,
     all_samples: List[str],
-    df_ncov: pd.DataFrame,
+    df_ncov_qc: pd.DataFrame,
 ) -> Tuple[List[str], Notification]:
     """
     Generate and publish ncov notifications.
@@ -247,11 +252,11 @@ def _generate_ncov_notifications(
     qc_unrelated_failing_ncov_samples = []
     ncov_samples_passing_qc = all_samples
 
-    if not df_ncov.empty:
-        ncov_all_samples = df_ncov[SAMPLE_ID].tolist()
+    if not df_ncov_qc.empty:
+        ncov_all_samples = df_ncov_qc[SAMPLE_ID].tolist()
         qc_unrelated_failing_ncov_samples = [s for s in all_samples if s not in ncov_all_samples]
-        ncov_samples_failing_qc = df_ncov.loc[~df_ncov["qc_pass"]][SAMPLE_ID]
-        ncov_samples_passing_qc = df_ncov.loc[df_ncov["qc_pass"]][SAMPLE_ID]
+        ncov_samples_failing_qc = df_ncov_qc.loc[~df_ncov_qc["qc_pass"]][SAMPLE_ID]
+        ncov_samples_passing_qc = df_ncov_qc.loc[df_ncov_qc["qc_pass"]][SAMPLE_ID]
 
         events = {
             UNKNOWN_NCOV: Event(
@@ -328,7 +333,7 @@ def _generate_notifications(
     all_samples: List[str],
     df_contamination_removal: pd.DataFrame,
     df_primer_autodetection: pd.DataFrame,
-    df_ncov: pd.DataFrame,
+    df_ncov_qc: pd.DataFrame,
     df_pangolin: pd.DataFrame,
 ) -> Tuple[List[str], Notification]:
     """
@@ -363,7 +368,7 @@ def _generate_notifications(
     qc_unrelated_failing_ncov_samples, ncov_events = _generate_ncov_notifications(
         analysis_run_name,
         primer_autodetection_processed_samples,
-        df_ncov,
+        df_ncov_qc,
     )
 
     if contamination_removal_events:
@@ -400,10 +405,11 @@ def _generate_results_csv(
     all_samples: List[str],
     df_contamination_removal: pd.DataFrame,
     df_primer_autodetection: pd.DataFrame,
-    df_ncov: pd.DataFrame,
+    df_ncov_qc: pd.DataFrame,
+    df_ncov_typing: pd.DataFrame,
     df_pangolin: pd.DataFrame,
     qc_unrelated_failing_samples: List[str],
-    output_csv_file: str,
+    output_results_csv_file: str,
 ) -> None:
     """
     Generate the pipeline results CSV file.
@@ -416,7 +422,14 @@ def _generate_results_csv(
     df_status = pd.DataFrame(status_col_data)
 
     # list of dataframes to merge. They share 1 shared column: SAMPLE_ID
-    dfs_to_merge = [df_status, df_contamination_removal, df_primer_autodetection, df_ncov, df_pangolin]
+    dfs_to_merge = [
+        df_status,
+        df_contamination_removal,
+        df_primer_autodetection,
+        df_ncov_qc,
+        df_ncov_typing,
+        df_pangolin,
+    ]
 
     # partial stores part of a function’s arguments resulting in a new object with a simplified signature.
     # reduce applies cumulatively the new partial object to the items of iterable (list of dataframes here).
@@ -432,7 +445,7 @@ def _generate_results_csv(
     # remove unwanted columns
     df_merged.drop(COLUMNS_TO_REMOVE_FROM_RESULTS_CSV, axis=1, inplace=True)
     # save to CSV
-    df_merged.to_csv(output_csv_file, encoding="utf-8", index=False)
+    df_merged.to_csv(output_results_csv_file, encoding="utf-8", index=False)
 
 
 def get_expected_output_files_per_sample(
@@ -469,6 +482,8 @@ def get_expected_output_files_per_sample(
             ncov_variants_suffixes = [".pass.vcf.gz", ".pass.vcf.gz.tbi"]
         else:
             raise ValueError(f"Unsupported sequencing_technology: {sequencing_technology}")
+
+        ncov_typing_suffixes = [".typing.csv", ".variants.csv", ".csq.vcf"]
 
         for sample_id in sample_ids_result_files.all_samples:
             # expected files for all samples
@@ -509,6 +524,12 @@ def get_expected_output_files_per_sample(
             )
             output_files[sample_id].extend(
                 [
+                    join_path(output_path, "ncov2019-artic", "output_typing", f"{sample_id}{e}")
+                    for e in ncov_typing_suffixes
+                ]
+            )
+            output_files[sample_id].extend(
+                [
                     join_path(output_path, "ncov2019-artic", "output_variants", f"{sample_id}{e}")
                     for e in ncov_variants_suffixes
                 ]
@@ -528,7 +549,7 @@ def _generate_resultfiles_json(
     sequencing_technology: str,
     sample_ids_result_files: SampleIdResultFiles,
     output_path: str,
-    output_json_file: Path,
+    output_resultfiles_json_file: Path,
 ) -> None:
     """
     Generate a JSON file containing the list of expected result files per sample
@@ -539,7 +560,7 @@ def _generate_resultfiles_json(
         sequencing_technology=sequencing_technology,
     )
 
-    with open(output_json_file, "w") as outfile:
+    with open(output_resultfiles_json_file, "w") as outfile:
         json.dump(output_files_per_sample, outfile, cls=PathJSONEncoder, sort_keys=True, indent=4)
 
 
@@ -564,7 +585,12 @@ def _generate_resultfiles_json(
 @click.option(
     "--ncov-qc-csv-file",
     type=click.Path(exists=True, file_okay=True, readable=True),
-    help="ncov pipeline resulting qc csv file",
+    help="ncov pipeline qc csv file",
+)
+@click.option(
+    "--ncov-typing-csv-file",
+    type=click.Path(exists=True, file_okay=True, readable=True),
+    help="ncov pipeline typing csv file",
 )
 @click.option(
     "--pangolin-csv-file",
@@ -573,16 +599,22 @@ def _generate_resultfiles_json(
     help="pangolin pipeline resulting csv file",
 )
 @click.option(
-    "--output-csv-file",
+    "--output-results-csv-file",
     type=click.Path(dir_okay=False, writable=True),
-    required=True,
-    help="output file merging the results from ncov and pangolin",
+    default="results.csv",
+    help="CSV file containing the summary of results",
 )
 @click.option(
-    "--output-json-file",
+    "--output-results-json-file",
     type=click.Path(dir_okay=False, writable=True),
-    required=True,
-    help="output file containing all the expected files per sample",
+    default="results.json",
+    help="JSON file containing the summary of results",
+)
+@click.option(
+    "--output-resultfiles-json-file",
+    type=click.Path(dir_okay=False, writable=True),
+    default="resultfiles.json",
+    help="JSON file containing all the expected files per sample",
 )
 @click.option(
     "--output-path",
@@ -602,9 +634,11 @@ def generate_pipeline_results_files(
     contamination_removal_csv_file: str,
     primer_autodetection_csv_file: str,
     ncov_qc_csv_file: str,
+    ncov_typing_csv_file: str,
     pangolin_csv_file: str,
-    output_csv_file: str,
-    output_json_file: str,
+    output_results_csv_file: str,
+    output_results_json_file: str,
+    output_resultfiles_json_file: str,
     output_path: str,
     sequencing_technology: str,
 ) -> None:
@@ -623,24 +657,29 @@ def generate_pipeline_results_files(
         EXPECTED_PRIMER_AUTODETECTION_HEADERS,
         PRIMER_AUTODETECTION_SAMPLE_ID_COL,
     )
-    df_ncov = load_data_from_csv(ncov_qc_csv_file, EXPECTED_NCOV_HEADERS, NCOV_SAMPLE_ID_COL)
+    df_ncov_qc = load_data_from_csv(ncov_qc_csv_file, EXPECTED_NCOV_HEADERS, NCOV_SAMPLE_ID_COL)
+    df_ncov_typing = load_data_from_csv(ncov_typing_csv_file, EXPECTED_TYPING_HEADERS, TYPING_SAMPLE_ID_COL)
     df_pangolin = load_data_from_csv(pangolin_csv_file, EXPECTED_PANGOLIN_HEADERS, PANGOLIN_SAMPLE_ID_COL)
 
     all_samples = df_metadata[SAMPLE_ID].tolist()
 
+    # typing runs as part of ncov, so they share the notifications
     qc_unrelated_failing_samples, events = _generate_notifications(
-        analysis_run_name, all_samples, df_contamination_removal, df_primer_autodetection, df_ncov, df_pangolin
+        analysis_run_name, all_samples, df_contamination_removal, df_primer_autodetection, df_ncov_qc, df_pangolin
     )
 
     _generate_results_csv(
         all_samples,
         df_contamination_removal,
         df_primer_autodetection,
-        df_ncov,
+        df_ncov_qc,
+        df_ncov_typing,
         df_pangolin,
         qc_unrelated_failing_samples,
-        output_csv_file,
+        output_results_csv_file,
     )
+
+    csv_to_json(output_results_csv_file, output_results_json_file, SAMPLE_ID)
 
     sample_ids_result_files = SampleIdResultFiles(
         all_samples=all_samples,
@@ -662,7 +701,9 @@ def generate_pipeline_results_files(
         else list(events[PASSED_NCOV].samples),
     )
 
-    _generate_resultfiles_json(sequencing_technology, sample_ids_result_files, output_path, Path(output_json_file))
+    _generate_resultfiles_json(
+        sequencing_technology, sample_ids_result_files, output_path, Path(output_resultfiles_json_file)
+    )
 
 
 if __name__ == "__main__":

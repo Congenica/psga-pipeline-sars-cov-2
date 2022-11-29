@@ -17,6 +17,7 @@ process ncov2019_artic_nf_pipeline_illumina {
     path "output_fasta/*.fa"
     path "output_plots/*.png"
     path "output_typing/*"
+    path "*.psga.typing.csv", emit: ch_ncov_typing_csv
     path "output_variants/*.tsv"
 
   shell:
@@ -77,6 +78,8 @@ process ncov2019_artic_nf_pipeline_illumina {
 
   # index bam file
   samtools index ${output_bam}/${sample_id}.${bam_file_ext} ${output_bam}/${sample_id}.${bam_file_ext}.bai
+
+  python ${PSGA_ROOT_PATH}/scripts/common/format_genotyping.py --input-path ${output_typing}/${sample_id}.typing.csv --output-csv-path ${sample_id}.psga.typing.csv --input-sample-id-col sampleID --input-type-col type
   '''
 }
 
@@ -101,6 +104,7 @@ process ncov2019_artic_nf_pipeline_medaka {
     path "output_fasta/*.fa"
     path "output_plots/*.png"
     path "output_typing/*"
+    path "*.psga.typing.csv", emit: ch_ncov_typing_csv
     path "output_variants/*.vcf.gz*"
 
   shell:
@@ -211,5 +215,7 @@ process ncov2019_artic_nf_pipeline_medaka {
       rename "s/${ncov_prefix}_${sample_id}/${sample_id}/" ${file_name}
       cd - > /dev/null
   done
+
+  python ${PSGA_ROOT_PATH}/scripts/common/format_genotyping.py --input-path ${output_typing}/${sample_id}.typing.csv --output-csv-path ${sample_id}.psga.typing.csv --input-sample-id-col sampleID --input-type-col type
   '''
 }

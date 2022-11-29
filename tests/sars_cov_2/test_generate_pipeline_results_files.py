@@ -1,12 +1,10 @@
-from pathlib import Path
 import pytest
 import json
 from click.testing import CliRunner
-import pandas as pd
-from pandas.testing import assert_frame_equal
 
 from scripts.sars_cov_2.generate_pipeline_results_files import generate_pipeline_results_files
 from scripts.util.metadata import SAMPLE_ID
+from tests.utils_tests import assert_dataframes_are_equal, assert_jsons_are_equal
 
 
 @pytest.mark.parametrize(
@@ -14,18 +12,20 @@ from scripts.util.metadata import SAMPLE_ID
     [False, True],
 )
 @pytest.mark.parametrize(
-    "metadata,contamination_removal_csv,primer_autodetection_csv,ncov_csv,pangolin_csv,"
-    "analysis_run_name,sequencing_technology,exp_results_csv,exp_resultfiles_json",
+    "metadata,contamination_removal_csv,primer_autodetection_csv,ncov_qc_csv,ncov_typing_csv,pangolin_csv,"
+    "analysis_run_name,sequencing_technology,exp_results_csv,exp_results_json,exp_resultfiles_json",
     [
         (
             "metadata_illumina.csv",
             "contamination_removal.csv",
             "primer_autodetection.csv",
             "ncov_test.qc.csv",
+            "ncov_typing.csv",
             "all_lineages_report.csv",
             "just_a_name",
             "illumina",
             "results_illumina_ont.csv",
+            "results_illumina_ont.json",
             "resultfiles_illumina.json",
         ),
         (
@@ -33,10 +33,12 @@ from scripts.util.metadata import SAMPLE_ID
             "contamination_removal.csv",
             "primer_autodetection.csv",
             "ncov_test.qc.csv",
+            "ncov_typing.csv",
             "all_lineages_report.csv",
             "just_a_name",
             "ont",
             "results_illumina_ont.csv",
+            "results_illumina_ont.json",
             "resultfiles_ont.json",
         ),
         (
@@ -44,10 +46,12 @@ from scripts.util.metadata import SAMPLE_ID
             None,
             None,
             None,
+            None,
             "all_lineages_report.csv",
             "just_a_name",
             "unknown",
             "results_unknown.csv",
+            "results_unknown.json",
             "resultfiles_unknown.json",
         ),
     ],
@@ -58,17 +62,20 @@ def test_generate_pipeline_results_files(
     metadata,
     contamination_removal_csv,
     primer_autodetection_csv,
-    ncov_csv,
+    ncov_qc_csv,
+    ncov_typing_csv,
     pangolin_csv,
     analysis_run_name,
     sequencing_technology,
     exp_results_csv,
+    exp_results_json,
     exp_resultfiles_json,
     use_s3_uri,
 ):
 
-    output_csv_file = Path(tmp_path / "results.csv")
-    output_json_file = Path(tmp_path / "resultfiles.json")
+    output_results_csv_file = tmp_path / "results.csv"
+    output_results_json_file = tmp_path / "results.json"
+    output_resultfiles_json_file = tmp_path / "resultfiles.json"
 
     output_path = "s3://bucket/analysis_run" if use_s3_uri else tmp_path
 
@@ -79,17 +86,19 @@ def test_generate_pipeline_results_files(
         test_data_path / "pipeline_results_files" / metadata,
         "--pangolin-csv-file",
         test_data_path / "pipeline_results_files" / pangolin_csv,
-        "--output-csv-file",
-        output_csv_file,
-        "--output-json-file",
-        output_json_file,
+        "--output-results-csv-file",
+        output_results_csv_file,
+        "--output-results-json-file",
+        output_results_json_file,
+        "--output-resultfiles-json-file",
+        output_resultfiles_json_file,
         "--output-path",
         output_path,
         "--sequencing-technology",
         sequencing_technology,
     ]
 
-    if ncov_csv:
+    if ncov_qc_csv:
         args.extend(
             [
                 "--contamination-removal-csv-file",
@@ -97,7 +106,9 @@ def test_generate_pipeline_results_files(
                 "--primer-autodetection-csv-file",
                 test_data_path / "pipeline_results_files" / primer_autodetection_csv,
                 "--ncov-qc-csv-file",
-                test_data_path / "pipeline_results_files" / ncov_csv,
+                test_data_path / "pipeline_results_files" / ncov_qc_csv,
+                "--ncov-typing-csv-file",
+                test_data_path / "pipeline_results_files" / ncov_typing_csv,
             ]
         )
     rv = CliRunner().invoke(
@@ -108,27 +119,17 @@ def test_generate_pipeline_results_files(
     assert rv.exit_code == 0
 
     # assert results.csv
-    expected_output_df = pd.read_csv(test_data_path / "pipeline_results_files" / exp_results_csv)
-    calculated_output_df = pd.read_csv(output_csv_file)
+    exp_output_results_csv_file = test_data_path / "pipeline_results_files" / exp_results_csv
+    assert_dataframes_are_equal(output_results_csv_file, exp_output_results_csv_file, SAMPLE_ID)
 
-    calculated_cols = calculated_output_df.columns
-    expected_cols = expected_output_df.columns
-    assert sorted(calculated_cols) == sorted(expected_cols)
-
-    calculated_output_df.sort_values(by=[SAMPLE_ID], inplace=True)
-    calculated_output_df.sort_index(axis=1, inplace=True)
-    expected_output_df.sort_values(by=[SAMPLE_ID], inplace=True)
-    expected_output_df.sort_index(axis=1, inplace=True)
-
-    assert_frame_equal(
-        calculated_output_df.reset_index(drop=True),
-        expected_output_df.reset_index(drop=True),
-    )
+    # assert results.json
+    exp_output_results_json_file = test_data_path / "pipeline_results_files" / exp_results_json
+    assert_jsons_are_equal(output_results_json_file, exp_output_results_json_file)
 
     # assert resultfiles.json
     with open(test_data_path / "pipeline_results_files" / exp_resultfiles_json) as json_fd:
         exp_resultfiles_json_dict = json.load(json_fd)
-    with open(output_json_file) as json_fd:
+    with open(output_resultfiles_json_file) as json_fd:
         calc_resultfiles_json_dict = json.load(json_fd)
 
     exp_result_files_json_dict_full_path = {
