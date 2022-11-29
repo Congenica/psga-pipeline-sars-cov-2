@@ -24,8 +24,18 @@ commands:
       pathogen:
         type: string
         default: ""
+      gitsubmodules:
+        type: boolean
+        default: false
     steps:
       - checkout
+      - when:
+          condition: << parameters.gitsubmodules >>
+          steps:
+            - run:
+                name: Install git submodules
+                command: |
+                  git submodule update --init --recursive
       - run:
           name: Build docker image
           command: |
@@ -143,6 +153,7 @@ jobs:
           ecrepouri: ${ECREPOURI_PSGA}
           awsregion: "eu-west-2"
           pathogen: "sars_cov_2"
+          gitsubmodules: true
   build-ncov2019-artic-nf-nanopore:
     executor: python
     steps:
@@ -155,6 +166,7 @@ jobs:
           ecrepouri: ${ECREPOURI_PSGA}
           awsregion: "eu-west-2"
           pathogen: "sars_cov_2"
+          gitsubmodules: true
   build-pangolin:
     executor: python
     steps:
@@ -203,12 +215,7 @@ workflows:
         context: AWS_ECR_CREDENTIALS_PSGA
     - build-sars-cov-2-pipeline:
         requires:
-          - build-read-it-and-keep
-          - build-fastqc
-          - build-primer-autodetection
-          - build-ncov2019-artic-nf-illumina
-          - build-ncov2019-artic-nf-nanopore
-          - build-pangolin
+          - run-unit-tests
         context: AWS_ECR_CREDENTIALS_PSGA
     - build-synthetic-pipeline:
         requires:

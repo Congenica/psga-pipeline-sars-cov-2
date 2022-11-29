@@ -1,0 +1,3 @@
+[submodule "docker/sars_cov_2/ncov2019-artic-nf"]
+	path = docker/sars_cov_2/ncov2019-artic-nf
+	url = git@github.com:Congenica/ncov2019-artic-nf.git
