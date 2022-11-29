@@ -70,6 +70,7 @@ jobs:
     with:
       name: pangolin
       dockerfile: Dockerfile.pangolin
+      pathogen: sars_cov_2
   ncov2019-artic-nf-nanopore:
     needs: check_and_test
     uses: ./.github/workflows/build_image.yaml
@@ -77,6 +78,7 @@ jobs:
     with:
       name: ncov2019-artic-nf-nanopore
       dockerfile: Dockerfile.ncov2019-artic-nf-nanopore
+      pathogen: sars_cov_2
   ncov2019-artic-nf-illumina:
     needs: check_and_test
     uses: ./.github/workflows/build_image.yaml
@@ -84,6 +86,7 @@ jobs:
     with:
       name: ncov2019-artic-nf-illumina
       dockerfile: Dockerfile.ncov2019-artic-nf-illumina
+      pathogen: sars_cov_2
   publish_configs_dev:
     if: github.ref == 'refs/heads/dev'
     needs:
