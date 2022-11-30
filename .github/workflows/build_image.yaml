@@ -61,6 +61,7 @@ jobs:
           if [[ ! -z "${{ inputs.dockerfile }}" ]]; then
             DOCKERFILE="docker/${{ inputs.dockerfile }}"
           fi
+          git submodule update --init --recursive
           docker build --build-arg pathogen=${{ inputs.pathogen }} -t $ECR_IMAGE_NAME -t $ECR_BRANCH_LATEST_NAME -f $DOCKERFILE .
           if [[ "${{ inputs.push_enabled }}" == "true" ]]; then
             docker push $ECR_IMAGE_NAME
