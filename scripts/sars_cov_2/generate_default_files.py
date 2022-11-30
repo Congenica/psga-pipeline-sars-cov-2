@@ -4,6 +4,7 @@ import click
 
 from scripts.common.contamination_removal import EXPECTED_CONTAMINATION_REMOVAL_HEADERS
 from scripts.common.primer_autodetection import EXPECTED_PRIMER_AUTODETECTION_HEADERS
+from scripts.common.format_genotyping import EXPECTED_TYPING_HEADERS
 from scripts.sars_cov_2.generate_pipeline_results_files import (
     EXPECTED_NCOV_HEADERS,
     EXPECTED_PANGOLIN_HEADERS,
@@ -28,6 +29,7 @@ def generate_default_files() -> None:
     write_csv("contamination_removal_empty.csv", EXPECTED_CONTAMINATION_REMOVAL_HEADERS)
     write_csv("primer_autodetection_empty.csv", EXPECTED_PRIMER_AUTODETECTION_HEADERS)
     write_csv("ncov_qc_empty.csv", EXPECTED_NCOV_HEADERS)
+    write_csv("ncov_typing_empty.csv", EXPECTED_TYPING_HEADERS)
     write_csv("pangolin_empty.csv", EXPECTED_PANGOLIN_HEADERS)
 
 

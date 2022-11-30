@@ -11,6 +11,9 @@
         "ncov2019-artic/output_fasta/0774181d-fb20-4a73-b887-38af7eda9b38.consensus.fa",
         "ncov2019-artic/output_fasta/0774181d-fb20-4a73-b887-38af7eda9b38.preconsensus.fa",
         "ncov2019-artic/output_plots/0774181d-fb20-4a73-b887-38af7eda9b38.depth.png",
+        "ncov2019-artic/output_typing/0774181d-fb20-4a73-b887-38af7eda9b38.typing.csv",
+        "ncov2019-artic/output_typing/0774181d-fb20-4a73-b887-38af7eda9b38.variants.csv",
+        "ncov2019-artic/output_typing/0774181d-fb20-4a73-b887-38af7eda9b38.csq.vcf",
         "ncov2019-artic/output_variants/0774181d-fb20-4a73-b887-38af7eda9b38.pass.vcf.gz",
         "ncov2019-artic/output_variants/0774181d-fb20-4a73-b887-38af7eda9b38.pass.vcf.gz.tbi"
     ],
@@ -26,6 +29,9 @@
         "ncov2019-artic/output_fasta/56a63f60-764d-4fc7-8764-a46023cbe324.consensus.fa",
         "ncov2019-artic/output_fasta/56a63f60-764d-4fc7-8764-a46023cbe324.preconsensus.fa",
         "ncov2019-artic/output_plots/56a63f60-764d-4fc7-8764-a46023cbe324.depth.png",
+        "ncov2019-artic/output_typing/56a63f60-764d-4fc7-8764-a46023cbe324.typing.csv",
+        "ncov2019-artic/output_typing/56a63f60-764d-4fc7-8764-a46023cbe324.variants.csv",
+        "ncov2019-artic/output_typing/56a63f60-764d-4fc7-8764-a46023cbe324.csq.vcf",
         "ncov2019-artic/output_variants/56a63f60-764d-4fc7-8764-a46023cbe324.pass.vcf.gz",
         "ncov2019-artic/output_variants/56a63f60-764d-4fc7-8764-a46023cbe324.pass.vcf.gz.tbi",
         "reheadered-fasta/56a63f60-764d-4fc7-8764-a46023cbe324.fasta"
@@ -50,6 +56,9 @@
         "ncov2019-artic/output_fasta/a0951432-cd94-45b5-96d5-b721c037a451.consensus.fa",
         "ncov2019-artic/output_fasta/a0951432-cd94-45b5-96d5-b721c037a451.preconsensus.fa",
         "ncov2019-artic/output_plots/a0951432-cd94-45b5-96d5-b721c037a451.depth.png",
+        "ncov2019-artic/output_typing/a0951432-cd94-45b5-96d5-b721c037a451.typing.csv",
+        "ncov2019-artic/output_typing/a0951432-cd94-45b5-96d5-b721c037a451.variants.csv",
+        "ncov2019-artic/output_typing/a0951432-cd94-45b5-96d5-b721c037a451.csq.vcf",
         "ncov2019-artic/output_variants/a0951432-cd94-45b5-96d5-b721c037a451.pass.vcf.gz",
         "ncov2019-artic/output_variants/a0951432-cd94-45b5-96d5-b721c037a451.pass.vcf.gz.tbi",
         "reheadered-fasta/a0951432-cd94-45b5-96d5-b721c037a451.fasta"
@@ -82,6 +91,9 @@
         "ncov2019-artic/output_fasta/e80f3c63-d139-4c14-bd72-7a43897ab40d.consensus.fa",
         "ncov2019-artic/output_fasta/e80f3c63-d139-4c14-bd72-7a43897ab40d.preconsensus.fa",
         "ncov2019-artic/output_plots/e80f3c63-d139-4c14-bd72-7a43897ab40d.depth.png",
+        "ncov2019-artic/output_typing/e80f3c63-d139-4c14-bd72-7a43897ab40d.typing.csv",
+        "ncov2019-artic/output_typing/e80f3c63-d139-4c14-bd72-7a43897ab40d.variants.csv",
+        "ncov2019-artic/output_typing/e80f3c63-d139-4c14-bd72-7a43897ab40d.csq.vcf",
         "ncov2019-artic/output_variants/e80f3c63-d139-4c14-bd72-7a43897ab40d.pass.vcf.gz",
         "ncov2019-artic/output_variants/e80f3c63-d139-4c14-bd72-7a43897ab40d.pass.vcf.gz.tbi",
         "reheadered-fasta/e80f3c63-d139-4c14-bd72-7a43897ab40d.fasta"
