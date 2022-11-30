@@ -1,8 +1,8 @@
 FROM condaforge/mambaforge:4.14.0-0 AS condabuild
 
 ARG pathogen
-COPY docker/${pathogen}/ncov2019-artic-nf_illumina.yml /environment.yml
-COPY docker/${pathogen}/ncov2019-artic-nf_extras.yml /extras.yml
+COPY docker/${pathogen}/ncov2019-artic-nf/environments/illumina/environment.yml /environment.yml
+COPY docker/${pathogen}/ncov2019-artic-nf/environments/extras.yml /extras.yml
 # Also reinstall packages to pinned versions, as the conda-selected downgraded ones fail to run
 RUN mamba env create -f /environment.yml -n custom_env \
   && mamba env update -f /extras.yml -n custom_env \
@@ -12,7 +12,7 @@ RUN mamba env create -f /environment.yml -n custom_env \
 
 FROM debian:buster-slim
 RUN apt-get update \
-  && apt-get install -y --no-install-recommends git procps rename \
+  && apt-get install -y --no-install-recommends procps rename \
   && apt-get clean -y \
   && rm -rf /var/lib/apt/lists/*
 
@@ -24,15 +24,11 @@ ENV LC_ALL=C.UTF-8
 ENV LANG=C.UTF-8
 
 ARG pathogen
-COPY docker/${pathogen}/ncov.deps psga/${pathogen}/ncov-illumina.config psga/${pathogen}/ncov-common.config /
+COPY docker/${pathogen}/ncov2019-artic-nf /ncov2019-artic-nf
+COPY psga/${pathogen}/ncov-illumina.config psga/${pathogen}/ncov-common.config /
 COPY data/${pathogen}/ncov2019-artic-nf/* /
 COPY data/${pathogen}/primer_schemes /primer_schemes
 COPY scripts/common /app/scripts/common
 
 # install awscli here because the conda version requires a much more updated Python version
-RUN . /ncov.deps \
-  && pip install awscli==1.20.50 \
-  && export GIT_SSL_NO_VERIFY=1 \
-  && git clone --recursive https://github.com/Congenica/ncov2019-artic-nf.git \
-  && cd /ncov2019-artic-nf \
-  && git checkout ${ncov_commit}
+RUN pip install awscli==1.20.50

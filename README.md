@@ -33,9 +33,15 @@ See: https://medium.com/swlh/how-to-run-locally-built-docker-images-in-kubernete
 eval $(minikube -p minikube docker-env)
 ```
 
+Make sure that the submodules are installed:
+```commandline
+git submodule update --init --recursive
+```
+
 Build the pipeline docker images in the minikube docker environment:
 ```commandline
 make sars-cov-2-images
+make synthetic
 ```
 
 Once all the required images are generated, the deployments can be created:
