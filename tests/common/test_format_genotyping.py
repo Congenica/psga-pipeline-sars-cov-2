@@ -6,7 +6,7 @@ from scripts.common.format_genotyping import (
     format_genotyping,
     TYPING_SAMPLE_ID_COL,
 )
-from tests.utils_tests import assert_dataframes_are_equal
+from tests.utils_tests import assert_csvs_are_equal
 
 
 @pytest.mark.parametrize(
@@ -33,7 +33,7 @@ def test_process_typing(
     expected_typing_output_path = test_data_path / "typing" / expected_typing_output_csv
     output_path = tmp_path / "typing_output.csv"
     process_typing(input_path, output_path, input_sample_id_col, input_type_col)
-    assert_dataframes_are_equal(output_path, expected_typing_output_path, TYPING_SAMPLE_ID_COL)
+    assert_csvs_are_equal(output_path, expected_typing_output_path, TYPING_SAMPLE_ID_COL)
 
 
 @pytest.mark.parametrize(
@@ -71,4 +71,4 @@ def test_typing(tmp_path, test_data_path, input_file, input_sample_id_col, input
         ],
     )
     assert rv.exit_code == 0
-    assert_dataframes_are_equal(output_path, expected_typing_output_path, TYPING_SAMPLE_ID_COL)
+    assert_csvs_are_equal(output_path, expected_typing_output_path, TYPING_SAMPLE_ID_COL)

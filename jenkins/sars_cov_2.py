@@ -33,7 +33,7 @@ def get_expected_output_files(output_path: str, sample_ids: List[str], sequencin
         sequencing_technology=sequencing_technology,
     )
     # generate a unified list of paths as non-sample results files must also be included
-    output_files = [path for sample_paths in output_files_per_sample.values() for path in sample_paths]
+    output_files = [f["file"] for sample_files in output_files_per_sample.values() for f in sample_files]
 
     output_files.extend(
         [join_path(output_path, "logs", f) for f in ["check_metadata.log", "generate_pipeline_results_files.log"]]
