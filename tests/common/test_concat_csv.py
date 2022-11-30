@@ -6,7 +6,7 @@ from pandas.testing import assert_frame_equal
 
 from scripts.common.concat_csv import concat_csv, concat
 from scripts.util.metadata import SAMPLE_ID
-from tests.utils_tests import assert_dataframes_are_equal
+from tests.utils_tests import assert_csvs_are_equal
 
 
 def test_concat_no_file_found_error(tmp_path):
@@ -32,7 +32,7 @@ def test_concat(tmp_path, test_data_path):
 
     assert output_csv_path.is_file()
 
-    assert_dataframes_are_equal(output_csv_path, expected_output_csv_path, SAMPLE_ID)
+    assert_csvs_are_equal(output_csv_path, expected_output_csv_path, SAMPLE_ID)
 
     df_exp = pd.read_csv(expected_output_csv_path)
 
@@ -62,4 +62,4 @@ def test_concat_csv(tmp_path, test_data_path):
 
     assert rv.exit_code == 0
 
-    assert_dataframes_are_equal(output_csv_path, expected_output_csv_path, SAMPLE_ID)
+    assert_csvs_are_equal(output_csv_path, expected_output_csv_path, SAMPLE_ID)
