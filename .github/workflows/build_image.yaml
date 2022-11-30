@@ -13,18 +13,6 @@ on:
         type: string
         required: false
         default: ""
-      ecr_path:
-        type: string
-        required: false
-        default: dev
-      push_enabled:
-        type: string
-        default: "false"
-        required: false
-      version:
-        type: string
-        required: false
-        default: ~
 jobs:
   build:
     runs-on: ubuntu-22.04
@@ -45,25 +33,14 @@ jobs:
         run: |
           set -e
           BRANCH_NAME=${GITHUB_REF/refs\/heads\//}
-          VERSION=${{ github.sha }}
-          if [[ ! -z "${{ inputs.version }}" ]]; then
-            VERSION=${{ inputs.version }}
-          fi
-          if [[ "${{ inputs.ecr_path }}" == "prod" ]]; then
-            ECR_PATH=${{ secrets.ECR_PATH_PROD }}
-          else
-            ECR_PATH=${{ secrets.ECR_PATH_DEV }}
-          fi
-          IMAGE_NAME="${{ inputs.name }}:${VERSION}"
-          ECR_IMAGE_NAME="${ECR_PATH}/${IMAGE_NAME}"
-          ECR_BRANCH_LATEST_NAME="${ECR_PATH}/${{ inputs.name }}:${BRANCH_NAME}_latest"
+          IMAGE_NAME="${{ inputs.name }}:${{ github.sha }}"
+          ECR_IMAGE_NAME="${{ secrets.ECR_PATH_DEV }}/${IMAGE_NAME}"
+          ECR_BRANCH_LATEST_NAME="${{ secrets.ECR_PATH_DEV }}/${{ inputs.name }}:${BRANCH_NAME}_latest"
           DOCKERFILE="docker/Dockerfile.${{ inputs.name }}"
           if [[ ! -z "${{ inputs.dockerfile }}" ]]; then
             DOCKERFILE="docker/${{ inputs.dockerfile }}"
           fi
           git submodule update --init --recursive
           docker build --build-arg pathogen=${{ inputs.pathogen }} -t $ECR_IMAGE_NAME -t $ECR_BRANCH_LATEST_NAME -f $DOCKERFILE .
-          if [[ "${{ inputs.push_enabled }}" == "true" ]]; then
-            docker push $ECR_IMAGE_NAME
-            docker push $ECR_BRANCH_LATEST_NAME
-          fi
+          docker push $ECR_IMAGE_NAME
+          docker push $ECR_BRANCH_LATEST_NAME
