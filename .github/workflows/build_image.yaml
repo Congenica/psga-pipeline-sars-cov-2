@@ -57,15 +57,11 @@ jobs:
           IMAGE_NAME="${{ inputs.name }}:${VERSION}"
           ECR_IMAGE_NAME="${ECR_PATH}/${IMAGE_NAME}"
           ECR_BRANCH_LATEST_NAME="${ECR_PATH}/${{ inputs.name }}:${BRANCH_NAME}_latest"
-          PATHOGEN_ARG=""
-          if [[ ! -z "${{ inputs.pathogen }}" ]]; then
-            PATHOGEN_ARG="--build-arg pathogen=${{ inputs.pathogen }}"
-          fi
           DOCKERFILE="docker/Dockerfile.${{ inputs.name }}"
           if [[ ! -z "${{ inputs.dockerfile }}" ]]; then
             DOCKERFILE="docker/${{ inputs.dockerfile }}"
           fi
-          docker build ${PATHOGEN_ARG} -t $ECR_IMAGE_NAME -t $ECR_BRANCH_LATEST_NAME -f $DOCKERFILE .
+          docker build --build-arg pathogen=${{ inputs.pathogen }} -t $ECR_IMAGE_NAME -t $ECR_BRANCH_LATEST_NAME -f $DOCKERFILE .
           if [[ "${{ inputs.push_enabled }}" == "true" ]]; then
             docker push $ECR_IMAGE_NAME
             docker push $ECR_BRANCH_LATEST_NAME
