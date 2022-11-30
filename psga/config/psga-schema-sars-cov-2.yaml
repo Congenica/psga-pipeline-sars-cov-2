@@ -2,30 +2,6 @@ pipeline:
   name: SARS CoV 2
   docker_image: "sars-cov-2-pipeline"
   protocols:
-    # unknown primer
-
-    - name: illumina-sars-cov-2-unknown
-      kit:
-        name: Unknown
-        slug: unknown
-      sequencer_technology:
-        name: Illumina
-        slug: illumina
-      pathogen:
-        name: SARS CoV 2
-        slug: sars-cov-2
-
-    - name: ont-sars-cov-2-unknown
-      kit:
-        name: Unknown
-        slug: unknown
-      sequencer_technology:
-        name: ONT
-        slug: ont
-      pathogen:
-        name: SARS CoV 2
-        slug: sars-cov-2
-
     # ARTIC_V1
     - name: illumina-sars-cov-2-articv1
       kit:
@@ -204,56 +180,56 @@ pipeline:
         name: SARS CoV 2
         slug: sars-cov-2
 
-    # NEB-VarSkip_v1a
-
-    - name: ont-sars-cov-2-neb-varskip-v1a
-      kit:
-        name: NEB VarSkip v1a
-        slug: neb-varskip-v1a
-      sequencer_technology:
-        name: ONT
-        slug: ont
-      pathogen:
-        name: SARS CoV 2
-        slug: sars-cov-2
-
-    # NEB VarSkip v1a-long
-
-    - name: ont-sars-cov-2-neb-varskip-v1a-long
-      kit:
-        name: NEB VarSkip v1a-long
-        slug: neb-varskip-v1a-long
-      sequencer_technology:
-        name: ONT
-        slug: ont
-      pathogen:
-        name: SARS CoV 2
-        slug: sars-cov-2
-
-    # NEB VarSkip v2
-
-    - name: ont-sars-cov-2-neb-varskip-v2
-      kit:
-        name: NEB VarSkip v2
-        slug: neb-varskip-v2
-      sequencer_technology:
-        name: ONT
-        slug: ont
-      pathogen:
-        name: SARS CoV 2
-        slug: sars-cov-2
-
-    # NEB VarSkip v2b
-    - name: ont-sars-cov-2-neb-varskip-v2b
-      kit:
-        name: NEB VarSkip v2b
-        slug: neb-varskip-v2b
-      sequencer_technology:
-        name: ONT
-        slug: ont
-      pathogen:
-        name: SARS CoV 2
-        slug: sars-cov-2
+#    # NEB-VarSkip_v1a
+#
+#    - name: ont-sars-cov-2-neb-varskip-v1a
+#      kit:
+#        name: NEB VarSkip v1a
+#        slug: neb-varskip-v1a
+#      sequencer_technology:
+#        name: ONT
+#        slug: ont
+#      pathogen:
+#        name: SARS CoV 2
+#        slug: sars-cov-2
+#
+#    # NEB VarSkip v1a-long
+#
+#    - name: ont-sars-cov-2-neb-varskip-v1a-long
+#      kit:
+#        name: NEB VarSkip v1a-long
+#        slug: neb-varskip-v1a-long
+#      sequencer_technology:
+#        name: ONT
+#        slug: ont
+#      pathogen:
+#        name: SARS CoV 2
+#        slug: sars-cov-2
+#
+#    # NEB VarSkip v2
+#
+#    - name: ont-sars-cov-2-neb-varskip-v2
+#      kit:
+#        name: NEB VarSkip v2
+#        slug: neb-varskip-v2
+#      sequencer_technology:
+#        name: ONT
+#        slug: ont
+#      pathogen:
+#        name: SARS CoV 2
+#        slug: sars-cov-2
+#
+#    # NEB VarSkip v2b
+#    - name: ont-sars-cov-2-neb-varskip-v2b
+#      kit:
+#        name: NEB VarSkip v2b
+#        slug: neb-varskip-v2b
+#      sequencer_technology:
+#        name: ONT
+#        slug: ont
+#      pathogen:
+#        name: SARS CoV 2
+#        slug: sars-cov-2
 
 pipeline_version:
   docker_tag: dev_latest
