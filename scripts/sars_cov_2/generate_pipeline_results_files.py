@@ -482,8 +482,10 @@ def get_expected_output_files_per_sample(
             ]
             fastqc = [FileType(f"_{r}_fastqc.zip", "fastqc/qc") for r in [1, 2]]
             ncov_bam = [
-                FileType(".mapped.primertrimmed.sorted.bam", "bam/final"),
-                FileType(".mapped.primertrimmed.sorted.bam.bai", "bai/final"),
+                FileType(".sorted.bam", "bam/untrimmed"),
+                FileType(".sorted.bam.bai", "bai/untrimmed"),
+                FileType(".mapped.primertrimmed.sorted.bam", "bam/trimmed"),
+                FileType(".mapped.primertrimmed.sorted.bam.bai", "bai/trimmed"),
             ]
             ncov_fasta = [FileType(".primertrimmed.consensus.fa", "fasta/consensus")]
             ncov_variants = [FileType(".variants.tsv", "tsv/final")]
@@ -491,8 +493,10 @@ def get_expected_output_files_per_sample(
             contamination_removal_clean_fastq = [FileType(".fastq.gz", "fastq/cleaned-sequence-data")]
             fastqc = [FileType("_fastqc.zip", "fastqc/qc")]
             ncov_bam = [
-                FileType(".primertrimmed.rg.sorted.bam", "bam/final"),
-                FileType(".primertrimmed.rg.sorted.bam.bai", "bai/final"),
+                FileType(".sorted.bam", "bam/untrimmed"),
+                FileType(".sorted.bam.bai", "bai/untrimmed"),
+                FileType(".primertrimmed.rg.sorted.bam", "bam/trimmed"),
+                FileType(".primertrimmed.rg.sorted.bam.bai", "bai/trimmed"),
             ]
             ncov_fasta = [
                 FileType(".consensus.fa", "fasta/consensus"),
