@@ -43,8 +43,6 @@ jobs:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       S3_BUCKET_PATH: ${{ secrets.S3_BUCKET_PATH_DEV }}
-    with:
-      publish_sha: true
   check_and_test:
     name: Install dependencies and run tests
     runs-on: ubuntu-22.04

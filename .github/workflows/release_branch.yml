@@ -15,6 +15,7 @@ jobs:
       S3_BUCKET_PATH: ${{ secrets.S3_BUCKET_PATH_PROD }}
     with:
       actions_env: prod
+      release_enabled: true
   build_release_image:
     name: Build and push the release image
     runs-on: ubuntu-22.04
@@ -72,7 +73,7 @@ jobs:
           docker build --build-arg BASE_IMAGE=$DEV_IMAGE_NAME \
             -t $DEV_RELEASE_NAME \
             -t $PROD_RELEASE_NAME \
-            -f Dockerfile-release .
+            -f docker/Dockerfile-release .
           docker push $DEV_RELEASE_NAME
 
       - name: Configure prod AWS Credentials
