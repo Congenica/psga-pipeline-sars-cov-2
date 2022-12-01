@@ -41,7 +41,7 @@ jobs:
             VERSIONS="${RELEASE_VERSION}"
           else
             BRANCH_NAME=${GITHUB_REF/refs\/heads\//}
-            VERSIONS="${{ github.sha }} ${BRANCH_NAME}_latest}"
+            VERSIONS="${{ github.sha }} ${BRANCH_NAME}_latest"
           fi
           for version in $VERSIONS; do
             for config in $(ls psga/config); do
