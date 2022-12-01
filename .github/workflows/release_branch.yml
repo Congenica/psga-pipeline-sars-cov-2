@@ -5,7 +5,16 @@ on:
       - release/*
 
 jobs:
-  build-release-image:
+  publish_configs:
+    needs: build_release_image
+    uses: ./.github/workflows/publish_configs.yaml
+    secrets:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      S3_BUCKET_PATH: ${{ secrets.S3_BUCKET_PATH_PROD }}
+    with:
+      actions_env: prod
+  build_release_image:
     name: Build the release images and push them to dev and prod ECR
     runs-on: ubuntu-22.04
     environment: prod

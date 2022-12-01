@@ -2,9 +2,14 @@ name: Publish config files
 on:
   workflow_call:
     inputs:
-      versions:
+      publish_sha:
+        type: boolean
+        default: false
+        required: false
+      actions_env:
         type: string
-        required: true
+        default: ~
+        required: false
     secrets:
       S3_BUCKET_PATH:
         required: true
@@ -15,19 +20,30 @@ on:
 jobs:
   build:
     runs-on: ubuntu-22.04
+    environment: ${{ inputs.actions_env }}
     steps:
+
       - name: Check out repo
         uses: actions/checkout@v3
+
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: eu-west-2
+
       - name: Publish configs to artefacts S3 bucket
         run: |
-          for version in $(echo ${{ inputs.versions }} | sed "s/,/ /g"); do
-            echo "Publishing version $version"
-            aws s3 cp psga/config/psga-schema-sars-cov-2.yaml ${{ secrets.S3_BUCKET_PATH }}/${version}/psga-schema-sars-cov-2.yaml
-            aws s3 cp psga/config/psga-schema-synthetic.yaml ${{ secrets.S3_BUCKET_PATH }}/${version}/psga-schema-synthetic.yaml
+          BRANCH_NAME=${GITHUB_REF/refs\/heads\//}
+          if [[ "${{ inputs.publish_sha }}" == "true" ]]; then
+            VERSIONS="${{ github.sha }} $BRANCH_NAME"
+          else
+            VERSIONS="$BRANCH_NAME"
+          fi
+          for version in $VERSIONS; do
+            for config in $(ls psga/config); do
+              echo "Publishing version ${version} for config ${config}"
+              aws s3 cp psga/config/${config} ${{ secrets.S3_BUCKET_PATH }}/${version}/${config}
+            done
           done
