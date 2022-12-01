@@ -26,13 +26,15 @@ process ncov2019_artic_nf_pipeline_illumina {
   export NXF_ANSI_LOG="false"
 
   ncov_out_dir="ncov_output"
-  ncov_bam_out_dir="${ncov_out_dir}/ncovIllumina_sequenceAnalysis_trimPrimerSequences"
+  ncov_untrimmed_bam_out_dir="${ncov_out_dir}/ncovIllumina_sequenceAnalysis_readMapping"
+  ncov_trimmed_bam_out_dir="${ncov_out_dir}/ncovIllumina_sequenceAnalysis_trimPrimerSequences"
   ncov_fasta_out_dir="${ncov_out_dir}/ncovIllumina_sequenceAnalysis_makeConsensus"
   ncov_qc_plots_dir="${ncov_out_dir}/qc_plots"
   ncov_tsv_out_dir="${ncov_out_dir}/ncovIllumina_sequenceAnalysis_callVariants"
   ncov_typing_out_dir="${ncov_out_dir}/ncovIllumina_Genotyping_typeVariants"
 
-  bam_file_ext="mapped.primertrimmed.sorted.bam"
+  untrimmed_bam_file_ext="sorted.bam"
+  trimmed_bam_file_ext="mapped.primertrimmed.sorted.bam"
   output_bam="output_bam"
   output_fasta="output_fasta"
   output_plots="output_plots"
@@ -67,7 +69,8 @@ process ncov2019_artic_nf_pipeline_illumina {
       -c /ncov-illumina.config
 
   mkdir -p ${output_bam} ${output_fasta} ${output_plots} ${output_typing} ${output_variants}
-  mv ${ncov_bam_out_dir}/*.${bam_file_ext} ${output_bam}
+  mv ${ncov_untrimmed_bam_out_dir}/*.${untrimmed_bam_file_ext} ${output_bam}
+  mv ${ncov_trimmed_bam_out_dir}/*.${trimmed_bam_file_ext} ${output_bam}
   mv ${ncov_fasta_out_dir}/*.primertrimmed.consensus.fa ${output_fasta}
   mv ${ncov_qc_plots_dir}/*.png ${output_plots}
   mv ${ncov_typing_out_dir}/**/* ${output_typing}
@@ -76,8 +79,9 @@ process ncov2019_artic_nf_pipeline_illumina {
   # rename the qc csv
   mv ${ncov_out_dir}/${ncov_prefix}.qc.csv ${ncov_out_dir}/${sample_id}.qc.csv
 
-  # index bam file
-  samtools index ${output_bam}/${sample_id}.${bam_file_ext} ${output_bam}/${sample_id}.${bam_file_ext}.bai
+  # index bam files
+  samtools index ${output_bam}/${sample_id}.${untrimmed_bam_file_ext} ${output_bam}/${sample_id}.${untrimmed_bam_file_ext}.bai
+  samtools index ${output_bam}/${sample_id}.${trimmed_bam_file_ext} ${output_bam}/${sample_id}.${trimmed_bam_file_ext}.bai
 
   python ${PSGA_ROOT_PATH}/scripts/common/format_genotyping.py --input-path ${output_typing}/${sample_id}.typing.csv --output-csv-path ${sample_id}.psga.typing.csv --input-sample-id-col sampleID --input-type-col type
   '''
@@ -117,7 +121,8 @@ process ncov2019_artic_nf_pipeline_medaka {
   ncov_qc_plots_dir="${ncov_out_dir}/qc_plots"
   ncov_typing_out_dir="${ncov_out_dir}/articNcovNanopore_Genotyping_typeVariants"
 
-  bam_file_ext="primertrimmed.rg.sorted.bam"
+  untrimmed_bam_file_ext="sorted.bam"
+  trimmed_bam_file_ext="primertrimmed.rg.sorted.bam"
   vcf_file_ext="pass.vcf.gz"
   output_bam="output_bam"
   output_fasta="output_fasta"
@@ -173,7 +178,8 @@ process ncov2019_artic_nf_pipeline_medaka {
       -c /ncov-nanopore.config
 
   mkdir -p ${output_bam} ${output_fasta} ${output_plots} ${output_typing} ${output_variants}
-  mv ${ncov_minion_out_dir}/*.${bam_file_ext} ${output_bam}
+  mv ${ncov_minion_out_dir}/*${sample_id}.${untrimmed_bam_file_ext} ${output_bam}
+  mv ${ncov_minion_out_dir}/*${sample_id}.${trimmed_bam_file_ext} ${output_bam}
   mv ${ncov_minion_out_dir}/*.fasta ${output_fasta}
   mv ${ncov_qc_plots_dir}/*.png ${output_plots}
   mv ${ncov_typing_out_dir}/**/* ${output_typing}
