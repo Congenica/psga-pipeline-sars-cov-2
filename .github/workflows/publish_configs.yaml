@@ -18,7 +18,8 @@ on:
       AWS_SECRET_ACCESS_KEY:
         required: true
 jobs:
-  build:
+  upload:
+    name: Upload
     runs-on: ubuntu-22.04
     environment: ${{ inputs.actions_env }}
     steps:
@@ -43,7 +44,8 @@ jobs:
           fi
           for version in $VERSIONS; do
             for config in $(ls psga/config); do
-              echo "Publishing version ${version} for config ${config}"
-              aws s3 cp psga/config/${config} ${{ secrets.S3_BUCKET_PATH }}/${version}/${config}
+              S3_PATH="${{ secrets.S3_BUCKET_PATH }}/${version}/${config}"
+              echo "Publishing version ${version} for config ${config} to ${S3_PATH}"
+              aws s3 cp psga/config/${config} $S3_PATH
             done
           done

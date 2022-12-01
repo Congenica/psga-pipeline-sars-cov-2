@@ -15,6 +15,7 @@ on:
         default: ""
 jobs:
   build:
+    name: Build and push
     runs-on: ubuntu-22.04
     steps:
 

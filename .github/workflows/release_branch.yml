@@ -6,6 +6,7 @@ on:
 
 jobs:
   publish_configs:
+    name: Publish configs
     needs: build_release_image
     uses: ./.github/workflows/publish_configs.yaml
     secrets:
@@ -15,7 +16,7 @@ jobs:
     with:
       actions_env: prod
   build_release_image:
-    name: Build the release images and push them to dev and prod ECR
+    name: Build and push the release image
     runs-on: ubuntu-22.04
     environment: prod
     strategy:

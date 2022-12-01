@@ -5,6 +5,7 @@ on:
       - "release/**"
 jobs:
   build_image:
+    name: Build and push image
     needs:
       - check_and_test
     strategy:
@@ -35,6 +36,7 @@ jobs:
       dockerfile: ${{ matrix.image.dockerfile }}
       pathogen: ${{ matrix.image.pathogen }}
   publish_configs:
+    name: Publish configs
     needs: build_image
     uses: ./.github/workflows/publish_configs.yaml
     secrets:
