@@ -15,14 +15,26 @@ RUN bactopia datasets --species "Staphylococcus aureus" --include_genus
 # 3.95GB after bactopia datasets --species "Staphylococcus aureus" --include_genus
 
 # Download and build all of the conda dependancies
-RUN bactopia download --use-defaults --build-all --verbose
+RUN bactopia download --use-defaults --build-all --verbose && conda clean --all -y
 
 # 20.5GB after bactopia download --use-defaults --build-all --verbose
 
-# FINISH now we can run a pipeline that uses Bactopia
+# multi stage to reduce docker image size and avoid conda env activation
+FROM debian:buster-slim
 
-### To get to the bactopia cli do the following
-## login (with exec bash)
-## mamba init
-## logout and log back in
-## mamba activate custom_env
+# Copy the programs installed
+COPY --from=condabuild /opt/conda/envs/custom_env /opt/conda/envs/custom_env
+
+# Copy the datasats built
+COPY --from=condabuild /datasets /datasets
+
+ENV PATH=/opt/conda/envs/custom_env/bin:$PATH
+
+COPY docker/bactopia/requirements.txt /requirements.txt
+RUN pip install -r requirements.txt
+
+# ps isn't in the base debian images - required by GATHER_SAMPLES
+RUN apt-get update && apt-get install -y procps && rm -rf /var/lib/apt/lists/*
+
+# FINISH now we can run a pipeline that uses Bactopia
+# Image size is 16.1GB
