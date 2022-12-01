@@ -1,3 +1,4 @@
+---
 pipeline:
   name: Synthetic
   docker_image: "synthetic-pipeline"

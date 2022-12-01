@@ -1,5 +1,13 @@
 repos:
 
+-   repo: https://github.com/adrienverge/yamllint.git
+    rev: v1.28.0
+    hooks:
+    - id: yamllint
+      args:
+      - "-d relaxed"
+      files: ^psga\/config\/.*
+
 -   repo: https://github.com/ambv/black
     rev: 22.3.0
     hooks:

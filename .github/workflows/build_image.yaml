@@ -1,0 +1,49 @@
+name: Build docker image
+on:
+  workflow_call:
+    inputs:
+      name:
+        type: string
+        required: true
+      dockerfile:
+        type: string
+        required: false
+        default: ""
+      pathogen:
+        type: string
+        required: false
+        default: ""
+jobs:
+  build:
+    name: Build and push
+    runs-on: ubuntu-22.04
+    steps:
+
+      - name: Check out repo
+        uses: actions/checkout@v3
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: eu-west-2
+
+      - name: Login to Amazon ECR
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Build (and push) the image
+        run: |
+          set -e
+          BRANCH_NAME=${GITHUB_REF/refs\/heads\//}
+          IMAGE_NAME="${{ inputs.name }}:${{ github.sha }}"
+          ECR_IMAGE_NAME="${{ secrets.ECR_PATH_DEV }}/${IMAGE_NAME}"
+          ECR_BRANCH_LATEST_NAME="${{ secrets.ECR_PATH_DEV }}/${{ inputs.name }}:${BRANCH_NAME}_latest"
+          DOCKERFILE="docker/Dockerfile.${{ inputs.name }}"
+          if [[ ! -z "${{ inputs.dockerfile }}" ]]; then
+            DOCKERFILE="docker/${{ inputs.dockerfile }}"
+          fi
+          git submodule update --init --recursive
+          docker build --build-arg pathogen=${{ inputs.pathogen }} -t $ECR_IMAGE_NAME -t $ECR_BRANCH_LATEST_NAME -f $DOCKERFILE .
+          docker push $ECR_IMAGE_NAME
+          docker push $ECR_BRANCH_LATEST_NAME

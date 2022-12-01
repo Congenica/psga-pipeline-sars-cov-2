@@ -1,0 +1,52 @@
+name: Publish config files
+on:
+  workflow_call:
+    inputs:
+      release_enabled:
+        type: boolean
+        default: false
+        required: false
+      actions_env:
+        type: string
+        default: ~
+        required: false
+    secrets:
+      S3_BUCKET_PATH:
+        required: true
+      AWS_ACCESS_KEY_ID:
+        required: true
+      AWS_SECRET_ACCESS_KEY:
+        required: true
+jobs:
+  upload:
+    name: Upload
+    runs-on: ubuntu-22.04
+    environment: ${{ inputs.actions_env }}
+    steps:
+
+      - name: Check out repo
+        uses: actions/checkout@v3
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: eu-west-2
+
+      - name: Publish configs to artefacts S3 bucket
+        run: |
+          if [[ "${{ inputs.release_enabled }}" == "true" ]]; then
+            RELEASE_VERSION=${GITHUB_REF/refs\/heads\/release\//}
+            VERSIONS="${RELEASE_VERSION}"
+          else
+            BRANCH_NAME=${GITHUB_REF/refs\/heads\//}
+            VERSIONS="${{ github.sha }} ${BRANCH_NAME}_latest"
+          fi
+          for version in $VERSIONS; do
+            for config in $(ls psga/config); do
+              S3_PATH="${{ secrets.S3_BUCKET_PATH }}/${version}/${config}"
+              echo "Publishing version ${version} for config ${config} to ${S3_PATH}"
+              aws s3 cp psga/config/${config} $S3_PATH
+            done
+          done
