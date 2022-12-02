@@ -1,6 +1,5 @@
 from pathlib import Path
 import csv
-import ast
 import json
 
 
@@ -27,10 +26,7 @@ def csv_to_json(csv_path: Path, json_path: Path, sample_id: str):
                     # discard as sample_id is the main key of this record
                     continue
 
-                if val and val.startswith("{") and val.endswith("}"):
-                    record[key] = ast.literal_eval(val)
-                else:
-                    record[key] = val
+                record[key] = val
 
             data[sample_id_key] = record
 
