@@ -3,7 +3,6 @@
 include { submit_results as submit_contamination_removal_results } from './common/submit_results.nf'
 include { submit_results as submit_primer_autodetection_results } from './common/submit_results.nf'
 include { submit_results as submit_ncov_qc_results } from './common/submit_results.nf'
-include { submit_results as submit_ncov_typing_results } from './common/submit_results.nf'
 include { submit_results as submit_pangolin_results } from './common/submit_results.nf'
 
 
@@ -19,7 +18,6 @@ process submit_pipeline_results_files {
     path ch_contamination_removal_csv_file
     path ch_primer_autodetection_csv_file
     path ch_ncov_qc_result_csv_file
-    path ch_ncov_typing_csv_file
     path ch_pangolin_csv_file
 
   output:
@@ -33,9 +31,8 @@ process submit_pipeline_results_files {
   ncov_opt=""
   if [[ -f "${ch_contamination_removal_csv_file}" ]] \
      && [[ -f "${ch_primer_autodetection_csv_file}" ]] \
-     && [[ -f "${ch_ncov_qc_result_csv_file}" ]] \
-     && [[ -f "${ch_ncov_typing_csv_file}" ]]; then
-      ncov_opt="--contamination-removal-csv-file \"${ch_contamination_removal_csv_file}\" --primer-autodetection-csv-file \"${ch_primer_autodetection_csv_file}\" --ncov-qc-csv-file \"${ch_ncov_qc_result_csv_file}\" --ncov-typing-csv-file \"${ch_ncov_typing_csv_file}\""
+     && [[ -f "${ch_ncov_qc_result_csv_file}" ]]; then
+      ncov_opt="--contamination-removal-csv-file \"${ch_contamination_removal_csv_file}\" --primer-autodetection-csv-file \"${ch_primer_autodetection_csv_file}\" --ncov-qc-csv-file \"${ch_ncov_qc_result_csv_file}\""
   fi
 
   python ${PSGA_ROOT_PATH}/scripts/sars_cov_2/generate_pipeline_results_files.py \
@@ -58,7 +55,6 @@ workflow submit_analysis_run_results {
         ch_contamination_removal_csvs
         ch_primer_autodetection_csvs
         ch_ncov_qc_csvs
-        ch_ncov_typing_csvs
         ch_pangolin_csvs
     main:
 
@@ -67,7 +63,6 @@ workflow submit_analysis_run_results {
             ch_contamination_removal_submitted = ch_contamination_removal_csvs
             ch_primer_autodetection_submitted = ch_primer_autodetection_csvs
             ch_ncov_qc_submitted = ch_ncov_qc_csvs
-            ch_ncov_typing_submitted = ch_ncov_typing_csvs
         } else {
             ch_contamination_removal_submitted = submit_contamination_removal_results(
                 ch_contamination_removal_csvs,
@@ -87,12 +82,6 @@ workflow submit_analysis_run_results {
                 'sample_name',
                 'ncov2019-artic'
             )
-            ch_ncov_typing_submitted = submit_ncov_typing_results(
-                ch_ncov_typing_csvs,
-                'ncov_typing.csv',
-                'sample_id',
-                'ncov2019-artic'
-            )
         }
 
         ch_pangolin_submitted = submit_pangolin_results(
@@ -109,7 +98,6 @@ workflow submit_analysis_run_results {
             ch_contamination_removal_submitted.ifEmpty(file(params.contamination_removal_empty_csv)),
             ch_primer_autodetection_submitted.ifEmpty(file(params.primer_autodetection_empty_csv)),
             ch_ncov_qc_submitted.ifEmpty(file(params.ncov_qc_empty_csv)),
-            ch_ncov_typing_submitted.ifEmpty(file(params.ncov_typing_empty_csv)),
             ch_pangolin_submitted.ifEmpty(file(params.pangolin_empty_csv)),
         )
 

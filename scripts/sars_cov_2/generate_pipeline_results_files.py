@@ -16,10 +16,6 @@ from scripts.common.primer_autodetection import (
     PRIMER_AUTODETECTION_SAMPLE_ID_COL,
     EXPECTED_PRIMER_AUTODETECTION_HEADERS,
 )
-from scripts.common.format_genotyping import (
-    TYPING_SAMPLE_ID_COL,
-    EXPECTED_TYPING_HEADERS,
-)
 from scripts.util.logger import get_structlog_logger, ERROR, WARNING, INFO
 from scripts.util.metadata import EXPECTED_HEADERS as EXPECTED_METADATA_HEADERS, SAMPLE_ID, ILLUMINA, ONT, UNKNOWN
 from scripts.util.notifications import Event, Notification
@@ -407,7 +403,6 @@ def _generate_results_csv(
     df_contamination_removal: pd.DataFrame,
     df_primer_autodetection: pd.DataFrame,
     df_ncov_qc: pd.DataFrame,
-    df_ncov_typing: pd.DataFrame,
     df_pangolin: pd.DataFrame,
     qc_unrelated_failing_samples: List[str],
     output_results_csv_file: str,
@@ -428,7 +423,6 @@ def _generate_results_csv(
         df_contamination_removal,
         df_primer_autodetection,
         df_ncov_qc,
-        df_ncov_typing,
         df_pangolin,
     ]
 
@@ -657,11 +651,6 @@ def _generate_resultfiles_json(
     help="ncov pipeline qc csv file",
 )
 @click.option(
-    "--ncov-typing-csv-file",
-    type=click.Path(exists=True, file_okay=True, readable=True),
-    help="ncov pipeline typing csv file",
-)
-@click.option(
     "--pangolin-csv-file",
     type=click.Path(exists=True, file_okay=True, readable=True),
     required=True,
@@ -703,7 +692,6 @@ def generate_pipeline_results_files(
     contamination_removal_csv_file: str,
     primer_autodetection_csv_file: str,
     ncov_qc_csv_file: str,
-    ncov_typing_csv_file: str,
     pangolin_csv_file: str,
     output_results_csv_file: str,
     output_results_json_file: str,
@@ -727,14 +715,12 @@ def generate_pipeline_results_files(
         PRIMER_AUTODETECTION_SAMPLE_ID_COL,
     )
     df_ncov_qc = load_data_from_csv(ncov_qc_csv_file, EXPECTED_NCOV_HEADERS, NCOV_SAMPLE_ID_COL)
-    df_ncov_typing = load_data_from_csv(ncov_typing_csv_file, EXPECTED_TYPING_HEADERS, TYPING_SAMPLE_ID_COL)
     df_pangolin = load_data_from_csv(pangolin_csv_file, EXPECTED_PANGOLIN_HEADERS, PANGOLIN_SAMPLE_ID_COL)
 
     all_samples = df_metadata[SAMPLE_ID].tolist()
     # this simplifies testing and result inspection
     all_samples.sort()
 
-    # typing runs as part of ncov, so they share the notifications
     qc_unrelated_failing_samples, events = _generate_notifications(
         analysis_run_name, all_samples, df_contamination_removal, df_primer_autodetection, df_ncov_qc, df_pangolin
     )
@@ -744,7 +730,6 @@ def generate_pipeline_results_files(
         df_contamination_removal,
         df_primer_autodetection,
         df_ncov_qc,
-        df_ncov_typing,
         df_pangolin,
         qc_unrelated_failing_samples,
         output_results_csv_file,

@@ -12,7 +12,7 @@ from tests.utils_tests import assert_csvs_are_equal, assert_jsons_are_equal
     [False, True],
 )
 @pytest.mark.parametrize(
-    "metadata,contamination_removal_csv,primer_autodetection_csv,ncov_qc_csv,ncov_typing_csv,pangolin_csv,"
+    "metadata,contamination_removal_csv,primer_autodetection_csv,ncov_qc_csv,pangolin_csv,"
     "analysis_run_name,sequencing_technology,exp_results_csv,exp_results_json,exp_resultfiles_json",
     [
         (
@@ -20,7 +20,6 @@ from tests.utils_tests import assert_csvs_are_equal, assert_jsons_are_equal
             "contamination_removal.csv",
             "primer_autodetection.csv",
             "ncov_test.qc.csv",
-            "ncov_typing.csv",
             "all_lineages_report.csv",
             "just_a_name",
             "illumina",
@@ -33,7 +32,6 @@ from tests.utils_tests import assert_csvs_are_equal, assert_jsons_are_equal
             "contamination_removal.csv",
             "primer_autodetection.csv",
             "ncov_test.qc.csv",
-            "ncov_typing.csv",
             "all_lineages_report.csv",
             "just_a_name",
             "ont",
@@ -43,7 +41,6 @@ from tests.utils_tests import assert_csvs_are_equal, assert_jsons_are_equal
         ),
         (
             "metadata_unknown.csv",
-            None,
             None,
             None,
             None,
@@ -63,7 +60,6 @@ def test_generate_pipeline_results_files(
     contamination_removal_csv,
     primer_autodetection_csv,
     ncov_qc_csv,
-    ncov_typing_csv,
     pangolin_csv,
     analysis_run_name,
     sequencing_technology,
@@ -107,8 +103,6 @@ def test_generate_pipeline_results_files(
                 test_data_path / "pipeline_results_files" / primer_autodetection_csv,
                 "--ncov-qc-csv-file",
                 test_data_path / "pipeline_results_files" / ncov_qc_csv,
-                "--ncov-typing-csv-file",
-                test_data_path / "pipeline_results_files" / ncov_typing_csv,
             ]
         )
     rv = CliRunner().invoke(
