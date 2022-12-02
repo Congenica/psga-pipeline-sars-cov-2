@@ -1,0 +1,50 @@
+# Note. We are not passing the pathogen into this dockerfile. We want to keep cyclomatic complexity low.
+# Code duplication is better than high cyclomatic complexity
+
+FROM condaforge/mambaforge:4.14.0-0 AS condabuild
+
+COPY docker/bactopia/s-aureus-pipeline.yml /environment.yml
+
+RUN mamba env create -f /environment.yml -n custom_env \
+  && conda clean --all -y
+
+# multi stage to reduce docker image size and avoid conda env activation
+FROM debian:buster-slim
+
+COPY --from=condabuild /opt/conda/envs/custom_env /opt/conda/envs/custom_env
+ENV PATH=/opt/conda/envs/custom_env/bin:$PATH
+
+# pin the versions of pip and poetry
+ENV PIP_VERSION=22.2.2 \
+    POETRY_VERSION=1.1.13
+
+# ARG pathogen
+COPY ./psga/common /app/psga/common
+COPY ./psga/s_aureus ./psga/*.sh ./psga/main.nf /app/psga/
+COPY ./psga/*.sh ./psga/main.nf /app/psga/
+COPY ./pyproject.toml ./poetry.lock ./app/
+COPY ./scripts/common /app/scripts/common
+COPY ./scripts/util /app/scripts/util
+COPY ./scripts/validation /app/scripts/validation
+
+
+# scripts for running the validation following integration tests execution
+COPY ./jenkins/*.py ./app/jenkins/
+# COPY ./jenkins/files/${pathogen} ./app/jenkins/files/${pathogen}
+
+WORKDIR /app/psga
+
+# make poetry install everything system wide, no need for a virtualenv in docker
+# install setuptools here to avoid the warning / error:
+#  ModuleNotFoundError: No module named '_distutils_hack'
+# This error does not disappear if this is installed via conda
+RUN nextflow plugin install nf-amazon \
+  && pip install setuptools==63.1.0 \
+  && pip install --progress-bar=off --no-cache-dir --upgrade pip==${PIP_VERSION} \
+  && pip install --progress-bar=off --no-cache-dir poetry==${POETRY_VERSION} \
+  && poetry config virtualenvs.create false \
+  && poetry install --no-interaction --no-ansi --no-dev
+
+# generic construct if scripts must be executed at this stage (e.g. for generating default files)
+# RUN if [ -f /app/scripts/${pathogen}/Makefile ]; then cd /app/scripts/${pathogen} && make; fi;
+
