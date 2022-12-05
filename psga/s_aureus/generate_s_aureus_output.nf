@@ -1,7 +1,7 @@
 /*
- * Generate synthetic output
+ * Generate s_aureus output
  */
-process generate_synthetic_output {
+process generate_s_aureus_output {
   publishDir "${params.output_path}", mode: 'copy', overwrite: true, pattern: 'result{s.csv,files.json}'
 
   input:
@@ -20,7 +20,7 @@ process generate_synthetic_output {
   output_csv_file="results.csv"
   output_json_file="resultfiles.json"
 
-  python ${PSGA_ROOT_PATH}/scripts/synthetic/generate_results.py \
+  python ${PSGA_ROOT_PATH}/scripts/s_aureus/generate_results.py \
     --metadata-file "${ch_metadata}" \
     --output-csv-file "${ch_output_csv_file}" \
     --output-json-file "${ch_output_json_file}" \
