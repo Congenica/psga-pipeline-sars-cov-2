@@ -1,0 +1,151 @@
+unique-id: empathy-serve
+phe-label: VOC-21APR-02
+who-label: Delta
+alternate-names:
+- India
+- B.1.617 Clade 2
+- VUI-21APR-02
+belongs-to-lineage:
+- PANGO: B.1.617.2
+description: This variant is reported to be circulating in India and has been exported to other countries.
+information-sources:
+- https://github.com/cov-lineages/pango-designation/issues/49
+variants:
+- amino-acid-change: T19R
+  codon-change: ACA-AGA
+  gene: S
+  one-based-reference-position: 21618
+  predicted-effect: non-synonymous
+  protein: surface glycoprotein
+  protein-codon-position: 19
+  reference-base: C
+  type: SNP
+  variant-base: G
+- amino-acid-change: T478K
+  codon-change: ACA-AAA
+  gene: S
+  one-based-reference-position: 22995
+  predicted-effect: non-synonymous
+  protein: surface glycoprotein
+  protein-codon-position: 478
+  reference-base: C
+  type: SNP
+  variant-base: A
+- amino-acid-change: P681R
+  codon-change: CCT-CGT
+  gene: S
+  one-based-reference-position: 23604
+  predicted-effect: non-synonymous
+  protein: surface glycoprotein
+  protein-codon-position: 681
+  reference-base: C
+  type: SNP
+  variant-base: G
+- amino-acid-change: S26L
+  codon-change: TCA-TTA
+  gene: ORF3a
+  one-based-reference-position: 25469
+  predicted-effect: non-synonymous
+  protein: ORF3a protein
+  protein-codon-position: 26
+  reference-base: C
+  type: SNP
+  variant-base: T
+- amino-acid-change: I82T
+  codon-change: ATC-ACC
+  gene: M
+  one-based-reference-position: 26767
+  predicted-effect: non-synonymous
+  protein: membrane glycoprotein
+  protein-codon-position: 82
+  reference-base: T
+  type: SNP
+  variant-base: C
+- amino-acid-change: T120I
+  codon-change: ACA-ATA
+  gene: ORF7a
+  one-based-reference-position: 27752
+  predicted-effect: non-synonymous
+  protein: ORF7a protein
+  protein-codon-position: 120
+  reference-base: C
+  type: SNP
+  variant-base: T
+- amino-acid-change: D63G
+  codon-change: GAC-GGC
+  gene: N
+  one-based-reference-position: 28461
+  predicted-effect: non-synonymous
+  protein: nucleocapsid phosphoprotein
+  protein-codon-position: 63
+  reference-base: A
+  type: SNP
+  variant-base: G
+- amino-acid-change: R203M
+  codon-change: AGG-ATG
+  gene: N
+  one-based-reference-position: 28881
+  predicted-effect: non-synonymous
+  protein: nucleocapsid phosphoprotein
+  protein-codon-position: 203
+  reference-base: G
+  type: SNP
+  variant-base: T
+additional-mutations:
+- amino-acid-change: L452R
+  codon-change: CTG-CGG
+  gene: S
+  one-based-reference-position: 22917
+  predicted-effect: non-synonymous
+  protein: surface glycoprotein
+  protein-codon-position: 452
+  reference-base: T
+  type: SNP
+  variant-base: G
+- amino-acid-change: D950N
+  codon-change: GAT-AAT
+  gene: S
+  one-based-reference-position: 24410
+  predicted-effect: non-synonymous
+  protein: surface glycoprotein
+  protein-codon-position: 950
+  reference-base: G
+  type: SNP
+  variant-base: A
+- amino-acid-change: V82A
+  codon-change: GTT-GCT
+  gene: ORF7a
+  one-based-reference-position: 27638
+  predicted-effect: non-synonymous
+  protein: ORF7a protein
+  protein-codon-position: 82
+  reference-base: T
+  type: SNP
+  variant-base: C
+- amino-acid-change: D377Y
+  codon-change: GAT-TAT
+  gene: N
+  one-based-reference-position: 29402
+  predicted-effect: non-synonymous
+  protein: nucleocapsid phosphoprotein
+  protein-codon-position: 377
+  reference-base: G
+  type: SNP
+  variant-base: T
+calling-definition:
+  confirmed:
+    mutations-required: 8
+    indels-required: 0
+    allowed-wildtype: 0
+  probable:
+    mutations-required: 4
+    indels-required: 0
+    allowed-wildtype: 0
+  low-qc:
+    mutations-required: 0
+    indels-required: 0
+    allowed-wildtype: 0
+acknowledgements:
+curators:
+- Natalie Groves
+- Jeff Barrett

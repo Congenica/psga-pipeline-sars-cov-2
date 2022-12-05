@@ -1,72 +1,682 @@
-VOC-202012/01:
-  # https://assets.publishing.service.gov.uk/government/uploads/system/uploads/attachment_data/file/947048/Technical_Briefing_VOC_SH_NJL2_SH2.pdf
-  # Table 1
-  coverage: 0.7 # Proportion of found variants to call a type
-  variants:
-    S:          # Gene name
-      - IHV68I  # AA-space type-defining mutation
-      - VY143V
-      - N501Y
-      - A570D
-      - P681H
-      - T716I
-      - S982A
-      - D1118H
-
-    ORF1ab:
-      - T1001I
-      - A1708D
-      - I2230T
-      - LSGF3674L
-
-    ORF8:
-      - Q27*
-      - R52I
-      - Y73C
-
-    N:
-      - D3L
-      - S235F
-
-N501Y.V2:
-  # Note not a complete set of type defining mutations but covers triple spike variants
+---
+E484K:
+  alternate-names:
+  - E484K
+  belongs-to-lineage:
+  - PANGO: None
   coverage: 0.7
+  description: E484K containing sequences
+  information-sources:
+  - null
   variants:
     S:
-      - D80A
-      - R246I
-      - K417N
-      - E484K
-      - N501Y
-      - D614G
-      - A701V
-
+    - E484K
+  who-label: null
+Omicron_Unassigned:
+  alternate-names: null
+  belongs-to-lineage:
+  - PANGO: B.1.1.529
+  coverage: 0.7
+  description: This variant is a lineage that emerged in Southern Africa and has spread
+    globally
+  information-sources:
+  - https://github.com/cov-lineages/pango-designation/issues/343
+  variants:
     E:
-      - P71L
+    - T9I
+    M:
+    - Q19E
+    - A63T
     N:
-      - T205I
-
-    ORF3a:
-      - Q57H
-      - S171L
-
+    - P13L
     ORF1ab:
-      - T265I
-      - K1655N
-      - H2799Y
-      - S2900L
-      - K3353R
-      - M3655I
-
-N501Y:
-  coverage: 1
-  variants:
+    - T492I
+    - P132H
+    - I42V
     S:
-      - N501Y
-
-D614G:
-  coverage: 1
+    - G339D
+    - Y505H
+    - N679K
+    - Q954H
+    - N969K
+  who-label: Omicron
+SIM-BA3:
+  alternate-names:
+  - null
+  belongs-to-lineage:
+  - PANGO: BA.3
+  coverage: 0.7
+  description: This variant is a sublineage of B.1.1.529
+  information-sources:
+  - https://github.com/cov-lineages/pango-designation/issues/367
   variants:
+    ORF1ab:
+    - A88V
     S:
-      - D614G
-
+    - A67V
+    - D405N
+  who-label: Omicron
+V-21APR-01:
+  alternate-names:
+  - VUI-21APR-01
+  - India
+  belongs-to-lineage:
+  - PANGO: B.1.617.1
+  coverage: 0.7
+  description: This variant is reported to be circulating in India and has been exported
+    to other countries.
+  information-sources:
+  - https://github.com/cov-lineages/pango-designation/issues/38
+  - https://www.telegraphindia.com/india/covid-double-mutation-variant-fuels-fears/cid/1809715
+  variants:
+    N:
+    - R203M
+    ORF1ab:
+    - T749I
+    - T77A
+    - M429I
+    - K259R
+    ORF3a:
+    - S26L
+    ORF7a:
+    - V82A
+    S:
+    - L452R
+    - E484Q
+    - P681R
+  who-label: Kappa
+V-21APR-03:
+  alternate-names:
+  - VUI-21APR-03
+  - India
+  - B.1.617 Clade 3
+  belongs-to-lineage:
+  - PANGO: B.1.617.3
+  coverage: 0.7
+  description: This variant is reported to be circulating in India and has been exported
+    to other countries.
+  information-sources:
+  - https://github.com/cov-lineages/pango-designation/issues/49
+  variants:
+    N:
+    - P67S
+    - R203M
+    - D377Y
+    ORF1ab:
+    - A1526V
+    - T1830I
+    - A194S
+    - A117V
+    ORF7a:
+    - V82A
+    ORF8:
+    - T26I
+    S:
+    - T19R
+    - L452R
+    - E484Q
+    - P681R
+    - D950N
+  who-label: null
+V-21FEB-01:
+  alternate-names:
+  - VUI-21FEB-01
+  - VUI202102/01
+  - Liverpool
+  belongs-to-lineage:
+  - PANGO: A.23.1
+  coverage: 0.7
+  description: This variant is a cluster within clade A.23.1 containing E484K observed
+    in Liverpool
+  information-sources:
+  - null
+  variants:
+    N:
+    - S202N
+    ORF1ab:
+    - L741F
+    - M86I
+    - L98F
+    - M183I
+    ORF8:
+    - L84S
+    - E92K
+    S:
+    - R102I
+    - F157L
+    - V367F
+    - E484K
+    - Q613H
+    - P681R
+  who-label: null
+V-21FEB-03:
+  alternate-names:
+  - VUI-21FEB-03
+  - VUI202102/03
+  - UK1188
+  belongs-to-lineage:
+  - PANGO: B.1.525
+  coverage: 0.7
+  description: This variant is a cluster of E484K containing genomes
+  information-sources:
+  - null
+  variants:
+    E:
+    - L21F
+    M:
+    - I82T
+    ORF1ab:
+    - P323F
+    S:
+    - Q52R
+    - E484K
+    - Q677H
+    - F888L
+  who-label: Eta
+V-21FEB-04:
+  alternate-names:
+  - VUI-21FEB-04
+  - VUI202102/04
+  - Debbie
+  belongs-to-lineage:
+  - PANGO: B.1.1.318
+  coverage: 0.7
+  description: This variant is a cluster of E484K containing genomes
+  information-sources:
+  - null
+  variants:
+    M:
+    - I82T
+    ORF1ab:
+    - K1693N
+    - T173I
+    - A446V
+    - T21I
+    - V320M
+    ORF8:
+    - E106*
+    S:
+    - T95I
+    - E484K
+    - P681H
+    - D796H
+  who-label: null
+V-21JAN-01:
+  alternate-names:
+  - VUI-21JAN-01
+  - VUI202101/01
+  - Brazil 1
+  belongs-to-lineage:
+  - PANGO: P.2
+  coverage: 0.7
+  description: This variant became widespread in Rio de Janeiro, Brazil and imported
+    cases have been reported in a number of other countries including the UK
+  information-sources:
+  - null
+  variants:
+    N:
+    - A119S
+    - M234I
+    ORF1ab:
+    - L205V
+    S:
+    - E484K
+  who-label: Zeta
+V-21JUL-01:
+  alternate-names:
+  - VUI-21JUL-01
+  - SIM_B1621
+  belongs-to-lineage:
+  - PANGO: B.1.621
+  - nextstrain: null
+  coverage: 0.7
+  description: Lineage predominantly in Colombia with several spike mutations
+  information-sources:
+  - https://cov-lineages.org/lineage.html?lineage=B.1.621
+  - https://github.com/cov-lineages/pango-designation/issues/57
+  variants:
+    N:
+    - T205I
+    ORF1ab:
+    - T237A
+    - T720I
+    - Q160R
+    ORF8:
+    - T11K
+    - P38S
+    S:
+    - T95I
+    - R346K
+    - E484K
+    - P681H
+  who-label: null
+V-21JUN-01:
+  alternate-names:
+  - VUI-21JUN-01
+  belongs-to-lineage:
+  - PANGO: C.37
+  - WHO: Lambda
+  coverage: 0.7
+  description: This variant is a clade first associated with South America but now
+    observed in USA and Europe
+  information-sources:
+  - https://github.com/cov-lineages/pango-designation/issues/52
+  variants:
+    N:
+    - G214C
+    ORF1ab:
+    - F1569V
+    - L438P
+    - T492I
+    S:
+    - L452Q
+    - F490S
+    - T859N
+  who-label: Lambda
+V-21MAR-01:
+  alternate-names:
+  - VUI-21MAR-01
+  - VUI202103/01
+  belongs-to-lineage:
+  - PANGO: B.1.324.1
+  coverage: 0.7
+  description: First detected in the UK in a traveller from Antigua.
+  information-sources:
+  - https://assets.publishing.service.gov.uk/government/uploads/system/uploads/attachment_data/file/968581/Variants_of_Concern_VOC_Technical_Briefing_7_England.pdf
+  variants:
+    ORF1ab:
+    - G76S
+    - G206C
+    S:
+    - E484K
+  who-label: null
+V-21MAR-02:
+  alternate-names:
+  - VUI-21MAR-02
+  - VUI202103/02
+  - Philippines
+  belongs-to-lineage:
+  - PANGO: P.3
+  coverage: 0.7
+  description: This variant appeared to be closely associated with the Phillipines
+    and widely divergent from anything else upon discovery.
+  information-sources:
+  - https://github.com/cov-lineages/pango-designation/issues/27
+  - https://www.medrxiv.org/content/10.1101/2021.03.03.21252812v2
+  variants:
+    ORF1ab:
+    - D736G
+    - L438P
+    - D112E
+    - L71F
+    - A368V
+    ORF8:
+    - K2Q
+    S:
+    - E484K
+    - N501Y
+    - P681H
+    - E1092K
+    - H1101Y
+    - V1176F
+  who-label: Theta
+V-21MAY-01:
+  alternate-names:
+  - VUI-21MAY-01
+  belongs-to-lineage:
+  - PANGO: AV.1
+  coverage: 0.7
+  description: This variant has been observed in a growing cluster in the UK
+  information-sources:
+  - https://github.com/cov-lineages/pango-designation/issues/73
+  variants:
+    M:
+    - A63T
+    N:
+    - I157V
+    ORF1ab:
+    - G339S
+    - A411V
+    - H342Y
+    - P822L
+    - N1587S
+    - A446V
+    - S434A
+    - A119V
+    S:
+    - D80G
+    - T95I
+    - G142D
+    - N439K
+    - E484K
+    - P681H
+    - I1130V
+    - D1139H
+  who-label: null
+V-21MAY-02:
+  alternate-names:
+  - VUI-21MAY-02
+  - C.36
+  belongs-to-lineage:
+  - PANGO: C.36.3
+  coverage: 0.7
+  description: This variant is reported in multiple countries and has been seen to
+    be expanding since the beginning of April.
+  information-sources:
+  - https://github.com/cov-lineages/pango-designation/issues/80
+  variants:
+    M:
+    - I82T
+    ORF1ab:
+    - D217N
+    - S118L
+    - D105Y
+    S:
+    - S12F
+    - W152R
+    - R346S
+    - L452R
+    - Q677H
+    - A899S
+  who-label: null
+V-21OCT-01:
+  alternate-names:
+  - VUI-21OCT-01
+  - AY.4.2
+  belongs-to-lineage:
+  - PANGO: AY.4.2
+  coverage: 0.7
+  description: This variant is a sublineage of Delta with spike A222V and Y145H
+  information-sources:
+  - https://github.com/cov-lineages/pango-designation/issues/223
+  variants:
+    ORF1ab:
+    - A1711V
+    S:
+    - A222V
+    - Y145H
+  who-label: null
+V-22APR-01:
+  alternate-names:
+  - null
+  belongs-to-lineage:
+  - PANGO: XD
+  coverage: 0.7
+  description: This variant is a recombinant lineage. It comtains BA.2 spike within
+    an AY.4 (Delta) backbone.
+  information-sources:
+  - https://github.com/cov-lineages/pango-designation/issues/444
+  variants:
+    ORF10:
+    - V30L
+    ORF1ab:
+    - E172D
+    - I57V
+    - P323F
+    ORF3a:
+    - S92L
+    - D155Y
+    S:
+    - A27S
+    - G496S
+    - N764K
+    - L981F
+  who-label: null
+V-22APR-02:
+  alternate-names:
+  - null
+  belongs-to-lineage:
+  - PANGO: XE
+  coverage: 0.7
+  description: This variant is a recombinant lineage. It comtains BA.1 nsp1-6 and
+    BA.2 nsp7-N8393
+  information-sources:
+  - https://github.com/cov-lineages/pango-designation/issues/454
+  variants:
+    ORF1ab:
+    - K38R
+    - V1069I
+    - A1892T
+    ORF6:
+    - D61L
+    S:
+    - V213G
+    - D405N
+  who-label: Omicron
+V-22APR-03:
+  alternate-names:
+  - null
+  belongs-to-lineage:
+  - PANGO: BA.4
+  coverage: 0.7
+  description: This variant is a sublineage of B.1.1.529
+  information-sources:
+  - https://github.com/cov-lineages/pango-designation/issues/517
+  variants:
+    N:
+    - P151S
+    ORF7b:
+    - L11F
+    S:
+    - F486V
+  who-label: Omicron
+V-22APR-04:
+  alternate-names:
+  - null
+  belongs-to-lineage:
+  - PANGO: BA.5
+  coverage: 0.7
+  description: This variant is a sublineage of B.1.1.529
+  information-sources:
+  - https://github.com/cov-lineages/pango-designation/issues/517
+  variants:
+    M:
+    - D3N
+    S:
+    - F486V
+  who-label: Omicron
+V-22JUL-01:
+  alternate-names:
+  - null
+  belongs-to-lineage:
+  - PANGO: BA.2.75
+  coverage: 0.7
+  description: This variant is a sublineage of B.1.1.529.2 (BA.2)
+  information-sources:
+  - https://github.com/cov-lineages/pango-designation/issues/773
+  variants:
+    E:
+    - T11A
+    ORF1ab:
+    - S403L
+    - P822S
+    - N118S
+    S:
+    - I210V
+    - G257S
+    - G339H
+    - N460K
+  who-label: Omicron
+VOC-20DEC-01:
+  alternate-names:
+  - VOC202012/01
+  - UK variant
+  - Kent variant
+  - VOC1
+  belongs-to-lineage:
+  - PANGO: B.1.1.7
+  - nextstrain: N501Y.V1
+  coverage: 0.7
+  description: This variant became widespread in the UK in the Winter of 2021 and
+    is characterised by increased transmissibility.
+  information-sources:
+  - https://www.gov.uk/government/publications/investigation-of-novel-sars-cov-2-variant-variant-of-concern-20201201
+  - https://virological.org/t/preliminary-genomic-characterisation-of-an-emergent-sars-cov-2-lineage-in-the-uk-defined-by-a-novel-set-of-spike-mutations/563
+  variants:
+    N:
+    - D3L
+    ORF1ab:
+    - T183I
+    - A890D
+    - I1412T
+    ORF8:
+    - Q27*
+    - R52I
+    - Y73C
+    S:
+    - N501Y
+    - A570D
+    - P681H
+    - T716I
+    - S982A
+    - D1118H
+  who-label: Alpha
+VOC-20DEC-02:
+  alternate-names:
+  - VOC202012/02
+  - South Africa
+  - VOC2
+  belongs-to-lineage:
+  - PANGO: B.1.351
+  - nextstrain: N501Y.V2
+  coverage: 0.7
+  description: This variant became widespread in countries in Southern Africa at the
+    end of 2020 and has now been exported to a number of other countries including
+    the UK
+  information-sources:
+  - null
+  variants:
+    E:
+    - P71L
+    N:
+    - T205I
+    ORF1ab:
+    - T85I
+    - K837N
+    - K90R
+    ORF3a:
+    - Q57H
+    - S171L
+    S:
+    - D80A
+    - D215G
+    - E484K
+    - N501Y
+    - A701V
+  who-label: Beta
+VOC-21APR-02:
+  alternate-names:
+  - India
+  - B.1.617 Clade 2
+  - VUI-21APR-02
+  belongs-to-lineage:
+  - PANGO: B.1.617.2
+  coverage: 0.7
+  description: This variant is reported to be circulating in India and has been exported
+    to other countries.
+  information-sources:
+  - https://github.com/cov-lineages/pango-designation/issues/49
+  variants:
+    M:
+    - I82T
+    N:
+    - D63G
+    - R203M
+    ORF3a:
+    - S26L
+    ORF7a:
+    - T120I
+    S:
+    - T19R
+    - T478K
+    - P681R
+  who-label: Delta
+VOC-21FEB-02:
+  alternate-names:
+  - VOC202102/02
+  - Bristol
+  - VOC1 + E484K
+  belongs-to-lineage:
+  - PANGO: B.1.1.7
+  coverage: 0.7
+  description: This variant is a cluster of B.1.1.7 (VOC202012/01) that contains E484K
+    and is associated with the Bristol area
+  information-sources:
+  - null
+  variants:
+    N:
+    - A173V
+    - A398T
+    S:
+    - E484K
+  who-label: null
+VOC-21JAN-02:
+  alternate-names:
+  - VOC202101/02
+  - Brazil 2
+  belongs-to-lineage:
+  - PANGO: P.1
+  coverage: 0.7
+  description: This variant was first identified in Japan in travellers from Brazil
+    and is associated with Manaus in the Amazonas region assoicated with a severe
+    second wave of COVID-19
+  information-sources:
+  - https://virological.org/t/genomic-characterisation-of-an-emergent-sars-cov-2-lineage-in-manaus-preliminary-findings/586
+  - https://cov-lineages.org/global_report_P.1.html
+  variants:
+    N:
+    - P80R
+    ORF1ab:
+    - S370L
+    - K977Q
+    ORF8:
+    - E92K
+    S:
+    - T20N
+    - P26S
+    - K417T
+    - E484K
+    - N501Y
+    - T1027I
+  who-label: Gamma
+VOC-21NOV-01:
+  alternate-names:
+  - BA.1
+  belongs-to-lineage:
+  - PANGO: BA.1
+  coverage: 0.7
+  description: This variant is a lineage first identified in Southern Africa and has
+    been exported to several other countries, it is a sub-lineage of B.1.1.529
+  information-sources:
+  - https://github.com/cov-lineages/pango-designation/issues/343
+  variants:
+    M:
+    - D3G
+    ORF1ab:
+    - K38R
+    - A1892T
+    - I189V
+    S:
+    - T547K
+    - N856K
+    - L981F
+  who-label: Omicron
+VOC-22JAN-01:
+  alternate-names:
+  - BA.2
+  belongs-to-lineage:
+  - PANGO: BA.2
+  coverage: 0.7
+  description: This variant is a sub-lineage of B.1.1.529
+  information-sources:
+  - https://github.com/cov-lineages/pango-designation/issues/361
+  - https://github.com/cov-lineages/pango-designation/issues/359
+  variants:
+    ORF1ab:
+    - T24I
+    - L438F
+    ORF6:
+    - D61L
+    S:
+    - Q493R
+  who-label: Omicron
