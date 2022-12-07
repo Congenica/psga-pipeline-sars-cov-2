@@ -56,11 +56,11 @@ pipeline {
         string(name: 'ANALYSIS_RUN', defaultValue: '', description: 'This can be the test name')
         choice(name: 'SEQUENCING_TECHNOLOGY', choices: ['illumina', 'ont', 'unknown'], description: 'The sequencing technology. Use "unknown" to process fasta files')
         string(name: 'KIT', defaultValue: '', description: 'The version of the artic primer scheme used by the ncov-artic pipeline')
-        string(name: 'CLUSTER_NAME', defaultValue: 'arn:aws:eks:eu-west-2:566277102435:cluster/psga-dev-eks', description: 'The Kubernetes cluster where the Congenica platform is deployed that the tests will run against.')
-        string(name: 'NAMESPACE', defaultValue: 'psga-dev-eks', description: 'The Kubernetes namespace where the Congenica platform is deployed that the tests will run against.')
+        string(name: 'CLUSTER_NAME', defaultValue: 'dev.psga.congenica.net', description: 'The Kubernetes cluster where the Congenica platform is deployed that the tests will run against.')
+        string(name: 'NAMESPACE', defaultValue: 'testing', description: 'The Kubernetes namespace where the Congenica platform is deployed that the tests will run against.')
 
         string(name: 'SARS_COV_2_PIPELINE_DOCKER_IMAGE', defaultValue: 'psga-pipeline', description: 'The name of the main docker image. Overrides the default sars-cov-2-pipeline. This is temporary until we detach from Congenica ECR and Congenica Jenkins account')
-        string(name: 'DOCKER_IMAGE_URI_PATH', defaultValue: '144563655722.dkr.ecr.eu-west-1.amazonaws.com/congenica/dev', description: 'The docker image prefix to use')
+        string(name: 'DOCKER_IMAGE_URI_PATH', defaultValue: '566277102435.dkr.ecr.eu-west-2.amazonaws.com/congenica/psga-dev', description: 'The docker image prefix to use')
         string(name: 'K8S_NODE', defaultValue: 'farmNode', description: 'The Kubernetes node to use as a nodeAffinity for worker jobs')
         string(name: 'K8S_STORAGE_MOUNT_PATH', defaultValue: '/data', description: 'The K8S storage mount path')
         string(name: 'QUEUE_SIZE', defaultValue: '5', description: 'The K8S job queue size')
@@ -74,7 +74,7 @@ pipeline {
             cloud params.CLUSTER_NAME
             namespace params.NAMESPACE
             inheritFrom 'k8s-agent'
-            serviceAccount "${params.NAMESPACE}-admin"
+            serviceAccount "psga-dev-testing"
             yaml """
 apiVersion: v1
 kind: Pod
@@ -137,20 +137,22 @@ spec:
         // other configs
         AWS_MAX_CONNECTIONS                         = "20"
         AWS_MAX_PARALLEL_TRANSFERS                  = "5"
+        QUEUE                                       = "testing"
         K8S_NODE                                    = "${params.K8S_NODE}"
         PSGA_ROOT_PATH                              = "/app"
         DOCKER_IMAGE_URI_PATH                       = "${params.DOCKER_IMAGE_URI_PATH}"
         DOCKER_IMAGE_TAG                            = "${getDockerTagFromBranch()}"
         QUEUE_SIZE                                  = "${params.QUEUE_SIZE}"
-        K8S_SERVICE_ACCOUNT                         = "${params.NAMESPACE}-admin"
+        K8S_SERVICE_ACCOUNT                         = "psga-dev-testing"
         K8S_STORAGE_CLAIM_NAME                      = "${params.NAMESPACE}-pvc"
         K8S_STORAGE_MOUNT_PATH                      = "${params.K8S_STORAGE_MOUNT_PATH}"
         PROCESS_MEMORY_HIGH                         = "${params.PROCESS_MEMORY_HIGH}"
         PROCESS_MEMORY_VERY_HIGH                    = "${params.PROCESS_MEMORY_VERY_HIGH}"
         NXF_WORK                                    = "${params.NXF_WORK}"
         NXF_ANSI_LOG                                = "false"
-        NXF_EXECUTOR                                = "k8s"
+        NXF_EXECUTOR                                = "awsbatch"
         NXF_OPTS                                    = "${params.NXF_OPTS}"
+        SCRATCH                                     = "true"
 
         SLACK_CHANNEL                               = "${getSlackChannel()}"
     }
