@@ -110,6 +110,7 @@ def generate_results(
             "type": "nextflow-run-log"
         })
         for of in OUTPUT_FILES:
+            # TODO check that file exists
             out_files.append({
                 "file": of.filepath.format(output_path=output_path, sample_id=sample['SAMPLE_ID']),
                 "type": of.typedescription

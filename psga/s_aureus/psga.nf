@@ -8,10 +8,6 @@ include { bactopia_one } from './bactopia_one.nf'
 include { generate_s_aureus_output } from './generate_s_aureus_output.nf'
 
 
-
-/*
- * Main workflow for the pathogen: dummy_pathogen.
- */
 workflow psga {
 
     main:
