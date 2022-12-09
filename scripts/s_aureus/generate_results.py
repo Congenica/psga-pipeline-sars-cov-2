@@ -17,30 +17,37 @@ from scripts.validation.check_csv_columns import check_csv_columns
 from collections import namedtuple
 
 # These are all of the files that get put in the resultfiles.json
-# TODO finish the explainers
 JsonOutFile = namedtuple('JsonOutFile', 'filepath typedescription')
 OUTPUT_FILES = [
     # TODO where does GCF_004153365 come from?
-    JsonOutFile('{output_path}/bactopia_one/local-single-sample/logs/custom_dumpsoftwareversions/versions.yml', 'software-versions'),
-    JsonOutFile('{output_path}/bactopia_one/local-single-sample/{sample_id}/logs/assembly_qc/checkm.log', 'software-versions'),
+    JsonOutFile('{output_path}/bactopia_one/local-single-sample/logs/custom_dumpsoftwareversions/versions.yml', 'software-versions/customdump'),
+    JsonOutFile('{output_path}/bactopia_one/local-single-sample/software_versions.yml', 'software-versions/all'),
+    JsonOutFile('{output_path}/bactopia_one/local-single-sample/{sample_id}/logs/assembly_qc/checkm.log', 'software-versions/checkm'),
     JsonOutFile('{output_path}/bactopia_one/{sample_id}_1.fastq.gz', 'input-reads-1'),
     JsonOutFile('{output_path}/bactopia_one/{sample_id}_2.fastq.gz', 'input-reads-2'),
-    JsonOutFile('{output_path}/bactopia_one/local-single-sample/{sample_id}/variants/GCF_004153365/{sample_id}.raw.vcf.gz', 'TODO'),
-    JsonOutFile('{output_path}/bactopia_one/local-single-sample/{sample_id}/variants/GCF_004153365/{sample_id}.annotated.vcf.gz', 'TODO'),
-    JsonOutFile('{output_path}/bactopia_one/local-single-sample/{sample_id}/variants/GCF_004153365/{sample_id}.filt.vcf.gz', 'TODO'),
-    JsonOutFile('{output_path}/bactopia_one/local-single-sample/{sample_id}/variants/GCF_004153365/{sample_id}.bam', 'TODO'),
-    JsonOutFile('{output_path}/bactopia_one/local-single-sample/{sample_id}/variants/GCF_004153365/{sample_id}.subs.vcf.gz', 'TODO'),
-    JsonOutFile('{output_path}/bactopia_one/local-single-sample/{sample_id}/variants/GCF_004153365/{sample_id}.vcf.gz', 'TODO'),
-    JsonOutFile('{output_path}/bactopia_one/local-single-sample/{sample_id}/variants/GCF_004153365/{sample_id}.consensus.fa.gz', 'TODO'),
-    JsonOutFile('{output_path}/bactopia_one/local-single-sample/{sample_id}/mlst/default/blast/{sample_id}-blast.json', 'TODO'),
-    JsonOutFile('{output_path}/bactopia_one/local-single-sample/{sample_id}/antimicrobial-resistance/{sample_id}-protein-report.txt', 'TODO'),
-    JsonOutFile('{output_path}/bactopia_one/local-single-sample/{sample_id}/antimicrobial-resistance/{sample_id}-gene-report.txt', 'TODO'),
-    JsonOutFile('{output_path}/bactopia_one/local-single-sample/{sample_id}/quality-control/summary/{sample_id}_R2-final_fastqc.zip', 'TODO'),
-    JsonOutFile('{output_path}/bactopia_one/local-single-sample/{sample_id}/quality-control/summary/{sample_id}_R1-final_fastqc.zip', 'TODO'),
-    JsonOutFile('{output_path}/bactopia_one/local-single-sample/{sample_id}/assembly/checkm/bins/{sample_id}/hmmer.tree.txt', 'TODO'),
-    JsonOutFile('{output_path}/bactopia_one/local-single-sample/{sample_id}/assembly/checkm/bins/{sample_id}/genes.gff', 'TODO'),
-    JsonOutFile('{output_path}/bactopia_one/local-single-sample/{sample_id}/assembly/checkm/checkm-results.txt', 'TODO'),
+    JsonOutFile('{output_path}/bactopia_one/local-single-sample/{sample_id}/variants/GCF_004153365/{sample_id}.raw.vcf.gz', 'variants/raw'),
+    JsonOutFile('{output_path}/bactopia_one/local-single-sample/{sample_id}/variants/GCF_004153365/{sample_id}.annotated.vcf.gz', 'variants/annotated'),
+    JsonOutFile('{output_path}/bactopia_one/local-single-sample/{sample_id}/variants/GCF_004153365/{sample_id}.filt.vcf.gz', 'variants/filtered'),
+    JsonOutFile('{output_path}/bactopia_one/local-single-sample/{sample_id}/variants/GCF_004153365/{sample_id}.bam', 'variants/bam'),
+    JsonOutFile('{output_path}/bactopia_one/local-single-sample/{sample_id}/variants/GCF_004153365/{sample_id}.subs.vcf.gz', 'variants/subs'),
+    JsonOutFile('{output_path}/bactopia_one/local-single-sample/{sample_id}/variants/GCF_004153365/{sample_id}.vcf.gz', 'variants/vcf'),
+    JsonOutFile('{output_path}/bactopia_one/local-single-sample/{sample_id}/variants/GCF_004153365/{sample_id}.consensus.fa.gz', 'variants/consensus'),
+    JsonOutFile('{output_path}/bactopia_one/local-single-sample/{sample_id}/mlst/default/blast/{sample_id}-blast.json', 'mlst/blast'),
+    JsonOutFile('{output_path}/bactopia_one/local-single-sample/{sample_id}/antimicrobial-resistance/{sample_id}-protein-report.txt', 'antimicrobial-resistance/protein'),
+    JsonOutFile('{output_path}/bactopia_one/local-single-sample/{sample_id}/antimicrobial-resistance/{sample_id}-gene-report.txt', 'antimicrobial-resistance/gene'),
+    JsonOutFile('{output_path}/bactopia_one/local-single-sample/{sample_id}/assembly/checkm/bins/{sample_id}/hmmer.tree.txt', 'checkm/hmmer'),
+    JsonOutFile('{output_path}/bactopia_one/local-single-sample/{sample_id}/assembly/checkm/bins/{sample_id}/genes.gff', 'checkm/genes'),
+    JsonOutFile('{output_path}/bactopia_one/local-single-sample/{sample_id}/assembly/checkm/checkm-results.txt', 'checkm/results'),
     JsonOutFile('{output_path}/bactopia_one/local-single-sample/bactopia/nf-reports/bactopia-trace.txt', 'bactopia-run-info'),
+    JsonOutFile('{output_path}/bactopia_one/local-single-sample/{sample_id}/variants/{sample_id}/{sample_id}.bam.bai', 'variants/bam-bai'),
+    JsonOutFile('{output_path}/bactopia_one/local-single-sample/{sample_id}/variants/{sample_id}/{sample_id}consensus.subs.fa.gz', 'variants/consensus-subs'),
+    JsonOutFile('{output_path}/bactopia_one/local-single-sample/{sample_id}/variants/{sample_id}/{sample_id}consensus.subs.masked.fa.gz', 'variants/consensus.subs.masked'),
+    JsonOutFile('{output_path}/bactopia_one/local-single-sample/{sample_id}/quality-control/summary/{sample_id}_R1-final_fastqc.zip', 'QC/R1-final-fastqc'),
+    JsonOutFile('{output_path}/bactopia_one/local-single-sample/{sample_id}/quality-control/summary/{sample_id}_R2-final_fastqc.zip', 'QC/R2-final-fastqc'),
+    JsonOutFile('{output_path}/bactopia_one/local-single-sample/{sample_id}/quality-control/summary/{sample_id}_R1-original_fastqc.zip', 'QC/R1-original-fastqc'),
+    JsonOutFile('{output_path}/bactopia_one/local-single-sample/{sample_id}/quality-control/summary/{sample_id}_R2-original_fastqc.zip', 'QC/R2-original-fastqc'),
+    JsonOutFile('{output_path}/bactopia_one/quast_assembly.zip', 'assembly/quast-zip'),
+    #      TODO all local-single-sample/*/variants/*/*.vcf.gz
 ]
 
 
@@ -103,19 +110,29 @@ def generate_results(
 
     json_out = dict()
 
+    # Build resultfiles.json
     for sample in metadata:
         out_files = list()
-        out_files.append({
-            "file": "{output_path}/bactopia_one/local-single-sample/bactopia/nf-reports/bactopia-trace.txt".format(output_path=output_path),
-            "type": "nextflow-run-log"
-        })
         for of in OUTPUT_FILES:
-            # TODO check that file exists
-            out_files.append({
-                "file": of.filepath.format(output_path=output_path, sample_id=sample['SAMPLE_ID']),
-                "type": of.typedescription
-            })
-
+            # Make sure file and type not already in list (psga framework required no duplicates)
+            # TODO in production version error rather than silently fail
+            file_in_list = False
+            f = of.filepath.format(output_path=output_path, sample_id=sample['SAMPLE_ID'])
+            t = of.typedescription
+            for item in out_files:
+                if item["file"] == f or item["type"] == t:
+                    print('file: ', item["file"])
+                    print('type: ', item["type"])
+                    print('f: ', f)
+                    print('t: ', t)
+                    file_in_list = True
+            if not file_in_list:
+                out_files.append({
+                    "file": f,
+                    "type": t
+                })
+            else:
+                print('WARNING: found duplicate file {t} : {f}'.format(t=t, f=f))
         json_out[sample['SAMPLE_ID']] = out_files
 
     with open(output_json_file, 'w') as f:

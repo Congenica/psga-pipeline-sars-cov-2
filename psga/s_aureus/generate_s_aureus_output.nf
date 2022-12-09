@@ -7,6 +7,9 @@ process generate_s_aureus_output {
   input:
     path ch_metadata
     path input_files
+    path annotation_summary
+    path variants_txt_for_csv_file
+    path all_software_versions
 
   output:
     path ch_output_csv_file, emit: ch_output_csv_file

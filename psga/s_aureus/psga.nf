@@ -20,7 +20,10 @@ workflow psga {
         // collect waits for all samples to finish. generate_s_aureus_output only runs once
         generate_s_aureus_output(
             ch_metadata,
-            bactopia_one.out.ch_input_files.collect()
+            bactopia_one.out.ch_input_files.collect(),
+            bactopia_one.out.annotation_summary.collect(),
+            bactopia_one.out.variants_txt_for_csv_file.collect(),
+            bactopia_one.out.all_software_versions.collect()
         )
         ch_analysis_run_results_submitted = generate_s_aureus_output.out.ch_output_csv_file
 
