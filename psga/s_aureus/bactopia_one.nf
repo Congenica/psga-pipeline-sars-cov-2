@@ -43,6 +43,7 @@ process bactopia_one {
     path "quast_assembly.zip", emit: quast_assembly_zip
     path "local-single-sample/*/variants/GCF_004153365/*.txt", emit: variants_txt_for_csv_file
     path "sample-*-csv-files/annotation-summary.txt", emit: annotation_summary
+    path "local-single-sample/bactopia-tools/mlst/mlst/software_versions.yml", emit: mlst_versions
 
   script:
   """

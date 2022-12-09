@@ -10,6 +10,12 @@ process generate_s_aureus_output {
     path annotation_summary
     path variants_txt_for_csv_file
     path all_software_versions
+    path checkm_results_txt
+    path assembly_json, stageAs: 'assembly.json'
+    path antimicrobial_protein_report
+    path antimicrobial_gene_report
+    path mykrobe_versions, stageAs: 'mykrobe_versions.yml'
+    path mlst_versions, stageAs: 'mlst_versions.yml'
 
   output:
     path ch_output_csv_file, emit: ch_output_csv_file

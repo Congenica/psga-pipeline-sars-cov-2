@@ -23,7 +23,13 @@ workflow psga {
             bactopia_one.out.ch_input_files.collect(),
             bactopia_one.out.annotation_summary.collect(),
             bactopia_one.out.variants_txt_for_csv_file.collect(),
-            bactopia_one.out.all_software_versions.collect()
+            bactopia_one.out.all_software_versions.collect(),
+            bactopia_one.out.checkm_results_txt.collect(),
+            bactopia_one.out.assembly_json.collect(),
+            bactopia_one.out.antimicrobial_protein_report.collect(),
+            bactopia_one.out.antimicrobial_gene_report.collect(),
+            bactopia_one.out.mykrobe_versions.collect(),
+            bactopia_one.out.mlst_versions.collect()
         )
         ch_analysis_run_results_submitted = generate_s_aureus_output.out.ch_output_csv_file
 

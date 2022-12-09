@@ -47,8 +47,66 @@ OUTPUT_FILES = [
     JsonOutFile('{output_path}/bactopia_one/local-single-sample/{sample_id}/quality-control/summary/{sample_id}_R1-original_fastqc.zip', 'QC/R1-original-fastqc'),
     JsonOutFile('{output_path}/bactopia_one/local-single-sample/{sample_id}/quality-control/summary/{sample_id}_R2-original_fastqc.zip', 'QC/R2-original-fastqc'),
     JsonOutFile('{output_path}/bactopia_one/quast_assembly.zip', 'assembly/quast-zip'),
-    #      TODO all local-single-sample/*/variants/*/*.vcf.gz
+    #      TODO all local-single-sample/*/variants/*/*.vcf.gz -- problem with filename collisions
 ]
+
+
+def build_csv_list(sample):
+    """
+    Gather all info for the CSV file
+    Make a defined list of files that we are expecting.
+    """
+    CsvItem = namedtuple('CsvItem', 'header value')
+    csv_list = list()
+    # Add items to the list
+    csv_list.append(CsvItem('Sample_Id', sample['SAMPLE_ID']))
+    csv_list.append(CsvItem('QC_STATUS', 'PASSED'))  # For the demo everything passes
+
+    # TODO mlst and mykrobe - versions files should be copied
+    with open('software_versions.yml') as software_versions:
+        versions = list(csv.reader(software_versions, delimiter=":"))
+        for row in versions:
+            if 'checkm' in row[0]:
+                csv_list.append(CsvItem('{}-version'.format(row[0].rstrip().lstrip()), row[1].lstrip().rstrip()))
+            if 'bactopia' in row[0]:
+                csv_list.append(CsvItem('{}-version'.format(row[0].rstrip().lstrip()), row[1].lstrip().rstrip()))
+            if 'fastqc' in row[0]:
+                csv_list.append(CsvItem('{}-version'.format(row[0].rstrip().lstrip()), row[1].lstrip().rstrip()))
+
+    with open('annotation-summary.txt') as annotation_summary:
+        annotations = csv.reader(annotation_summary, delimiter =":")
+        for row in annotations:
+            csv_list.append(CsvItem('Annotation-{}'.format(row[0]), row[1].lstrip().rstrip()))
+
+    # Variant summary
+    with open('{}.txt'.format(sample['SAMPLE_ID'])) as variant_summary_file:
+        variant_summary = csv.reader(variant_summary_file, delimiter="\t")
+        for row in variant_summary:
+            if 'Variant' in row[0]:
+                csv_list.append(CsvItem(row[0].rstrip().lstrip(), row[1].lstrip().rstrip()))
+
+    with open('checkm-results.txt') as checkm_results_file:
+        checkm_results = next(csv.DictReader(checkm_results_file, delimiter="\t"))
+        csv_list.append(CsvItem('Marker lineage', checkm_results['Marker lineage']))
+        csv_list.append(CsvItem('Completeness', checkm_results['Completeness']))
+        csv_list.append(CsvItem('Contamination', checkm_results['Contamination']))
+        csv_list.append(CsvItem('Strain heterogeneity', checkm_results['Strain heterogeneity']))
+
+    with open('assembly.json') as assembly_results_file:
+        assembly_results = json.loads(assembly_results_file.read())
+        for key, value in assembly_results.items():
+            if key == 'fasta':
+                continue
+            csv_list.append(CsvItem(key , value))
+
+    with open('{sample_id}-protein-report.txt'.format(sample_id=sample['SAMPLE_ID'])) as antimicrobial_protein_file:
+        resistance_genes = list()
+        for row in csv.DictReader(antimicrobial_protein_file, delimiter="\t"):
+            resistance_genes.append(row['Gene symbol'])
+        csv_list.append(CsvItem('Antimicrobial resistance genes', ' '.join(resistance_genes)))
+
+    return csv_list
+
 
 
 @click.command()
@@ -99,18 +157,21 @@ def generate_results(
     print('sequencing_technology: ' + sequencing_technology)
 
     # Make a list so we can iterate over this several times easily
+    # TODO change to single sample -- get sample another way
     metadata = list(csv.DictReader(open(Path(metadata_file))))
+
+    sample = metadata[0]
+
+    csv_list = build_csv_list(sample)
 
     with open(output_csv_file, 'w', encoding='UTF8') as csv_out:
         writer = csv.writer(csv_out)
-        writer.writerow(['SAMPLE_ID', 'STATUS'])
-        for sample in metadata:
-            # For the demo everything passes TODO come back to this
-            writer.writerow([sample['SAMPLE_ID'], 'PASSED'])
+        writer.writerow([x.header for x in csv_list])
+        writer.writerow([x.value for x in csv_list])
 
-    json_out = dict()
-
+    # TODDO make this explicitly single sample. I will collate the results in another step
     # Build resultfiles.json
+    json_out = dict()
     for sample in metadata:
         out_files = list()
         for of in OUTPUT_FILES:
