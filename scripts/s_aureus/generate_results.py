@@ -59,8 +59,10 @@ def build_csv_list(sample):
     CsvItem = namedtuple('CsvItem', 'header value')
     csv_list = list()
     # Add items to the list
-    csv_list.append(CsvItem('Sample_Id', sample['SAMPLE_ID']))
-    csv_list.append(CsvItem('QC_STATUS', 'PASSED'))  # For the demo everything passes
+    SAMPLE_ID, STATUS
+    csv_list.append(CsvItem('SAMPLE_ID', sample['SAMPLE_ID']))
+    csv_list.append(CsvItem('STATUS', 'Completed'))  # For the demo everything passes
+    csv_list.append(CsvItem('QC_STATUS', 'pass'))  # For the demo everything passes
 
     with open('software_versions.yml') as software_versions:
         versions = list(csv.reader(software_versions, delimiter=":"))
