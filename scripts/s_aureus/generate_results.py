@@ -59,7 +59,6 @@ def build_csv_list(sample):
     CsvItem = namedtuple('CsvItem', 'header value')
     csv_list = list()
     # Add items to the list
-    SAMPLE_ID, STATUS
     csv_list.append(CsvItem('SAMPLE_ID', sample['SAMPLE_ID']))  # the key SAMPLE_ID must be in the metadata.csv
     csv_list.append(CsvItem('STATUS', 'Completed'))  # For the demo everything passes
     csv_list.append(CsvItem('QC_STATUS', 'pass'))  # The key QC_STATUS gets shown in the UI
