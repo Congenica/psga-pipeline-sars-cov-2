@@ -24,13 +24,6 @@ spec:
                 - "true"
       containers:
       - image: 566277102435.dkr.ecr.eu-west-2.amazonaws.com/congenica/psga-dev/s-aureus-pipeline:1.0.0  # run the head pod
-#      - image: 566277102435.dkr.ecr.eu-west-2.amazonaws.com/congenica/psga-dev/s-aureus:1.0.0          # run the bactopia pod
-#        resources:
-#          requests:
-#            memory: 32Gi
-#            cpu: "10"
-#          limits:
-#            memory: 50Gi
         name: s-aureus-pipeline-minikube
         command:
         - /bin/bash
