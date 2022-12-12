@@ -62,7 +62,6 @@ def build_csv_list(sample):
     csv_list.append(CsvItem('Sample_Id', sample['SAMPLE_ID']))
     csv_list.append(CsvItem('QC_STATUS', 'PASSED'))  # For the demo everything passes
 
-    # TODO mlst and mykrobe - versions files should be copied
     with open('software_versions.yml') as software_versions:
         versions = list(csv.reader(software_versions, delimiter=":"))
         for row in versions:
@@ -71,6 +70,18 @@ def build_csv_list(sample):
             if 'bactopia' in row[0]:
                 csv_list.append(CsvItem('{}-version'.format(row[0].rstrip().lstrip()), row[1].lstrip().rstrip()))
             if 'fastqc' in row[0]:
+                csv_list.append(CsvItem('{}-version'.format(row[0].rstrip().lstrip()), row[1].lstrip().rstrip()))
+
+    with open('mlst_versions.yml') as mlst_versions:
+        m_versions = list(csv.reader(mlst_versions, delimiter=":"))
+        for row in m_versions:
+            if 'mlst' in row[0]:
+                csv_list.append(CsvItem('{}-version'.format(row[0].rstrip().lstrip()), row[1].lstrip().rstrip()))
+
+    with open('mykrobe_versions.yml') as mykrobe_versions:
+        myk_versions = list(csv.reader(mykrobe_versions, delimiter=":"))
+        for row in myk_versions:
+            if 'mykrobe' in row[0]:
                 csv_list.append(CsvItem('{}-version'.format(row[0].rstrip().lstrip()), row[1].lstrip().rstrip()))
 
     with open('annotation-summary.txt') as annotation_summary:
