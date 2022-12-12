@@ -187,7 +187,7 @@ def generate_results(
         out_files = list()
         for of in OUTPUT_FILES:
             # Make sure file and type not already in list (psga framework required no duplicates)
-            # TODO in production version error rather than silently fail
+            # TODO in production version error rather than fixing the problem with a warning
             file_in_list = False
             f = of.filepath.format(output_path=output_path, sample_id=sample['SAMPLE_ID'])
             t = of.typedescription
