@@ -29,7 +29,13 @@ def collate_results():
             output_results_csv_list.append(next(csv.DictReader(channel_csv_file)))
 
     with open('results.csv', 'w', encoding='utf8') as output_csv_file:
-        dict_writer = csv.DictWriter(output_csv_file, fieldnames=output_results_csv_list[0].keys())
+        # Need all keys for all fields in all rows preserve order
+        all_fields_ordered = list()
+        for row in output_results_csv_list:
+            for c in row.keys():
+                if c not in all_fields_ordered:
+                    all_fields_ordered.append(c)
+        dict_writer = csv.DictWriter(output_csv_file, fieldnames=all_fields_ordered)
         dict_writer.writeheader()
         dict_writer.writerows(output_results_csv_list)
 
