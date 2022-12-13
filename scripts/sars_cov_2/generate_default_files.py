@@ -3,7 +3,7 @@ import csv
 import click
 
 from scripts.common.contamination_removal import EXPECTED_CONTAMINATION_REMOVAL_HEADERS
-from scripts.common.primer_autodetection import EXPECTED_PRIMER_AUTODETECTION_HEADERS
+from scripts.common.primer_cols import EXPECTED_PRIMER_AUTODETECTION_HEADERS
 from scripts.sars_cov_2.generate_pipeline_results_files import (
     EXPECTED_NCOV_HEADERS,
     EXPECTED_PANGOLIN_HEADERS,

@@ -12,6 +12,7 @@ data_config = {
                 "PRIMER_DETECTED",
                 "PRIMER_NUMREADS",
                 "PRIMER_UNIQUE_NUMREADS",
+                "PRIMER_AMBIGUOUS_NUMREADS",
                 "PRIMER_COVERAGE",
                 "NCOV_PCT_N_BASES",
                 "NCOV_PCT_COVERED_BASES",

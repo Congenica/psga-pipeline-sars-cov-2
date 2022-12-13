@@ -20,6 +20,7 @@ marshmallow = "^3.15.0"
 structlog = "^21.5.0"
 urllib3 = "1.26.12"
 GitPython = "^3.1.29"
+pyahocorasick = "1.4.4"
 
 [tool.poetry.dev-dependencies]
 pytest = "~7.1"

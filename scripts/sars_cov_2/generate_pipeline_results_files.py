@@ -12,7 +12,7 @@ from scripts.common.contamination_removal import (
     CONTAMINATION_REMOVAL_SAMPLE_ID_COL,
     EXPECTED_CONTAMINATION_REMOVAL_HEADERS,
 )
-from scripts.common.primer_autodetection import (
+from scripts.common.primer_cols import (
     PRIMER_AUTODETECTION_SAMPLE_ID_COL,
     EXPECTED_PRIMER_AUTODETECTION_HEADERS,
 )

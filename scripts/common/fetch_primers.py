@@ -7,6 +7,7 @@ import click
 from git import Repo
 from Bio import SeqIO
 
+from primer_cols import PRIMER_INDEX_COLS, PRIMER_NAME, FASTA_PATH, TOTAL_NUM_PRIMER
 
 SARS_COV_2 = "SARS-CoV-2"
 SUPPORTED_PATHOGENS = [SARS_COV_2]
@@ -19,7 +20,6 @@ BED_COLS = [
     "score",
     STRAND,
 ]
-CROP = 20
 
 
 def _decorate_with_new_line(method):
@@ -89,8 +89,8 @@ def extract_primer_sequences(
             start = int(bed_row[START])
             end = int(bed_row[END])
             primer_sequence = ref_sequence[start:end]
-            write(f">{primer}_cropped_primer_seq_{seq_idx}")
-            write(primer_sequence[0:CROP])
+            write(f">{primer}_primer_seq_{seq_idx}")
+            write(primer_sequence)
 
         bed_reader = csv.DictReader(bedfile, fieldnames=BED_COLS, delimiter="\t")
         for seq_idx, bed_row in enumerate(bed_reader):
@@ -120,7 +120,7 @@ def organise_sars_cov_2_primers(source_schemes_path: Path, dest_schemes_path: Pa
     This function also adds the fasta file of the primer sequences and their index file
     """
     print("Copy primers:")
-    scheme_fastas = []
+    scheme_fastas = {}
     for source_scheme_path in source_schemes_path.iterdir():
         scheme_name = source_scheme_path.name
         for version_path in source_scheme_path.iterdir():
@@ -136,17 +136,25 @@ def organise_sars_cov_2_primers(source_schemes_path: Path, dest_schemes_path: Pa
             scheme_bed = dest_scheme_path / f"{SARS_COV_2}.scheme.bed"
             # file to be generated
             scheme_name_version = f"{scheme_name}_{version_name}"
-            scheme_fasta = dest_scheme_path / f"{SARS_COV_2}.scheme.fasta"
-            extract_primer_sequences(ref_fasta, scheme_bed, scheme_fasta, scheme_name_version)
-            scheme_fastas.append(scheme_fasta)
+            scheme_fasta_path = dest_scheme_path / f"{SARS_COV_2}.scheme.fasta"
+            extract_primer_sequences(ref_fasta, scheme_bed, scheme_fasta_path, scheme_name_version)
+            scheme_fastas[scheme_name_version] = scheme_fasta_path
 
-    scheme_fasta_index_path = dest_schemes_path / f"{SARS_COV_2}_primer_fasta_index.txt"
-    with open(scheme_fasta_index_path, "w") as outputfile:
-        write = _decorate_with_new_line(outputfile.write)
-        for fasta in sorted(scheme_fastas):
+    scheme_fasta_index_path = dest_schemes_path / f"{SARS_COV_2}_primer_fasta_index.csv"
+    with open(scheme_fasta_index_path, "w", newline="") as outputfile:
+        writer = csv.DictWriter(outputfile, fieldnames=PRIMER_INDEX_COLS)
+        writer.writeheader()
+        for scheme in sorted(scheme_fastas):
+            fasta = scheme_fastas[scheme]
             fasta_path = Path("/") / Path(fasta).relative_to(scheme_fasta_index_path.parent.parent)
-            num_records = len(list(SeqIO.parse(fasta, "fasta")))
-            write(f"{fasta_path},{num_records}")
+            num_primers = len(list(SeqIO.parse(fasta, "fasta")))
+            writer.writerow(
+                {
+                    PRIMER_NAME: scheme,
+                    FASTA_PATH: fasta_path,
+                    TOTAL_NUM_PRIMER: num_primers,
+                }
+            )
             print(f"Generated primer fasta file: {fasta}")
     print(f"Generated primer fasta index containing number of primers: {scheme_fasta_index_path}")
 

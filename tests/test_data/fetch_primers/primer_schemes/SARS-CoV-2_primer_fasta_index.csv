@@ -1,0 +1,3 @@
+primer_name,fasta_path,total_num_primers
+ARTIC_V4,/primer_schemes/ARTIC/SARS-CoV-2/V4/SARS-CoV-2.scheme.fasta,4
+Midnight-ONT_V2,/primer_schemes/Midnight-ONT/SARS-CoV-2/V2/SARS-CoV-2.scheme.fasta,4
