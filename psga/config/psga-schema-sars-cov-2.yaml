@@ -323,39 +323,35 @@ output_fields:
     field_type: string
     required: true
 
-  - field_name: GENOTYPING
-    field_type: dictionary
-    required: true
-
-  - field_name: PCT_N_BASES
+  - field_name: NCOV_PCT_N_BASES
     field_type: number
     required: true
     validation_rules:
       - rule_type: integer
       - rule_type: not_null
 
-  - field_name: PCT_COVERED_BASES
+  - field_name: NCOV_PCT_COVERED_BASES
     field_type: number
     required: true
     validation_rules:
       - rule_type: integer
       - rule_type: not_null
 
-  - field_name: LONGEST_NO_N_RUN
+  - field_name: NCOV_LONGEST_NO_N_RUN
     field_type: number
     required: true
     validation_rules:
       - rule_type: integer
       - rule_type: not_null
 
-  - field_name: NUM_ALIGNED_READS
+  - field_name: NCOV_NUM_ALIGNED_READS
     field_type: number
     required: true
     validation_rules:
       - rule_type: integer
       - rule_type: not_null
 
-  - field_name: QC_PASS
+  - field_name: NCOV_QC_PASS
     field_type: string
     required: true
     validation_rules:
@@ -365,37 +361,37 @@ output_fields:
           - "False"
       - rule_type: not_null
 
-  - field_name: LINEAGE
+  - field_name: PANGOLIN_LINEAGE
     field_type: string
     required: true
     validation_rules:
       - rule_type: not_null
 
-  - field_name: CONFLICT
+  - field_name: PANGOLIN_CONFLICT
     field_type: string
     required: true
 
-  - field_name: AMBIGUITY_SCORE
+  - field_name: PANGOLIN_AMBIGUITY_SCORE
     field_type: string
     required: true
 
-  - field_name: SCORPIO_CALL
+  - field_name: PANGOLIN_SCORPIO_CALL
     field_type: string
     required: true
 
-  - field_name: SCORPIO_SUPPORT
+  - field_name: PANGOLIN_SCORPIO_SUPPORT
     field_type: string
     required: true
 
-  - field_name: SCORPIO_CONFLICT
+  - field_name: PANGOLIN_SCORPIO_CONFLICT
     field_type: string
     required: true
 
-  - field_name: SCORPIO_NOTES
+  - field_name: PANGOLIN_SCORPIO_NOTES
     field_type: string
     required: true
 
-  - field_name: VERSION
+  - field_name: PANGOLIN_PANGO_DESIGNATION_VERSION
     field_type: string
     required: true
     validation_rules:
@@ -407,19 +403,19 @@ output_fields:
     validation_rules:
       - rule_type: not_null
 
-  - field_name: SCORPIO_VERSION
+  - field_name: PANGOLIN_SCORPIO_VERSION
     field_type: string
     required: true
     validation_rules:
       - rule_type: not_null
 
-  - field_name: CONSTELLATION_VERSION
+  - field_name: PANGOLIN_CONSTELLATION_VERSION
     field_type: string
     required: true
     validation_rules:
       - rule_type: not_null
 
-  - field_name: IS_DESIGNATED
+  - field_name: PANGOLIN_IS_DESIGNATED
     field_type: string
     required: true
     validation_rules:
@@ -428,19 +424,19 @@ output_fields:
           - "True"
           - "False"
 
-  - field_name: QC_STATUS
+  - field_name: PANGOLIN_QC_STATUS
     field_type: string
     required: true
     validation_rules:
       - rule_type: not_null
 
-  - field_name: QC_NOTES
+  - field_name: PANGOLIN_QC_NOTES
     field_type: string
     required: true
     validation_rules:
       - rule_type: not_null
 
-  - field_name: NOTE
+  - field_name: PANGOLIN_NOTE
     field_type: string
     required: true
 #output_row_validation_rules:

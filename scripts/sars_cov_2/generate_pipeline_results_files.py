@@ -43,6 +43,7 @@ EXPECTED_NCOV_HEADERS = {
 
 # header for pangolin lineages CSV file
 PANGOLIN_SAMPLE_ID_COL = "taxon"
+PANGOLIN_PANGO_DESIGNATION_VERSION_COL = "version"
 EXPECTED_PANGOLIN_HEADERS = {
     PANGOLIN_SAMPLE_ID_COL,
     "lineage",
@@ -52,7 +53,7 @@ EXPECTED_PANGOLIN_HEADERS = {
     "scorpio_support",
     "scorpio_conflict",
     "scorpio_notes",
-    "version",
+    PANGOLIN_PANGO_DESIGNATION_VERSION_COL,
     "pangolin_version",
     "scorpio_version",
     "constellation_version",
@@ -66,10 +67,26 @@ EXPECTED_PANGOLIN_HEADERS = {
 # These are pipeline generic columns
 STATUS = "STATUS"
 
+# simplify the column names prefixing the tool used for generating the data
+NCOV_COL_PREFIX = "ncov"
+PANGOLIN_COL_PREFIX = "pangolin"
+COLUMNS_TO_RENAME_IN_RESULTS_FILE = {
+    # ncov qc info
+    **{col: f"{NCOV_COL_PREFIX}_{col}" for col in EXPECTED_NCOV_HEADERS - {NCOV_SAMPLE_ID_COL}},
+    # pangolin info
+    **{
+        col: (f"{PANGOLIN_COL_PREFIX}_{col}" if not col.startswith(PANGOLIN_COL_PREFIX) else col)
+        for col in EXPECTED_PANGOLIN_HEADERS - {PANGOLIN_SAMPLE_ID_COL}
+        if col != PANGOLIN_PANGO_DESIGNATION_VERSION_COL
+    },
+    # pangolin: treat this separately as it is renamed completely
+    PANGOLIN_PANGO_DESIGNATION_VERSION_COL: f"{PANGOLIN_COL_PREFIX}_pango_designation_version",
+}
+
 # these columns point to specific files and are not needed
-COLUMNS_TO_REMOVE_FROM_RESULTS_CSV = {
-    "FASTA",
-    "BAM",
+COLUMNS_TO_REMOVE_FROM_RESULTS_FILE = {
+    "ncov_fasta",
+    "ncov_bam",
 }
 
 # notification event names
@@ -431,14 +448,19 @@ def _generate_results_csv(
     merge = partial(pd.merge, how="outer")
     df_merged = reduce(merge, dfs_to_merge)
 
+    # rename columns
+    df_merged.rename(columns=COLUMNS_TO_RENAME_IN_RESULTS_FILE, errors="raise", inplace=True)
+
+    # remove unwanted columns
+    df_merged.drop(columns=COLUMNS_TO_REMOVE_FROM_RESULTS_FILE, errors="raise", inplace=True)
+
     # upper case column header
     df_merged.columns = [col.upper() for col in df_merged.columns]
+
     # move sample_id col to first column
     sample_id_col_data = df_merged.pop(SAMPLE_ID)
     df_merged.insert(0, SAMPLE_ID, sample_id_col_data)
 
-    # remove unwanted columns
-    df_merged.drop(COLUMNS_TO_REMOVE_FROM_RESULTS_CSV, axis=1, inplace=True)
     # save to CSV
     df_merged.to_csv(output_results_csv_file, encoding="utf-8", index=False)
 
