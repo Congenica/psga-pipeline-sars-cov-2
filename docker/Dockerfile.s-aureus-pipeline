@@ -24,6 +24,7 @@ COPY ./psga/s_aureus ./psga/*.sh ./psga/main.nf /app/psga/
 COPY ./psga/*.sh ./psga/main.nf /app/psga/
 COPY ./pyproject.toml ./poetry.lock ./app/
 COPY ./scripts/common /app/scripts/common
+COPY ./scripts/s_aureus /app/scripts/s_aureus
 COPY ./scripts/util /app/scripts/util
 COPY ./scripts/validation /app/scripts/validation
 
