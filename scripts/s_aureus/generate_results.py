@@ -20,19 +20,18 @@ from collections import namedtuple
 # These are all of the files that get put in the resultfiles.json
 JsonOutFile = namedtuple('JsonOutFile', 'filepath typedescription')
 OUTPUT_FILES = [
-    # TODO where does GCF_004153365 come from?
     JsonOutFile('{output_path}/bactopia_one/local-single-sample/logs/custom_dumpsoftwareversions/versions.yml', 'software-versions/customdump'),
     JsonOutFile('{output_path}/bactopia_one/local-single-sample/software_versions.yml', 'software-versions/all'),
     JsonOutFile('{output_path}/bactopia_one/local-single-sample/{sample_id}/logs/assembly_qc/checkm.log', 'software-versions/checkm'),
     JsonOutFile('{output_path}/bactopia_one/{sample_id}_1.fastq.gz', 'input-reads-1'),
     JsonOutFile('{output_path}/bactopia_one/{sample_id}_2.fastq.gz', 'input-reads-2'),
-    JsonOutFile('{output_path}/bactopia_one/local-single-sample/{sample_id}/variants/GCF_004153365/{sample_id}.raw.vcf.gz', 'variants/raw'),
-    JsonOutFile('{output_path}/bactopia_one/local-single-sample/{sample_id}/variants/GCF_004153365/{sample_id}.annotated.vcf.gz', 'variants/annotated'),
-    JsonOutFile('{output_path}/bactopia_one/local-single-sample/{sample_id}/variants/GCF_004153365/{sample_id}.filt.vcf.gz', 'variants/filtered'),
-    JsonOutFile('{output_path}/bactopia_one/local-single-sample/{sample_id}/variants/GCF_004153365/{sample_id}.bam', 'variants/bam'),
-    JsonOutFile('{output_path}/bactopia_one/local-single-sample/{sample_id}/variants/GCF_004153365/{sample_id}.subs.vcf.gz', 'variants/subs'),
-    JsonOutFile('{output_path}/bactopia_one/local-single-sample/{sample_id}/variants/GCF_004153365/{sample_id}.vcf.gz', 'variants/vcf'),
-    JsonOutFile('{output_path}/bactopia_one/local-single-sample/{sample_id}/variants/GCF_004153365/{sample_id}.consensus.fa.gz', 'variants/consensus'),
+    JsonOutFile('{output_path}/bactopia_one/local-single-sample/{sample_id}/variants/{genome_assembly_name}/{sample_id}.raw.vcf.gz', 'variants/raw'),
+    JsonOutFile('{output_path}/bactopia_one/local-single-sample/{sample_id}/variants/{genome_assembly_name}/{sample_id}.annotated.vcf.gz', 'variants/annotated'),
+    JsonOutFile('{output_path}/bactopia_one/local-single-sample/{sample_id}/variants/{genome_assembly_name}/{sample_id}.filt.vcf.gz', 'variants/filtered'),
+    JsonOutFile('{output_path}/bactopia_one/local-single-sample/{sample_id}/variants/{genome_assembly_name}/{sample_id}.bam', 'variants/bam'),
+    JsonOutFile('{output_path}/bactopia_one/local-single-sample/{sample_id}/variants/{genome_assembly_name}/{sample_id}.subs.vcf.gz', 'variants/subs'),
+    JsonOutFile('{output_path}/bactopia_one/local-single-sample/{sample_id}/variants/{genome_assembly_name}/{sample_id}.vcf.gz', 'variants/vcf'),
+    JsonOutFile('{output_path}/bactopia_one/local-single-sample/{sample_id}/variants/{genome_assembly_name}/{sample_id}.consensus.fa.gz', 'variants/consensus'),
     JsonOutFile('{output_path}/bactopia_one/local-single-sample/{sample_id}/mlst/default/blast/{sample_id}-blast.json', 'mlst/blast'),
     JsonOutFile('{output_path}/bactopia_one/local-single-sample/{sample_id}/antimicrobial-resistance/{sample_id}-protein-report.txt', 'antimicrobial-resistance/protein'),
     JsonOutFile('{output_path}/bactopia_one/local-single-sample/{sample_id}/antimicrobial-resistance/{sample_id}-gene-report.txt', 'antimicrobial-resistance/gene'),
@@ -48,11 +47,10 @@ OUTPUT_FILES = [
     JsonOutFile('{output_path}/bactopia_one/local-single-sample/{sample_id}/quality-control/summary/{sample_id}_R1-original_fastqc.zip', 'QC/R1-original-fastqc'),
     JsonOutFile('{output_path}/bactopia_one/local-single-sample/{sample_id}/quality-control/summary/{sample_id}_R2-original_fastqc.zip', 'QC/R2-original-fastqc'),
     JsonOutFile('{output_path}/bactopia_one/quast_assembly.zip', 'assembly/quast-zip'),
-    #      TODO all local-single-sample/*/variants/*/*.vcf.gz -- problem with filename collisions
 ]
 
 
-def build_csv_list(sample):
+def build_csv_list(sample_id):
     """
     Gather all info for the CSV file
     Make a defined list of files that we are expecting.
@@ -60,7 +58,7 @@ def build_csv_list(sample):
     CsvItem = namedtuple('CsvItem', 'header value')
     csv_list = list()
     # Add items to the list
-    csv_list.append(CsvItem('SAMPLE_ID', sample['SAMPLE_ID']))  # the key SAMPLE_ID must be in the metadata.csv
+    csv_list.append(CsvItem('SAMPLE_ID', sample_id))  # the key SAMPLE_ID must be in the results.csv
     csv_list.append(CsvItem('STATUS', 'Completed'))  # For the demo everything passes
     csv_list.append(CsvItem('QC_STATUS', 'pass'))  # The key QC_STATUS gets shown in the UI
 
@@ -92,7 +90,7 @@ def build_csv_list(sample):
             csv_list.append(CsvItem('Annotation-{}'.format(row[0]), row[1].lstrip().rstrip()))
 
     # Variant summary
-    with open('{}.txt'.format(sample['SAMPLE_ID'])) as variant_summary_file:
+    with open('{}.txt'.format(sample_id)) as variant_summary_file:
         variant_summary = csv.reader(variant_summary_file, delimiter="\t")
         for row in variant_summary:
             if 'Variant' in row[0]:
@@ -112,7 +110,7 @@ def build_csv_list(sample):
                 continue
             csv_list.append(CsvItem(key , value))
 
-    with open('{sample_id}-protein-report.txt'.format(sample_id=sample['SAMPLE_ID'])) as antimicrobial_protein_file:
+    with open('{sample_id}-protein-report.txt'.format(sample_id=sample_id)) as antimicrobial_protein_file:
         resistance_genes = list()
         for row in csv.DictReader(antimicrobial_protein_file, delimiter="\t"):
             resistance_genes.append(row['Gene symbol'])
@@ -124,92 +122,59 @@ def build_csv_list(sample):
 
 @click.command()
 @click.option(
-    "--metadata-file",
-    type=click.Path(exists=True, file_okay=True, readable=True),
-    required=True,
-    help="the sample metadata file",
-)
-@click.option(
-    "--output-csv-file",
-    type=click.Path(dir_okay=False, writable=True),
-    required=True,
-    help="output file merging the results from ncov and pangolin",
-)
-@click.option(
-    "--output-json-file",
-    type=click.Path(dir_okay=False, writable=True),
-    required=True,
-    help="output file containing all the expected files per sample",
-)
-@click.option(
     "--output-path",
     type=str,
     required=True,
     help="output_path output path where sample result files are stored (e.g. s3://bucket/path/analysis_run)",
 )
-@click.option(
-    "--sequencing-technology",
-    type=click.Choice([ILLUMINA, ONT], case_sensitive=True),
-    required=True,
-    help="the sequencer technology used for sequencing the samples",
-)
 def generate_results(
-    metadata_file: str,
-    output_csv_file: str,
-    output_json_file: str,
     output_path: str,
-    sequencing_technology: str,
 ) -> None:
     """
     Generate pipeline results files
     """
-    print('metadata_file: ' + metadata_file)
-    print('output_csv_file: ' + output_csv_file)
-    print('output_json_file: ' + output_json_file)
-    print('output_path: ' + output_path)
-    print('sequencing_technology: ' + sequencing_technology)
+    # Get sample_id and genome_assembly_name
+    with open('genome_assembly_name.txt') as genome_assembly_name_file:
+        gaf = json.load(genome_assembly_name_file)
+        genome_assembly_name = gaf['genome_assembly_name']
+        sample_id = gaf['sample_id']
+    print('genome_assembly_name: ' + genome_assembly_name)
+    print('sample_id: ' + sample_id)
 
-    # Make a list so we can iterate over this several times easily
-    # TODO change to single sample -- get sample another way
-    metadata = list(csv.DictReader(open(Path(metadata_file))))
+    csv_list = build_csv_list(sample_id)
 
-    sample = metadata[0]
-
-    csv_list = build_csv_list(sample)
-
-    with open(output_csv_file, 'w', encoding='UTF8') as csv_out:
+    with open('{sample_id}-results.csv'.format(sample_id=sample_id), 'w', encoding='UTF8') as csv_out:
         writer = csv.writer(csv_out)
         writer.writerow([x.header for x in csv_list])
         writer.writerow([x.value for x in csv_list])
 
-    # TODDO make this explicitly single sample. I will collate the results in another step
     # Build resultfiles.json
     json_out = dict()
-    for sample in metadata:
-        out_files = list()
-        for of in OUTPUT_FILES:
-            # Make sure file and type not already in list (psga framework required no duplicates)
-            # TODO in production version error rather than fixing the problem with a warning
-            file_in_list = False
-            f = of.filepath.format(output_path=output_path, sample_id=sample['SAMPLE_ID'])
-            t = of.typedescription
-            for item in out_files:
-                if item["file"] == f or item["type"] == t:
-                    print('file: ', item["file"])
-                    print('type: ', item["type"])
-                    print('f: ', f)
-                    print('t: ', t)
-                    file_in_list = True
-            if not file_in_list:
-                out_files.append({
-                    "file": f,
-                    "type": t
-                })
-            else:
-                print('WARNING: found duplicate file {t} : {f}'.format(t=t, f=f))
-        json_out[sample['SAMPLE_ID']] = out_files
+    out_files = list()
+    for of in OUTPUT_FILES:
+        # Make sure file and type not already in list (psga framework required no duplicates)
+        # TODO in production version error rather than fixing the problem with a warning
+        file_in_list = False
+        f = of.filepath.format(
+            output_path=output_path, sample_id=sample_id, genome_assembly_name=genome_assembly_name)
+        t = of.typedescription
+        for item in out_files:
+            if item["file"] == f or item["type"] == t:
+                print('file: ', item["file"])
+                print('type: ', item["type"])
+                print('f: ', f)
+                print('t: ', t)
+                file_in_list = True
+        if not file_in_list:
+            out_files.append({
+                "file": f,
+                "type": t
+            })
+        else:
+            print('WARNING: found duplicate file {t} : {f}'.format(t=t, f=f))
+    json_out[sample_id] = out_files
 
-    with open(output_json_file, 'w') as f:
+    with open('{sample_id}-resultfiles.json'.format(sample_id=sample_id), 'w') as f:
         json.dump(json_out, f)
 
 

@@ -13,7 +13,7 @@ process bactopia_one {
   output:
     path ch_input_files, emit: ch_input_files
     path "local-single-sample/bactopia/nf-reports/bactopia-trace.txt", emit: bactopia_trace
-    path "local-single-sample/*/variants/GCF_004153365/*.tab", emit: variants_summary_tab
+    path "local-single-sample/*/variants/*/*.tab", emit: variants_summary_tab
     path "local-single-sample/*/variants/*/*.bam", emit: bam_file
     path "local-single-sample/*/variants/*/*.bam.bai", emit: bam_bai_file
     path "local-single-sample/*/variants/*/*.vcf.gz", emit: all_variants_all_vcfs     // outputs all of
@@ -41,9 +41,10 @@ process bactopia_one {
     path "local-single-sample/*/annotation/*.tsv", emit: annotation_tsv
     path "local-single-sample/*/assembly/*.json", emit: assembly_json
     path "quast_assembly.zip", emit: quast_assembly_zip
-    path "local-single-sample/*/variants/GCF_004153365/*.txt", emit: variants_txt_for_csv_file
+    path "local-single-sample/*/variants/*/*.txt", emit: variants_txt_for_csv_file
     path "sample-*-csv-files/annotation-summary.txt", emit: annotation_summary
     path "local-single-sample/bactopia-tools/mlst/mlst/software_versions.yml", emit: mlst_versions
+    path "genome_assembly_name.txt", emit: genome_assembly_name
 
   script:
   """
@@ -51,6 +52,7 @@ process bactopia_one {
 import os
 import re
 import shutil
+import json
 
 with open('hello.txt', 'w') as outfile:
     # Sample ID is not passed to script so get it from the sequence file names
@@ -90,6 +92,16 @@ with open('hello.txt', 'w') as outfile:
         'local-single-sample/{sample_id}/annotation/{sample_id}.txt'.format(sample_id=sample_id),
         '{outdir}/annotation-summary.txt'.format(outdir=outdir)
     )
+
+    # TODO find a better way to get the genome assembly name.
+    # This will find the genome assembly directory and copy it's name
+    # Required because the resultfiles.json needs to know the directory names
+    _ ,gcf_name, _ = next(os.walk('local-single-sample/{sample_id}/variants'.format(sample_id=sample_id), topdown=True))
+    genome_assembly_name = gcf_name[0]
+    print("genome_assembly_name: " + genome_assembly_name)
+    with open('genome_assembly_name.txt', 'w') as genome_assembly_name_file:
+        json.dump({"genome_assembly_name": genome_assembly_name, "sample_id": sample_id}, genome_assembly_name_file)
+
 
     outfile.write("RUN COMMAND" + " ## ")
     outfile.write(str(os.listdir(os.getcwd())) + " ## ")
