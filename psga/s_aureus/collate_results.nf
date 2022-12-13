@@ -10,7 +10,7 @@ process collate_results {
 
   output:
     path "results.csv", emit: global_csv_file
-    path "resultfiles.jaon", emit: global_json_file
+    path "resultfiles.json", emit: global_json_file
 
   script:
   """
