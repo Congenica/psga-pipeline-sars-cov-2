@@ -1,0 +1,352 @@
+---
+pipeline:
+  name: Staphylococcus aureus
+  docker_image: "s-aureus-pipeline"
+  protocols:
+    # unknown primer
+
+    - name: illumina-s-aureus-unknown
+      kit:
+        name: Unknown
+        slug: unknown
+      sequencer_technology:
+        name: Illumina
+        slug: illumina
+      pathogen:
+        name: Staphylococcus aureus
+        slug: s-aureus
+
+    - name: ont-s-aureus-unknown
+      kit:
+        name: Unknown
+        slug: unknown
+      sequencer_technology:
+        name: ONT
+        slug: ont
+      pathogen:
+        name: Staphylococcus aureus
+        slug: s-aureus
+
+pipeline_version:
+  docker_tag: dev_latest
+
+input_fields:
+  - field_name: sample_id
+    field_type: string
+    required: true
+    validation_rules:
+      - rule_type: min_max
+        min: 36
+        max: 36
+      - rule_type: regex
+        expression: "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"
+
+#input_row_validation_rules:
+#- {}
+#
+#input_set_validation_rules:
+#- {}
+
+
+output_fields:
+  - field_name: SAMPLE_ID
+    field_type: string
+    required: true
+    validation_rules:
+      - rule_type: min_max
+        min: 36
+        max: 36
+      - rule_type: regex
+        expression: "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"
+
+  - field_name: STATUS
+    field_type: string
+    required: true
+    validation_rules:
+      - rule_type: not_null
+
+  - field_name: QC_STATUS
+    field_type: string
+    required: true
+    validation_rules:
+      - rule_type: not_null
+
+  - field_name: CHECKM-VERSION
+    field_type: string
+    required: true
+    validation_rules:
+      - rule_type: not_null
+
+  - field_name: FASTQC-VERSION
+    field_type: string
+    required: true
+    validation_rules:
+      - rule_type: not_null
+
+  - field_name: BACTOPIA-VERSION
+    field_type: string
+    required: true
+    validation_rules:
+      - rule_type: not_null
+
+  - field_name: MLST-VERSION
+    field_type: string
+    required: true
+    validation_rules:
+      - rule_type: not_null
+
+  - field_name: MYKROBE-VERSION
+    field_type: string
+    required: true
+    validation_rules:
+      - rule_type: not_null
+
+  - field_name: ANNOTATION-ORGANISM
+    field_type: string
+    required: true
+    validation_rules:
+      - rule_type: not_null
+
+  - field_name: ANNOTATION-CONTIGS
+    field_type: number
+    required: true
+    validation_rules:
+      - rule_type: integer
+      - rule_type: not_null
+
+  - field_name: ANNOTATION-BASES
+    field_type: number
+    required: true
+    validation_rules:
+      - rule_type: integer
+      - rule_type: not_null
+
+  - field_name: ANNOTATION-CDS
+    field_type: number
+    required: true
+    validation_rules:
+      - rule_type: integer
+      - rule_type: not_null
+
+  - field_name: ANNOTATION-GENE
+    field_type: number
+    required: true
+    validation_rules:
+      - rule_type: integer
+      - rule_type: not_null
+
+  - field_name: ANNOTATION-RRNA
+    field_type: number
+    required: true
+    validation_rules:
+      - rule_type: integer
+      - rule_type: not_null
+
+  - field_name: ANNOTATION-TRNA
+    field_type: number
+    required: true
+    validation_rules:
+      - rule_type: integer
+      - rule_type: not_null
+
+  - field_name: ANNOTATION-TMRNA
+    field_type: number
+    required: true
+    validation_rules:
+      - rule_type: integer
+      - rule_type: not_null
+
+  - field_name: VARIANT-COMPLEX
+    field_type: number
+    required: true
+    validation_rules:
+      - rule_type: integer
+      - rule_type: not_null
+
+  - field_name: VARIANT-DEL
+    field_type: number
+    required: true
+    validation_rules:
+      - rule_type: integer
+      - rule_type: not_null
+
+  - field_name: VARIANT-INS
+    field_type: number
+    required: true
+    validation_rules:
+      - rule_type: integer
+      - rule_type: not_null
+
+  - field_name: VARIANT-SNP
+    field_type: number
+    required: true
+    validation_rules:
+      - rule_type: integer
+      - rule_type: not_null
+
+  - field_name: VARIANTTOTAL
+    field_type: number
+    required: true
+    validation_rules:
+      - rule_type: integer
+      - rule_type: not_null
+
+  - field_name: 'MARKER LINEAGE'
+    field_type: string
+    required: true
+    validation_rules:
+      - rule_type: not_null
+
+  - field_name: COMPLETENESS
+    field_type: string
+    required: true
+
+  - field_name: CONTAMINATION
+    field_type: string
+    required: true
+
+  - field_name: 'STRAIN HETEROGENEITY'
+    field_type: string
+    required: true
+
+  - field_name: VARIANTTOTAL
+    field_type: number
+    required: true
+    validation_rules:
+      - rule_type: integer
+      - rule_type: not_null
+
+  - field_name: TOTAL_CONTIG
+    field_type: number
+    required: true
+    validation_rules:
+      - rule_type: integer
+      - rule_type: not_null
+
+  - field_name: TOTAL_CONTIG_LENGTH
+    field_type: number
+    required: true
+    validation_rules:
+      - rule_type: integer
+      - rule_type: not_null
+
+  - field_name: MAX_CONTIG_LENGTH
+    field_type: number
+    required: true
+    validation_rules:
+      - rule_type: integer
+      - rule_type: not_null
+
+  - field_name: MEAN_CONTIG_LENGTH
+    field_type: string
+    required: true
+
+  - field_name: MEDIAN_CONTIG_LENGTH
+    field_type: string
+    required: true
+
+  - field_name: MIN_CONTIG_LENGTH
+    field_type: number
+    required: true
+    validation_rules:
+      - rule_type: integer
+      - rule_type: not_null
+
+  - field_name: N50_CONTIG_LENGTH
+    field_type: number
+    required: true
+    validation_rules:
+      - rule_type: integer
+      - rule_type: not_null
+
+  - field_name: L50_CONTIG_COUNT
+    field_type: number
+    required: true
+    validation_rules:
+      - rule_type: integer
+      - rule_type: not_null
+
+  - field_name: NUM_CONTIG_NON_ACGTN
+    field_type: number
+    required: true
+    validation_rules:
+      - rule_type: integer
+      - rule_type: not_null
+
+  - field_name: CONTIG_PERCENT_A
+    field_type: string
+    required: true
+
+  - field_name: CONTIG_PERCENT_C
+    field_type: string
+    required: true
+
+  - field_name: CONTIG_PERCENT_G
+    field_type: string
+    required: true
+
+  - field_name: CONTIG_PERCENT_T
+    field_type: string
+    required: true
+
+  - field_name: CONTIG_PERCENT_N
+    field_type: string
+    required: true
+
+  - field_name: CONTIG_NON_ACGTN
+    field_type: string
+    required: true
+
+  - field_name: CONTIGS_GREATER_1M
+    field_type: number
+    required: true
+    validation_rules:
+      - rule_type: integer
+      - rule_type: not_null
+
+  - field_name: CONTIGS_GREATER_100K
+    field_type: number
+    required: true
+    validation_rules:
+      - rule_type: integer
+      - rule_type: not_null
+
+  - field_name: CONTIGS_GREATER_10K
+    field_type: number
+    required: true
+    validation_rules:
+      - rule_type: integer
+      - rule_type: not_null
+
+  - field_name: CONTIGS_GREATER_1K
+    field_type: number
+    required: true
+    validation_rules:
+      - rule_type: integer
+      - rule_type: not_null
+
+  - field_name: PERCENT_CONTIGS_GREATER_1M
+    field_type: string
+    required: true
+
+  - field_name: PERCENT_CONTIGS_GREATER_100K
+    field_type: string
+    required: true
+
+  - field_name: PERCENT_CONTIGS_GREATER_10K
+    field_type: string
+    required: true
+
+  - field_name: PERCENT_CONTIGS_GREATER_1K
+    field_type: string
+    required: true
+
+  - field_name: 'ANTIMICROBIAL RESISTANCE GENES'
+    field_type: string
+    required: true
+
+#output_row_validation_rules:
+#- {}
+#
+#output_set_validation_rules:
+#- {}
