@@ -14,8 +14,28 @@ def collate_results():
             channel_dict = json.load(channel_json_file)
             output_resultfiles_json_dict.update(channel_dict)
 
+    # Find duplicate files (Framework will error if 2 runs point to the same file)
+    all_files = set()
+    dup_files = set()
+    for sam_key, sam_body in output_resultfiles_json_dict.items():
+        for i in sam_body:
+            if i['file'] in all_files:
+                dup_files.add(i['file'])
+            all_files.add(i['file'])
+    if dup_files:
+        print('WARNING found duplicate files will remove them: ' + str(dup_files))
+
+    # Strip the duplicate files out
+    new_output_resultfiles_json_dict = dict()
+    for sam_key, sam_body in output_resultfiles_json_dict.items():
+        new_sam_body = list()
+        for i in sam_body:
+            if i['file'] not in list(dup_files):
+                new_sam_body.append(i)
+        new_output_resultfiles_json_dict[sam_key] = new_sam_body
+
     with open('resultfiles.json', 'w') as output_result_files:
-        json.dump(output_resultfiles_json_dict, output_result_files)
+        json.dump(new_output_resultfiles_json_dict, output_result_files)
 
     # Merge the results.csv files
     output_results_csv_list = list()
