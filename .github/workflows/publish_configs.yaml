@@ -48,7 +48,7 @@ jobs:
           for version in $VERSIONS; do
             for config in $(ls psga/config); do
               S3_PATH="${{ secrets.S3_BUCKET_PATH }}/${version}/${config}"
-              yq e -i '.pipeline_version.docker_tag = "${version}"' psga/config/${config}
+              yq e -i ".pipeline_version.docker_tag = \"${version}\"" psga/config/${config}
               echo "Publishing version ${version} for config ${config} to ${S3_PATH}"
               aws s3 cp psga/config/${config} $S3_PATH
             done
