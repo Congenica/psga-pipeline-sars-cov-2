@@ -1,7 +1,0 @@
-name: fastqc
-channels:
-  - bioconda
-  - conda-forge # required for awscli
-dependencies:
-  - awscli=1.25.92
-  - fastqc=0.11.9
