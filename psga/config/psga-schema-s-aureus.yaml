@@ -14,7 +14,7 @@ pipeline:
         slug: illumina
       pathogen:
         name: Staphylococcus aureus
-        slug: s_aureus
+        slug: s-aureus
 
     - name: ont-s-aureus-unknown
       kit:
@@ -25,7 +25,7 @@ pipeline:
         slug: ont
       pathogen:
         name: Staphylococcus aureus
-        slug: s_aureus
+        slug: s-aureus
 
 pipeline_version:
   docker_tag: dev_latest
