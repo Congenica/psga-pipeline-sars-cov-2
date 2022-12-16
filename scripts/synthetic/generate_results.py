@@ -12,6 +12,7 @@ import pandas as pd
 from scripts.util.logger import get_structlog_logger
 from scripts.util.metadata import EXPECTED_HEADERS as EXPECTED_METADATA_HEADERS, SAMPLE_ID, ILLUMINA, ONT
 from scripts.validation.check_csv_columns import check_csv_columns
+from scripts.util.slugs import get_file_with_type, FileType
 
 log_file = f"{Path(__file__).stem}.log"
 logger = get_structlog_logger(log_file=log_file)
@@ -139,22 +140,18 @@ def _generate_resultfiles_json(
     Generate a JSON file containing the list of expected result files per sample
     """
     # initialise the dictionary keys
-    output_files_per_sample: Dict[str, List[str]] = {sample_id: [] for sample_id in all_samples}
-
-    if sequencing_technology == ILLUMINA:
-        fastqc_suffixes = [f"{r}_fastqc.zip" for r in [1, 2]]
-    elif sequencing_technology == ONT:
-        fastqc_suffixes = ["fastqc.zip"]
-    else:
-        raise ValueError(f"Unsupported sequencing_technology: {sequencing_technology}")
+    output_files: Dict[str, List[str]] = {}
 
     for sample_id in all_samples:
-        output_files_per_sample[sample_id].extend(
-            [join_path(output_path, "fastqc", f"{sample_id}_{e}") for e in fastqc_suffixes]
+        output_files[sample_id] = get_file_with_type(
+            output_path=output_path,
+            inner_dirs=["analysis"],
+            filetypes=[FileType("_analysis.txt", "txt/analysis")],
+            sample_id=sample_id,
         )
 
     with open(output_json_file, "w") as outfile:
-        json.dump(output_files_per_sample, outfile, cls=PathJSONEncoder, sort_keys=True, indent=4)
+        json.dump(output_files, outfile, cls=PathJSONEncoder, sort_keys=True, indent=4)
 
 
 @click.command()

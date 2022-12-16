@@ -40,6 +40,8 @@ spec:
           value: '20'
         - name: AWS_MAX_PARALLEL_TRANSFERS
           value: '5'
+        - name: 'SCRATCH'
+          value: 'false'
         - name: K8S_NODE
           value: farmNode
         - name: K8S_PULL_POLICY

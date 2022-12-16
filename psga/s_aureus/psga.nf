@@ -1,29 +1,29 @@
 /*
  * Main workflow for the pathogen: Staphylococcus aureus.
  */
-params.str = 'Hello world!'
 
-process splitLetters {
-  output:
-    path 'chunk_*'
-
-  """
-  printf '${params.str}' | split -b 6 - chunk_
-  """
-}
-
-process convertToUpper {
-  input:
-    path x
-  output:
-    stdout
-
-  """
-  cat $x | tr '[a-z]' '[A-Z]'
-  """
-}
+include { fastqc } from './common/fastqc.nf'
+include { organise_metadata_sample_files } from './common/organise_metadata_sample_files.nf'
+include { bactopia_one } from './bactopia_one.nf'
+include { collate_results } from './collate_results.nf'
 
 
 workflow psga {
-  splitLetters | flatten | convertToUpper | view { it.trim() }
+
+    main:
+        organise_metadata_sample_files()
+        ch_metadata = organise_metadata_sample_files.out.ch_metadata
+        ch_sample_files = organise_metadata_sample_files.out.ch_sample_files
+
+        bactopia_one(ch_sample_files, ch_metadata)
+
+        collate_results(
+            bactopia_one.out.ch_result_files_json.collect(),
+            bactopia_one.out.ch_results_csv.collect()
+        )
+
+        ch_analysis_run_results_submitted = collate_results.out.global_csv_file
+
+    emit:
+        ch_analysis_run_results_submitted
 }
