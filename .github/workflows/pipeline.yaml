@@ -17,6 +17,10 @@ jobs:
           - name: sars-cov-2-pipeline
             dockerfile: Dockerfile.psga-pipeline
             pathogen: sars_cov_2
+          - name: s-aureus-pipeline
+            dockerfile: Dockerfile.psga-pipeline
+            pathogen: s_aureus
+          - name: s-aureus
           - name: fastqc
             pathogen: sars_cov_2
           - name: read-it-and-keep
@@ -29,6 +33,7 @@ jobs:
             pathogen: sars_cov_2
           - name: ncov2019-artic-nf-illumina
             pathogen: sars_cov_2
+
     uses: ./.github/workflows/build_image.yaml
     secrets: inherit
     with:

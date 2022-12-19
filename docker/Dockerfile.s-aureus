@@ -1,7 +1,6 @@
 FROM condaforge/mambaforge:4.14.0-0 AS condabuild
 
-# ARG pathogen
-COPY docker/bactopia/s-aureus.yml /environment.yml
+COPY docker/s_aureus/s-aureus.yml /environment.yml
 
 RUN mamba env create -f /environment.yml -n custom_env \
   && conda clean --all -y
@@ -30,7 +29,7 @@ COPY --from=condabuild /datasets /datasets
 
 ENV PATH=/opt/conda/envs/custom_env/bin:$PATH
 
-COPY docker/bactopia/requirements.txt /requirements.txt
+COPY docker/s_aureus/requirements.txt /requirements.txt
 RUN pip install -r requirements.txt
 
 # ps isn't in the base debian images - required by GATHER_SAMPLES
