@@ -293,6 +293,13 @@ output_fields:
     validation_rules:
       - rule_type: not_null
 
+  - field_name: CONTAMINATED_READS
+    field_type: number
+    required: true
+    validation_rules:
+      - rule_type: integer
+      - rule_type: not_null
+
   - field_name: PRIMER_INPUT
     field_type: string
     required: true
