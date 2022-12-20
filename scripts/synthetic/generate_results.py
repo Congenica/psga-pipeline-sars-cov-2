@@ -130,7 +130,6 @@ def _generate_results_csv(
 
 
 def _generate_resultfiles_json(
-    sequencing_technology: str,
     all_samples: List[str],
     output_path: str,
     output_json_file: Path,
@@ -212,7 +211,7 @@ def generate_results(
     df_synthetic = pd.DataFrame(data=synthetic_results)
 
     _generate_results_csv(all_samples, df_synthetic, qc_unrelated_failing_samples, output_csv_file)
-    _generate_resultfiles_json(sequencing_technology, successfull_samples, output_path, Path(output_json_file))
+    _generate_resultfiles_json(successfull_samples, output_path, Path(output_json_file))
 
 
 if __name__ == "__main__":
