@@ -24,7 +24,6 @@ process generate_synthetic_output {
     --metadata-file "${ch_metadata}" \
     --output-csv-file "${ch_output_csv_file}" \
     --output-json-file "${ch_output_json_file}" \
-    --output-path "${params.output_path}" \
-    --sequencing-technology "${params.sequencing_technology}"
+    --output-path "${params.output_path}"
   """
 }
