@@ -1,4 +1,3 @@
-from os.path import join as join_path  # used to join FS paths and S3 URIs
 from pathlib import Path, PosixPath
 from typing import Dict, List, Set
 from functools import partial, reduce
