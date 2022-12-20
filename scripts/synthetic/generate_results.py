@@ -1,4 +1,3 @@
-from os.path import join as join_path  # used to join FS paths and S3 URIs
 from pathlib import Path, PosixPath
 from typing import Dict, List, Set
 from functools import partial, reduce
@@ -10,7 +9,7 @@ import click
 import pandas as pd
 
 from scripts.util.logger import get_structlog_logger
-from scripts.util.metadata import EXPECTED_HEADERS as EXPECTED_METADATA_HEADERS, SAMPLE_ID, ILLUMINA, ONT
+from scripts.util.metadata import EXPECTED_HEADERS as EXPECTED_METADATA_HEADERS, SAMPLE_ID
 from scripts.validation.check_csv_columns import check_csv_columns
 from scripts.util.slugs import get_file_with_type, FileType
 
@@ -131,7 +130,6 @@ def _generate_results_csv(
 
 
 def _generate_resultfiles_json(
-    sequencing_technology: str,
     all_samples: List[str],
     output_path: str,
     output_json_file: Path,
@@ -179,18 +177,11 @@ def _generate_resultfiles_json(
     required=True,
     help="output_path output path where sample result files are stored (e.g. s3://bucket/path/analysis_run)",
 )
-@click.option(
-    "--sequencing-technology",
-    type=click.Choice([ILLUMINA, ONT], case_sensitive=True),
-    required=True,
-    help="the sequencer technology used for sequencing the samples",
-)
 def generate_results(
     metadata_file: str,
     output_csv_file: str,
     output_json_file: str,
     output_path: str,
-    sequencing_technology: str,
 ) -> None:
     """
     Generate pipeline results files
@@ -213,7 +204,7 @@ def generate_results(
     df_synthetic = pd.DataFrame(data=synthetic_results)
 
     _generate_results_csv(all_samples, df_synthetic, qc_unrelated_failing_samples, output_csv_file)
-    _generate_resultfiles_json(sequencing_technology, successfull_samples, output_path, Path(output_json_file))
+    _generate_resultfiles_json(successfull_samples, output_path, Path(output_json_file))
 
 
 if __name__ == "__main__":
