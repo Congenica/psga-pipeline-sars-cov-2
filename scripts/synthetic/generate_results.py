@@ -188,7 +188,7 @@ def generate_results(
     output_csv_file: str,
     output_json_file: str,
     output_path: str,
-    sequencing_technology: str,
+    sequencing_technology: str,  # pylint: disable=W0611
 ) -> None:
     """
     Generate pipeline results files
