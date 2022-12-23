@@ -7,6 +7,7 @@ process collate_results {
   input:
     path ch_output_csv_file
     path ch_output_json_file
+    path ch_metadata
 
   output:
     path "results.csv", emit: global_csv_file
