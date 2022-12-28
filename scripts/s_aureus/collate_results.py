@@ -58,7 +58,7 @@ def collate_results(metadata_file):
             output_results_csv_list.append(next(csv.DictReader(channel_csv_file)))
 
     # Add on any failed samples where the container failed completely and did not produce a results.csv for that sample.
-    # A sample is failed if there are no results in output_results_csv_list, but sample is in the input metadata file
+    # If there are no results in output_results_csv_list, but sample is in input metadata file then the sample failed
     samples_with_output = set(r["SAMPLE_ID"] for r in output_results_csv_list)
     with open(metadata_file) as input_metadata_file:
         for md_sample in csv.DictReader(input_metadata_file):
