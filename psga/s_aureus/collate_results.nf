@@ -15,6 +15,7 @@ process collate_results {
 
   script:
   """
-    python ${PSGA_ROOT_PATH}/scripts/s_aureus/collate_results.py
+    # The framework copies and renames the metadata file for all samples. These files are identical and we only need one
+    python ${PSGA_ROOT_PATH}/scripts/s_aureus/collate_results.py --metadata-file ${ch_metadata}
   """
 }
