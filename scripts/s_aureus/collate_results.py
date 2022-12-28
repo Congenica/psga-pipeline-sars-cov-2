@@ -63,7 +63,6 @@ def collate_results(metadata_file):
     with open(metadata_file) as input_metadata_file:
         for md_sample in csv.DictReader(input_metadata_file):
             if md_sample["SAMPLE_ID"] not in samples_with_output:
-                print("INFO: sample failed: " + str(md_sample))
                 output_results_csv_list.append({"SAMPLE_ID": md_sample["SAMPLE_ID"], "STATUS": "Failed"})
 
     with open("results.csv", "w", encoding="utf8") as output_csv_file:
