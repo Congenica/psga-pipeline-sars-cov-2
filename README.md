@@ -11,6 +11,12 @@ Congenica sequencing protocol is based on the ARTIC consortium and works as foll
 ### Synthetic
 This is a proof-of-concept pathogen pipeline which can also be used as a template.
 
+### S-aureus
+This is a proof-of-concept bacterial pathogen pipeline. It works as follows:
+- produce bacterial genome assemblies from sequence data
+- Call variants
+- Detect antibiotic resistance genes
+
 ## Operation
 This pipeline runs on a Kubernetes environment. The main workflow coordinates the execution of processes within Kubernetes jobs.
 

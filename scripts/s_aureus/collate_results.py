@@ -1,9 +1,17 @@
 import os
 import json
 import csv
+import click
 
 
-def collate_results():
+@click.command()
+@click.option(
+    "--metadata-file",
+    type=click.Path(exists=True, file_okay=True, readable=True),
+    required=True,
+    help="the sample metadata file",
+)
+def collate_results(metadata_file):
     # Merge the resultfiles.json files
     output_resultfiles_json_dict = dict()
     for f in os.listdir():
@@ -48,6 +56,14 @@ def collate_results():
         with open(f) as channel_csv_file:
             # All of these channel results csv files are single sample
             output_results_csv_list.append(next(csv.DictReader(channel_csv_file)))
+
+    # Add on any failed samples where the container failed completely and did not produce a results.csv for that sample.
+    # If there are no results in output_results_csv_list, but sample is in input metadata file then the sample failed
+    samples_with_output = set(r["SAMPLE_ID"] for r in output_results_csv_list)
+    with open(metadata_file) as input_metadata_file:
+        for md_sample in csv.DictReader(input_metadata_file):
+            if md_sample["SAMPLE_ID"] not in samples_with_output:
+                output_results_csv_list.append({"SAMPLE_ID": md_sample["SAMPLE_ID"], "STATUS": "Failed"})
 
     with open("results.csv", "w", encoding="utf8") as output_csv_file:
         # Need all keys for all fields in all rows preserve order
