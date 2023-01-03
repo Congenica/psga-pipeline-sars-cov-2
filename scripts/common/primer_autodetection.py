@@ -14,7 +14,7 @@ from concat_csv import concat
 from primer_cols import (
     PRIMER_INDEX_COLS,
     PRIMER_NAME,
-    FASTA_PATH,
+    PICKLE_PATH,
     TOTAL_NUM_PRIMER,
     PRIMER_AUTODETECTION_SAMPLE_ID_COL,
     PRIMER_AUTODETECTION_PRIMER_INPUT_COL,
@@ -34,28 +34,10 @@ PRIMER_DATA_SUFFIX = "_primer_data.csv"
 PRIMER_AUTODETECTION_PRIMER_SCORE_COL = PRIMER_AUTODETECTION_NUMREADS_COL
 
 
-# CHANGES TO BE IMPLEMENTED
-# * automaton for fasta primer sequences - DONE
-# * iterate sample fastq - DONE
-# * create dict storing automatons and counters so that the sample sequences are processed only once - DONE
-# * store the length of the longest primer in the index file so that it can be retrieved from there - DONE
-# * validate calculation of unique primers - DONE
-# * dump / load fasta automaton using files
-# * new unit tests
-
-
 @dataclass
 class PrimerAutomaton:
     data: dict = field(metadata={"required": True})
     automaton: ahocorasick.Automaton = field(metadata={"required": True})
-
-
-def dump_pickle(output_path: Path, object_to_pickle: Any) -> None:
-    """
-    Dump a Python object using pickle
-    """
-    with open(output_path, "wb") as pickle_out:
-        pickle.dump(object_to_pickle, pickle_out)
 
 
 def load_pickle(input_path: Path) -> Any:
@@ -64,18 +46,6 @@ def load_pickle(input_path: Path) -> Any:
     """
     with open(input_path, "rb") as pickle_in:
         return pickle.load(pickle_in)
-
-
-def create_automaton(input_path: Path, filetype: str = "fasta"):
-    """
-    Store the reads in a trie structure for primer look up
-    """
-    automaton = ahocorasick.Automaton()
-    with open(input_path, "r") as fd:
-        for record in SeqIO.parse(fd, filetype):
-            seq = str(record.seq)
-            automaton.add_word(seq, seq)
-    return automaton
 
 
 def build_primers_automaton(primer_index: Path) -> Dict:
@@ -90,7 +60,7 @@ def build_primers_automaton(primer_index: Path) -> Dict:
         _ = next(reader, None)
         for row in reader:
             primer = row[PRIMER_NAME]
-            primer_fasta_path = Path(row[FASTA_PATH])
+            primer_pickle_path = Path(row[PICKLE_PATH])
             data = {
                 PRIMER_AUTODETECTION_PRIMER_COL: primer,
                 TOTAL_NUM_PRIMER: int(row[TOTAL_NUM_PRIMER]),
@@ -100,7 +70,7 @@ def build_primers_automaton(primer_index: Path) -> Dict:
             }
 
             # this can be optimised by generating the automaton at build time (one-off)
-            automaton = create_automaton(primer_fasta_path, "fasta")
+            automaton = load_pickle(primer_pickle_path)
             primers_automaton[primer] = PrimerAutomaton(
                 data=data,
                 automaton=automaton,

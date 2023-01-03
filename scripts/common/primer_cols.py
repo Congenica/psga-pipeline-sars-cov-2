@@ -1,10 +1,12 @@
 # primer index columns
 PRIMER_NAME = "primer_name"
 FASTA_PATH = "fasta_path"
+PICKLE_PATH = "pickle_path"
 TOTAL_NUM_PRIMER = "total_num_primers"
 PRIMER_INDEX_COLS = [
     PRIMER_NAME,
     FASTA_PATH,
+    PICKLE_PATH,
     TOTAL_NUM_PRIMER,
 ]
 

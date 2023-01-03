@@ -1,13 +1,15 @@
 import shutil
 from pathlib import Path
-from typing import Dict, List
+from typing import Any, Dict, List
 import csv
+import pickle
 import tempfile
 import click
 from git import Repo
 from Bio import SeqIO
+import ahocorasick
 
-from primer_cols import PRIMER_INDEX_COLS, PRIMER_NAME, FASTA_PATH, TOTAL_NUM_PRIMER
+from primer_cols import PRIMER_INDEX_COLS, PRIMER_NAME, FASTA_PATH, PICKLE_PATH, TOTAL_NUM_PRIMER
 
 SARS_COV_2 = "SARS-CoV-2"
 SUPPORTED_PATHOGENS = [SARS_COV_2]
@@ -20,6 +22,26 @@ BED_COLS = [
     "score",
     STRAND,
 ]
+
+
+def create_automaton(input_path: Path, filetype: str = "fasta"):
+    """
+    Store the reads in a trie structure for primer look up
+    """
+    automaton = ahocorasick.Automaton()
+    with open(input_path, "r") as fd:
+        for record in SeqIO.parse(fd, filetype):
+            seq = str(record.seq)
+            automaton.add_word(seq, seq)
+    return automaton
+
+
+def dump_pickle(output_path: Path, object_to_pickle: Any) -> None:
+    """
+    Dump a Python object using pickle
+    """
+    with open(output_path, "wb") as pickle_out:
+        pickle.dump(object_to_pickle, pickle_out)
 
 
 def _decorate_with_new_line(method):
@@ -120,7 +142,7 @@ def organise_sars_cov_2_primers(source_schemes_path: Path, dest_schemes_path: Pa
     This function also adds the fasta file of the primer sequences and their index file
     """
     print("Copy primers:")
-    scheme_fastas = {}
+    schemes = {}
     for source_scheme_path in source_schemes_path.iterdir():
         scheme_name = source_scheme_path.name
         for version_path in source_scheme_path.iterdir():
@@ -137,26 +159,38 @@ def organise_sars_cov_2_primers(source_schemes_path: Path, dest_schemes_path: Pa
             # file to be generated
             scheme_name_version = f"{scheme_name}_{version_name}"
             scheme_fasta_path = dest_scheme_path / f"{SARS_COV_2}.scheme.fasta"
+            scheme_pickle_path = dest_scheme_path / f"{SARS_COV_2}.scheme.pickle"
             extract_primer_sequences(ref_fasta, scheme_bed, scheme_fasta_path, scheme_name_version)
-            scheme_fastas[scheme_name_version] = scheme_fasta_path
+            # create an ahocorasick automaton object so that this is can
+            # be loaded quickly for all samples
+            automaton = create_automaton(scheme_fasta_path, "fasta")
+            # Serialise (pickle) the ahocorasick automaton object
+            dump_pickle(scheme_pickle_path, automaton)
+            schemes[scheme_name_version] = {
+                "fasta": scheme_fasta_path,
+                "pickle": scheme_pickle_path,
+            }
 
-    scheme_fasta_index_path = dest_schemes_path / f"{SARS_COV_2}_primer_fasta_index.csv"
-    with open(scheme_fasta_index_path, "w", newline="") as outputfile:
+    scheme_index_path = dest_schemes_path / f"{SARS_COV_2}_primer_index.csv"
+    with open(scheme_index_path, "w", newline="") as outputfile:
         writer = csv.DictWriter(outputfile, fieldnames=PRIMER_INDEX_COLS)
         writer.writeheader()
-        for scheme in sorted(scheme_fastas):
-            fasta = scheme_fastas[scheme]
-            fasta_path = Path("/") / Path(fasta).relative_to(scheme_fasta_index_path.parent.parent)
-            num_primers = len(list(SeqIO.parse(fasta, "fasta")))
+        for scheme in sorted(schemes):
+            fasta_file = schemes[scheme]["fasta"]
+            pickle_file = schemes[scheme]["pickle"]
+            fasta_path = Path("/") / Path(fasta_file).relative_to(scheme_index_path.parent.parent)
+            pickle_path = Path("/") / Path(pickle_file).relative_to(scheme_index_path.parent.parent)
+            num_primers = len(list(SeqIO.parse(fasta_file, "fasta")))
             writer.writerow(
                 {
                     PRIMER_NAME: scheme,
                     FASTA_PATH: fasta_path,
+                    PICKLE_PATH: pickle_path,
                     TOTAL_NUM_PRIMER: num_primers,
                 }
             )
-            print(f"Generated primer fasta file: {fasta}")
-    print(f"Generated primer fasta index containing number of primers: {scheme_fasta_index_path}")
+            print(f"Generated primer fasta and pickle files:\n - {fasta_path}\n - {pickle_path}")
+    print(f"Generated primer index containing number of primers: {scheme_index_path}")
 
 
 ORGANISE_PRIMERS = {

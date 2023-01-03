@@ -4,9 +4,12 @@ import pytest
 
 from click.testing import CliRunner
 
+from scripts.common.fetch_primers import (
+    create_automaton,
+)
+
 from scripts.common.primer_autodetection import (
     load_pickle,
-    create_automaton,
     build_primers_automaton,
     count_primer_matches,
     compute_primer_data,
@@ -28,6 +31,7 @@ from scripts.common.primer_cols import (
     PRIMER_INDEX_COLS,
     PRIMER_NAME,
     FASTA_PATH,
+    PICKLE_PATH,
     TOTAL_NUM_PRIMER,
     PRIMER_AUTODETECTION_SAMPLE_ID_COL,
     PRIMER_AUTODETECTION_PRIMER_COL,
@@ -36,7 +40,7 @@ from scripts.common.primer_cols import (
     PRIMER_AUTODETECTION_AMBIGUOUS_NUMREADS_COL,
 )
 from tests.utils_tests import assert_csvs_are_equal, assert_files_are_equal
-from tests.common.test_fetch_primers import PRIMER_SCHEMES
+from tests.common.test_fetch_primers import FETCH_PRIMERS_DIR, PRIMER_SCHEMES
 
 DEFAULT_PRIMER = "ARTIC_V4-1"
 PRIMER_AUTODETECTION_DIR = "primer_autodetection"
@@ -57,6 +61,7 @@ def prefix_path_to_index(input_path, output_path, path_prefix):
         writer.writeheader()
         for row in reader:
             row[FASTA_PATH] = f"{path_prefix}{row[FASTA_PATH]}"
+            row[PICKLE_PATH] = f"{path_prefix}{row[PICKLE_PATH]}"
             writer.writerow(row)
             primers.append(row[PRIMER_NAME])
     return primers
@@ -153,11 +158,11 @@ def assert_primer_automaton(primers_automaton, expected_primers_automaton):
 @pytest.mark.parametrize(
     "index",
     [
-        f"{SARS_COV_2}_primer_fasta_index.csv",
+        f"{SARS_COV_2}_primer_index.csv",
     ],
 )
 def test_build_primers_automaton(tmp_path, test_data_path, index, primers_automaton_fixture):
-    orig_index_path = test_data_path / PRIMER_AUTODETECTION_DIR / PRIMER_SCHEMES / index
+    orig_index_path = test_data_path / FETCH_PRIMERS_DIR / PRIMER_SCHEMES / index
     tmp_index_path = tmp_path / index
     prefix_path_to_index(orig_index_path, tmp_index_path, test_data_path / PRIMER_AUTODETECTION_DIR)
 
@@ -257,12 +262,12 @@ def test_compute_primer_data(test_data_path, primers_automaton_fixture, sample_i
     "index,sample_id",
     [
         (
-            f"{SARS_COV_2}_primer_fasta_index.csv",
+            f"{SARS_COV_2}_primer_index.csv",
             # ARTIC_V4 SAMPLE
             "9729bce7-f0a9-4617-b6e0-6145307741d1",
         ),
         (
-            f"{SARS_COV_2}_primer_fasta_index.csv",
+            f"{SARS_COV_2}_primer_index.csv",
             # SAMPLE without actual primers
             "a0446f6f-7d24-478c-8d92-7c77036930d8",
         ),
@@ -271,7 +276,7 @@ def test_compute_primer_data(test_data_path, primers_automaton_fixture, sample_i
 def test_generate_metrics(tmp_path, test_data_path, index, sample_id):
 
     expected_output_path = test_data_path / PRIMER_AUTODETECTION_DIR / SAMPLES_DIR / "expected_output" / sample_id
-    orig_index_path = test_data_path / PRIMER_AUTODETECTION_DIR / PRIMER_SCHEMES / index
+    orig_index_path = test_data_path / FETCH_PRIMERS_DIR / PRIMER_SCHEMES / index
     tmp_index_path = tmp_path / index
 
     primers = prefix_path_to_index(orig_index_path, tmp_index_path, test_data_path / PRIMER_AUTODETECTION_DIR)
@@ -359,13 +364,13 @@ def test_generate_primer_autodetection_output_files(tmp_path, test_data_path, fo
 @pytest.mark.parametrize(
     "index,sample_id,primer_input",
     [
-        (f"{SARS_COV_2}_primer_fasta_index.csv", "9729bce7-f0a9-4617-b6e0-6145307741d1", "unknown"),
-        (f"{SARS_COV_2}_primer_fasta_index.csv", "a0446f6f-7d24-478c-8d92-7c77036930d8", "unknown"),
+        (f"{SARS_COV_2}_primer_index.csv", "9729bce7-f0a9-4617-b6e0-6145307741d1", "unknown"),
+        (f"{SARS_COV_2}_primer_index.csv", "a0446f6f-7d24-478c-8d92-7c77036930d8", "unknown"),
     ],
 )
 def test_primer_autodetection(tmp_path, test_data_path, index, sample_id, primer_input):
     expected_output_path = test_data_path / PRIMER_AUTODETECTION_DIR / SAMPLES_DIR / "expected_output" / sample_id
-    orig_index_path = test_data_path / PRIMER_AUTODETECTION_DIR / PRIMER_SCHEMES / index
+    orig_index_path = test_data_path / FETCH_PRIMERS_DIR / PRIMER_SCHEMES / index
     tmp_index_path = tmp_path / index
     sample_fastq = test_data_path / PRIMER_AUTODETECTION_DIR / SAMPLES_DIR / f"{sample_id}.fastq.gz"
 

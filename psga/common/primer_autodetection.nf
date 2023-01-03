@@ -30,8 +30,8 @@ process primer_autodetection {
 
   # extract the sample id, whereas this is ID.fastq.gz or ID_1.fastq.gz
   sample_id=$( echo ${file_1} | cut -d '.' -f1 | cut -d '_' -f1)
-  primer_index="/primer_schemes/!{pathogen}_primer_fasta_index.txt"
+  primer_index="/primer_schemes/!{pathogen}_primer_index.csv"
 
-  python ${PSGA_ROOT_PATH}/scripts/common/primer_autodetection.py --primer-index /primer_schemes/!{pathogen}_primer_fasta_index.csv --sample-fastq "${file_1}" --sample-id "${sample_id}" --primer-input !{params.kit}
+  python ${PSGA_ROOT_PATH}/scripts/common/primer_autodetection.py --primer-index "${primer_index}" --sample-fastq "${file_1}" --sample-id "${sample_id}" --primer-input !{params.kit}
   '''
 }
