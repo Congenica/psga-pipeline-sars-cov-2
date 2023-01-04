@@ -125,7 +125,7 @@ def test_extract_primer_sequences_file_not_found_error(
     [
         (
             SARS_COV_2,
-            f"{SARS_COV_2}_primer_fasta_index.txt",
+            f"{SARS_COV_2}_primer_index.csv",
             f"{SARS_COV_2}.scheme.fasta",
         ),
     ],
