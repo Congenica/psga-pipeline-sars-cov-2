@@ -1,4 +1,4 @@
-name: s-aureus-pipeline
+name: psga
 channels:
   - bioconda
   - conda-forge

@@ -17,3 +17,5 @@ dependencies:
   - sra-tools=2.9.6
   - art=2016.06.05
   - awscli=1.25.92
+  - pip:
+    - PyYAML==6.0

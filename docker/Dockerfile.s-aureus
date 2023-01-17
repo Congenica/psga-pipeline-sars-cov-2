@@ -1,7 +1,7 @@
 FROM condaforge/mambaforge:4.14.0-0 AS condabuild
 
-# ARG pathogen
-COPY docker/bactopia/s-aureus.yml /environment.yml
+ARG pathogen
+COPY docker/${pathogen}/s-aureus.yml /environment.yml
 
 RUN mamba env create -f /environment.yml -n custom_env \
   && conda clean --all -y
@@ -15,7 +15,7 @@ RUN bactopia datasets --species "Staphylococcus aureus" --include_genus
 # 3.95GB after bactopia datasets --species "Staphylococcus aureus" --include_genus
 
 # Download and build all of the conda dependancies
-RUN bactopia download --use-defaults --build-all --verbose && conda clean --all -y
+RUN bactopia download --use-defaults --build-all --use_mamba --verbose && conda clean --all -y
 
 # 20.5GB after bactopia download --use-defaults --build-all --verbose
 
@@ -29,9 +29,6 @@ COPY --from=condabuild /opt/conda/envs/custom_env /opt/conda/envs/custom_env
 COPY --from=condabuild /datasets /datasets
 
 ENV PATH=/opt/conda/envs/custom_env/bin:$PATH
-
-COPY docker/bactopia/requirements.txt /requirements.txt
-RUN pip install -r requirements.txt
 
 # ps isn't in the base debian images - required by GATHER_SAMPLES
 RUN apt-get update && apt-get install -y procps && rm -rf /var/lib/apt/lists/*
