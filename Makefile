@@ -1,8 +1,13 @@
 DOCKER_IMAGE_URI_PATH=566277102435.dkr.ecr.eu-west-2.amazonaws.com/congenica/psga-dev
-DOCKER_IMAGE_TAG=1.0.0
+BACTOPIA_BASE_IMAGE_URI_PATH=566277102435.dkr.ecr.eu-west-2.amazonaws.com/congenica/psga-nonprod
+DOCKER_IMAGE_TAG=dev_latest
 SARS_COV_2=sars_cov_2
 SYNTHETIC=synthetic
 S_AUREUS=s_aureus
+
+# build base images
+bactopia-base-image:
+	docker build -t ${BACTOPIA_BASE_IMAGE_URI_PATH}/bactopia:${DOCKER_IMAGE_TAG} -f docker/Dockerfile.bactopia .
 
 # build images per pathogen
 sars-cov-2-images:
