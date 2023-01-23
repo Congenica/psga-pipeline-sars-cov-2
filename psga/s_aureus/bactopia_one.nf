@@ -80,7 +80,6 @@ with open('hello.txt', 'w') as outfile:
     # Run extra bactopia commands
     with open('includes.txt', 'w') as includes_file:
         includes_file.write(sample_id)
-    os.system('bactopia --wf amrfinderplus --bactopia local-single-sample --organism Staphylococcus_aureus --include includes.txt')
     os.system('bactopia --wf mlst --bactopia local-single-sample --include includes.txt')
     os.system('bactopia --wf mykrobe --bactopia local-single-sample --mykrobe_species staph --include includes.txt')
 

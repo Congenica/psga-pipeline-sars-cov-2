@@ -24,7 +24,7 @@ kubectl apply -f service_account.yaml
 kubectl apply -f deploy_psga_resources.yaml
 
 ## deploy sars-cov-2 pipeline
-kubectl apply -f deploy_sars_cov_2.yaml
+kubectl apply -f deploy_sars_cov_2_pipeline.yaml
 pipeline_pod="$( kubectl get pods -l app=sars-cov-2-pipeline-minikube --no-headers -o custom-columns=':metadata.name' )"
 wait_for_pod "${pipeline_pod}"
 kubectl cp ${HOME}/.aws ${pipeline_pod}:/root/
@@ -37,8 +37,8 @@ wait_for_pod "${pipeline_pod}"
 kubectl cp ${HOME}/.aws ${pipeline_pod}:/root/
 
 
-## deploy bactopia pipeline
-kubectl apply -f deploy_bactopia_pipeline.yaml
+## deploy s-aureus pipeline
+kubectl apply -f deploy_s_aureus_pipeline.yaml
 pipeline_pod="$( kubectl get pods -l app=s-aureus-pipeline-minikube --no-headers -o custom-columns=':metadata.name' )"
 wait_for_pod "${pipeline_pod}"
 kubectl cp ${HOME}/.aws ${pipeline_pod}:/root/

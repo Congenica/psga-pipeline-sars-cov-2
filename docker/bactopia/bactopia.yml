@@ -1,12 +1,10 @@
-name: psga
+name: bactopia
 channels:
   - bioconda
   - conda-forge
   - defaults
 dependencies:
   - nextflow=22.04.5  # Need lower version because conda disabled by default in higher versions (maybe use newer version and enable conda)
-  - make=4.3
-  - gcc=12.1.0
   - python=3.9.14     # Required by bactopia (must be below v3.10)
   - bactopia=2.1.1    # Supposedly "Incompatible" with art below but mamba is happy
   - graphviz=6.0.2
@@ -17,5 +15,3 @@ dependencies:
   - sra-tools=2.9.6
   - art=2016.06.05
   - awscli=1.25.92
-  - pip:
-    - PyYAML==6.0
