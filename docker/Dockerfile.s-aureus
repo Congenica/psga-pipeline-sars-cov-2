@@ -2,8 +2,11 @@ FROM 566277102435.dkr.ecr.eu-west-2.amazonaws.com/congenica/psga-nonprod/bactopi
 
 ARG pathogen
 
-# This command takes about 1hr to run
-RUN bactopia datasets --species "Staphylococcus aureus" --include_genus
+# `bactopia datasets` installs every datasets for the specified species.
+# The following command takes about 1hr to run: bactopia datasets --species "Staphylococcus aureus"
+# Do not include `--include_genus` as otherwise the reference genomes for species in the same genus are also installed
+# `--limit 0` forces the downloading of all reference genomes and not a random subsampling of up to 1000. This makes results predictable
+RUN bactopia datasets --species "Staphylococcus aureus" --limit 0
 
 COPY docker/${pathogen}/${pathogen}.yml /requirements.yml
-mamba env update -n base -f requirements.yml
+RUN mamba env update -n base -f requirements.yml
