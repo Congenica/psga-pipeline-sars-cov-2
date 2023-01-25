@@ -1,0 +1,32 @@
+name: Build, test and push bactopia-based pipeline images
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 0 * * SUN'
+jobs:
+  build_image:
+    name: Build and push image
+    needs:
+      - check_and_test
+    strategy:
+      matrix:
+        image:
+          - name: s-aureus
+            pathogen: s_aureus
+    uses: ./.github/workflows/build_image.yaml
+    secrets: inherit
+    with:
+      name: ${{ matrix.image.name }}
+      dockerfile: ${{ matrix.image.dockerfile }}
+      pathogen: ${{ matrix.image.pathogen }}
+  publish_configs:
+    name: Publish configs
+    needs: build_image
+    uses: ./.github/workflows/publish_configs.yaml
+    secrets:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      S3_BUCKET_PATH: ${{ secrets.S3_BUCKET_PATH_DEV }}
+  check_and_test:
+    name: Install dependencies and run tests
+    uses: ./.github/workflows/check_and_test.yaml
