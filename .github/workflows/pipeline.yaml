@@ -38,6 +38,15 @@ jobs:
       name: ${{ matrix.image.name }}
       dockerfile: ${{ matrix.image.dockerfile }}
       pathogen: ${{ matrix.image.pathogen }}
+  integration_tests:
+    name: Test images using minikube
+    steps:
+      - name: Start minikube
+        uses: medyagh/setup-minikube@master
+      - name: Deploy and test pipelines
+        run: |
+          cd minikube
+          ./startup.sh
   publish_configs:
     name: Publish configs
     needs: build_image
