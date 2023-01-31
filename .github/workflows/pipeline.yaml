@@ -40,6 +40,7 @@ jobs:
       pathogen: ${{ matrix.image.pathogen }}
   integration_tests:
     name: Test images using minikube
+    runs-on: ubuntu-22.04
     steps:
       - name: Start minikube
         uses: medyagh/setup-minikube@master
