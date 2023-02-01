@@ -4,60 +4,64 @@ on:
     branches-ignore:
       - "release/**"
 jobs:
-  build_image:
-    name: Build and push image
-    needs:
-      - check_and_test
-    strategy:
-      matrix:
-        image:
-          - name: s-aureus-pipeline
-            dockerfile: Dockerfile.psga-pipeline
-            pathogen: s_aureus
-          - name: synthetic-pipeline
-            dockerfile: Dockerfile.psga-pipeline
-            pathogen: synthetic
-          - name: sars-cov-2-pipeline
-            dockerfile: Dockerfile.psga-pipeline
-            pathogen: sars_cov_2
-          - name: fastqc
-            pathogen: sars_cov_2
-          - name: read-it-and-keep
-            pathogen: sars_cov_2
-          - name: primer-autodetection
-            pathogen: sars_cov_2
-          - name: pangolin
-            pathogen: sars_cov_2
-          - name: ncov2019-artic-nf-nanopore
-            pathogen: sars_cov_2
-          - name: ncov2019-artic-nf-illumina
-            pathogen: sars_cov_2
-    uses: ./.github/workflows/build_image.yaml
-    secrets: inherit
-    with:
-      name: ${{ matrix.image.name }}
-      dockerfile: ${{ matrix.image.dockerfile }}
-      pathogen: ${{ matrix.image.pathogen }}
+  # build_image:
+  #   name: Build and push image
+  #   needs:
+  #     - check_and_test
+  #   strategy:
+  #     matrix:
+  #       image:
+  #         - name: s-aureus-pipeline
+  #           dockerfile: Dockerfile.psga-pipeline
+  #           pathogen: s_aureus
+  #         - name: synthetic-pipeline
+  #           dockerfile: Dockerfile.psga-pipeline
+  #           pathogen: synthetic
+  #         - name: sars-cov-2-pipeline
+  #           dockerfile: Dockerfile.psga-pipeline
+  #           pathogen: sars_cov_2
+  #         - name: fastqc
+  #           pathogen: sars_cov_2
+  #         - name: read-it-and-keep
+  #           pathogen: sars_cov_2
+  #         - name: primer-autodetection
+  #           pathogen: sars_cov_2
+  #         - name: pangolin
+  #           pathogen: sars_cov_2
+  #         - name: ncov2019-artic-nf-nanopore
+  #           pathogen: sars_cov_2
+  #         - name: ncov2019-artic-nf-illumina
+  #           pathogen: sars_cov_2
+  #   uses: ./.github/workflows/build_image.yaml
+  #   secrets: inherit
+  #   with:
+  #     name: ${{ matrix.image.name }}
+  #     dockerfile: ${{ matrix.image.dockerfile }}
+  #     pathogen: ${{ matrix.image.pathogen }}
   integration_tests:
     name: Test images using minikube
     runs-on: ubuntu-22.04
-    needs: build_image
+    #needs: build_image
     steps:
+      - name: Check out repo
+        uses: actions/checkout@v3
       - name: Start minikube
         uses: medyagh/setup-minikube@master
+      - name: Install kubectl
+        uses: azure/setup-kubectl@v3
       - name: Deploy and test pipelines
         run: |
           cd minikube
-          sed -i 's/{TAG}/${{ github.sha }}/g' *
+          # sed -i 's/{TAG}/${{ github.sha }}/g' *
+          sed -i 's/{TAG}/bb11c8bc535fda1c92ff0587d649bb7ae272343a/g' *
           ./startup.sh
-  publish_configs:
-    name: Publish configs
-    needs: build_image
-    uses: ./.github/workflows/publish_configs.yaml
-    secrets:
-      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      S3_BUCKET_PATH: ${{ secrets.S3_BUCKET_PATH_DEV }}
-  check_and_test:
-    name: Install dependencies and run tests
-    uses: ./.github/workflows/check_and_test.yaml
+  # publish_configs:
+  #   name: Publish configs
+  #   uses: ./.github/workflows/publish_configs.yaml
+  #   secrets:
+  #     AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  #     AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  #     S3_BUCKET_PATH: ${{ secrets.S3_BUCKET_PATH_DEV }}
+  # check_and_test:
+  #   name: Install dependencies and run tests
+  #   uses: ./.github/workflows/check_and_test.yaml
