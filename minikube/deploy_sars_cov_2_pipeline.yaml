@@ -23,7 +23,7 @@ spec:
                 values:
                 - "true"
       containers:
-      - image: 566277102435.dkr.ecr.eu-west-2.amazonaws.com/congenica/psga-nonprod/sars-cov-2-pipeline:dev_latest
+      - image: 566277102435.dkr.ecr.eu-west-2.amazonaws.com/congenica/psga-nonprod/sars-cov-2-pipeline:{TAG}
         name: sars-cov-2-pipeline-minikube
         command:
         - /bin/bash
@@ -35,7 +35,7 @@ spec:
         - name: DOCKER_IMAGE_URI_PATH
           value: '566277102435.dkr.ecr.eu-west-2.amazonaws.com/congenica/psga-nonprod'
         - name: DOCKER_IMAGE_TAG
-          value: 'dev_latest'
+          value: '{TAG}'
         - name: SCRATCH
           value: 'false'
         - name: AWS_MAX_CONNECTIONS

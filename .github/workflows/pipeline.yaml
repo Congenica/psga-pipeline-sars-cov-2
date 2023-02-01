@@ -41,12 +41,14 @@ jobs:
   integration_tests:
     name: Test images using minikube
     runs-on: ubuntu-22.04
+    needs: build_image
     steps:
       - name: Start minikube
         uses: medyagh/setup-minikube@master
       - name: Deploy and test pipelines
         run: |
           cd minikube
+          sed -i 's/{TAG}/${{ github.sha }}/g' *
           ./startup.sh
   publish_configs:
     name: Publish configs
