@@ -2,12 +2,12 @@
 
 wait_for_pod() {
     local __POD="${1}"
-
-    printf "waiting for pod ${__POD} to run "
+    echo "Waiting for pod ${__POD} to run"
     while [[ $(kubectl get pods ${__POD} -o 'jsonpath={..status.conditions[?(@.type=="Ready")].status}') != "True" ]]; do
-        printf "." && sleep 1
+      kubectl describe pod ${__POD}
+      sleep 1
     done
-    printf "\n${__POD} is running\n"
+    echo "${__POD} is running"
 }
 
 echo "Labeling minikube node so that it matches against the cluster"
