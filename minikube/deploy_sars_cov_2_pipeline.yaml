@@ -30,7 +30,7 @@ spec:
         args:
         - -c
         - "while true; do sleep 30; done;"
-        imagePullPolicy: Never
+        imagePullPolicy: IfNotPresent
         env:
         - name: DOCKER_IMAGE_URI_PATH
           value: '566277102435.dkr.ecr.eu-west-2.amazonaws.com/congenica/psga-nonprod'
