@@ -62,10 +62,6 @@ jobs:
           cd minikube
           # sed -i 's/{TAG}/${{ github.sha }}/g' *
           sed -i 's/{TAG}/bb11c8bc535fda1c92ff0587d649bb7ae272343a/g' *
-          kubectl create secret generic regcred \
-            --from-file=.dockerconfigjson=$HOME/.docker/config.json \
-            --type=kubernetes.io/dockerconfigjson
-          kubectl patch serviceaccount psga-minikube-admin -p '{"imagePullSecrets": [{"name": "regcred"}]}'
           ./startup.sh
   # publish_configs:
   #   name: Publish configs
