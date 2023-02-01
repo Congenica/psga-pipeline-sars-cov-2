@@ -10,36 +10,39 @@ wait_for_pod() {
     printf "\n${__POD} is running\n"
 }
 
-# label minikube node so that it matches against the cluster
+echo "Labeling minikube node so that it matches against the cluster"
 kubectl label --overwrite node minikube farmNode=true
 
-# create new namespace and set it as default
+echo "Creating new namespace and setting it as default"
 kubectl apply -f create_namespace.yaml
 kubectl config set-context $(kubectl config current-context) --namespace=psga-minikube
 
-# set service account
+echo "Setting service account"
 kubectl apply -f service_account.yaml
 
-# set psga resources (e.g. pvc)
+echo "Setting psga resources (e.g. pvc)"
 kubectl apply -f deploy_psga_resources.yaml
 
-## deploy sars-cov-2 pipeline
+echo "Listing running pods"
+kubectl get pods
+
+echo "Deploying sars-cov-2 pipeline"
 kubectl apply -f deploy_sars_cov_2_pipeline.yaml
+echo "Waiting for the sars-cov-2-pipeline-minikube pod to be ready"
 pipeline_pod="$( kubectl get pods -l app=sars-cov-2-pipeline-minikube --no-headers -o custom-columns=':metadata.name' )"
 wait_for_pod "${pipeline_pod}"
 kubectl cp ${HOME}/.aws ${pipeline_pod}:/root/
 
-
-## deploy synthetic pipeline
+echo "Deploying synthetic pipeline"
 kubectl apply -f deploy_synthetic_pipeline.yaml
+echo "Waiting for the synthetic-pipeline-minikube pod to be ready"
 pipeline_pod="$( kubectl get pods -l app=synthetic-pipeline-minikube --no-headers -o custom-columns=':metadata.name' )"
 wait_for_pod "${pipeline_pod}"
 kubectl cp ${HOME}/.aws ${pipeline_pod}:/root/
 
-
-## deploy s-aureus pipeline
+echo "Deploying s-aureus pipeline"
 kubectl apply -f deploy_s_aureus_pipeline.yaml
+echo "Waiting for the s-aureus-pipeline-minikube pod to be ready"
 pipeline_pod="$( kubectl get pods -l app=s-aureus-pipeline-minikube --no-headers -o custom-columns=':metadata.name' )"
 wait_for_pod "${pipeline_pod}"
 kubectl cp ${HOME}/.aws ${pipeline_pod}:/root/
-
