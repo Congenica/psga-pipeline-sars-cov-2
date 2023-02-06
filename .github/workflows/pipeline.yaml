@@ -40,7 +40,8 @@ jobs:
   #     pathogen: ${{ matrix.image.pathogen }}
   integration_tests:
     name: Test images using minikube
-    runs-on: ubuntu-22.04
+    #runs-on: ubuntu-22.04
+    runs-on: psga-prod
     #needs: build_image
     steps:
       - name: Check out repo
