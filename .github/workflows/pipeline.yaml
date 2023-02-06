@@ -61,7 +61,7 @@ jobs:
         run: |
           cd minikube
           # sed -i 's/{TAG}/${{ github.sha }}/g' pipelines/*
-          sed -i 's/{TAG}/bb11c8bc535fda1c92ff0587d649bb7ae272343a/g' *
+          sed -i 's/{TAG}/bb11c8bc535fda1c92ff0587d649bb7ae272343a/g' pipelines/*
           ./startup.sh
           ./run_pipelines.sh
   # publish_configs:
