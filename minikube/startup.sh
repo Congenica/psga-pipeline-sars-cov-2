@@ -42,5 +42,4 @@ for name in $PIPELINES; do
   echo "Waiting for the $name-pipeline-minikube pod to be ready"
   pipeline_pod="$( kubectl get pods -l app=$name-pipeline-minikube --no-headers -o custom-columns=':metadata.name' )"
   wait_for_pod "${pipeline_pod}"
-  kubectl cp ${HOME}/.aws/config ${pipeline_pod}:/root/
 done
