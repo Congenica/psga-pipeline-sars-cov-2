@@ -43,7 +43,7 @@ spec:
         - name: K8S_NODE
           value: farmNode
         - name: K8S_PULL_POLICY
-          value: Never
+          value: IfNotPresent
         - name: K8S_SERVICE_ACCOUNT
           value: psga-minikube-admin
         - name: QUEUE_SIZE
