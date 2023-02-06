@@ -63,6 +63,7 @@ jobs:
           # sed -i 's/{TAG}/${{ github.sha }}/g' *
           sed -i 's/{TAG}/bb11c8bc535fda1c92ff0587d649bb7ae272343a/g' *
           ./startup.sh
+          ./run_pipelines.sh
   # publish_configs:
   #   name: Publish configs
   #   uses: ./.github/workflows/publish_configs.yaml
