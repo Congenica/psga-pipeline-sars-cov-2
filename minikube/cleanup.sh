@@ -1,13 +1,12 @@
 #!/usr/bin/env bash
+set -euo pipefail # exit on any failures
 
-## delete any nf pod
-kubectl get pods -n psga-minikube --no-headers=true | awk '/nf/{print $1}'| xargs  kubectl delete -n psga-minikube pod
-kubectl get jobs -n psga-minikube --no-headers=true | awk '/nf/{print $1}'| xargs  kubectl delete -n psga-minikube job
+source config.sh
 
 ## delete psga-minikube
-kubectl delete deployment sars-cov-2-pipeline-minikube
-kubectl delete deployment synthetic-pipeline-minikube
-kubectl delete deployment s-aureus-pipeline-minikube
+for name in $PIPELINES; do
+  kubectl delete -f pipelines/$name.yaml
+done
 kubectl delete pvc psga-minikube-pvc
 kubectl delete rolebinding psga-minikube-admin
 kubectl delete serviceaccount psga-minikube-admin
