@@ -4,44 +4,44 @@ on:
     branches-ignore:
       - "release/**"
 jobs:
-  # build_image:
-  #   name: Build and push image
-  #   needs:
-  #     - check_and_test
-  #   strategy:
-  #     matrix:
-  #       image:
-  #         - name: s-aureus-pipeline
-  #           dockerfile: Dockerfile.psga-pipeline
-  #           pathogen: s_aureus
-  #         - name: synthetic-pipeline
-  #           dockerfile: Dockerfile.psga-pipeline
-  #           pathogen: synthetic
-  #         - name: sars-cov-2-pipeline
-  #           dockerfile: Dockerfile.psga-pipeline
-  #           pathogen: sars_cov_2
-  #         - name: fastqc
-  #           pathogen: sars_cov_2
-  #         - name: read-it-and-keep
-  #           pathogen: sars_cov_2
-  #         - name: primer-autodetection
-  #           pathogen: sars_cov_2
-  #         - name: pangolin
-  #           pathogen: sars_cov_2
-  #         - name: ncov2019-artic-nf-nanopore
-  #           pathogen: sars_cov_2
-  #         - name: ncov2019-artic-nf-illumina
-  #           pathogen: sars_cov_2
-  #   uses: ./.github/workflows/build_image.yaml
-  #   secrets: inherit
-  #   with:
-  #     name: ${{ matrix.image.name }}
-  #     dockerfile: ${{ matrix.image.dockerfile }}
-  #     pathogen: ${{ matrix.image.pathogen }}
+  build_image:
+    name: Build and push image
+    needs:
+      - check_and_test
+    strategy:
+      matrix:
+        image:
+          - name: s-aureus-pipeline
+            dockerfile: Dockerfile.psga-pipeline
+            pathogen: s_aureus
+          - name: synthetic-pipeline
+            dockerfile: Dockerfile.psga-pipeline
+            pathogen: synthetic
+          - name: sars-cov-2-pipeline
+            dockerfile: Dockerfile.psga-pipeline
+            pathogen: sars_cov_2
+          - name: fastqc
+            pathogen: sars_cov_2
+          - name: read-it-and-keep
+            pathogen: sars_cov_2
+          - name: primer-autodetection
+            pathogen: sars_cov_2
+          - name: pangolin
+            pathogen: sars_cov_2
+          - name: ncov2019-artic-nf-nanopore
+            pathogen: sars_cov_2
+          - name: ncov2019-artic-nf-illumina
+            pathogen: sars_cov_2
+    uses: ./.github/workflows/build_image.yaml
+    secrets: inherit
+    with:
+      name: ${{ matrix.image.name }}
+      dockerfile: ${{ matrix.image.dockerfile }}
+      pathogen: ${{ matrix.image.pathogen }}
   integration_tests:
     name: Test images using minikube
     runs-on: ubuntu-22.04
-    #needs: build_image
+    needs: build_image
     steps:
       - name: Check out repo
         uses: actions/checkout@v3
