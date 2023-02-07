@@ -64,10 +64,10 @@ spec:
           value: '500'
         - name: PROCESS_MEMORY_VERY_HIGH
           value: '500'
-        - name: PROCESS_CPU_LOW
-          value: "1"
-        - name: PROCESS_CPU_HIGH
-          value: "1"
+        # - name: PROCESS_CPU_LOW
+        #   value: "1"
+        # - name: PROCESS_CPU_HIGH
+        #   value: "1"
         - name: NXF_WORK
           value: /data/work
         - name: NXF_EXECUTOR
