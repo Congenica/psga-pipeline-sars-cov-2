@@ -3,7 +3,7 @@ set -euo pipefail # exit on any failures
 
 source config.sh
 
-## delete psga-minikube
+kubectl get jobs -n psga-minikube --no-headers=true | awk '/nf/{print $1}'| xargs  kubectl delete -n psga-minikube job || true
 for name in $PIPELINES; do
   kubectl delete -f pipelines/$name.yaml
 done
