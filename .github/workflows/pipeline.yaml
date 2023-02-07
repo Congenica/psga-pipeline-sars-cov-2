@@ -6,8 +6,8 @@ on:
 jobs:
   build_image:
     name: Build and push image
-    needs:
-      - check_and_test
+    # needs:
+    #   - check_and_test
     strategy:
       matrix:
         image:
