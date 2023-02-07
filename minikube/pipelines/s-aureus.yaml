@@ -23,7 +23,7 @@ spec:
                 values:
                 - "true"
       containers:
-      - image: 566277102435.dkr.ecr.eu-west-2.amazonaws.com/congenica/psga-nonprod/s-aureus-pipeline:51083d2b312f60550f53c61421b9a0dd66bad920
+      - image: 566277102435.dkr.ecr.eu-west-2.amazonaws.com/congenica/psga-nonprod/s-aureus-pipeline:{TAG}
         name: s-aureus-pipeline-minikube
         command:
         - /bin/bash
@@ -35,7 +35,7 @@ spec:
         - name: DOCKER_IMAGE_URI_PATH
           value: '566277102435.dkr.ecr.eu-west-2.amazonaws.com/congenica/psga-nonprod'
         - name: DOCKER_IMAGE_TAG
-          value: '51083d2b312f60550f53c61421b9a0dd66bad920'
+          value: '{TAG}'
         - name: AWS_MAX_CONNECTIONS
           value: '20'
         - name: AWS_MAX_PARALLEL_TRANSFERS

@@ -1,0 +1,6 @@
+METADATA="s3://synthetic-data-dev/UKHSA/small_tests/unknown/metadata.csv"
+OUTPUT_PATH="/data/output/unknown_short"
+NXF_WORK="/data/work/unknown_short"
+ANALYSIS_RUN="unknown_short"
+SEQUENCING_TECHNOLOGY="unknown"
+KIT="none"
