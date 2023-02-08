@@ -1,6 +1,0 @@
-METADATA="s3://synthetic-data-dev/UKHSA/requirements/CL0015b/ont_v4_input/metadata.csv"
-OUTPUT_PATH="/data/output/ont_artic_v4-1"
-NXF_WORK="/data/work/ont_artic_v4-1"
-ANALYSIS_RUN="ont_artic_v4-1"
-SEQUENCING_TECHNOLOGY="ont"
-KIT="unknown"
