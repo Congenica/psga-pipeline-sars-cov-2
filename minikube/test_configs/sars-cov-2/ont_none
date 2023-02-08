@@ -1,6 +1,0 @@
-METADATA="s3://synthetic-data-dev/UKHSA/small_tests/ont/metadata.csv"
-OUTPUT_PATH="/data/output/ont_none"
-NXF_WORK="/data/work/ont_none"
-ANALYSIS_RUN="ont_none"
-SEQUENCING_TECHNOLOGY="ont"
-KIT="none"
