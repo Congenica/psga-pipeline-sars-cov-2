@@ -1,6 +1,0 @@
-METADATA="s3://synthetic-data-dev/UKHSA/small_tests/ont_midnight_v2/metadata.csv"
-OUTPUT_PATH="/data/output/ont_midnight_v2"
-NXF_WORK="/data/work/ont_midnight_v2"
-ANALYSIS_RUN="ont_midnight_v2"
-SEQUENCING_TECHNOLOGY="ont"
-KIT="Midnight-ONT_V2"
