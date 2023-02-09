@@ -59,11 +59,15 @@ spec:
         - name: PROCESS_MEMORY_LOW
           value: '500'
         - name: PROCESS_MEMORY_MEDIUM
-          value: '700'
+          value: '1000'
         - name: PROCESS_MEMORY_HIGH
-          value: '100'
-        - name: PROCESS_MEMORY_VERY_HIGH
           value: '2000'
+        - name: PROCESS_MEMORY_VERY_HIGH
+          value: '3000'
+        - name: PROCESS_CPU_LOW
+          value: ''
+        - name: PROCESS_CPU_HIGH
+          value: ''
         - name: NXF_WORK
           value: /data/work
         - name: NXF_EXECUTOR

@@ -17,7 +17,7 @@ kubectl label --overwrite node minikube farmNode=true
 
 echo "Creating new namespace and setting it as default"
 kubectl apply -f create_namespace.yaml
-kubectl config set-context $(kubectl config current-context) --namespace=psga-minikube
+kubectl config set-context minikube --namespace=psga-minikube
 
 echo "Setting service account"
 kubectl apply -f service_account.yaml
