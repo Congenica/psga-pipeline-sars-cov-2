@@ -25,6 +25,7 @@ data_config = {
                 "PANGOLIN_SCORPIO_SUPPORT",
                 "PANGOLIN_SCORPIO_CONFLICT",
                 "PANGOLIN_SCORPIO_NOTES",
+                "PANGOLIN_PANGO_DESIGNATION_VERSION",
                 "PANGOLIN_VERSION",
                 "PANGOLIN_SCORPIO_VERSION",
                 "PANGOLIN_CONSTELLATION_VERSION",
