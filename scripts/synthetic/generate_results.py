@@ -1,7 +1,7 @@
 from pathlib import Path, PosixPath
 from typing import Dict, List, Set
 from functools import partial, reduce
-import random
+from itertools import cycle
 import json
 from json import JSONEncoder
 
@@ -34,13 +34,18 @@ SYNTHETIC_DATA = [
     },
     {
         QC: PASS,
-        LINEAGE: "1.2",
-        RD: "RD239",
+        LINEAGE: "4.1",
+        RD: "RD182",
     },
     {
         QC: PASS,
         LINEAGE: "2.1",
         RD: "RD105-RD207",
+    },
+    {
+        QC: PASS,
+        LINEAGE: "1.2",
+        RD: "RD239",
     },
     {
         QC: PASS,
@@ -53,11 +58,6 @@ SYNTHETIC_DATA = [
         RD: "RD750",
     },
     {
-        QC: PASS,
-        LINEAGE: "4.1",
-        RD: "RD182",
-    },
-    {
         QC: FAIL,
         LINEAGE: "4.1",
         RD: "RD193",
@@ -68,6 +68,9 @@ SYNTHETIC_DATA = [
         RD: "RD711",
     },
 ]
+
+# generate a cycle list so that generated data for each sample is predictable
+SYNTHETIC_DATA_POOL = cycle(SYNTHETIC_DATA)
 
 
 class PathJSONEncoder(JSONEncoder):
@@ -187,16 +190,16 @@ def generate_results(
     Generate pipeline results files
     """
     df_metadata = load_data_from_csv(Path(metadata_file), EXPECTED_METADATA_HEADERS)
-    all_samples = df_metadata[SAMPLE_ID].tolist()
+    all_samples = sorted(df_metadata[SAMPLE_ID].tolist())
 
     # generate some synthetic results.
-    successfull_samples = all_samples
+    successful_samples = all_samples
     qc_unrelated_failing_samples: List[str] = []
 
-    synthetic_sample_results = [random.choice(SYNTHETIC_DATA) for sample in successfull_samples]
+    synthetic_sample_results = [next(SYNTHETIC_DATA_POOL) for sample in successful_samples]
 
     synthetic_results = {
-        SAMPLE_ID: successfull_samples,
+        SAMPLE_ID: successful_samples,
         QC: [s[QC] for s in synthetic_sample_results],
         LINEAGE: [s[LINEAGE] for s in synthetic_sample_results],
         RD: [s[RD] for s in synthetic_sample_results],
@@ -204,7 +207,7 @@ def generate_results(
     df_synthetic = pd.DataFrame(data=synthetic_results)
 
     _generate_results_csv(all_samples, df_synthetic, qc_unrelated_failing_samples, output_csv_file)
-    _generate_resultfiles_json(successfull_samples, output_path, Path(output_json_file))
+    _generate_resultfiles_json(successful_samples, output_path, Path(output_json_file))
 
 
 if __name__ == "__main__":
