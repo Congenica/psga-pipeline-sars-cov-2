@@ -11,6 +11,7 @@ bactopia-base-image:
 # build images per pathogen
 sars-cov-2-images:
 	docker build --build-arg pathogen=${SARS_COV_2} -t ${DOCKER_IMAGE_URI_PATH}/sars-cov-2-pipeline:${DOCKER_IMAGE_TAG} -f docker/Dockerfile.psga-pipeline .
+	docker build --build-arg pathogen=${SARS_COV_2} -t ${DOCKER_IMAGE_URI_PATH}/htstools:${DOCKER_IMAGE_TAG} -f docker/Dockerfile.htstools .
 	docker build --build-arg pathogen=${SARS_COV_2} -t ${DOCKER_IMAGE_URI_PATH}/read-it-and-keep:${DOCKER_IMAGE_TAG} -f docker/Dockerfile.read-it-and-keep .
 	docker build --build-arg pathogen=${SARS_COV_2} -t ${DOCKER_IMAGE_URI_PATH}/fastqc:${DOCKER_IMAGE_TAG} -f docker/Dockerfile.fastqc .
 	docker build --build-arg pathogen=${SARS_COV_2} -t ${DOCKER_IMAGE_URI_PATH}/primer-autodetection:${DOCKER_IMAGE_TAG} -f docker/Dockerfile.primer-autodetection .
