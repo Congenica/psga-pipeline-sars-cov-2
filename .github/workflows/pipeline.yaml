@@ -20,6 +20,8 @@ jobs:
           - name: sars-cov-2-pipeline
             dockerfile: Dockerfile.psga-pipeline
             pathogen: sars_cov_2
+          - name: htstools
+            pathogen: sars_cov_2
           - name: fastqc
             pathogen: sars_cov_2
           - name: read-it-and-keep
