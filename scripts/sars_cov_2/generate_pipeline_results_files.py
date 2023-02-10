@@ -1,9 +1,7 @@
-from pathlib import Path, PosixPath
-from typing import Dict, List, Set, Tuple
+from pathlib import Path
+from typing import List, Set, Tuple
 from dataclasses import dataclass, field
 from functools import partial, reduce
-import json
-from json import JSONEncoder
 
 import click
 import pandas as pd
@@ -18,15 +16,15 @@ from scripts.common.primer_cols import (
 )
 from scripts.util.logger import get_structlog_logger, ERROR, WARNING, INFO
 from scripts.util.metadata import EXPECTED_HEADERS as EXPECTED_METADATA_HEADERS, SAMPLE_ID, ILLUMINA, ONT, UNKNOWN
-from scripts.util.notifications import Event, Notification
 from scripts.util.convert import csv_to_json
-from scripts.util.slugs import get_file_with_type, FileType
+from scripts.util.data_loading import write_json
+from scripts.util.notifications import Event, Notification
+from scripts.util.slugs import get_file_with_type, FileType, RESULTFILES_TYPE
 from scripts.validation.check_csv_columns import check_csv_columns
 
 log_file = f"{Path(__file__).stem}.log"
 logger = get_structlog_logger(log_file=log_file)
 
-RESULTFILES_TYPE = Dict[str, List[Dict[str, str]]]
 
 # header for ncov qc summary CSV file
 NCOV_SAMPLE_ID_COL = "sample_name"
@@ -120,17 +118,6 @@ class SampleIdResultFiles:
     ncov_completed_samples: List[str] = field(metadata={"required": True}, default_factory=list)
     # samples passing ncov qc
     ncov_qc_passed_samples: List[str] = field(metadata={"required": True}, default_factory=list)
-
-
-class PathJSONEncoder(JSONEncoder):
-    """
-    Enable JSON serialisation of PosixPath objects
-    """
-
-    def default(self, o):
-        if isinstance(o, PosixPath):
-            return str(o)
-        return super().default(o)
 
 
 def load_data_from_csv(
@@ -645,8 +632,7 @@ def _generate_resultfiles_json(
         sequencing_technology=sequencing_technology,
     )
 
-    with open(output_resultfiles_json_file, "w") as outfile:
-        json.dump(output_files_per_sample, outfile, cls=PathJSONEncoder, sort_keys=True, indent=4)
+    write_json(output_files_per_sample, output_resultfiles_json_file)
 
 
 @click.command()

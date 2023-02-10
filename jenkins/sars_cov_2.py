@@ -1,17 +1,8 @@
-from pathlib import Path
 from os.path import join as join_path  # used to join FS paths and S3 URIs
 from typing import List
-import click
 
-from jenkins.loading import load_data_from_csv, get_file_paths
-from jenkins.compare import compare_merged_output_file, compare_output_files_set
-from jenkins.config import data_config
-from scripts.common.check_metadata import SEQUENCING_TECHNOLOGIES
 from scripts.sars_cov_2.generate_pipeline_results_files import get_expected_output_files_per_sample, SampleIdResultFiles
-from scripts.util.logger import get_structlog_logger
 from scripts.util.metadata import UNKNOWN
-
-logger = get_structlog_logger()
 
 
 def get_expected_output_files(output_path: str, sample_ids: List[str], sequencing_technology: str) -> List[str]:
@@ -47,33 +38,3 @@ def get_expected_output_files(output_path: str, sample_ids: List[str], sequencin
     output_files.append(join_path(output_path, "resultfiles.json"))
 
     return output_files
-
-
-@click.command(name="sars_cov_2")
-@click.option(
-    "--sequencing-technology",
-    required=True,
-    type=click.Choice(SEQUENCING_TECHNOLOGIES, case_sensitive=True),
-    help="The name of the sequencing technology",
-)
-@click.pass_context
-def sars_cov_2(ctx, sequencing_technology: str):
-    """
-    Validate sars_cov_2 output
-    """
-    results_csv = ctx.obj["results_csv"]
-    expected_results_csv = ctx.obj["expected_results_csv"]
-    output_path = ctx.obj["output_path"]
-
-    pathogen = "sars_cov_2"
-    if pathogen not in data_config:
-        ValueError(f"Configuration error. Pathogen {pathogen} not supported")
-    data = data_config[pathogen]["config"]
-
-    sample_ids = compare_merged_output_file(load_data_from_csv, data, results_csv, expected_results_csv)
-
-    logger.info("Validation of output files set STARTED")
-    exp_output_files = get_expected_output_files(output_path, sample_ids, sequencing_technology)
-    calc_output_files = get_file_paths(Path(output_path))
-    compare_output_files_set(set(calc_output_files), set(exp_output_files))
-    logger.info("Validation PASSED")

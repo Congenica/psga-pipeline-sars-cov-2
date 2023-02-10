@@ -1,9 +1,7 @@
-from pathlib import Path, PosixPath
-from typing import Dict, List, Set
+from pathlib import Path
+from typing import List, Set
 from functools import partial, reduce
 from itertools import cycle
-import json
-from json import JSONEncoder
 
 import click
 import pandas as pd
@@ -11,7 +9,9 @@ import pandas as pd
 from scripts.util.logger import get_structlog_logger
 from scripts.util.metadata import EXPECTED_HEADERS as EXPECTED_METADATA_HEADERS, SAMPLE_ID
 from scripts.validation.check_csv_columns import check_csv_columns
-from scripts.util.slugs import get_file_with_type, FileType
+from scripts.util.convert import csv_to_json
+from scripts.util.data_loading import write_json
+from scripts.util.slugs import get_file_with_type, FileType, RESULTFILES_TYPE
 
 log_file = f"{Path(__file__).stem}.log"
 logger = get_structlog_logger(log_file=log_file)
@@ -69,20 +69,6 @@ SYNTHETIC_DATA = [
     },
 ]
 
-# generate a cycle list so that generated data for each sample is predictable
-SYNTHETIC_DATA_POOL = cycle(SYNTHETIC_DATA)
-
-
-class PathJSONEncoder(JSONEncoder):
-    """
-    Enable JSON serialisation of PosixPath objects
-    """
-
-    def default(self, o):
-        if isinstance(o, PosixPath):
-            return str(o)
-        return super().default(o)
-
 
 def load_data_from_csv(
     csv_path: Path, expected_columns: Set[str], sample_name_col_to_rename: str = None
@@ -102,7 +88,7 @@ def _generate_results_csv(
     all_samples: List[str],
     df_synthetic: pd.DataFrame,
     qc_unrelated_failing_samples: List[str],
-    output_csv_file: str,
+    output_results_csv_file: str,
 ) -> None:
     """
     Generate the pipeline results CSV file.
@@ -129,21 +115,20 @@ def _generate_results_csv(
     df_merged.insert(0, SAMPLE_ID, sample_id_col_data)
 
     # save to CSV
-    df_merged.to_csv(output_csv_file, encoding="utf-8", index=False)
+    df_merged.to_csv(output_results_csv_file, encoding="utf-8", index=False)
 
 
-def _generate_resultfiles_json(
-    all_samples: List[str],
+def get_expected_output_files_per_sample(
     output_path: str,
-    output_json_file: Path,
-) -> None:
+    sample_ids_result_files: List[str],
+) -> RESULTFILES_TYPE:
     """
-    Generate a JSON file containing the list of expected result files per sample
+    Return a dictionary {sample_id, list_of_expected_output_paths}
     """
     # initialise the dictionary keys
-    output_files: Dict[str, List[str]] = {}
+    output_files: RESULTFILES_TYPE = {sample_id: [] for sample_id in sample_ids_result_files}
 
-    for sample_id in all_samples:
+    for sample_id in sample_ids_result_files:
         output_files[sample_id] = get_file_with_type(
             output_path=output_path,
             inner_dirs=["analysis"],
@@ -151,8 +136,23 @@ def _generate_resultfiles_json(
             sample_id=sample_id,
         )
 
-    with open(output_json_file, "w") as outfile:
-        json.dump(output_files, outfile, cls=PathJSONEncoder, sort_keys=True, indent=4)
+    return output_files
+
+
+def _generate_resultfiles_json(
+    sample_ids_result_files: List[str],
+    output_path: str,
+    output_resultfiles_json_file: Path,
+) -> None:
+    """
+    Generate a JSON file containing the list of expected result files per sample
+    """
+    output_files_per_sample = get_expected_output_files_per_sample(
+        output_path=output_path,
+        sample_ids_result_files=sample_ids_result_files,
+    )
+
+    write_json(output_files_per_sample, output_resultfiles_json_file)
 
 
 @click.command()
@@ -163,16 +163,22 @@ def _generate_resultfiles_json(
     help="the sample metadata file",
 )
 @click.option(
-    "--output-csv-file",
+    "--output-results-csv-file",
     type=click.Path(dir_okay=False, writable=True),
-    required=True,
-    help="output file merging the results from ncov and pangolin",
+    default="results.csv",
+    help="CSV file containing the summary of results",
 )
 @click.option(
-    "--output-json-file",
+    "--output-results-json-file",
     type=click.Path(dir_okay=False, writable=True),
-    required=True,
-    help="output file containing all the expected files per sample",
+    default="results.json",
+    help="JSON file containing the summary of results. This is results.csv but in JSON format.",
+)
+@click.option(
+    "--output-resultfiles-json-file",
+    type=click.Path(dir_okay=False, writable=True),
+    default="resultfiles.json",
+    help="JSON file containing all the expected files per sample",
 )
 @click.option(
     "--output-path",
@@ -180,15 +186,19 @@ def _generate_resultfiles_json(
     required=True,
     help="output_path output path where sample result files are stored (e.g. s3://bucket/path/analysis_run)",
 )
-def generate_results(
+def generate_pipeline_results_files(
     metadata_file: str,
-    output_csv_file: str,
-    output_json_file: str,
+    output_results_csv_file: str,
+    output_results_json_file: str,
+    output_resultfiles_json_file: str,
     output_path: str,
 ) -> None:
     """
     Generate pipeline results files
     """
+    # generate a cycle list so that generated data for each sample is predictable
+    SYNTHETIC_DATA_POOL = cycle(SYNTHETIC_DATA)
+
     df_metadata = load_data_from_csv(Path(metadata_file), EXPECTED_METADATA_HEADERS)
     all_samples = sorted(df_metadata[SAMPLE_ID].tolist())
 
@@ -206,10 +216,13 @@ def generate_results(
     }
     df_synthetic = pd.DataFrame(data=synthetic_results)
 
-    _generate_results_csv(all_samples, df_synthetic, qc_unrelated_failing_samples, output_csv_file)
-    _generate_resultfiles_json(successful_samples, output_path, Path(output_json_file))
+    _generate_results_csv(all_samples, df_synthetic, qc_unrelated_failing_samples, output_results_csv_file)
+
+    csv_to_json(output_results_csv_file, output_results_json_file, SAMPLE_ID)
+
+    _generate_resultfiles_json(successful_samples, output_path, Path(output_resultfiles_json_file))
 
 
 if __name__ == "__main__":
     # pylint: disable=no-value-for-parameter
-    generate_results()
+    generate_pipeline_results_files()

@@ -19,6 +19,7 @@ def test_validation(results_csv, expected_results_csv, pathogen, output_path, se
         expected_results_csv,
         "--output-path",
         output_path,
+        "--pathogen",
         pathogen,
         "--sequencing-technology",
         sequencing_technology,

@@ -8,6 +8,7 @@ from jenkins.loading import get_file_paths, load_data_from_csv
 from tests.jenkins.util import create_paths
 
 
+@pytest.mark.parametrize("pathogen", ["sars_cov_2", "synthetic"])
 @pytest.mark.parametrize(
     "csv_file,config,exc",
     [
@@ -60,8 +61,8 @@ from tests.jenkins.util import create_paths
         ),
     ],
 )
-def test_load_data_from_csv(tmp_path, test_data_path, csv_file, config, exc):
-    csv_path = test_data_path / "jenkins" / "validation" / csv_file
+def test_load_data_from_csv(tmp_path, test_data_path, pathogen, csv_file, config, exc):
+    csv_path = test_data_path / "integration_test_validation" / pathogen / csv_file
     # simplify this file for testing
     df = pd.read_csv(csv_path)
     # with the following op, the dataframe becomes a series

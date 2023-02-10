@@ -7,6 +7,7 @@ from scripts.util.metadata import SAMPLE_ID
 from tests.utils_tests import assert_csvs_are_equal, assert_jsons_are_equal
 
 
+@pytest.mark.parametrize("pathogen", ["sars_cov_2"])
 @pytest.mark.parametrize(
     "use_s3_uri",
     [False, True],
@@ -56,6 +57,7 @@ from tests.utils_tests import assert_csvs_are_equal, assert_jsons_are_equal
 def test_generate_pipeline_results_files(
     tmp_path,
     test_data_path,
+    pathogen,
     metadata,
     contamination_removal_csv,
     primer_autodetection_csv,
@@ -79,9 +81,9 @@ def test_generate_pipeline_results_files(
         "--analysis-run-name",
         analysis_run_name,
         "--metadata-file",
-        test_data_path / "pipeline_results_files" / metadata,
+        test_data_path / "pipeline_results_files" / pathogen / metadata,
         "--pangolin-csv-file",
-        test_data_path / "pipeline_results_files" / pangolin_csv,
+        test_data_path / "pipeline_results_files" / pathogen / pangolin_csv,
         "--output-results-csv-file",
         output_results_csv_file,
         "--output-results-json-file",
@@ -98,11 +100,11 @@ def test_generate_pipeline_results_files(
         args.extend(
             [
                 "--contamination-removal-csv-file",
-                test_data_path / "pipeline_results_files" / contamination_removal_csv,
+                test_data_path / "pipeline_results_files" / pathogen / contamination_removal_csv,
                 "--primer-autodetection-csv-file",
-                test_data_path / "pipeline_results_files" / primer_autodetection_csv,
+                test_data_path / "pipeline_results_files" / pathogen / primer_autodetection_csv,
                 "--ncov-qc-csv-file",
-                test_data_path / "pipeline_results_files" / ncov_qc_csv,
+                test_data_path / "pipeline_results_files" / pathogen / ncov_qc_csv,
             ]
         )
     rv = CliRunner().invoke(
@@ -113,15 +115,15 @@ def test_generate_pipeline_results_files(
     assert rv.exit_code == 0
 
     # assert results.csv
-    exp_output_results_csv_file = test_data_path / "pipeline_results_files" / exp_results_csv
+    exp_output_results_csv_file = test_data_path / "pipeline_results_files" / pathogen / exp_results_csv
     assert_csvs_are_equal(output_results_csv_file, exp_output_results_csv_file, SAMPLE_ID)
 
     # assert results.json
-    exp_output_results_json_file = test_data_path / "pipeline_results_files" / exp_results_json
+    exp_output_results_json_file = test_data_path / "pipeline_results_files" / pathogen / exp_results_json
     assert_jsons_are_equal(output_results_json_file, exp_output_results_json_file)
 
     # assert resultfiles.json
-    with open(test_data_path / "pipeline_results_files" / exp_resultfiles_json) as json_fd:
+    with open(test_data_path / "pipeline_results_files" / pathogen / exp_resultfiles_json) as json_fd:
         exp_resultfiles_json_dict = json.load(json_fd)
     with open(output_resultfiles_json_file) as json_fd:
         calc_resultfiles_json_dict = json.load(json_fd)
