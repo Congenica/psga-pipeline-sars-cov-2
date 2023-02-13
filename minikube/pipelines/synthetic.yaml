@@ -23,7 +23,7 @@ spec:
                 values:
                 - "true"
       containers:
-      - image: 566277102435.dkr.ecr.eu-west-2.amazonaws.com/congenica/psga-nonprod/synthetic-pipeline:{TAG}
+      - image: 566277102435.dkr.ecr.eu-west-2.amazonaws.com/congenica/psga-nonprod/synthetic-pipeline:dev_latest
         name: synthetic-pipeline-minikube
         command:
         - /bin/bash
@@ -35,7 +35,7 @@ spec:
         - name: DOCKER_IMAGE_URI_PATH
           value: '566277102435.dkr.ecr.eu-west-2.amazonaws.com/congenica/psga-nonprod'
         - name: DOCKER_IMAGE_TAG
-          value: '{TAG}'
+          value: 'dev_latest'
         - name: AWS_MAX_CONNECTIONS
           value: '20'
         - name: AWS_MAX_PARALLEL_TRANSFERS

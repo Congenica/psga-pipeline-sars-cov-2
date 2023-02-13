@@ -22,9 +22,10 @@ kubectl config set-context minikube --namespace=psga-minikube
 echo "Setting service account"
 kubectl apply -f service_account.yaml
 
-kubectl create secret generic regcred \
-  --from-file=.dockerconfigjson=$HOME/.docker/config.json \
-  --type=kubernetes.io/dockerconfigjson
+# this raises an error if already present
+#kubectl create secret generic regcred \
+#  --from-file=.dockerconfigjson=$HOME/.docker/config.json \
+#  --type=kubernetes.io/dockerconfigjson
 kubectl patch serviceaccount psga-minikube-admin -p '{"imagePullSecrets": [{"name": "regcred"}]}'
 
 echo "Setting psga resources (e.g. pvc)"

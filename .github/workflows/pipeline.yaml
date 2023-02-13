@@ -65,7 +65,7 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         run: |
           cd minikube
-          sed -i 's/{TAG}/${{ github.sha }}/g' pipelines/*
+          sed -i 's/dev_latest/${{ github.sha }}/g' pipelines/*
           ./startup.sh
           ./run_pipelines.sh
   publish_configs:

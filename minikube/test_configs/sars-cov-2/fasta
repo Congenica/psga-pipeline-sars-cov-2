@@ -1,4 +1,4 @@
-METADATA="s3://synthetic-data-dev/UKHSA/pipeline_ci_tests/unknown/metadata.csv"
+METADATA="s3://psga-test-static-data/pipeline_ci_tests/sars_cov_2/unknown/none/metadata.csv"
 OUTPUT_PATH="/data/output/pipeline_ci_unknown"
 NXF_WORK="/data/work/pipeline_ci_unknown"
 ANALYSIS_RUN="pipeline_ci_unknown"
