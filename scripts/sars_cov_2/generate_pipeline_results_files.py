@@ -466,7 +466,7 @@ def get_expected_output_files_per_sample(
         output_files[sample_id].extend(
             get_file_with_type(
                 output_path=output_path,
-                inner_dirs=["reheadered-fasta"],
+                inner_dirs=["reheadered_fasta"],
                 filetypes=[FileType(".fasta", "fasta/final")],
                 sample_id=sample_id,
             )
