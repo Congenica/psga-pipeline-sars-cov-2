@@ -4,7 +4,7 @@ set -euo pipefail # exit on any failures
 source config.sh
 
 wait_for_pod() {
-    local POD="${1}"
+    POD="$1"
     while [[ $(kubectl get pods $POD -o 'jsonpath={..status.conditions[?(@.type=="Ready")].status}') != "True" ]]; do
       echo "Waiting for pod $POD to run"
       kubectl get pvc
@@ -44,5 +44,6 @@ done
 for name in $PIPELINES; do
   echo "Waiting for the $name-pipeline-minikube pod to be ready"
   pipeline_pod=$( kubectl get pods -l app=$name-pipeline-minikube --no-headers -o custom-columns=':metadata.name' )
+  echo "pipeline_pod: $pipeline_pod"
   wait_for_pod "$pipeline_pod"
 done
