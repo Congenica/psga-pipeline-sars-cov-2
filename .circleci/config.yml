@@ -1,4 +1,17 @@
 version: 2.1
+parameters:
+  GHA_Event:
+    type: string
+    default: ""
+  GHA_Actor:
+    type: string
+    default: ""
+  GHA_Action:
+    type: string
+    default: ""
+  GHA_Meta:
+    type: string
+    default: ""
 jobs:
   test:
     machine:
@@ -23,12 +36,12 @@ jobs:
             cd ${CIRCLE_WORKING_DIRECTORY}/minikube
             minikube start --cpus=6 --memory=28672 --vm-driver=docker
             minikube addons enable storage-provisioner
-            #sed -i 's/dev_latest/${CIRCLE_SHA1}/g' pipelines/*
-            sed -i 's/dev_latest/4fa055f37b2c27a3451cd5a2e22542138fe844f1/g' pipelines/*
+            sed -i 's/dev_latest/${CIRCLE_SHA1}/g' pipelines/*
             ./startup.sh
             ./run_pipelines.sh
 
 workflows:
+  when: << pipeline.parameters.GHA_Action >>
   test:
     jobs:
       - test

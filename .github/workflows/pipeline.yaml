@@ -40,6 +40,19 @@ jobs:
   #     name: ${{ matrix.image.name }}
   #     dockerfile: ${{ matrix.image.dockerfile }}
   #     pathogen: ${{ matrix.image.pathogen }}
+  trigger_integration_tests:
+    name: Trigger integration tests on CircleCI
+    runs-on: ubuntu-22.04
+    needs:
+      #- build_image
+      - check_and_test
+    steps:
+      - name: Trigger integration tests
+        id: trigger_integration_tests
+        uses: circleci/trigger_circleci_pipeline@v1.0
+        env:
+          CCI_TOKEN: ${{ secrets.CIRCLECI_TOKEN }}
+
   # integration_tests:
   #   name: Test images using minikube
   #   runs-on: ubuntu-22.04
@@ -68,13 +81,13 @@ jobs:
   #         sed -i 's/dev_latest/${{ github.sha }}/g' pipelines/*
   #         ./startup.sh
   #         ./run_pipelines.sh
-  # publish_configs:
-  #   name: Publish configs
-  #   uses: ./.github/workflows/publish_configs.yaml
-  #   secrets:
-  #     AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-  #     AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-  #     S3_BUCKET_PATH: ${{ secrets.S3_BUCKET_PATH_DEV }}
+  publish_configs:
+    name: Publish configs
+    uses: ./.github/workflows/publish_configs.yaml
+    secrets:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      S3_BUCKET_PATH: ${{ secrets.S3_BUCKET_PATH_DEV }}
   check_and_test:
     name: Install dependencies and run tests
     uses: ./.github/workflows/check_and_test.yaml
