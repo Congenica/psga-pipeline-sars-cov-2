@@ -2,9 +2,9 @@ from pathlib import Path
 import importlib
 import click
 
-from jenkins.loading import load_data_from_csv, get_file_paths
-from jenkins.compare import compare_merged_output_file, compare_output_files_set
-from jenkins.config import data_config
+from integration_tests.loading import load_data_from_csv, get_file_paths
+from integration_tests.compare import compare_merged_output_file, compare_output_files_set
+from integration_tests.config import data_config
 from scripts.common.check_metadata import SEQUENCING_TECHNOLOGIES
 from scripts.util.logger import get_structlog_logger
 
@@ -53,7 +53,7 @@ def validate(results_csv: str, expected_results_csv: str, output_path: str, path
 
     # Import function based on pathogen module
     # load this lazily as only the module for the invoked pathogen is available in the docker container
-    get_expected_output_files = importlib.import_module(f"jenkins.{pathogen}").get_expected_output_files
+    get_expected_output_files = importlib.import_module(f"integration_tests.{pathogen}").get_expected_output_files
 
     results_csv_path = Path(results_csv)
     expected_results_csv_path = Path(expected_results_csv)
