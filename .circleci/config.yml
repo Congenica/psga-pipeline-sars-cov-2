@@ -21,6 +21,7 @@ jobs:
             docker login -u AWS -p $(aws ecr get-login-password --region eu-west-2) 566277102435.dkr.ecr.eu-west-2.amazonaws.com
             cd ${CIRCLE_WORKING_DIRECTORY}/minikube
             minikube start --cpus=6 --memory=28672
+            minikube addons enable storage-provisioner
             #sed -i 's/dev_latest/${CIRCLE_SHA1}/g' pipelines/*
             sed -i 's/dev_latest/4fa055f37b2c27a3451cd5a2e22542138fe844f1/g' pipelines/*
             ./startup.sh

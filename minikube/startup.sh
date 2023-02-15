@@ -9,7 +9,7 @@ wait_for_pod() {
     while [[ $(kubectl get pods $__POD -o 'jsonpath={..status.conditions[?(@.type=="Ready")].status}') != "True" ]]; do
       kubectl get pvc
       kubectl describe pod $__POD
-      sleep 1
+      sleep 5
     done
     echo "$__POD is running"
 }
