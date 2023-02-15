@@ -24,3 +24,8 @@ jobs:
             sed -i 's/dev_latest/${CIRCLE_SHA1}/g' pipelines/*
             ./startup.sh
             ./run_pipelines.sh
+
+workflows:
+  test:
+    jobs:
+      - test
