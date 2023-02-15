@@ -42,7 +42,9 @@ for name in $PIPELINES; do
 done
 
 for name in $PIPELINES; do
-  echo "Waiting for the $name-pipeline-minikube pod to be ready"
+  app_name=$name-pipeline-minikube
+  echo "Waiting for the $app_name pod to be ready"
+  kubectl -n psga-minikube get pods -l app=$app_name --no-headers -o custom-columns=':metadata.name'
   pipeline_pod=$( kubectl -n psga-minikube get pods -l app=$name-pipeline-minikube --no-headers -o custom-columns=':metadata.name' )
   echo "pipeline_pod: $pipeline_pod"
   wait_for_pod "$pipeline_pod"
