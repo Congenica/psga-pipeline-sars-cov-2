@@ -8,6 +8,7 @@ jobs:
       - checkout
       - run:
           name: Test pipelines
+          no_output_timeout: 30m
           command: |
             cd /tmp
             echo "Installing minikube"
