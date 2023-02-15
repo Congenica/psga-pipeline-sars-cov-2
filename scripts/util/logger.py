@@ -1,5 +1,4 @@
 import json
-from typing import Dict, List
 
 # pylint: disable=import-self
 import logging
@@ -14,14 +13,14 @@ DEBUG = "DEBUG"
 LOG_LEVELS = {CRITICAL, ERROR, WARNING, INFO, DEBUG}
 
 
-def key_ordering_serialiser(data: Dict, **kwargs) -> str:
+def key_ordering_serialiser(data: dict, **kwargs) -> str:
     """
     Reorder the dictionary to make the log lines a bit easier to scan by eye.
-    :param data: Dictionary of data to log
+    :param data: dictionary of data to log
     :return: data converted to json string after reordering.
     """
     ordered_keys = ["timestamp", "level", "logger"]
-    ordered_data: Dict = {}
+    ordered_data: dict = {}
     # Add the keys in the order specified by the list.
     for key in ordered_keys:
         ordered_data[key] = data.pop(key)
@@ -36,7 +35,7 @@ def key_ordering_serialiser(data: Dict, **kwargs) -> str:
     return json.dumps(ordered_data, **kwargs)
 
 
-def create_structlog_processors() -> List:
+def create_structlog_processors() -> list:
     """
     Create the list of log even processors for structlog.
     The processors are applied in order to a logged event, and add useful info such as

@@ -1,4 +1,3 @@
-from typing import List
 from dataclasses import dataclass, field
 
 from scripts.util.notifications import Event, Notification
@@ -15,8 +14,8 @@ UNKNOWN = "unknown"
 
 @dataclass
 class ProcessedSamples:
-    valid: List[str] = field(metadata={"required": True}, default_factory=list)
-    invalid: List[str] = field(metadata={"required": True}, default_factory=list)
+    valid: list[str] = field(metadata={"required": True}, default_factory=list)
+    invalid: list[str] = field(metadata={"required": True}, default_factory=list)
 
 
 def normalise_row(row):
@@ -30,8 +29,8 @@ def normalise_row(row):
 
 def generate_notifications(
     analysis_run_name: str,
-    valid_samples: List[str],
-    invalid_samples: List[str],
+    valid_samples: list[str],
+    invalid_samples: list[str],
 ) -> None:
     """
     Generate and publish the notifications for ncov

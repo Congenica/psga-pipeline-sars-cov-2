@@ -20,10 +20,8 @@ process generate_synthetic_output {
   output_csv_file="results.csv"
   output_json_file="resultfiles.json"
 
-  python ${PSGA_ROOT_PATH}/scripts/synthetic/generate_results.py \
+  python ${PSGA_ROOT_PATH}/scripts/synthetic/generate_pipeline_results_files.py \
     --metadata-file "${ch_metadata}" \
-    --output-csv-file "${ch_output_csv_file}" \
-    --output-json-file "${ch_output_json_file}" \
     --output-path "${params.output_path}"
   """
 }

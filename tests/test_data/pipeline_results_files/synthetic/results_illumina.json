@@ -1,0 +1,14 @@
+{
+    "56a63f60-764d-4fc7-8764-a46023cbe324": {
+        "LINEAGE": "1.1",
+        "QC_STATUS": "pass",
+        "REGION_OF_DIFFERENCE": "RD239",
+        "STATUS": "Completed"
+    },
+    "e80f3c63-d139-4c14-bd72-7a43897ab40d": {
+        "LINEAGE": "4.1",
+        "QC_STATUS": "pass",
+        "REGION_OF_DIFFERENCE": "RD182",
+        "STATUS": "Completed"
+    }
+}

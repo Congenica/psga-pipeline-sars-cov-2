@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Callable, Dict, List, Set
+from typing import Callable
 from math import isclose
 import pandas as pd
 
@@ -13,7 +13,7 @@ class ValidationError(Exception):
 
 
 def _check_columns(
-    df_calc: pd.DataFrame, df_exp: pd.DataFrame, sample_name_column: str, columns_to_validate: Set[str]
+    df_calc: pd.DataFrame, df_exp: pd.DataFrame, sample_name_column: str, columns_to_validate: set[str]
 ) -> bool:
     """
     Load sample names and perform basic validations
@@ -44,7 +44,7 @@ def _check_columns(
     return errors
 
 
-def _compare_dataframes(config: Dict, df_calc: pd.DataFrame, df_exp: pd.DataFrame) -> List[str]:
+def _compare_dataframes(config: dict, df_calc: pd.DataFrame, df_exp: pd.DataFrame) -> list[str]:
     """
     Compare the tables in the two CSV file paths
     """
@@ -91,8 +91,8 @@ def _compare_dataframes(config: Dict, df_calc: pd.DataFrame, df_exp: pd.DataFram
 
 
 def compare_merged_output_file(
-    load_data: Callable, data: Dict, results_csv: Path, expected_results_csv: Path
-) -> List[str]:
+    load_data: Callable, data: dict, results_csv: Path, expected_results_csv: Path
+) -> list[str]:
     """
     Compare the actual vs expected merged output files
     and return the list of samples
@@ -106,7 +106,7 @@ def compare_merged_output_file(
     return sample_names
 
 
-def compare_output_files_set(calc_output_files: Set[str], exp_output_files: Set[str]) -> None:
+def compare_output_files_set(calc_output_files: set[str], exp_output_files: set[str]) -> None:
     """
     Compare the expected set of output files against the actual set of output files.
     """

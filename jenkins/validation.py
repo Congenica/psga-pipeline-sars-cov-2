@@ -1,14 +1,20 @@
 from pathlib import Path
+import importlib
 import click
 
+from jenkins.loading import load_data_from_csv, get_file_paths
+from jenkins.compare import compare_merged_output_file, compare_output_files_set
+from jenkins.config import data_config
+from scripts.common.check_metadata import SEQUENCING_TECHNOLOGIES
 from scripts.util.logger import get_structlog_logger
-from jenkins.sars_cov_2 import sars_cov_2
 
 log_file = f"{Path(__file__).stem}.log"
-get_structlog_logger(log_file=log_file)
+logger = get_structlog_logger(log_file=log_file)
+
+PATHOGENS = list(data_config)
 
 
-@click.group()
+@click.command()
 @click.option(
     "--results-csv",
     required=True,
@@ -27,19 +33,47 @@ get_structlog_logger(log_file=log_file)
     required=True,
     help="The PSGA pipeline path where all output files are stored",
 )
-@click.pass_context
-def validate(ctx, results_csv, expected_results_csv, output_path):
+@click.option(
+    "--pathogen",
+    required=True,
+    type=click.Choice(PATHOGENS, case_sensitive=True),
+    help="The pathogen name",
+)
+@click.option(
+    "--sequencing-technology",
+    required=False,
+    type=click.Choice(SEQUENCING_TECHNOLOGIES, case_sensitive=True),
+    default=None,
+    help="The name of the sequencing technology",
+)
+def validate(results_csv: str, expected_results_csv: str, output_path: str, pathogen: str, sequencing_technology: str):
     """
     Compare the calculated result file against the expected result file.
     """
-    ctx.ensure_object(dict)
 
-    ctx.obj["results_csv"] = Path(results_csv)
-    ctx.obj["expected_results_csv"] = Path(expected_results_csv)
-    ctx.obj["output_path"] = output_path  # leave this as a string as it can be FS path or S3 uri
+    # Import function based on pathogen module
+    # load this lazily as only the module for the invoked pathogen is available in the docker container
+    get_expected_output_files = importlib.import_module(f"jenkins.{pathogen}").get_expected_output_files
 
+    results_csv_path = Path(results_csv)
+    expected_results_csv_path = Path(expected_results_csv)
+    # do not cast output_path to Path as this can also be "s3://" in get_expected_output_files() below
 
-validate.add_command(sars_cov_2)
+    if "config" not in data_config[pathogen]:
+        raise KeyError(f"key 'config' missing for pathogen '{pathogen}' in data_config")
+
+    validation_config = data_config[pathogen]["config"]
+
+    sample_ids = compare_merged_output_file(
+        load_data_from_csv, validation_config, results_csv_path, expected_results_csv_path
+    )
+
+    logger.info("Validation of output files set STARTED")
+    exp_output_files = get_expected_output_files(output_path, sample_ids, sequencing_technology)
+    calc_output_files = get_file_paths(Path(output_path))
+    compare_output_files_set(set(calc_output_files), set(exp_output_files))
+    logger.info("Validation PASSED")
+
 
 if __name__ == "__main__":
     # pylint: disable=no-value-for-parameter,unexpected-keyword-arg

@@ -1,9 +1,8 @@
 from pathlib import Path
-from typing import Dict, List
 import pandas as pd
 
 
-def _refine_df(config: Dict, df: pd.DataFrame) -> pd.DataFrame:
+def _refine_df(config: dict, df: pd.DataFrame) -> pd.DataFrame:
     """
     Call common functions for refining the dataframe
     """
@@ -30,7 +29,7 @@ def _refine_df(config: Dict, df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-def load_data_from_csv(config: Dict, csv_path: Path) -> pd.DataFrame:
+def load_data_from_csv(config: dict, csv_path: Path) -> pd.DataFrame:
     """
     Load the CSV content to a Pandas dataframe, performing basic validation
     """
@@ -39,7 +38,7 @@ def load_data_from_csv(config: Dict, csv_path: Path) -> pd.DataFrame:
     return _refine_df(config, df)
 
 
-def get_file_paths(root: Path) -> List[str]:
+def get_file_paths(root: Path) -> list[str]:
     """
     Return a list of file paths in root. The search is recursive.
     """

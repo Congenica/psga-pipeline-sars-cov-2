@@ -9,26 +9,24 @@ from scripts.util.metadata import SAMPLE_ID
 from tests.utils_tests import assert_csvs_are_equal
 
 
-def test_concat_no_file_found_error(tmp_path):
+def test_concat_no_file_found_error(tmp_path: Path):
     output_csv_path = Path(tmp_path / "concat.csv")
     with pytest.raises(FileNotFoundError, match="No matching file was found"):
         concat(input_path=tmp_path, output_csv_path=output_csv_path)
 
 
-def test_concat_column_not_found_error(tmp_path, test_data_path):
-    input_path = Path(test_data_path / "concat_csv")
+def test_concat_column_not_found_error(tmp_path: Path, concat_csv_data_path: Path):
     output_csv_path = Path(tmp_path / "concat.csv")
     with pytest.raises(ValueError, match="Column 'fake' needed for sorting"):
-        concat(input_path=input_path, output_csv_path=output_csv_path, sortby_col="fake")
+        concat(input_path=concat_csv_data_path, output_csv_path=output_csv_path, sortby_col="fake")
 
 
-def test_concat(tmp_path, test_data_path):
-    input_path = Path(test_data_path / "concat_csv")
+def test_concat(tmp_path: Path, concat_csv_data_path: Path):
     output_csv_path = Path(tmp_path / "concat.csv")
-    expected_output_csv_path = Path(test_data_path / "concat_csv" / "expected_output" / "result.csv")
+    expected_output_csv_path = Path(concat_csv_data_path / "expected_output" / "result.csv")
 
     assert not output_csv_path.is_file()
-    concat_df = concat(input_path=input_path, output_csv_path=output_csv_path, sortby_col=SAMPLE_ID)
+    concat_df = concat(input_path=concat_csv_data_path, output_csv_path=output_csv_path, sortby_col=SAMPLE_ID)
 
     assert output_csv_path.is_file()
 
@@ -42,17 +40,16 @@ def test_concat(tmp_path, test_data_path):
     )
 
 
-def test_concat_csv(tmp_path, test_data_path):
+def test_concat_csv(tmp_path: Path, concat_csv_data_path: Path):
 
-    input_path = Path(test_data_path / "concat_csv")
     output_csv_path = Path(tmp_path / "concat.csv")
-    expected_output_csv_path = Path(test_data_path / "concat_csv" / "expected_output" / "result.csv")
+    expected_output_csv_path = Path(concat_csv_data_path / "expected_output" / "result.csv")
 
     rv = CliRunner().invoke(
         concat_csv,
         [
             "--input-path",
-            input_path,
+            concat_csv_data_path,
             "--output-csv-path",
             output_csv_path,
             "--sortby-col",

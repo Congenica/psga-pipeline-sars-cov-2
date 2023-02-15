@@ -3,21 +3,6 @@ set -euo pipefail # exit on any failures
 
 source config.sh
 
-wait_for_pod() {
-    POD="$1"
-    if [[ -z "$POD" ]]; then
-      echo "Pod name was empty"
-      exit 3
-    fi
-    while [[ $(kubectl -n psga-minikube get pods $POD -o 'jsonpath={..status.conditions[?(@.type=="Ready")].status}') != "True" ]]; do
-      echo "Waiting for pod $POD to run"
-      kubectl get pvc
-      kubectl describe pod $POD
-      sleep 5
-    done
-    echo "$POD is running"
-}
-
 echo "Labeling minikube node so that it matches against the cluster"
 kubectl label --overwrite node minikube farmNode=true
 
@@ -48,9 +33,5 @@ done
 for name in $PIPELINES; do
   app_name=$name-pipeline-minikube
   echo "Waiting for the $app_name deployment to be ready"
-  #kubectl -n psga-minikube get pods -l app=$app_name --no-headers -o custom-columns=':metadata.name'
-  #while [[ $( kubectl -n psga-minikube get pods -l app=$name-pipeline-minikube --no-headers -o custom-columns=':metadata.name' )
-  #echo "pipeline_pod: $pipeline_pod"
   kubectl wait deployment -n psga-minikube $app_name --for condition=Available=True --timeout=300s
-  #wait_for_pod "$pipeline_pod"
 done

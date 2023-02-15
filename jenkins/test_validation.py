@@ -7,7 +7,9 @@ from jenkins.validation import validate
 #        --output-path /tmp --pathogen sars_cov_2 --sequencing-technology ont
 
 
-def test_validation(results_csv, expected_results_csv, pathogen, output_path, sequencing_technology):
+def test_validation(
+    results_csv: str, expected_results_csv: str, pathogen: str, output_path: str, sequencing_technology: str
+):
     """
     Run the validation script via pytest
     """
@@ -19,6 +21,7 @@ def test_validation(results_csv, expected_results_csv, pathogen, output_path, se
         expected_results_csv,
         "--output-path",
         output_path,
+        "--pathogen",
         pathogen,
         "--sequencing-technology",
         sequencing_technology,
