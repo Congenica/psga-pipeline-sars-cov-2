@@ -27,7 +27,7 @@ COPY ./scripts/${pathogen} /app/scripts/${pathogen}
 
 # scripts for running the validation following integration tests execution
 COPY ./integration_tests/*.py ./app/integration_tests/
-COPY ./integration_tests/files/${pathogen} ./app/integration_tests/files/${pathogen}
+COPY ./integration_tests/expected_data/${pathogen} ./app/integration_tests/expected_data/${pathogen}
 
 WORKDIR /app/psga
 
