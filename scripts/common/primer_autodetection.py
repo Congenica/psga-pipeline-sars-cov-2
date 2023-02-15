@@ -48,7 +48,7 @@ def load_pickle(input_path: Path) -> Any:
         return pickle.load(pickle_in)
 
 
-def build_primers_automaton(primer_index: Path) -> dict:
+def build_primers_automaton(primer_index: Path) -> dict[str, PrimerAutomaton]:
     """
     Build the primers automaton dictionary
     """

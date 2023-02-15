@@ -48,11 +48,11 @@ def create_output_files(pathogen: str, samples: Path, root: Path, sequencing_tec
     ],
 )
 def test_compare_merged_output_file(
-    integration_test_validation_data_path,
-    pathogen,
-    results_csv,
-    expected_results_csv,
-    exc,
+    integration_test_validation_data_path: Path,
+    pathogen: str,
+    results_csv: str,
+    expected_results_csv: str,
+    exc: str,
 ):
     actual_path = integration_test_validation_data_path / pathogen / results_csv
     expected_path = integration_test_validation_data_path / pathogen / expected_results_csv
@@ -100,14 +100,14 @@ def test_compare_merged_output_file(
     ],
 )
 def test_validation(
-    tmp_path,
-    integration_test_validation_data_path,
-    pathogen,
-    results_csv,
-    expected_results_csv,
-    sequencing_technology,
-    exit_code,
-    exception_msg,
+    tmp_path: Path,
+    integration_test_validation_data_path: Path,
+    pathogen: str,
+    results_csv: str,
+    expected_results_csv: str,
+    sequencing_technology: str,
+    exit_code: int,
+    exception_msg: str,
 ):
 
     actual_path = integration_test_validation_data_path / pathogen / results_csv

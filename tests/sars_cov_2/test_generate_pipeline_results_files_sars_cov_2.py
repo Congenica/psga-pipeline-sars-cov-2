@@ -1,3 +1,4 @@
+from pathlib import Path
 import pytest
 import json
 from click.testing import CliRunner
@@ -55,20 +56,20 @@ from tests.utils_tests import assert_csvs_are_equal, assert_jsons_are_equal
     ],
 )
 def test_generate_pipeline_results_files(
-    tmp_path,
-    pipeline_results_files_data_path,
-    pathogen,
-    metadata,
-    contamination_removal_csv,
-    primer_autodetection_csv,
-    ncov_qc_csv,
-    pangolin_csv,
-    analysis_run_name,
-    sequencing_technology,
-    exp_results_csv,
-    exp_results_json,
-    exp_resultfiles_json,
-    use_s3_uri,
+    tmp_path: Path,
+    pipeline_results_files_data_path: Path,
+    pathogen: str,
+    metadata: str,
+    contamination_removal_csv: str,
+    primer_autodetection_csv: str,
+    ncov_qc_csv: str,
+    pangolin_csv: str,
+    analysis_run_name: str,
+    sequencing_technology: str,
+    exp_results_csv: str,
+    exp_results_json: str,
+    exp_resultfiles_json: str,
+    use_s3_uri: bool,
 ):
 
     output_results_csv_file = tmp_path / "results.csv"

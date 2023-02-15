@@ -1,3 +1,4 @@
+from pathlib import Path
 import pytest
 from click.testing import CliRunner
 import structlog
@@ -41,11 +42,11 @@ from tests.util.test_notification import load_log_file_to_dict
     ],
 )
 def test_validate_metadata(
-    check_metadata_data_path,
-    metadata_file,
-    sequencing_technology,
-    valid_samples,
-    invalid_samples,
+    check_metadata_data_path: Path,
+    metadata_file: str,
+    sequencing_technology: str,
+    valid_samples: list[str],
+    invalid_samples: list[str],
 ):
     samples = validate_metadata(check_metadata_data_path / metadata_file, sequencing_technology)
 
@@ -236,15 +237,15 @@ def test_validate_metadata(
     ],
 )
 def test_check_metadata(
-    tmp_path,
-    check_metadata_data_path,
-    metadata_file,
-    analysis_run_name,
-    sequencing_technology,
-    valid_samples,
-    invalid_samples,
-    exit_code,
-    exception_msg,
+    tmp_path: Path,
+    check_metadata_data_path: Path,
+    metadata_file: str,
+    analysis_run_name: str,
+    sequencing_technology: str,
+    valid_samples: list[str],
+    invalid_samples: list[str],
+    exit_code: int,
+    exception_msg: str,
 ):
 
     log_file = tmp_path / "messages.log"

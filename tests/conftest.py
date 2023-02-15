@@ -31,75 +31,77 @@ def scripts_test():
 
 # path fixtures
 @pytest.fixture
-def test_data_path():
+def test_data_path() -> Path:
     return Path(__file__).parent / "test_data"
 
 
 @pytest.fixture
-def primer_schemes_dir():
+def primer_schemes_dir() -> str:
     return "primer_schemes"
 
 
 @pytest.fixture
-def samples_dir():
+def samples_dir() -> str:
     return "samples"
 
 
 @pytest.fixture
-def check_metadata_data_path(test_data_path):
+def check_metadata_data_path(test_data_path: Path) -> Path:
     return test_data_path / "check_metadata"
 
 
 @pytest.fixture
-def concat_csv_data_path(test_data_path):
+def concat_csv_data_path(test_data_path: Path) -> Path:
     return test_data_path / "concat_csv"
 
 
 @pytest.fixture
-def contamination_removal_data_path(test_data_path):
+def contamination_removal_data_path(test_data_path: Path) -> Path:
     return test_data_path / "contamination_removal"
 
 
 @pytest.fixture
-def fetch_primers_data_path(test_data_path):
+def fetch_primers_data_path(test_data_path: Path) -> Path:
     return test_data_path / "fetch_primers"
 
 
 @pytest.fixture
-def fetch_primers_primer_schemes_data_path(fetch_primers_data_path, primer_schemes_dir):
+def fetch_primers_primer_schemes_data_path(fetch_primers_data_path: Path, primer_schemes_dir: str) -> Path:
     return fetch_primers_data_path / primer_schemes_dir
 
 
 @pytest.fixture
-def integration_test_validation_data_path(test_data_path):
+def integration_test_validation_data_path(test_data_path: Path) -> Path:
     return test_data_path / "integration_test_validation"
 
 
 @pytest.fixture
-def pipeline_results_files_data_path(test_data_path):
+def pipeline_results_files_data_path(test_data_path: Path) -> Path:
     return test_data_path / "pipeline_results_files"
 
 
 @pytest.fixture
-def primer_autodetection_data_path(test_data_path):
+def primer_autodetection_data_path(test_data_path: Path) -> Path:
     return test_data_path / "primer_autodetection"
 
 
 @pytest.fixture
-def primer_autodetection_primer_schemes_data_path(primer_autodetection_data_path, primer_schemes_dir):
+def primer_autodetection_primer_schemes_data_path(
+    primer_autodetection_data_path: Path, primer_schemes_dir: str
+) -> Path:
     return primer_autodetection_data_path / primer_schemes_dir
 
 
 @pytest.fixture
-def primer_autodetection_sample_dir_data_path(primer_autodetection_data_path, samples_dir):
+def primer_autodetection_sample_dir_data_path(primer_autodetection_data_path: Path, samples_dir: str) -> Path:
     return primer_autodetection_data_path / samples_dir
 
 
 @pytest.fixture
-def typing_data_path(test_data_path):
+def typing_data_path(test_data_path: Path) -> Path:
     return test_data_path / "typing"
 
 
 @pytest.fixture
-def variant_definitions_data_path(test_data_path):
+def variant_definitions_data_path(test_data_path: Path) -> Path:
     return test_data_path / "variant_definitions"

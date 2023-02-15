@@ -18,7 +18,7 @@ def get_expected_output_files(output_path: str, sample_ids: list[str], sequencin
     )
 
     output_files_per_sample = get_expected_output_files_per_sample(
-        output_path=output_path,
+        output_path=str(output_path),
         sample_ids_result_files=sample_ids_result_files,
         sequencing_technology=sequencing_technology,
     )

@@ -30,7 +30,7 @@ def rmfile(f: Path, fname: str) -> None:
         ("dependencies", "primer_schemes_commit", "a60a1e1e73bde1971c680bd3d53076127dd63fc6"),
     ],
 )
-def test_get_version(fetch_primers_data_path, dependency_file, key, expected_value):
+def test_get_version(fetch_primers_data_path: Path, dependency_file: str, key: str, expected_value: str):
     dependency_path = fetch_primers_data_path / dependency_file
     assert expected_value == get_version(dependency_path, key)
 
@@ -50,15 +50,15 @@ def test_get_version(fetch_primers_data_path, dependency_file, key, expected_val
     ],
 )
 def test_extract_primer_sequences(
-    tmp_path,
-    fetch_primers_primer_schemes_data_path,
-    pathogen,
-    primer,
-    version,
-    expected_primer_counter,
-    ref_fasta,
-    scheme_bed,
-    scheme_fasta,
+    tmp_path: Path,
+    fetch_primers_primer_schemes_data_path: Path,
+    pathogen: str,
+    primer: str,
+    version: str,
+    expected_primer_counter: int,
+    ref_fasta: str,
+    scheme_bed: str,
+    scheme_fasta: str,
 ):
     primer_dir = fetch_primers_primer_schemes_data_path / pathogen / primer / version
     ref_fasta_path = primer_dir / f"{pathogen}{ref_fasta}"
@@ -82,7 +82,12 @@ def test_extract_primer_sequences(
     ],
 )
 def test_extract_primer_sequences_unknown_strand_error(
-    tmp_path, fetch_primers_data_path, pathogen, primer, ref_fasta, scheme_bed
+    tmp_path: Path,
+    fetch_primers_data_path: Path,
+    pathogen: str,
+    primer: str,
+    ref_fasta: str,
+    scheme_bed: str,
 ):
     ref_fasta_path = fetch_primers_data_path / primer / f"{pathogen}{ref_fasta}"
     scheme_bed_path = fetch_primers_data_path / primer / f"{pathogen}{scheme_bed}"
@@ -108,7 +113,13 @@ def test_extract_primer_sequences_unknown_strand_error(
     ],
 )
 def test_extract_primer_sequences_file_not_found_error(
-    tmp_path, fetch_primers_primer_schemes_data_path, pathogen, primer, version, ref_fasta, scheme_bed
+    tmp_path: Path,
+    fetch_primers_primer_schemes_data_path: Path,
+    pathogen: str,
+    primer: str,
+    version: str,
+    ref_fasta: str,
+    scheme_bed: str,
 ):
     primer_dir = fetch_primers_primer_schemes_data_path / pathogen / primer / version
     ref_fasta_path = primer_dir / f"{pathogen}{ref_fasta}" if ref_fasta else None
@@ -136,7 +147,12 @@ def test_extract_primer_sequences_file_not_found_error(
     ],
 )
 def test_organise_primers(
-    tmp_path, fetch_primers_primer_schemes_data_path, primer_schemes_dir, pathogen, index, scheme_fasta
+    tmp_path: Path,
+    fetch_primers_primer_schemes_data_path: Path,
+    primer_schemes_dir: str,
+    pathogen: str,
+    index: str,
+    scheme_fasta: str,
 ):
     source_scheme_tmp_path = tmp_path / f"source_{primer_schemes_dir}"
 

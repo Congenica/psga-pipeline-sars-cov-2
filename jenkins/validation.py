@@ -46,7 +46,7 @@ PATHOGENS = list(data_config)
     default=None,
     help="The name of the sequencing technology",
 )
-def validate(results_csv, expected_results_csv, output_path, pathogen, sequencing_technology):
+def validate(results_csv: str, expected_results_csv: str, output_path: str, pathogen: str, sequencing_technology: str):
     """
     Compare the calculated result file against the expected result file.
     """
@@ -57,10 +57,11 @@ def validate(results_csv, expected_results_csv, output_path, pathogen, sequencin
 
     results_csv_path = Path(results_csv)
     expected_results_csv_path = Path(expected_results_csv)
-    output_path = Path(output_path)
+    # do not cast output_path to Path as this can also be "s3://" in get_expected_output_files() below
 
     if "config" not in data_config[pathogen]:
         raise KeyError(f"key 'config' missing for pathogen '{pathogen}' in data_config")
+
     validation_config = data_config[pathogen]["config"]
 
     sample_ids = compare_merged_output_file(
@@ -69,7 +70,7 @@ def validate(results_csv, expected_results_csv, output_path, pathogen, sequencin
 
     logger.info("Validation of output files set STARTED")
     exp_output_files = get_expected_output_files(output_path, sample_ids, sequencing_technology)
-    calc_output_files = get_file_paths(output_path)
+    calc_output_files = get_file_paths(Path(output_path))
     compare_output_files_set(set(calc_output_files), set(exp_output_files))
     logger.info("Validation PASSED")
 

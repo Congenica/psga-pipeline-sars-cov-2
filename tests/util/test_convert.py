@@ -1,3 +1,4 @@
+from pathlib import Path
 import pytest
 
 from scripts.util.convert import csv_to_json
@@ -20,7 +21,14 @@ from tests.utils_tests import assert_jsons_are_equal
         ),
     ],
 )
-def test_csv_to_json(tmp_path, pipeline_results_files_data_path, pathogen, input_csv, expected_json, sample_id):
+def test_csv_to_json(
+    tmp_path: Path,
+    pipeline_results_files_data_path: Path,
+    pathogen: str,
+    input_csv: str,
+    expected_json: str,
+    sample_id: str,
+):
     input_path = pipeline_results_files_data_path / pathogen / input_csv
     expected_output_path = pipeline_results_files_data_path / pathogen / expected_json
     output_path = tmp_path / "results.json"

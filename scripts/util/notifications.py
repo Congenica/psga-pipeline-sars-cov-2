@@ -16,7 +16,7 @@ class Event:
 class Notification:
     events: dict[str, Event] = field(metadata={"required": True}, default_factory=dict)
 
-    def publish(self):
+    def publish(self) -> None:
         """
         Publish all the notifications to file and as log messages
         """

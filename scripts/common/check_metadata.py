@@ -123,9 +123,9 @@ def validate_metadata(
     help="the sequencer technology used for sequencing the samples",
 )
 def check_metadata(
-    metadata_path,
-    analysis_run_name,
-    sequencing_technology,
+    metadata_path: str,
+    analysis_run_name: str,
+    sequencing_technology: str,
 ):
     """
     Read a CSV metadata and check that is sound

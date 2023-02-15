@@ -24,7 +24,7 @@ BED_COLS = [
 ]
 
 
-def create_automaton(input_path: Path, filetype: str = "fasta"):
+def create_automaton(input_path: Path, filetype: str = "fasta") -> ahocorasick.Automaton:
     """
     Store the reads in a trie structure for primer look up
     """

@@ -66,7 +66,7 @@ def load_log_file_to_dict(log_file: Path, key: str) -> dict:
         },
     ],
 )
-def test_notification(tmp_path, events):
+def test_notification(tmp_path: Path, events: dict[str, Event]):
 
     log_file = tmp_path / "messages.log"
     assert not log_file.is_file()

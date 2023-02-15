@@ -11,7 +11,7 @@ import click
     required=True,
     help="the sample metadata file",
 )
-def collate_results(metadata_file):
+def collate_results(metadata_file: str) -> None:
     # Merge the resultfiles.json files
     output_resultfiles_json_dict = dict()
     for f in os.listdir():

@@ -1,3 +1,4 @@
+from pathlib import Path
 import os
 import pytest
 
@@ -61,7 +62,9 @@ from tests.jenkins.util import create_paths
         ),
     ],
 )
-def test_load_data_from_csv(tmp_path, integration_test_validation_data_path, pathogen, csv_file, config, exc):
+def test_load_data_from_csv(
+    tmp_path: Path, integration_test_validation_data_path: Path, pathogen: str, csv_file: str, config: dict, exc: str
+):
     csv_path = integration_test_validation_data_path / pathogen / csv_file
     # simplify this file for testing
     df = pd.read_csv(csv_path)
