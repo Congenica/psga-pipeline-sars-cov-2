@@ -14,10 +14,10 @@ from scripts.util.slugs import get_file_with_type, FileType
 )
 @pytest.mark.parametrize("sample_id", ["roger", "clio"])
 def test_get_file_with_type(
-    output_path,
-    inner_dirs,
-    filetypes,
-    sample_id,
+    output_path: str,
+    inner_dirs: list[str],
+    filetypes: list[FileType],
+    sample_id: str,
 ):
     sample_files = get_file_with_type(
         output_path=output_path,

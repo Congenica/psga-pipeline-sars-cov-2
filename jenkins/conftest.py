@@ -7,7 +7,7 @@ def pytest_addoption(parser):
     parser.addoption("--expected-results-csv", action="store", required=True)
     parser.addoption("--output-path", action="store", required=True)
     parser.addoption("--pathogen", action="store", required=True)
-    parser.addoption("--sequencing-technology", action="store", required=True)
+    parser.addoption("--sequencing-technology", action="store", required=False)
 
 
 @pytest.fixture(scope="session")

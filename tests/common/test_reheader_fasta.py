@@ -1,3 +1,5 @@
+from pathlib import Path
+from typing import Callable
 import pytest
 from click.testing import CliRunner
 
@@ -17,7 +19,7 @@ from scripts.common.reheader_fasta import reheader_fasta, FASTA_FILE_EXTENSION, 
         ">{sample_id}|5524211|gb|AAD44166.1| cytochrome b [Elephas maximus maximus]",
     ],
 )
-def test_reheader_fasta(tmp_path, fasta_file_generator, input_fasta_header):
+def test_reheader_fasta(tmp_path: Path, fasta_file_generator: Callable, input_fasta_header: str):
 
     fasta_file_generator(
         path=tmp_path,

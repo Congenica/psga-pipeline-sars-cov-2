@@ -1,10 +1,21 @@
-from pathlib import Path
-from typing import Dict
+from pathlib import Path, PosixPath
 import json
+from json import JSONEncoder
 import yaml
 
 
-def load_json(json_file: str) -> Dict:
+class PathJSONEncoder(JSONEncoder):
+    """
+    Enable JSON serialisation of PosixPath objects
+    """
+
+    def default(self, o):
+        if isinstance(o, PosixPath):
+            return str(o)
+        return super().default(o)
+
+
+def load_json(json_file: str) -> dict:
     """
     Load a json file
     :param json_file: the json file to load
@@ -14,7 +25,7 @@ def load_json(json_file: str) -> Dict:
         return json.load(json_handle)
 
 
-def load_yaml(input_yaml: Path) -> Dict:
+def load_yaml(input_yaml: Path) -> dict:
     """
     Load a yaml file to dictionary
     """
@@ -22,7 +33,15 @@ def load_yaml(input_yaml: Path) -> Dict:
         return yaml.safe_load(yaml_stream)
 
 
-def write_yaml(data: Dict, output_yaml: Path) -> None:
+def write_json(data: dict, output_json: Path) -> None:
+    """
+    Write a dictionary to a json file
+    """
+    with open(output_json, "w", encoding="utf8") as json_stream:
+        json.dump(data, json_stream, cls=PathJSONEncoder, sort_keys=True, indent=4)
+
+
+def write_yaml(data: dict, output_yaml: Path) -> None:
     """
     Write a dictionary to a yaml file
     """

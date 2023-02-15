@@ -1,4 +1,5 @@
 from pathlib import Path
+import importlib
 import pytest
 from click.testing import CliRunner
 import pandas as pd
@@ -7,19 +8,22 @@ from scripts.util.metadata import SAMPLE_ID
 from jenkins.compare import compare_merged_output_file, ValidationError
 from jenkins.config import data_config
 from jenkins.loading import load_data_from_csv
-from jenkins.sars_cov_2 import get_expected_output_files
 from jenkins.validation import validate
 
 from tests.jenkins.util import create_paths
 
 
-def create_output_files(samples: Path, root: Path, sequencing_technology: str):
+def create_output_files(pathogen: str, samples: Path, root: Path, sequencing_technology: str):
     df = pd.read_csv(samples)
     sample_names = df[SAMPLE_ID].tolist()
+    # Import function based on pathogen module
+    # load this lazily as only the module for the invoked pathogen is available in the docker container
+    get_expected_output_files = importlib.import_module(f"jenkins.{pathogen}").get_expected_output_files
     paths = get_expected_output_files(str(root), sample_names, sequencing_technology)
     create_paths(paths)
 
 
+@pytest.mark.parametrize("pathogen", ["sars_cov_2", "synthetic"])
 @pytest.mark.parametrize(
     "results_csv,expected_results_csv,exc",
     [
@@ -44,14 +48,15 @@ def create_output_files(samples: Path, root: Path, sequencing_technology: str):
     ],
 )
 def test_compare_merged_output_file(
-    test_data_path,
-    results_csv,
-    expected_results_csv,
-    exc,
+    integration_test_validation_data_path: Path,
+    pathogen: str,
+    results_csv: str,
+    expected_results_csv: str,
+    exc: str,
 ):
-    actual_path = test_data_path / "jenkins" / "validation" / results_csv
-    expected_path = test_data_path / "jenkins" / "validation" / expected_results_csv
-    data = data_config["sars_cov_2"]["config"]
+    actual_path = integration_test_validation_data_path / pathogen / results_csv
+    expected_path = integration_test_validation_data_path / pathogen / expected_results_csv
+    data = data_config[pathogen]["config"]
 
     if exc:
         with pytest.raises(ValidationError, match=exc):
@@ -63,6 +68,7 @@ def test_compare_merged_output_file(
         assert set(sample_names) == set(expected_sample_names)
 
 
+@pytest.mark.parametrize("pathogen", ["sars_cov_2", "synthetic"])
 @pytest.mark.parametrize(
     "sequencing_technology",
     ["illumina", "ont", "unknown"],
@@ -94,21 +100,22 @@ def test_compare_merged_output_file(
     ],
 )
 def test_validation(
-    tmp_path,
-    test_data_path,
-    results_csv,
-    expected_results_csv,
-    sequencing_technology,
-    exit_code,
-    exception_msg,
+    tmp_path: Path,
+    integration_test_validation_data_path: Path,
+    pathogen: str,
+    results_csv: str,
+    expected_results_csv: str,
+    sequencing_technology: str,
+    exit_code: int,
+    exception_msg: str,
 ):
 
-    actual_path = test_data_path / "jenkins" / "validation" / results_csv
-    expected_path = test_data_path / "jenkins" / "validation" / expected_results_csv
+    actual_path = integration_test_validation_data_path / pathogen / results_csv
+    expected_path = integration_test_validation_data_path / pathogen / expected_results_csv
 
     # here we test the merged output file, but we assume that
     # the output files are as expected
-    create_output_files(actual_path, tmp_path, sequencing_technology)
+    create_output_files(pathogen, actual_path, tmp_path, sequencing_technology)
 
     rv = CliRunner().invoke(
         validate,
@@ -119,7 +126,8 @@ def test_validation(
             expected_path,
             "--output-path",
             tmp_path,
-            "sars_cov_2",
+            "--pathogen",
+            pathogen,
             "--sequencing-technology",
             sequencing_technology,
         ],

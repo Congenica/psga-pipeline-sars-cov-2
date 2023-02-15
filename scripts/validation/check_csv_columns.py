@@ -1,8 +1,7 @@
-from typing import Set
 from click import ClickException
 
 
-def check_csv_columns(reader_fieldnames: Set[str], expected_fieldnames: Set[str]) -> None:
+def check_csv_columns(reader_fieldnames: set[str], expected_fieldnames: set[str]) -> None:
     """
     Check whether the expected fieldnames are present in the reader fieldnames
     """

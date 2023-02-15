@@ -1,3 +1,4 @@
+from pathlib import Path
 import pytest
 import structlog
 
@@ -18,7 +19,7 @@ from tests.util.test_notification import load_log_file_to_dict
     "level",
     [level.lower() for level in LOG_LEVELS],
 )
-def test_logger(tmp_path, message, level, sample):
+def test_logger(tmp_path: Path, message: str, level: str, sample: str):
     log_file = tmp_path / "messages.log"
     assert not log_file.is_file()
 

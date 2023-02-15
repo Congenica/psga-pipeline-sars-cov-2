@@ -3,7 +3,7 @@ import csv
 import json
 
 
-def csv_to_json(csv_path: Path, json_path: Path, sample_id: str):
+def csv_to_json(csv_path: Path, json_path: Path, sample_id: str) -> None:
     """
     Convert a CSV file to a JSON file using sample_id as key in the JSON
     """

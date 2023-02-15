@@ -1,5 +1,4 @@
 from pathlib import Path
-from typing import Dict
 import json
 import pandas as pd
 from pandas.testing import assert_frame_equal
@@ -27,12 +26,12 @@ def assert_csvs_are_equal(file1: Path, file2: Path, sortby_col: str) -> None:
     assert_frame_equal(df_sorted.reset_index(drop=True), df_exp_sorted.reset_index(drop=True))
 
 
-def json_to_dict(input_path: Path) -> Dict:
+def json_to_dict(input_path: Path) -> dict:
     with open(input_path, "r", encoding="utf-8") as jsonfile:
         return json.load(jsonfile)
 
 
-def dict_to_string(input_dict: Dict) -> str:
+def dict_to_string(input_dict: dict) -> str:
     # sort all keys, including nested dictionaries and lists
     return json.dumps(input_dict, sort_keys=True)
 

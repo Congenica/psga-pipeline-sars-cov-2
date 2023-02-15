@@ -1,3 +1,4 @@
+from pathlib import Path
 import pytest
 from click.testing import CliRunner
 import structlog
@@ -41,15 +42,13 @@ from tests.util.test_notification import load_log_file_to_dict
     ],
 )
 def test_validate_metadata(
-    test_data_path,
-    metadata_file,
-    sequencing_technology,
-    valid_samples,
-    invalid_samples,
+    check_metadata_data_path: Path,
+    metadata_file: str,
+    sequencing_technology: str,
+    valid_samples: list[str],
+    invalid_samples: list[str],
 ):
-    metadata_path = test_data_path / metadata_file
-
-    samples = validate_metadata(metadata_path, sequencing_technology)
+    samples = validate_metadata(check_metadata_data_path / metadata_file, sequencing_technology)
 
     assert sorted(samples.valid) == sorted(valid_samples)
     assert sorted(samples.invalid) == sorted(invalid_samples)
@@ -238,15 +237,15 @@ def test_validate_metadata(
     ],
 )
 def test_check_metadata(
-    tmp_path,
-    test_data_path,
-    metadata_file,
-    analysis_run_name,
-    sequencing_technology,
-    valid_samples,
-    invalid_samples,
-    exit_code,
-    exception_msg,
+    tmp_path: Path,
+    check_metadata_data_path: Path,
+    metadata_file: str,
+    analysis_run_name: str,
+    sequencing_technology: str,
+    valid_samples: list[str],
+    invalid_samples: list[str],
+    exit_code: int,
+    exception_msg: str,
 ):
 
     log_file = tmp_path / "messages.log"
@@ -256,7 +255,7 @@ def test_check_metadata(
 
     cmd_config = [
         "--metadata-path",
-        test_data_path / metadata_file,
+        check_metadata_data_path / metadata_file,
         "--analysis-run-name",
         analysis_run_name,
         "--sequencing-technology",

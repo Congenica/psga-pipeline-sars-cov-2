@@ -1,3 +1,4 @@
+from pathlib import Path
 import csv
 import pytest
 from click.testing import CliRunner
@@ -12,7 +13,7 @@ from scripts.common.contamination_removal import (
 )
 
 
-def assert_rik_output_csv(output_path, expected_rik_output_csv):
+def assert_rik_output_csv(output_path: Path, expected_rik_output_csv: dict[str, str]):
     with open(output_path, newline="") as csvfile:
         reader = csv.DictReader(csvfile)
         reader_list = list(reader)
@@ -27,8 +28,8 @@ def assert_rik_output_csv(output_path, expected_rik_output_csv):
         "rik_output_two_reads_exception.txt",
     ],
 )
-def test_get_contaminated_reads_exception(test_data_path, input_file):
-    input_path = test_data_path / "contamination_removal" / input_file
+def test_get_contaminated_reads_exception(contamination_removal_data_path: Path, input_file: str):
+    input_path = contamination_removal_data_path / input_file
     with pytest.raises(ValueError, match="cannot be negative"):
         get_contaminated_reads(input_path)
 
@@ -40,8 +41,10 @@ def test_get_contaminated_reads_exception(test_data_path, input_file):
         ("rik_output_two_reads.txt", 696),
     ],
 )
-def test_get_contaminated_reads(test_data_path, input_file, expected_contaminated_reads):
-    input_path = test_data_path / "contamination_removal" / input_file
+def test_get_contaminated_reads(
+    contamination_removal_data_path: Path, input_file: str, expected_contaminated_reads: int
+):
+    input_path = contamination_removal_data_path / input_file
     assert expected_contaminated_reads == get_contaminated_reads(input_path)
 
 
@@ -66,7 +69,9 @@ def test_get_contaminated_reads(test_data_path, input_file, expected_contaminate
         ),
     ],
 )
-def test_write_rik_output_csv(tmp_path, sample_id, contaminated_reads, expected_rik_output_csv):
+def test_write_rik_output_csv(
+    tmp_path: Path, sample_id: str, contaminated_reads: int, expected_rik_output_csv: dict[str, str]
+):
     output_path = tmp_path / "rik_output.csv"
     write_rik_output_csv(output_path, sample_id, contaminated_reads)
     assert_rik_output_csv(output_path, expected_rik_output_csv)
@@ -93,8 +98,14 @@ def test_write_rik_output_csv(tmp_path, sample_id, contaminated_reads, expected_
         ),
     ],
 )
-def test_process_rik(tmp_path, test_data_path, sample_id, input_file, expected_rik_output_csv):
-    input_path = test_data_path / "contamination_removal" / input_file
+def test_process_rik(
+    tmp_path: Path,
+    contamination_removal_data_path: Path,
+    sample_id: str,
+    input_file: str,
+    expected_rik_output_csv: dict[str, str],
+):
+    input_path = contamination_removal_data_path / input_file
     output_path = tmp_path / "rik_output.csv"
     process_rik(input_path, output_path, sample_id)
     assert_rik_output_csv(output_path, expected_rik_output_csv)
@@ -121,8 +132,14 @@ def test_process_rik(tmp_path, test_data_path, sample_id, input_file, expected_r
         ),
     ],
 )
-def test_contamination_removal(tmp_path, test_data_path, sample_id, input_file, expected_rik_output_csv):
-    input_path = test_data_path / "contamination_removal" / input_file
+def test_contamination_removal(
+    tmp_path: Path,
+    contamination_removal_data_path: Path,
+    sample_id: str,
+    input_file: str,
+    expected_rik_output_csv: dict[str, str],
+):
+    input_path = contamination_removal_data_path / input_file
     output_path = tmp_path / "rik_output.csv"
     rv = CliRunner().invoke(
         contamination_removal,
