@@ -4,14 +4,14 @@ set -euo pipefail # exit on any failures
 source config.sh
 
 wait_for_pod() {
-    local __POD="${1}"
-    echo "Waiting for pod $__POD to run"
-    while [[ $(kubectl get pods $__POD -o 'jsonpath={..status.conditions[?(@.type=="Ready")].status}') != "True" ]]; do
+    local POD="${1}"
+    while [[ $(kubectl get pods $POD -o 'jsonpath={..status.conditions[?(@.type=="Ready")].status}') != "True" ]]; do
+      echo "Waiting for pod $POD to run"
       kubectl get pvc
-      kubectl describe pod $__POD
+      kubectl describe pod $POD
       sleep 5
     done
-    echo "$__POD is running"
+    echo "$POD is running"
 }
 
 echo "Labeling minikube node so that it matches against the cluster"
@@ -43,6 +43,6 @@ done
 
 for name in $PIPELINES; do
   echo "Waiting for the $name-pipeline-minikube pod to be ready"
-  pipeline_pod="$( kubectl get pods -l app=$name-pipeline-minikube --no-headers -o custom-columns=':metadata.name' )"
+  pipeline_pod=$( kubectl get pods -l app=$name-pipeline-minikube --no-headers -o custom-columns=':metadata.name' )
   wait_for_pod "$pipeline_pod"
 done
