@@ -5,6 +5,10 @@ source config.sh
 
 wait_for_pod() {
     POD="$1"
+    if [[ -z "$POD" ]]; then
+      echo "Pod name was empty"
+      exit 3
+    fi
     while [[ $(kubectl -n psga-minikube get pods $POD -o 'jsonpath={..status.conditions[?(@.type=="Ready")].status}') != "True" ]]; do
       echo "Waiting for pod $POD to run"
       kubectl get pvc
