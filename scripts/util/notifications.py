@@ -1,4 +1,3 @@
-from typing import Dict, List
 from dataclasses import dataclass, field
 from marshmallow import validate
 
@@ -10,12 +9,12 @@ class Event:
     analysis_run: str = field(metadata={"required": True})
     level: str = field(metadata={"required": True, "validate": validate.OneOf(LOG_LEVELS)})
     message: str = field(metadata={"required": True})
-    samples: List[str] = field(metadata={"required": True}, default_factory=list)
+    samples: list[str] = field(metadata={"required": True}, default_factory=list)
 
 
 @dataclass
 class Notification:
-    events: Dict[str, Event] = field(metadata={"required": True}, default_factory=dict)
+    events: dict[str, Event] = field(metadata={"required": True}, default_factory=dict)
 
     def publish(self):
         """

@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Any, Dict, Set, Tuple
+from typing import Any
 import csv
 import pickle
 import gzip
@@ -48,7 +48,7 @@ def load_pickle(input_path: Path) -> Any:
         return pickle.load(pickle_in)
 
 
-def build_primers_automaton(primer_index: Path) -> Dict:
+def build_primers_automaton(primer_index: Path) -> dict:
     """
     Build the primers automaton dictionary
     """
@@ -79,12 +79,12 @@ def build_primers_automaton(primer_index: Path) -> Dict:
     return primers_automaton
 
 
-def count_primer_matches(sample_fastq: Path, primers_automaton: Dict) -> Dict:
+def count_primer_matches(sample_fastq: Path, primers_automaton: dict) -> dict:
     """
     Perform an exact search of the primer sequences (all schemes) in the sample_fastq
     """
     # Structure for storing the unique primer sequences
-    unique_hits: Dict[str, Set] = {p: set() for p in primers_automaton}
+    unique_hits: dict[str, set] = {p: set() for p in primers_automaton}
 
     # look up the primer sequences in the automaton
     # reading the sample fastq once for all
@@ -133,7 +133,7 @@ def count_primer_matches(sample_fastq: Path, primers_automaton: Dict) -> Dict:
     return unique_hits
 
 
-def compute_primer_data(sample_fastq: Path, primers_automaton: Dict) -> Dict:
+def compute_primer_data(sample_fastq: Path, primers_automaton: dict) -> dict:
     """
     Perform an exact search of the primer sequences (all schemes) in the sample_fastq
     """
@@ -166,7 +166,7 @@ def generate_metrics(primer_index: Path, sample_fastq: Path, output_path: Path) 
             writer.writerow(primers_automaton[primer].data)
 
 
-def select_primer(output_path: Path, sample_id: str, primer_input: str) -> Tuple[pd.DataFrame, str]:
+def select_primer(output_path: Path, sample_id: str, primer_input: str) -> tuple[pd.DataFrame, str]:
     """
     Concatenate the input coverage files and select the record with the highest score.
     Return the selected primer data and the name of the selected primer.
@@ -190,7 +190,7 @@ def select_primer(output_path: Path, sample_id: str, primer_input: str) -> Tuple
     primer_detection_df.drop(columns=[TOTAL_NUM_PRIMER], inplace=True)
 
     # extract the primer with the highest score
-    # use deep copy to suppress the warning: SettingWithCopyWarning
+    # use deep copy to suppress the warning: settingWithCopyWarning
     detected_primer_df_slice = primer_detection_df.loc[
         primer_detection_df[PRIMER_AUTODETECTION_PRIMER_SCORE_COL].idxmax()
     ].copy(deep=True)

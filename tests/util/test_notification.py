@@ -1,5 +1,4 @@
 from pathlib import Path
-from typing import Dict
 import json
 import pytest
 import structlog
@@ -8,7 +7,7 @@ from scripts.util.notifications import Event, Notification
 from scripts.util.logger import get_structlog_logger, ERROR, INFO
 
 
-def load_log_file_to_dict(log_file: Path, key: str) -> Dict:
+def load_log_file_to_dict(log_file: Path, key: str) -> dict:
     log_dict = {}
     with open(log_file, "r") as fd:
         for line in fd.read().splitlines():

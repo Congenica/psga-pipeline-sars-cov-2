@@ -32,3 +32,8 @@ def scripts_test():
 @pytest.fixture
 def test_data_path():
     return Path(__file__).parent / "test_data"
+
+
+@pytest.fixture
+def integration_test_validation_data_path(test_data_path):
+    return test_data_path / "integration_test_validation"

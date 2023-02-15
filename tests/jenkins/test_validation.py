@@ -48,14 +48,14 @@ def create_output_files(pathogen: str, samples: Path, root: Path, sequencing_tec
     ],
 )
 def test_compare_merged_output_file(
-    test_data_path,
+    integration_test_validation_data_path,
     pathogen,
     results_csv,
     expected_results_csv,
     exc,
 ):
-    actual_path = test_data_path / "integration_test_validation" / pathogen / results_csv
-    expected_path = test_data_path / "integration_test_validation" / pathogen / expected_results_csv
+    actual_path = integration_test_validation_data_path / pathogen / results_csv
+    expected_path = integration_test_validation_data_path / pathogen / expected_results_csv
     data = data_config[pathogen]["config"]
 
     if exc:
@@ -101,7 +101,7 @@ def test_compare_merged_output_file(
 )
 def test_validation(
     tmp_path,
-    test_data_path,
+    integration_test_validation_data_path,
     pathogen,
     results_csv,
     expected_results_csv,
@@ -110,8 +110,8 @@ def test_validation(
     exception_msg,
 ):
 
-    actual_path = test_data_path / "integration_test_validation" / pathogen / results_csv
-    expected_path = test_data_path / "integration_test_validation" / pathogen / expected_results_csv
+    actual_path = integration_test_validation_data_path / pathogen / results_csv
+    expected_path = integration_test_validation_data_path / pathogen / expected_results_csv
 
     # here we test the merged output file, but we assume that
     # the output files are as expected

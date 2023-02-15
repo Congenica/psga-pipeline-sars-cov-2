@@ -1,5 +1,4 @@
 from pathlib import Path
-from typing import List, Set, Tuple
 from dataclasses import dataclass, field
 from functools import partial, reduce
 
@@ -109,19 +108,19 @@ class SampleIdResultFiles:
     """
 
     # all samples of the analysis run
-    all_samples: List[str] = field(metadata={"required": True}, default_factory=list)
+    all_samples: list[str] = field(metadata={"required": True}, default_factory=list)
     # samples which completed contamination-removal
-    contamination_removal_completed_samples: List[str] = field(metadata={"required": True}, default_factory=list)
+    contamination_removal_completed_samples: list[str] = field(metadata={"required": True}, default_factory=list)
     # samples which completed primer-autodetection, whether passing or failing primer-autodetection qc
-    primer_autodetection_completed_samples: List[str] = field(metadata={"required": True}, default_factory=list)
+    primer_autodetection_completed_samples: list[str] = field(metadata={"required": True}, default_factory=list)
     # samples which completed ncov, whether passing or failing ncov qc
-    ncov_completed_samples: List[str] = field(metadata={"required": True}, default_factory=list)
+    ncov_completed_samples: list[str] = field(metadata={"required": True}, default_factory=list)
     # samples passing ncov qc
-    ncov_qc_passed_samples: List[str] = field(metadata={"required": True}, default_factory=list)
+    ncov_qc_passed_samples: list[str] = field(metadata={"required": True}, default_factory=list)
 
 
 def load_data_from_csv(
-    csv_file: str, expected_columns: Set[str], sample_name_col_to_rename: str = None
+    csv_file: str, expected_columns: set[str], sample_name_col_to_rename: str = None
 ) -> pd.DataFrame:
     """
     Load the CSV content to a Pandas dataframe. An arbitrary column name used to indentify the sample id
@@ -141,9 +140,9 @@ def load_data_from_csv(
 
 def _generate_contamination_removal_notifications(
     analysis_run_name: str,
-    all_samples: List[str],
+    all_samples: list[str],
     df_contamination_removal: pd.DataFrame,
-) -> Tuple[List[str], Notification]:
+) -> tuple[list[str], Notification]:
     """
     Generate and publish contamination_removal notifications.
     """
@@ -153,7 +152,7 @@ def _generate_contamination_removal_notifications(
     contamination_removal_all_samples = all_samples
     qc_unrelated_failing_contamination_removal_samples = []
     # Currently, there is no QC for contamination removal, so all sample pass
-    contamination_removal_samples_failing_qc: List[str] = []
+    contamination_removal_samples_failing_qc: list[str] = []
     contamination_removal_samples_passing_qc = all_samples
 
     if not df_contamination_removal.empty:
@@ -190,9 +189,9 @@ def _generate_contamination_removal_notifications(
 
 def _generate_primer_autodetection_notifications(
     analysis_run_name: str,
-    all_samples: List[str],
+    all_samples: list[str],
     df_primer_autodetection: pd.DataFrame,
-) -> Tuple[List[str], Notification]:
+) -> tuple[list[str], Notification]:
     """
     Generate and publish primer_autodetection notifications.
     """
@@ -202,7 +201,7 @@ def _generate_primer_autodetection_notifications(
     primer_autodetection_all_samples = all_samples
     qc_unrelated_failing_primer_autodetection_samples = []
     # Currently, there is no QC for primer autodetection, so all sample pass
-    primer_autodetection_samples_failing_qc: List[str] = []
+    primer_autodetection_samples_failing_qc: list[str] = []
     primer_autodetection_samples_passing_qc = all_samples
 
     if not df_primer_autodetection.empty:
@@ -239,9 +238,9 @@ def _generate_primer_autodetection_notifications(
 
 def _generate_ncov_notifications(
     analysis_run_name: str,
-    all_samples: List[str],
+    all_samples: list[str],
     df_ncov_qc: pd.DataFrame,
-) -> Tuple[List[str], Notification]:
+) -> tuple[list[str], Notification]:
     """
     Generate and publish ncov notifications.
     Return the list of samples which failed not due to QC
@@ -288,9 +287,9 @@ def _generate_ncov_notifications(
 
 def _generate_pangolin_notifications(
     analysis_run_name: str,
-    ncov_samples_passing_qc: List[str],
+    ncov_samples_passing_qc: list[str],
     df_pangolin: pd.DataFrame,
-) -> Tuple[List[str], Notification]:
+) -> tuple[list[str], Notification]:
     """
     Generate and publish pangolin notifications.
     Return the list of samples which failed not due to QC
@@ -331,12 +330,12 @@ def _generate_pangolin_notifications(
 
 def _generate_notifications(
     analysis_run_name: str,
-    all_samples: List[str],
+    all_samples: list[str],
     df_contamination_removal: pd.DataFrame,
     df_primer_autodetection: pd.DataFrame,
     df_ncov_qc: pd.DataFrame,
     df_pangolin: pd.DataFrame,
-) -> Tuple[List[str], Notification]:
+) -> tuple[list[str], Notification]:
     """
     Generate and publish output pipeline notifications.
     Return the list of samples which failed not due to QC
@@ -403,12 +402,12 @@ def _generate_notifications(
 
 
 def _generate_results_csv(
-    all_samples: List[str],
+    all_samples: list[str],
     df_contamination_removal: pd.DataFrame,
     df_primer_autodetection: pd.DataFrame,
     df_ncov_qc: pd.DataFrame,
     df_pangolin: pd.DataFrame,
-    qc_unrelated_failing_samples: List[str],
+    qc_unrelated_failing_samples: list[str],
     output_results_csv_file: str,
 ) -> None:
     """

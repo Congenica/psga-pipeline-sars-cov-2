@@ -1,6 +1,6 @@
 import shutil
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any
 import csv
 import pickle
 import tempfile
@@ -73,7 +73,7 @@ def extract_primer_sequences(
     scheme_bed: Path,
     scheme_fasta: Path,
     primer: str,
-    strands_in_name: List[str] = None,
+    strands_in_name: list[str] = None,
     left_strand: str = None,
 ) -> None:
     """
@@ -107,7 +107,7 @@ def extract_primer_sequences(
     with open(scheme_bed, newline="") as bedfile, open(scheme_fasta, "w") as outputfile:
         write = _decorate_with_new_line(outputfile.write)
 
-        def _write_primer(primer: str, bed_row: Dict[str, str], seq_idx: int) -> None:
+        def _write_primer(primer: str, bed_row: dict[str, str], seq_idx: int) -> None:
             start = int(bed_row[START])
             end = int(bed_row[END])
             primer_sequence = ref_sequence[start:end]

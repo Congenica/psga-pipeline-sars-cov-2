@@ -1,5 +1,4 @@
 from pathlib import Path
-from typing import List
 import csv
 import click
 
@@ -17,7 +16,7 @@ def get_contaminated_reads(input_path: Path) -> int:
     Return the number of reads removed by read-it-and-keep
     """
 
-    def _get_counting(lines: List[str], pattern: str) -> int:
+    def _get_counting(lines: list[str], pattern: str) -> int:
         """e.g. ["Input reads file 1\t75703", "Input reads file 2\t0"] -> 75703"""
         return sum([int(line.split("\t")[1]) for line in lines if line.startswith(pattern)])
 

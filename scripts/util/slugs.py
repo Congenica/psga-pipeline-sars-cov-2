@@ -1,9 +1,8 @@
 from os.path import join as join_path  # used to join FS paths and S3 URIs
-from typing import Dict, List
 from dataclasses import dataclass, field
 
-SAMPLE_FILE_TYPE = Dict[str, str]
-RESULTFILES_TYPE = Dict[str, List[SAMPLE_FILE_TYPE]]
+SAMPLE_FILE_TYPE = dict[str, str]
+RESULTFILES_TYPE = dict[str, list[SAMPLE_FILE_TYPE]]
 
 
 @dataclass
@@ -14,10 +13,10 @@ class FileType:
 
 def get_file_with_type(
     output_path: str,
-    inner_dirs: List[str],
-    filetypes: List[FileType],
+    inner_dirs: list[str],
+    filetypes: list[FileType],
     sample_id: str,
-) -> List[SAMPLE_FILE_TYPE]:
+) -> list[SAMPLE_FILE_TYPE]:
     """
     Return a dictionary { "file": "path/to/sample_id.ext", "type": "filetype" }
     """

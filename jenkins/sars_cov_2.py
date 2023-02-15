@@ -1,11 +1,10 @@
 from os.path import join as join_path  # used to join FS paths and S3 URIs
-from typing import List
 
 from scripts.sars_cov_2.generate_pipeline_results_files import get_expected_output_files_per_sample, SampleIdResultFiles
 from scripts.util.metadata import UNKNOWN
 
 
-def get_expected_output_files(output_path: str, sample_ids: List[str], sequencing_technology: str) -> List[str]:
+def get_expected_output_files(output_path: str, sample_ids: list[str], sequencing_technology: str) -> list[str]:
     """
     Return a list of ALL expected output paths
     """

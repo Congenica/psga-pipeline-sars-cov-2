@@ -1,5 +1,4 @@
 from pathlib import Path
-from typing import List, Set
 from functools import partial, reduce
 from itertools import cycle
 
@@ -71,7 +70,7 @@ SYNTHETIC_DATA = [
 
 
 def load_data_from_csv(
-    csv_path: Path, expected_columns: Set[str], sample_name_col_to_rename: str = None
+    csv_path: Path, expected_columns: set[str], sample_name_col_to_rename: str = None
 ) -> pd.DataFrame:
     """
     Load the CSV content to a Pandas dataframe. An arbitrary column name used to indentify the sample id
@@ -85,9 +84,9 @@ def load_data_from_csv(
 
 
 def _generate_results_csv(
-    all_samples: List[str],
+    all_samples: list[str],
     df_synthetic: pd.DataFrame,
-    qc_unrelated_failing_samples: List[str],
+    qc_unrelated_failing_samples: list[str],
     output_results_csv_file: str,
 ) -> None:
     """
@@ -120,7 +119,7 @@ def _generate_results_csv(
 
 def get_expected_output_files_per_sample(
     output_path: str,
-    sample_ids_result_files: List[str],
+    sample_ids_result_files: list[str],
 ) -> RESULTFILES_TYPE:
     """
     Return a dictionary {sample_id, list_of_expected_output_paths}
@@ -140,7 +139,7 @@ def get_expected_output_files_per_sample(
 
 
 def _generate_resultfiles_json(
-    sample_ids_result_files: List[str],
+    sample_ids_result_files: list[str],
     output_path: str,
     output_resultfiles_json_file: Path,
 ) -> None:
@@ -204,7 +203,7 @@ def generate_pipeline_results_files(
 
     # generate some synthetic results.
     successful_samples = all_samples
-    qc_unrelated_failing_samples: List[str] = []
+    qc_unrelated_failing_samples: list[str] = []
 
     synthetic_sample_results = [next(SYNTHETIC_DATA_POOL) for sample in successful_samples]
 
