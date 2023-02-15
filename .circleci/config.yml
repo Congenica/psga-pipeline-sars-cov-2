@@ -1,4 +1,6 @@
 version: 2.1
+# Since this workflow relies on docker images being in ECR, it only gets triggered
+# by the trigger_integration_tests step defined in Github Actions once images have been pushed
 parameters:
   GHA_Event:
     type: string
@@ -13,7 +15,7 @@ parameters:
     type: string
     default: ""
 jobs:
-  test:
+  integration_tests:
     machine:
       image: ubuntu-2204:current
     resource_class: xlarge
@@ -36,12 +38,14 @@ jobs:
             cd ${CIRCLE_WORKING_DIRECTORY}/minikube
             minikube start --cpus=6 --memory=28672 --vm-driver=docker
             minikube addons enable storage-provisioner
-            sed -i 's/dev_latest/${CIRCLE_SHA1}/g' pipelines/*
+            sed -i "s/dev_latest/${CIRCLE_SHA1}/g" pipelines/*
             ./startup.sh
             ./run_pipelines.sh
 
 workflows:
   test:
+    # Do not run when branch is pushed, trigger via Github Actions instead
     when: << pipeline.parameters.GHA_Action >>
     jobs:
-      - test
+      - test:
+          name: Integration tests
