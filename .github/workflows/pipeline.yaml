@@ -49,7 +49,7 @@ jobs:
     steps:
       - name: Trigger integration tests
         id: trigger_integration_tests
-        uses: circleci/trigger_circleci_pipeline@v1.0
+        uses: CircleCI-Public/trigger-circleci-pipeline-action@v1.0.5
         env:
           CCI_TOKEN: ${{ secrets.CIRCLECI_TOKEN }}
 
