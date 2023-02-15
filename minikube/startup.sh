@@ -7,6 +7,7 @@ wait_for_pod() {
     local __POD="${1}"
     echo "Waiting for pod $__POD to run"
     while [[ $(kubectl get pods $__POD -o 'jsonpath={..status.conditions[?(@.type=="Ready")].status}') != "True" ]]; do
+      kubectl describe pod $__POD
       sleep 1
     done
     echo "$__POD is running"
@@ -42,6 +43,5 @@ done
 for name in $PIPELINES; do
   echo "Waiting for the $name-pipeline-minikube pod to be ready"
   pipeline_pod="$( kubectl get pods -l app=$name-pipeline-minikube --no-headers -o custom-columns=':metadata.name' )"
-  kubectl describe pod $pipeline_pod
   wait_for_pod "$pipeline_pod"
 done
