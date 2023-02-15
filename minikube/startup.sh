@@ -47,9 +47,10 @@ done
 
 for name in $PIPELINES; do
   app_name=$name-pipeline-minikube
-  echo "Waiting for the $app_name pod to be ready"
-  kubectl -n psga-minikube get pods -l app=$app_name --no-headers -o custom-columns=':metadata.name'
-  pipeline_pod=$( kubectl -n psga-minikube get pods -l app=$name-pipeline-minikube --no-headers -o custom-columns=':metadata.name' )
-  echo "pipeline_pod: $pipeline_pod"
-  wait_for_pod "$pipeline_pod"
+  echo "Waiting for the $app_name deployment to be ready"
+  #kubectl -n psga-minikube get pods -l app=$app_name --no-headers -o custom-columns=':metadata.name'
+  #while [[ $( kubectl -n psga-minikube get pods -l app=$name-pipeline-minikube --no-headers -o custom-columns=':metadata.name' )
+  #echo "pipeline_pod: $pipeline_pod"
+  kubectl wait deployment -n psga-minikube $app_name --for condition=Available=True --timeout=300s
+  #wait_for_pod "$pipeline_pod"
 done
