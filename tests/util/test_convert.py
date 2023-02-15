@@ -20,9 +20,9 @@ from tests.utils_tests import assert_jsons_are_equal
         ),
     ],
 )
-def test_csv_to_json(tmp_path, test_data_path, pathogen, input_csv, expected_json, sample_id):
-    input_path = test_data_path / "pipeline_results_files" / pathogen / input_csv
-    expected_output_path = test_data_path / "pipeline_results_files" / pathogen / expected_json
+def test_csv_to_json(tmp_path, pipeline_results_files_data_path, pathogen, input_csv, expected_json, sample_id):
+    input_path = pipeline_results_files_data_path / pathogen / input_csv
+    expected_output_path = pipeline_results_files_data_path / pathogen / expected_json
     output_path = tmp_path / "results.json"
 
     csv_to_json(input_path, output_path, sample_id)

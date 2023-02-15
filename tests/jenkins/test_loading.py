@@ -61,8 +61,8 @@ from tests.jenkins.util import create_paths
         ),
     ],
 )
-def test_load_data_from_csv(tmp_path, test_data_path, pathogen, csv_file, config, exc):
-    csv_path = test_data_path / "integration_test_validation" / pathogen / csv_file
+def test_load_data_from_csv(tmp_path, integration_test_validation_data_path, pathogen, csv_file, config, exc):
+    csv_path = integration_test_validation_data_path / pathogen / csv_file
     # simplify this file for testing
     df = pd.read_csv(csv_path)
     # with the following op, the dataframe becomes a series

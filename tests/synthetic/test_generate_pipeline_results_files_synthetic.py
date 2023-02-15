@@ -37,7 +37,7 @@ from tests.utils_tests import assert_csvs_are_equal, assert_jsons_are_equal
 )
 def test_generate_pipeline_results_files(
     tmp_path,
-    test_data_path,
+    pipeline_results_files_data_path,
     pathogen,
     metadata,
     exp_results_csv,
@@ -54,7 +54,7 @@ def test_generate_pipeline_results_files(
 
     args = [
         "--metadata-file",
-        test_data_path / "pipeline_results_files" / pathogen / metadata,
+        pipeline_results_files_data_path / pathogen / metadata,
         "--output-results-csv-file",
         output_results_csv_file,
         "--output-results-json-file",
@@ -73,15 +73,15 @@ def test_generate_pipeline_results_files(
     assert rv.exit_code == 0
 
     # assert results.csv
-    exp_output_results_csv_file = test_data_path / "pipeline_results_files" / pathogen / exp_results_csv
+    exp_output_results_csv_file = pipeline_results_files_data_path / pathogen / exp_results_csv
     assert_csvs_are_equal(output_results_csv_file, exp_output_results_csv_file, SAMPLE_ID)
 
     # assert results.json
-    exp_output_results_json_file = test_data_path / "pipeline_results_files" / pathogen / exp_results_json
+    exp_output_results_json_file = pipeline_results_files_data_path / pathogen / exp_results_json
     assert_jsons_are_equal(output_results_json_file, exp_output_results_json_file)
 
     # assert resultfiles.json
-    with open(test_data_path / "pipeline_results_files" / pathogen / exp_resultfiles_json) as json_fd:
+    with open(pipeline_results_files_data_path / pathogen / exp_resultfiles_json) as json_fd:
         exp_resultfiles_json_dict = json.load(json_fd)
     with open(output_resultfiles_json_file) as json_fd:
         calc_resultfiles_json_dict = json.load(json_fd)

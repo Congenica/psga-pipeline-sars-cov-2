@@ -41,15 +41,13 @@ from tests.util.test_notification import load_log_file_to_dict
     ],
 )
 def test_validate_metadata(
-    test_data_path,
+    check_metadata_data_path,
     metadata_file,
     sequencing_technology,
     valid_samples,
     invalid_samples,
 ):
-    metadata_path = test_data_path / metadata_file
-
-    samples = validate_metadata(metadata_path, sequencing_technology)
+    samples = validate_metadata(check_metadata_data_path / metadata_file, sequencing_technology)
 
     assert sorted(samples.valid) == sorted(valid_samples)
     assert sorted(samples.invalid) == sorted(invalid_samples)
@@ -239,7 +237,7 @@ def test_validate_metadata(
 )
 def test_check_metadata(
     tmp_path,
-    test_data_path,
+    check_metadata_data_path,
     metadata_file,
     analysis_run_name,
     sequencing_technology,
@@ -256,7 +254,7 @@ def test_check_metadata(
 
     cmd_config = [
         "--metadata-path",
-        test_data_path / metadata_file,
+        check_metadata_data_path / metadata_file,
         "--analysis-run-name",
         analysis_run_name,
         "--sequencing-technology",

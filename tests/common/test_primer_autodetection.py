@@ -40,11 +40,8 @@ from scripts.common.primer_cols import (
     PRIMER_AUTODETECTION_AMBIGUOUS_NUMREADS_COL,
 )
 from tests.utils_tests import assert_csvs_are_equal, assert_files_are_equal
-from tests.common.test_fetch_primers import FETCH_PRIMERS_DIR, PRIMER_SCHEMES
 
 DEFAULT_PRIMER = "ARTIC_V4-1"
-PRIMER_AUTODETECTION_DIR = "primer_autodetection"
-SAMPLES_DIR = "samples"
 PRIMER_TEST = "primer_test"
 
 
@@ -88,15 +85,15 @@ def assert_primer_data(sample_id, tmp_path, input_path):
     assert_csvs_are_equal(output_path, expected_output_path, PRIMER_AUTODETECTION_SAMPLE_ID_COL)
 
 
-def assert_selected_primer_file(sample_id, test_data_path, tmp_path, found_dir):
+def assert_selected_primer_file(sample_id, primer_autodetection_data_path, tmp_path, found_dir):
     primer_file = f"{sample_id}_primer.txt"
-    expected_output_path = test_data_path / PRIMER_AUTODETECTION_DIR / found_dir / primer_file
+    expected_output_path = primer_autodetection_data_path / found_dir / primer_file
     output_path = tmp_path / primer_file
     assert_files_are_equal(output_path, expected_output_path)
 
 
 @pytest.fixture
-def primers_automaton_fixture(test_data_path):
+def primers_automaton_fixture(primer_autodetection_primer_schemes_data_path):
     automaton_dictionary = {
         "ARTIC_V4": PrimerAutomaton(
             data={
@@ -107,9 +104,7 @@ def primers_automaton_fixture(test_data_path):
                 PRIMER_AUTODETECTION_AMBIGUOUS_NUMREADS_COL: 0,
             },
             automaton=load_pickle(
-                test_data_path
-                / PRIMER_AUTODETECTION_DIR
-                / PRIMER_SCHEMES
+                primer_autodetection_primer_schemes_data_path
                 / "ARTIC"
                 / SARS_COV_2
                 / "V4"
@@ -125,9 +120,7 @@ def primers_automaton_fixture(test_data_path):
                 PRIMER_AUTODETECTION_AMBIGUOUS_NUMREADS_COL: 0,
             },
             automaton=load_pickle(
-                test_data_path
-                / PRIMER_AUTODETECTION_DIR
-                / PRIMER_SCHEMES
+                primer_autodetection_primer_schemes_data_path
                 / "Midnight-ONT"
                 / SARS_COV_2
                 / "V2"
@@ -161,10 +154,12 @@ def assert_primer_automaton(primers_automaton, expected_primers_automaton):
         f"{SARS_COV_2}_primer_index.csv",
     ],
 )
-def test_build_primers_automaton(tmp_path, test_data_path, index, primers_automaton_fixture):
-    orig_index_path = test_data_path / FETCH_PRIMERS_DIR / PRIMER_SCHEMES / index
+def test_build_primers_automaton(
+    tmp_path, fetch_primers_primer_schemes_data_path, primer_autodetection_data_path, index, primers_automaton_fixture
+):
+    orig_index_path = fetch_primers_primer_schemes_data_path / index
     tmp_index_path = tmp_path / index
-    prefix_path_to_index(orig_index_path, tmp_index_path, test_data_path / PRIMER_AUTODETECTION_DIR)
+    prefix_path_to_index(orig_index_path, tmp_index_path, primer_autodetection_data_path)
 
     primers_automaton = build_primers_automaton(tmp_index_path)
 
@@ -186,7 +181,9 @@ def test_build_primers_automaton(tmp_path, test_data_path, index, primers_automa
         )
     ],
 )
-def test_count_primer_matches(test_data_path, sample, fasta, expected_unique_hits, expected_data):
+def test_count_primer_matches(
+    primer_autodetection_sample_dir_data_path, sample, fasta, expected_unique_hits, expected_data
+):
     # build a simplified primer_automaton obj for this test
     primers_automaton = {
         PRIMER_TEST: PrimerAutomaton(
@@ -195,12 +192,10 @@ def test_count_primer_matches(test_data_path, sample, fasta, expected_unique_hit
                 PRIMER_AUTODETECTION_UNIQUE_NUMREADS_COL: 0,
                 PRIMER_AUTODETECTION_AMBIGUOUS_NUMREADS_COL: 0,
             },
-            automaton=create_automaton(test_data_path / PRIMER_AUTODETECTION_DIR / SAMPLES_DIR / fasta),
+            automaton=create_automaton(primer_autodetection_sample_dir_data_path / fasta),
         ),
     }
-    unique_hits = count_primer_matches(
-        test_data_path / PRIMER_AUTODETECTION_DIR / SAMPLES_DIR / sample, primers_automaton
-    )
+    unique_hits = count_primer_matches(primer_autodetection_sample_dir_data_path / sample, primers_automaton)
 
     assert unique_hits == expected_unique_hits
     assert primers_automaton[PRIMER_TEST].data == expected_data
@@ -251,8 +246,10 @@ def test_count_primer_matches(test_data_path, sample, fasta, expected_unique_hit
         ),
     ],
 )
-def test_compute_primer_data(test_data_path, primers_automaton_fixture, sample_id, expected_data):
-    sample_fastq = test_data_path / PRIMER_AUTODETECTION_DIR / SAMPLES_DIR / f"{sample_id}.fastq.gz"
+def test_compute_primer_data(
+    primer_autodetection_sample_dir_data_path, primers_automaton_fixture, sample_id, expected_data
+):
+    sample_fastq = primer_autodetection_sample_dir_data_path / f"{sample_id}.fastq.gz"
     primers_automaton = compute_primer_data(sample_fastq, primers_automaton_fixture)
     for primer in primers_automaton:
         assert primers_automaton[primer].data == expected_data[primer]
@@ -273,14 +270,21 @@ def test_compute_primer_data(test_data_path, primers_automaton_fixture, sample_i
         ),
     ],
 )
-def test_generate_metrics(tmp_path, test_data_path, index, sample_id):
+def test_generate_metrics(
+    tmp_path,
+    primer_autodetection_data_path,
+    primer_autodetection_sample_dir_data_path,
+    fetch_primers_primer_schemes_data_path,
+    index,
+    sample_id,
+):
 
-    expected_output_path = test_data_path / PRIMER_AUTODETECTION_DIR / SAMPLES_DIR / "expected_output" / sample_id
-    orig_index_path = test_data_path / FETCH_PRIMERS_DIR / PRIMER_SCHEMES / index
+    expected_output_path = primer_autodetection_sample_dir_data_path / "expected_output" / sample_id
+    orig_index_path = fetch_primers_primer_schemes_data_path / index
     tmp_index_path = tmp_path / index
 
-    primers = prefix_path_to_index(orig_index_path, tmp_index_path, test_data_path / PRIMER_AUTODETECTION_DIR)
-    sample_fastq = test_data_path / PRIMER_AUTODETECTION_DIR / SAMPLES_DIR / f"{sample_id}.fastq.gz"
+    primers = prefix_path_to_index(orig_index_path, tmp_index_path, primer_autodetection_data_path)
+    sample_fastq = primer_autodetection_sample_dir_data_path / f"{sample_id}.fastq.gz"
 
     generate_metrics(tmp_index_path, sample_fastq, tmp_path)
 
@@ -300,7 +304,7 @@ def test_generate_metrics(tmp_path, test_data_path, index, sample_id):
 )
 def test_select_primer(
     tmp_path,
-    test_data_path,
+    primer_autodetection_data_path,
     found_dir,
     sample_id,
     primer_input,
@@ -308,7 +312,7 @@ def test_select_primer(
     expected_detected_primer,
     expected_selected_primer,
 ):
-    input_path = test_data_path / PRIMER_AUTODETECTION_DIR / found_dir
+    input_path = primer_autodetection_data_path / found_dir
     copy_with_wildcard(input_path, tmp_path, COVERAGE_SUFFIX)
     detected_primer_df, selected_primer = select_primer(tmp_path, sample_id, primer_input)
 
@@ -325,8 +329,8 @@ def test_select_primer(
         ("not_found", "a0446f6f-7d24-478c-8d92-7c77036930d8", "unknown"),
     ],
 )
-def test_write_primer_data(tmp_path, test_data_path, found_dir, sample_id, primer_input):
-    input_path = test_data_path / PRIMER_AUTODETECTION_DIR / found_dir
+def test_write_primer_data(tmp_path, primer_autodetection_data_path, found_dir, sample_id, primer_input):
+    input_path = primer_autodetection_data_path / found_dir
     copy_with_wildcard(input_path, tmp_path, COVERAGE_SUFFIX)
     detected_primer_df, _ = select_primer(tmp_path, sample_id, primer_input)
     write_primer_data(tmp_path, detected_primer_df, sample_id, primer_input)
@@ -340,9 +344,9 @@ def test_write_primer_data(tmp_path, test_data_path, found_dir, sample_id, prime
         ("not_found", "a0446f6f-7d24-478c-8d92-7c77036930d8", DEFAULT_PRIMER),
     ],
 )
-def test_write_selected_primer(tmp_path, test_data_path, found_dir, sample_id, detected_primer):
+def test_write_selected_primer(tmp_path, primer_autodetection_data_path, found_dir, sample_id, detected_primer):
     write_selected_primer(tmp_path, sample_id, detected_primer)
-    assert_selected_primer_file(sample_id, test_data_path, tmp_path, found_dir)
+    assert_selected_primer_file(sample_id, primer_autodetection_data_path, tmp_path, found_dir)
 
 
 @pytest.mark.parametrize(
@@ -352,13 +356,15 @@ def test_write_selected_primer(tmp_path, test_data_path, found_dir, sample_id, d
         ("not_found", "a0446f6f-7d24-478c-8d92-7c77036930d8", "unknown"),
     ],
 )
-def test_generate_primer_autodetection_output_files(tmp_path, test_data_path, found_dir, sample_id, primer_input):
-    input_path = test_data_path / PRIMER_AUTODETECTION_DIR / found_dir
+def test_generate_primer_autodetection_output_files(
+    tmp_path, primer_autodetection_data_path, found_dir, sample_id, primer_input
+):
+    input_path = primer_autodetection_data_path / found_dir
     copy_with_wildcard(input_path, tmp_path, COVERAGE_SUFFIX)
     generate_primer_autodetection_output_files(tmp_path, sample_id, primer_input)
     assert_primer_detection(sample_id, tmp_path, input_path)
     assert_primer_data(sample_id, tmp_path, input_path)
-    assert_selected_primer_file(sample_id, test_data_path, tmp_path, found_dir)
+    assert_selected_primer_file(sample_id, primer_autodetection_data_path, tmp_path, found_dir)
 
 
 @pytest.mark.parametrize(
@@ -368,13 +374,22 @@ def test_generate_primer_autodetection_output_files(tmp_path, test_data_path, fo
         (f"{SARS_COV_2}_primer_index.csv", "a0446f6f-7d24-478c-8d92-7c77036930d8", "unknown"),
     ],
 )
-def test_primer_autodetection(tmp_path, test_data_path, index, sample_id, primer_input):
-    expected_output_path = test_data_path / PRIMER_AUTODETECTION_DIR / SAMPLES_DIR / "expected_output" / sample_id
-    orig_index_path = test_data_path / FETCH_PRIMERS_DIR / PRIMER_SCHEMES / index
+def test_primer_autodetection(
+    tmp_path,
+    primer_autodetection_data_path,
+    primer_autodetection_sample_dir_data_path,
+    fetch_primers_primer_schemes_data_path,
+    samples_dir,
+    index,
+    sample_id,
+    primer_input,
+):
+    expected_output_path = primer_autodetection_sample_dir_data_path / "expected_output" / sample_id
+    orig_index_path = fetch_primers_primer_schemes_data_path / index
     tmp_index_path = tmp_path / index
-    sample_fastq = test_data_path / PRIMER_AUTODETECTION_DIR / SAMPLES_DIR / f"{sample_id}.fastq.gz"
+    sample_fastq = primer_autodetection_sample_dir_data_path / f"{sample_id}.fastq.gz"
 
-    prefix_path_to_index(orig_index_path, tmp_index_path, test_data_path / PRIMER_AUTODETECTION_DIR)
+    prefix_path_to_index(orig_index_path, tmp_index_path, primer_autodetection_data_path)
 
     rv = CliRunner().invoke(
         primer_autodetection,
@@ -395,4 +410,6 @@ def test_primer_autodetection(tmp_path, test_data_path, index, sample_id, primer
 
     assert_primer_detection(sample_id, tmp_path, expected_output_path)
     assert_primer_data(sample_id, tmp_path, expected_output_path)
-    assert_selected_primer_file(sample_id, test_data_path, tmp_path, f"{SAMPLES_DIR}/expected_output/{sample_id}")
+    assert_selected_primer_file(
+        sample_id, primer_autodetection_data_path, tmp_path, f"{samples_dir}/expected_output/{sample_id}"
+    )
