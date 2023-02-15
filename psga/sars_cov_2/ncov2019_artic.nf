@@ -4,14 +4,14 @@
  */
 process ncov2019_artic_nf_pipeline_illumina {
   publishDir "${params.output_path}/ncov2019-artic", mode: 'copy', overwrite: true, pattern: 'output_{bam,fasta,plots,typing,variants}/*'
+  publishDir "${params.output_path}", mode: 'copy', overwrite: true, pattern: 'reheadered_fasta/*.fasta'
 
   tag "${task.index} - ${input_files}"
   input:
     path input_files
 
   output:
-    // retain the qc csv intentionally
-    tuple path("ncov_output/*.qc.csv"), path("output_fasta/*.consensus.fa"), emit: ch_ncov_sample_fasta
+    path "reheadered_fasta/*.fasta", emit: ch_ncov_sample_fasta
     path "ncov_output/*.qc.csv", emit: ch_ncov_qc_csv
     path "output_bam/*.bam*"
     path "output_fasta/*.fa"
@@ -39,6 +39,7 @@ process ncov2019_artic_nf_pipeline_illumina {
   output_plots="output_plots"
   output_typing="output_typing"
   output_variants="output_variants"
+  reheadered_fasta="reheadered_fasta"
 
   # extract the sample name from one of the reads
   sample_id="$(ls *.fastq.gz | head -n 1 | cut -d"_" -f1)"
@@ -67,7 +68,7 @@ process ncov2019_artic_nf_pipeline_illumina {
       -work-dir /tmp \
       -c /ncov-illumina.config
 
-  mkdir -p ${output_bam} ${output_fasta} ${output_plots} ${output_typing} ${output_variants}
+  mkdir -p ${output_bam} ${output_fasta} ${output_plots} ${output_typing} ${output_variants} ${reheadered_fasta}
   mv ${ncov_untrimmed_bam_out_dir}/*.${untrimmed_bam_file_ext} ${output_bam}
   mv ${ncov_trimmed_bam_out_dir}/*.${trimmed_bam_file_ext} ${output_bam}
   mv ${ncov_fasta_out_dir}/*.primertrimmed.consensus.fa ${output_fasta}
@@ -82,6 +83,8 @@ process ncov2019_artic_nf_pipeline_illumina {
   samtools index ${output_bam}/${sample_id}.${untrimmed_bam_file_ext} ${output_bam}/${sample_id}.${untrimmed_bam_file_ext}.bai
   samtools index ${output_bam}/${sample_id}.${trimmed_bam_file_ext} ${output_bam}/${sample_id}.${trimmed_bam_file_ext}.bai
 
+  # reheader fasta file
+  python ${PSGA_ROOT_PATH}/scripts/common/reheader_fasta.py --input-dir ${output_fasta} --output-dir ${reheadered_fasta}
   '''
 }
 
@@ -93,14 +96,14 @@ process ncov2019_artic_nf_pipeline_illumina {
  */
 process ncov2019_artic_nf_pipeline_medaka {
   publishDir "${params.output_path}/ncov2019-artic", mode: 'copy', overwrite: true, pattern: 'output_{bam,fasta,plots,typing,variants}/*'
+  publishDir "${params.output_path}", mode: 'copy', overwrite: true, pattern: 'reheadered_fasta/*.fasta'
 
   tag "${task.index} - ${input_files}"
   input:
     path input_files
 
   output:
-    // retain the qc csv intentionally
-    tuple path("ncov_output/*.qc.csv"), path("output_fasta/*.consensus.fa"), emit: ch_ncov_sample_fasta
+    path "reheadered_fasta/*.fasta", emit: ch_ncov_sample_fasta
     path "ncov_output/*.qc.csv", emit: ch_ncov_qc_csv
     path "output_bam/*.bam*"
     path "output_fasta/*.fa"
@@ -126,6 +129,7 @@ process ncov2019_artic_nf_pipeline_medaka {
   output_plots="output_plots"
   output_typing="output_typing"
   output_variants="output_variants"
+  reheadered_fasta="reheadered_fasta"
 
   # extract the sample name from the fastq file
   sample_id="$(ls *.fastq.gz | head -n 1 | cut -d"." -f1)"
@@ -174,7 +178,7 @@ process ncov2019_artic_nf_pipeline_medaka {
       -work-dir /tmp \
       -c /ncov-nanopore.config
 
-  mkdir -p ${output_bam} ${output_fasta} ${output_plots} ${output_typing} ${output_variants}
+  mkdir -p ${output_bam} ${output_fasta} ${output_plots} ${output_typing} ${output_variants} ${reheadered_fasta}
   mv ${ncov_minion_out_dir}/*${sample_id}.${untrimmed_bam_file_ext} ${output_bam}
   mv ${ncov_minion_out_dir}/*${sample_id}.${trimmed_bam_file_ext} ${output_bam}
   mv ${ncov_minion_out_dir}/*.fasta ${output_fasta}
@@ -219,5 +223,7 @@ process ncov2019_artic_nf_pipeline_medaka {
       cd - > /dev/null
   done
 
+  # reheader fasta file
+  python ${PSGA_ROOT_PATH}/scripts/common/reheader_fasta.py --input-dir ${output_fasta} --output-dir ${reheadered_fasta}
   '''
 }

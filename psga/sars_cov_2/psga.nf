@@ -9,11 +9,11 @@ if ( params.sequencing_technology == "illumina" ) {
     include { contamination_removal_ont as contamination_removal } from './common/contamination_removal.nf'
     include { ncov2019_artic_nf_pipeline_medaka as ncov2019_artic } from './ncov2019_artic.nf'
 } else if ( params.sequencing_technology == "unknown" ) {
+    include { reheader_fasta } from './common/reheader.nf'
 } else {
     throw new Exception("Error: '--sequencing_technology' can only be 'illumina', 'ont' or 'unknown'")
 }
 
-include { reheader } from './common/reheader.nf'
 include { pangolin_pipeline as pangolin } from './pangolin.nf'
 include { submit_analysis_run_results } from './submit_analysis_run_results.nf'
 
@@ -63,9 +63,8 @@ workflow psga {
             ch_primer_autodetection_csv = Channel.empty()
             ch_ncov_qc_csv = Channel.empty()
 
-            // these are not needed as all fasta samples will be reheadered
-            ch_samples_passing_qc = Channel.empty()
-            ch_samples_failing_qc = Channel.empty()
+            // there is no QC for the input fasta, so we assume they all passed
+            ch_qc_passed_fasta = reheader_fasta(ch_fasta_files)
 
         } else {
 
@@ -100,26 +99,25 @@ workflow psga {
             ch_ncov_qc_csv = ncov2019_artic.out.ch_ncov_qc_csv
             ch_fasta_files = ncov2019_artic.out.ch_ncov_sample_fasta
 
-            // define whether sample is QC_PASSED or QC_FAILED
+            // create a channel of sample names passing ncov QC
             // the ncov qc file contains 1 record only
             ch_ncov_qc_csv
                 .splitCsv(header:true)
-                .branch {
-                    qc_passed: it.qc_pass =~ /TRUE/
-                        return it.sample_name
-                    qc_failed: true
-                        return it.sample_name
-                }
-                .set{ ch_sample_name_by_qc }
-            ch_samples_passing_qc = ch_sample_name_by_qc.qc_passed
-            ch_samples_failing_qc = ch_sample_name_by_qc.qc_failed
-        }
+                .filter { it.qc_pass =~ /TRUE/ }
+                .map { it -> it.sample_name }
+                .set{ ch_qc_passed_sample_id }
 
-        ch_qc_passed_fasta = reheader(
-            ch_fasta_files,
-            ch_samples_passing_qc,
-            ch_samples_failing_qc
-        )
+            // create a channel of fasta files for the samples passing QC
+            // 1) map fasta to (sample_id, fasta)
+            // 2) join the sample_id of the previous mapping with the sample_id passing QC. Result: (sample_id, fasta)
+            // 3) select the fasta file from the previous tuple
+            ch_fasta_files
+                .map{ file -> tuple( file.baseName, file ) }
+                .join(ch_qc_passed_sample_id)
+                .map{ it -> it[1] }
+                .set{ ch_qc_passed_fasta }
+
+        }
 
         pangolin(ch_qc_passed_fasta)
 

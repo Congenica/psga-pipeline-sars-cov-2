@@ -147,7 +147,7 @@
             "type": "png/qc"
         },
         {
-            "file": "reheadered-fasta/56a63f60-764d-4fc7-8764-a46023cbe324.fasta",
+            "file": "reheadered_fasta/56a63f60-764d-4fc7-8764-a46023cbe324.fasta",
             "type": "fasta/final"
         }
     ],
@@ -259,7 +259,7 @@
             "type": "png/qc"
         },
         {
-            "file": "reheadered-fasta/a0951432-cd94-45b5-96d5-b721c037a451.fasta",
+            "file": "reheadered_fasta/a0951432-cd94-45b5-96d5-b721c037a451.fasta",
             "type": "fasta/final"
         }
     ],
@@ -405,7 +405,7 @@
             "type": "png/qc"
         },
         {
-            "file": "reheadered-fasta/e80f3c63-d139-4c14-bd72-7a43897ab40d.fasta",
+            "file": "reheadered_fasta/e80f3c63-d139-4c14-bd72-7a43897ab40d.fasta",
             "type": "fasta/final"
         }
     ]
