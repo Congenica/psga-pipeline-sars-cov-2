@@ -1,6 +1,6 @@
 from click.testing import CliRunner
 
-from jenkins.validation import validate
+from integration_tests.validation import validate
 
 # call:
 # pytest test_validation.py --results-csv results.csv --expected-results-csv results2.csv \

@@ -26,8 +26,8 @@ COPY ./scripts/validation /app/scripts/validation
 COPY ./scripts/${pathogen} /app/scripts/${pathogen}
 
 # scripts for running the validation following integration tests execution
-COPY ./jenkins/*.py ./app/jenkins/
-COPY ./jenkins/files/${pathogen} ./app/jenkins/files/${pathogen}
+COPY ./integration_tests/*.py ./app/integration_tests/
+COPY ./integration_tests/expected_data/${pathogen} ./app/integration_tests/expected_data/${pathogen}
 
 WORKDIR /app/psga
 
