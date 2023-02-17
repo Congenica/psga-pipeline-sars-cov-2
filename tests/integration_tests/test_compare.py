@@ -1,6 +1,6 @@
 import pytest
 
-from jenkins.compare import compare_output_files_set, ValidationError
+from integration_tests.compare import compare_output_files_set, ValidationError
 
 
 @pytest.mark.parametrize(

@@ -5,12 +5,12 @@ from click.testing import CliRunner
 import pandas as pd
 
 from scripts.util.metadata import SAMPLE_ID
-from jenkins.compare import compare_merged_output_file, ValidationError
-from jenkins.config import data_config
-from jenkins.loading import load_data_from_csv
-from jenkins.validation import validate
+from integration_tests.compare import compare_merged_output_file, ValidationError
+from integration_tests.config import data_config
+from integration_tests.loading import load_data_from_csv
+from integration_tests.validation import validate
 
-from tests.jenkins.util import create_paths
+from tests.integration_tests.util import create_paths
 
 
 def create_output_files(pathogen: str, samples: Path, root: Path, sequencing_technology: str):
@@ -18,7 +18,7 @@ def create_output_files(pathogen: str, samples: Path, root: Path, sequencing_tec
     sample_names = df[SAMPLE_ID].tolist()
     # Import function based on pathogen module
     # load this lazily as only the module for the invoked pathogen is available in the docker container
-    get_expected_output_files = importlib.import_module(f"jenkins.{pathogen}").get_expected_output_files
+    get_expected_output_files = importlib.import_module(f"integration_tests.{pathogen}").get_expected_output_files
     paths = get_expected_output_files(str(root), sample_names, sequencing_technology)
     create_paths(paths)
 
