@@ -19,7 +19,8 @@ workflow psga {
 
         collate_results(
             bactopia_one.out.ch_result_files_json.collect(),
-            bactopia_one.out.ch_results_csv.collect()
+            bactopia_one.out.ch_results_csv.collect(),
+            ch_metadata
         )
 
         ch_analysis_run_results_submitted = collate_results.out.global_csv_file

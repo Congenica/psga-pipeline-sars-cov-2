@@ -1,0 +1,8 @@
+# install python dependencies via conda to be sure that it is compatible with pip (installed via conda)
+name: s_aureus
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - pip:
+    - PyYAML==6.0

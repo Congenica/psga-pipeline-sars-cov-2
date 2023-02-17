@@ -11,9 +11,6 @@ from scripts.common.fetch_primers import (
 )
 from tests.utils_tests import assert_files_are_equal
 
-FETCH_PRIMERS_DIR = "fetch_primers"
-PRIMER_SCHEMES = "primer_schemes"
-
 
 def rmfile(f: Path, fname: str) -> None:
     """
@@ -33,8 +30,8 @@ def rmfile(f: Path, fname: str) -> None:
         ("dependencies", "primer_schemes_commit", "a60a1e1e73bde1971c680bd3d53076127dd63fc6"),
     ],
 )
-def test_get_version(test_data_path, dependency_file, key, expected_value):
-    dependency_path = test_data_path / FETCH_PRIMERS_DIR / dependency_file
+def test_get_version(fetch_primers_data_path: Path, dependency_file: str, key: str, expected_value: str):
+    dependency_path = fetch_primers_data_path / dependency_file
     assert expected_value == get_version(dependency_path, key)
 
 
@@ -53,9 +50,17 @@ def test_get_version(test_data_path, dependency_file, key, expected_value):
     ],
 )
 def test_extract_primer_sequences(
-    tmp_path, test_data_path, pathogen, primer, version, expected_primer_counter, ref_fasta, scheme_bed, scheme_fasta
+    tmp_path: Path,
+    fetch_primers_primer_schemes_data_path: Path,
+    pathogen: str,
+    primer: str,
+    version: str,
+    expected_primer_counter: int,
+    ref_fasta: str,
+    scheme_bed: str,
+    scheme_fasta: str,
 ):
-    primer_dir = test_data_path / FETCH_PRIMERS_DIR / PRIMER_SCHEMES / pathogen / primer / version
+    primer_dir = fetch_primers_primer_schemes_data_path / pathogen / primer / version
     ref_fasta_path = primer_dir / f"{pathogen}{ref_fasta}"
     scheme_bed_path = primer_dir / f"{pathogen}{scheme_bed}"
     expected_scheme_fasta_path = primer_dir / f"{pathogen}{scheme_fasta}"
@@ -77,10 +82,15 @@ def test_extract_primer_sequences(
     ],
 )
 def test_extract_primer_sequences_unknown_strand_error(
-    tmp_path, test_data_path, pathogen, primer, ref_fasta, scheme_bed
+    tmp_path: Path,
+    fetch_primers_data_path: Path,
+    pathogen: str,
+    primer: str,
+    ref_fasta: str,
+    scheme_bed: str,
 ):
-    ref_fasta_path = test_data_path / FETCH_PRIMERS_DIR / primer / f"{pathogen}{ref_fasta}"
-    scheme_bed_path = test_data_path / FETCH_PRIMERS_DIR / primer / f"{pathogen}{scheme_bed}"
+    ref_fasta_path = fetch_primers_data_path / primer / f"{pathogen}{ref_fasta}"
+    scheme_bed_path = fetch_primers_data_path / primer / f"{pathogen}{scheme_bed}"
     scheme_fasta_path = tmp_path / f"{pathogen}.fasta"
 
     with pytest.raises(ValueError, match="Unknown strand"):
@@ -103,9 +113,15 @@ def test_extract_primer_sequences_unknown_strand_error(
     ],
 )
 def test_extract_primer_sequences_file_not_found_error(
-    tmp_path, test_data_path, pathogen, primer, version, ref_fasta, scheme_bed
+    tmp_path: Path,
+    fetch_primers_primer_schemes_data_path: Path,
+    pathogen: str,
+    primer: str,
+    version: str,
+    ref_fasta: str,
+    scheme_bed: str,
 ):
-    primer_dir = test_data_path / FETCH_PRIMERS_DIR / PRIMER_SCHEMES / pathogen / primer / version
+    primer_dir = fetch_primers_primer_schemes_data_path / pathogen / primer / version
     ref_fasta_path = primer_dir / f"{pathogen}{ref_fasta}" if ref_fasta else None
     scheme_bed_path = primer_dir / f"{pathogen}{scheme_bed}" if scheme_bed else None
     scheme_fasta_path = tmp_path / f"{pathogen}.fasta"
@@ -125,27 +141,33 @@ def test_extract_primer_sequences_file_not_found_error(
     [
         (
             SARS_COV_2,
-            f"{SARS_COV_2}_primer_fasta_index.txt",
+            f"{SARS_COV_2}_primer_index.csv",
             f"{SARS_COV_2}.scheme.fasta",
         ),
     ],
 )
-def test_organise_primers(tmp_path, test_data_path, pathogen, index, scheme_fasta):
-    source_scheme_path = test_data_path / FETCH_PRIMERS_DIR / PRIMER_SCHEMES
-    source_scheme_tmp_path = tmp_path / f"source_{PRIMER_SCHEMES}"
+def test_organise_primers(
+    tmp_path: Path,
+    fetch_primers_primer_schemes_data_path: Path,
+    primer_schemes_dir: str,
+    pathogen: str,
+    index: str,
+    scheme_fasta: str,
+):
+    source_scheme_tmp_path = tmp_path / f"source_{primer_schemes_dir}"
 
     # copy the input primers and delete the expected scheme.fasta
-    shutil.copytree(source_scheme_path, source_scheme_tmp_path)
+    shutil.copytree(fetch_primers_primer_schemes_data_path, source_scheme_tmp_path)
     rmfile(source_scheme_tmp_path, scheme_fasta)
 
-    source_scheme_tmp_path = Path(source_scheme_tmp_path) / pathogen
-    dest_scheme_path = tmp_path / PRIMER_SCHEMES
+    source_scheme_tmp_path = source_scheme_tmp_path / pathogen
+    dest_scheme_path = tmp_path / primer_schemes_dir
 
     ORGANISE_PRIMERS[pathogen](source_scheme_tmp_path, dest_scheme_path)
 
     # assert index file
     assert_files_are_equal(
-        source_scheme_path / index,
+        fetch_primers_primer_schemes_data_path / index,
         dest_scheme_path / index,
     )
 
@@ -154,7 +176,7 @@ def test_organise_primers(tmp_path, test_data_path, pathogen, index, scheme_fast
         return sorted(list(p.rglob(scheme_fasta)))
 
     calc_scheme_fasta = get_scheme_fasta(dest_scheme_path)
-    exp_scheme_fasta = get_scheme_fasta(source_scheme_path)
+    exp_scheme_fasta = get_scheme_fasta(fetch_primers_primer_schemes_data_path)
     assert len(calc_scheme_fasta) > 0
     for calc, exp in zip(calc_scheme_fasta, exp_scheme_fasta):
         assert_files_are_equal(calc, exp)

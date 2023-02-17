@@ -1,0 +1,9 @@
+name: htstools
+channels:
+  - bioconda
+  - conda-forge # required for awscli
+dependencies:
+  - awscli=1.25.92
+  - htslib=1.16
+  - samtools=1.16.1
+  - bcftools=1.16

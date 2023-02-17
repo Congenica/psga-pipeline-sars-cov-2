@@ -23,6 +23,8 @@ jobs:
     strategy:
       matrix:
         image:
+          - s-aureus-pipeline
+          - s-aureus
           - synthetic-pipeline
           - sars-cov-2-pipeline
           - ncov2019-artic-nf-nanopore

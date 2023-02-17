@@ -2,10 +2,8 @@ FROM condaforge/mambaforge:4.14.0-0 AS condabuild
 
 ARG pathogen
 COPY docker/${pathogen}/ncov2019-artic-nf/environments/nanopore/environment.yml /environment.yml
-COPY docker/${pathogen}/ncov2019-artic-nf/environments/extras.yml /extras.yml
 # Also reinstall these two packages to their latest version, as the conda-selected downgraded ones fail to run
 RUN mamba env create -f /environment.yml -n custom_env \
-  && mamba env update -f /extras.yml -n custom_env \
   && mamba install -y -c conda-forge -c bioconda cutadapt==3.1 dnaio==0.4.4 -n custom_env \
   && conda clean --all -y
 

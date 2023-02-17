@@ -26,16 +26,21 @@ COPY ./scripts/validation /app/scripts/validation
 COPY ./scripts/${pathogen} /app/scripts/${pathogen}
 
 # scripts for running the validation following integration tests execution
-COPY ./jenkins/*.py ./app/jenkins/
-COPY ./jenkins/files/${pathogen} ./app/jenkins/files/${pathogen}
+COPY ./integration_tests/*.py ./app/integration_tests/
+COPY ./integration_tests/expected_data/${pathogen} ./app/integration_tests/expected_data/${pathogen}
 
 WORKDIR /app/psga
 
-# make poetry install everything system wide, no need for a virtualenv in docker
-# install setuptools here to avoid the warning / error:
-#  ModuleNotFoundError: No module named '_distutils_hack'
-# This error does not disappear if this is installed via conda
-RUN nextflow plugin install nf-amazon \
+# NOTES:
+# 1. must install the nf-amazon version mentioned in nextflow release notes
+#    (e.g. see: https://github.com/nextflow-io/nextflow/releases/tag/v22.10.0 bumps nf-amazon@1.11.0)
+#    Without version, nextflow plugin install will install the latest version for this plugin
+#    and the required plugin will be re-installed at runtime.
+# 2. make poetry install everything system wide, no need for a virtualenv in docker
+#    install setuptools here to avoid the warning / error:
+#    ModuleNotFoundError: No module named '_distutils_hack'
+#    This error does not disappear if this is installed via conda
+RUN nextflow plugin install nf-amazon@1.11.0 \
   && pip install setuptools==63.1.0 \
   && pip install --progress-bar=off --no-cache-dir --upgrade pip==${PIP_VERSION} \
   && pip install --progress-bar=off --no-cache-dir poetry==${POETRY_VERSION} \

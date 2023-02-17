@@ -1,40 +1,12 @@
-FROM condaforge/mambaforge:4.14.0-0 AS condabuild
+FROM 566277102435.dkr.ecr.eu-west-2.amazonaws.com/congenica/psga-nonprod/bactopia:dev_latest
 
-# ARG pathogen
-COPY docker/bactopia/s-aureus.yml /environment.yml
+ARG pathogen
 
-RUN mamba env create -f /environment.yml -n custom_env \
-  && conda clean --all -y
+# `bactopia datasets` installs every datasets for the specified species.
+# The following command takes about 1hr to run: bactopia datasets --species "Staphylococcus aureus"
+# Do not include `--include_genus` as otherwise the reference genomes for species in the same genus are also installed
+# `--limit 0` forces the downloading of all reference genomes and not a random subsampling of up to 1000. This makes results predictable
+RUN bactopia datasets --species "Staphylococcus aureus" --limit 0
 
-# This SHELL command mocks the login. Note conda run is an "experimental" command
-SHELL ["conda", "run", "-n", "custom_env", "/bin/bash", "-c"]
-
-# This command takes about 1hr to run
-RUN bactopia datasets --species "Staphylococcus aureus" --include_genus
-
-# 3.95GB after bactopia datasets --species "Staphylococcus aureus" --include_genus
-
-# Download and build all of the conda dependancies
-RUN bactopia download --use-defaults --build-all --verbose && conda clean --all -y
-
-# 20.5GB after bactopia download --use-defaults --build-all --verbose
-
-# multi stage to reduce docker image size and avoid conda env activation
-FROM debian:buster-slim
-
-# Copy the programs installed
-COPY --from=condabuild /opt/conda/envs/custom_env /opt/conda/envs/custom_env
-
-# Copy the datasats built
-COPY --from=condabuild /datasets /datasets
-
-ENV PATH=/opt/conda/envs/custom_env/bin:$PATH
-
-COPY docker/bactopia/requirements.txt /requirements.txt
-RUN pip install -r requirements.txt
-
-# ps isn't in the base debian images - required by GATHER_SAMPLES
-RUN apt-get update && apt-get install -y procps && rm -rf /var/lib/apt/lists/*
-
-# FINISH now we can run a pipeline that uses Bactopia
-# Image size is 16.1GB
+COPY docker/${pathogen}/${pathogen}.yml /requirements.yml
+RUN mamba env update -n base -f requirements.yml

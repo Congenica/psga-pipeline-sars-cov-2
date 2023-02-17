@@ -1,5 +1,4 @@
 from pathlib import Path
-from typing import Dict
 import click
 
 from scripts.util.data_loading import load_yaml, write_yaml
@@ -33,7 +32,7 @@ def processing(yaml_input_dir: Path, output_yaml_path: Path, output_txt_path: Pa
         input_dict = load_yaml(input_path)
         phe_label = input_dict[PHE_LABEL]
         # extract fields of interest
-        variants: Dict = {}
+        variants: dict = {}
         for var in input_dict[VARIANTS]:
             if GENE in var and AMINO_ACID_CHANGE in var:
                 gene = var[GENE]

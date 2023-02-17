@@ -1,2 +1,2 @@
-primer_detected,total_num_primers,primer_numreads,primer_unique_numreads
-ARTIC_V2,180,409,116
+primer_detected,total_num_primers,primer_numreads,primer_unique_numreads,primer_ambiguous_numreads
+ARTIC_V2,180,409,116,0

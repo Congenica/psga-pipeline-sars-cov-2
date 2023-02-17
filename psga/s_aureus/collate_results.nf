@@ -7,6 +7,7 @@ process collate_results {
   input:
     path ch_output_csv_file
     path ch_output_json_file
+    path ch_metadata
 
   output:
     path "results.csv", emit: global_csv_file
@@ -14,6 +15,7 @@ process collate_results {
 
   script:
   """
-    python ${PSGA_ROOT_PATH}/scripts/s_aureus/collate_results.py
+    # The framework copies and renames the metadata file for all samples. These files are identical and we only need one
+    python ${PSGA_ROOT_PATH}/scripts/s_aureus/collate_results.py --metadata-file ${ch_metadata}
   """
 }

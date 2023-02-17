@@ -1,5 +1,5 @@
 # Pathogen Sequence Genome Analysis (PSGA) pipeline
-The architecture of the PSGA pipeline is described [here](https://confluence.congenica.net/display/PSG/PSGA+Pipeline+Architecture).
+This repository contains a collection of pipelines for pathogen sequence genome analysis.
 
 ## Supported pathogens
 
@@ -10,6 +10,12 @@ Congenica sequencing protocol is based on the ARTIC consortium and works as foll
 
 ### Synthetic
 This is a proof-of-concept pathogen pipeline which can also be used as a template.
+
+### S-aureus
+This pathogen pipeline is based on Bactopia. It works as follows:
+- produce bacterial genome assemblies from sequence data
+- Call variants
+- Detect antibiotic resistance genes
 
 ## Operation
 This pipeline runs on a Kubernetes environment. The main workflow coordinates the execution of processes within Kubernetes jobs.
@@ -23,7 +29,7 @@ The current configuration can be printed with the command: `nextflow run . --pri
 
 
 ### Pipeline metadata.csv
-To process samples, set up a metadata CSV file (e.g. tests/test_data/good_metadata_illumina.csv) which stores the sample id and the sample files. Two files are required for running illumina fastq samples. 1 file is required for running illumina bam / nanopore medaka fastq / fasta samples.
+To process samples, set up a metadata CSV file (e.g. tests/test_data/check_metadata/good_metadata_illumina.csv) which stores the sample id and the sample files. Two files are required for running illumina fastq samples. 1 file is required for running illumina bam / nanopore medaka fastq / fasta samples.
 
 ### Running the pipeline using K8s Minikube (local testing)
 Download and install Minikube using the instructions provided here: https://minikube.sigs.k8s.io/docs/start/ .
@@ -56,7 +62,7 @@ kubectl exec -it <pathogen>-pipeline-XXXX -- bash
 # WITHIN THE pathogen POD
 # run the pipeline within the pod (processes are spun up as pod workers by this pipeline). The results will be stored in: /data/output
 # use `-resume` flag to resume the previous pipeline execution
-nextflow run . --metadata <metadata_path> --run <analysis_run> --sequencing_technology <sequencing_technology> --kit <kit> --output_path <output_path> <other pipeline parameters>
+nextflow run . --metadata <metadata_path> --run <analysis_run> --sequencing_technology <sequencing_technology> --kit <kit> --output_path <output_path>
 
 # The following command cleans up the previous run's work directories and cache, but retains the published output:
 nextflow clean -f
@@ -73,12 +79,12 @@ exit
 ## Development
 
 ### Add new pathogens
-In order to add the pathogen `pathogenX` to the pipeline, change dir to `psga` and follow the instructions below:
-1. write the nextflow pipeline `pathogenX/psga.nf` and update `pathogenX/help.nf` accordingly
-2. add Python scripts to: `../scripts/pathogenX/`
-3. add Python unit tests to: `../tests/pathogenX/`
-4. create dockerfiles in `../docker/` and dependencies in `../docker/pathogenX`
-5. add Jenkins integration tests to: `../jenkins/files/pathogenX/Jenkinsfile` (see sars-cov-2 for reference)
+A synthetic pathogen pipeline is available as a template pipeline. In summary:
+1. write the nextflow pipeline `psga/pathogenX/psga.nf` and update `psga/pathogenX/help.nf` accordingly
+2. add Python scripts to: `scripts/pathogenX/`
+3. add Python unit tests to: `tests/pathogenX/`
+4. add integration tests to: `integration_tests/`
+5. create dockerfiles in `docker/` and dependencies in `docker/pathogenX`
 
 ### Install dependency packages using Python Poetry tool
 `Poetry` manages Python dependencies. Dependencies are declared in `pyproject.toml` and exact versions of both dependencies and sub-dependencies are stored in `poetry.lock`. Both are committed to the git repo.
