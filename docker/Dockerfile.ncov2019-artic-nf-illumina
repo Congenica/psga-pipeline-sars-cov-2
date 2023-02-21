@@ -2,9 +2,7 @@ FROM condaforge/mambaforge:4.14.0-0 AS condabuild
 
 ARG pathogen
 COPY docker/${pathogen}/ncov2019-artic-nf/environments/illumina/environment.yml /environment.yml
-# Also reinstall packages to pinned versions, as the conda-selected downgraded ones fail to run
 RUN mamba env create -f /environment.yml -n custom_env \
-  && mamba install -y -c conda-forge -c bioconda cutadapt==3.1 dnaio==0.4.4 -n custom_env \
   && conda clean --all -y
 
 
@@ -27,6 +25,3 @@ COPY psga/${pathogen}/ncov-illumina.config psga/${pathogen}/ncov-common.config /
 COPY data/${pathogen}/ncov2019-artic-nf/* /
 COPY data/${pathogen}/primer_schemes /primer_schemes
 COPY scripts/common /app/scripts/common
-
-# install awscli here because the conda version requires a much more updated Python version
-RUN pip install awscli==1.20.50
