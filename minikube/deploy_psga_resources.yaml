@@ -1,6 +1,7 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
+  namespace: psga-minikube
   name: psga-minikube-pvc
   annotations:
     volume.beta.kubernetes.io/storage-class: standard

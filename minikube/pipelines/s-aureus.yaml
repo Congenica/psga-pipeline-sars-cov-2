@@ -30,7 +30,7 @@ spec:
         args:
         - -c
         - "while true; do sleep 30; done;"
-        imagePullPolicy: Never
+        imagePullPolicy: IfNotPresent
         env:
         - name: DOCKER_IMAGE_URI_PATH
           value: '566277102435.dkr.ecr.eu-west-2.amazonaws.com/congenica/psga-nonprod'
@@ -45,7 +45,7 @@ spec:
         - name: K8S_NODE
           value: farmNode
         - name: K8S_PULL_POLICY
-          value: Never
+          value: IfNotPresent
         - name: K8S_SERVICE_ACCOUNT
           value: psga-minikube-admin
         - name: QUEUE_SIZE
