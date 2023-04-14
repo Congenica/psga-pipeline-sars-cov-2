@@ -151,7 +151,7 @@ def _generate_contamination_removal_notifications(
     # initialise contamination_removal as if it had not executed.
     contamination_removal_all_samples = all_samples
     qc_unrelated_failing_contamination_removal_samples = []
-    # Currently, there is no QC for contamination removal, so all sample pass
+    # Currently, there is no QC for contamination removal, so all samples pass
     contamination_removal_samples_failing_qc: list[str] = []
     contamination_removal_samples_passing_qc = all_samples
 
@@ -200,7 +200,7 @@ def _generate_primer_autodetection_notifications(
     # initialise primer_autodetection as if it had not executed. This is the default case in which fastas were processed
     primer_autodetection_all_samples = all_samples
     qc_unrelated_failing_primer_autodetection_samples = []
-    # Currently, there is no QC for primer autodetection, so all sample pass
+    # Currently, there is no QC for primer autodetection, so all samples pass
     primer_autodetection_samples_failing_qc: list[str] = []
     primer_autodetection_samples_passing_qc = all_samples
 
@@ -287,7 +287,7 @@ def _generate_ncov_notifications(
 
 def _generate_pangolin_notifications(
     analysis_run_name: str,
-    ncov_samples_passing_qc: list[str],
+    all_samples: list[str],
     df_pangolin: pd.DataFrame,
 ) -> tuple[list[str], Notification]:
     """
@@ -296,8 +296,7 @@ def _generate_pangolin_notifications(
     """
     # pangolin is executed after ncov, unless the latter is skipped (e.g. fasta files)
     pangolin_all_samples = df_pangolin[SAMPLE_ID].tolist()
-    # NOTE: pangolin is not executed for samples failing ncov QC
-    qc_unrelated_failing_pangolin_samples = [s for s in ncov_samples_passing_qc if s not in pangolin_all_samples]
+    qc_unrelated_failing_pangolin_samples = [s for s in all_samples if s not in pangolin_all_samples]
     pangolin_samples_failing_qc = df_pangolin.loc[df_pangolin["qc_status"] == "fail"][SAMPLE_ID]
     pangolin_samples_passing_qc = df_pangolin.loc[df_pangolin["qc_status"] == "pass"][SAMPLE_ID]
 
