@@ -27,7 +27,11 @@ from scripts.common.primer_autodetection import (
     PRIMER_DATA_SUFFIX,
     UNKNOWN,
 )
-from scripts.common.fetch_primers import SARS_COV_2
+from scripts.common.fetch_primers import (
+    SARS_COV_2,
+    SCHEME,
+    PICKLE,
+)
 from scripts.common.primer_cols import (
     PRIMER_INDEX_COLS,
     PRIMER_NAME,
@@ -109,7 +113,7 @@ def primers_automaton_fixture(primer_autodetection_primer_schemes_data_path: Pat
                 / "ARTIC"
                 / SARS_COV_2
                 / "V4"
-                / f"{SARS_COV_2}.scheme.pickle"
+                / f"{SARS_COV_2}.{SCHEME}.{PICKLE}"
             ),
         ),
         "Midnight-ONT_V2": PrimerAutomaton(
@@ -125,7 +129,7 @@ def primers_automaton_fixture(primer_autodetection_primer_schemes_data_path: Pat
                 / "Midnight-ONT"
                 / SARS_COV_2
                 / "V2"
-                / f"{SARS_COV_2}.scheme.pickle"
+                / f"{SARS_COV_2}.{SCHEME}.{PICKLE}"
             ),
         ),
     }
@@ -159,12 +163,12 @@ def assert_primer_automaton(
 )
 def test_build_primers_automaton(
     tmp_path: Path,
-    fetch_primers_primer_schemes_data_path: Path,
+    primer_autodetection_primer_schemes_data_path: Path,
     primer_autodetection_data_path: Path,
     index: str,
     primers_automaton_fixture: dict[str, PrimerAutomaton],
 ):
-    orig_index_path = fetch_primers_primer_schemes_data_path / index
+    orig_index_path = primer_autodetection_primer_schemes_data_path / index
     tmp_index_path = tmp_path / index
     prefix_path_to_index(orig_index_path, tmp_index_path, primer_autodetection_data_path)
 
@@ -288,13 +292,13 @@ def test_generate_metrics(
     tmp_path: Path,
     primer_autodetection_data_path: Path,
     primer_autodetection_sample_dir_data_path: Path,
-    fetch_primers_primer_schemes_data_path: Path,
+    primer_autodetection_primer_schemes_data_path: Path,
     index: str,
     sample_id: str,
 ):
 
     expected_output_path = primer_autodetection_sample_dir_data_path / "expected_output" / sample_id
-    orig_index_path = fetch_primers_primer_schemes_data_path / index
+    orig_index_path = primer_autodetection_primer_schemes_data_path / index
     tmp_index_path = tmp_path / index
 
     primers = prefix_path_to_index(orig_index_path, tmp_index_path, primer_autodetection_data_path)
@@ -408,14 +412,14 @@ def test_primer_autodetection(
     tmp_path: Path,
     primer_autodetection_data_path: Path,
     primer_autodetection_sample_dir_data_path: Path,
-    fetch_primers_primer_schemes_data_path: Path,
+    primer_autodetection_primer_schemes_data_path: Path,
     samples_dir: str,
     index: str,
     sample_id: str,
     primer_input: str,
 ):
     expected_output_path = primer_autodetection_sample_dir_data_path / "expected_output" / sample_id
-    orig_index_path = fetch_primers_primer_schemes_data_path / index
+    orig_index_path = primer_autodetection_primer_schemes_data_path / index
     tmp_index_path = tmp_path / index
     sample_fastq = primer_autodetection_sample_dir_data_path / f"{sample_id}.fastq.gz"
 

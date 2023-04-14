@@ -142,6 +142,121 @@ pipeline:
         name: SARS CoV 2
         slug: sars-cov-2
 
+    # ARTIC V5.0.0-400
+    - name: illumina-sars-cov-2-articv5-0-0-400
+      kit:
+        name: ARTIC V5.0.0-400
+        slug: ARTIC_V5-0-0-400
+      sequencer_technology:
+        name: Illumina
+        slug: illumina
+      pathogen:
+        name: SARS CoV 2
+        slug: sars-cov-2
+
+    - name: ont-sars-cov-2-articv5-0-0-400
+      kit:
+        name: ARTIC V5.0.0-400
+        slug: ARTIC_V5-0-0-400
+      sequencer_technology:
+        name: ONT
+        slug: ont
+      pathogen:
+        name: SARS CoV 2
+        slug: sars-cov-2
+
+    # ARTIC V5.1.0-400
+    - name: illumina-sars-cov-2-articv5-1-0-400
+      kit:
+        name: ARTIC V5.1.0-400
+        slug: ARTIC_V5-1-0-400
+      sequencer_technology:
+        name: Illumina
+        slug: illumina
+      pathogen:
+        name: SARS CoV 2
+        slug: sars-cov-2
+
+    - name: ont-sars-cov-2-articv5-1-0-400
+      kit:
+        name: ARTIC V5.1.0-400
+        slug: ARTIC_V5-1-0-400
+      sequencer_technology:
+        name: ONT
+        slug: ont
+      pathogen:
+        name: SARS CoV 2
+        slug: sars-cov-2
+
+    # ARTIC V5.2.0-1200
+    - name: illumina-sars-cov-2-articv5-2-0-1200
+      kit:
+        name: ARTIC V5.2.0-1200
+        slug: ARTIC_V5-2-0-1200
+      sequencer_technology:
+        name: Illumina
+        slug: illumina
+      pathogen:
+        name: SARS CoV 2
+        slug: sars-cov-2
+
+    - name: ont-sars-cov-2-articv5-2-0-1200
+      kit:
+        name: ARTIC V5.2.0-1200
+        slug: ARTIC_V5-2-0-1200
+      sequencer_technology:
+        name: ONT
+        slug: ont
+      pathogen:
+        name: SARS CoV 2
+        slug: sars-cov-2
+
+    # ARTIC V5.2.0-400
+    - name: illumina-sars-cov-2-articv5-2-0-400
+      kit:
+        name: ARTIC V5.2.0-400
+        slug: ARTIC_V5-2-0-400
+      sequencer_technology:
+        name: Illumina
+        slug: illumina
+      pathogen:
+        name: SARS CoV 2
+        slug: sars-cov-2
+
+    - name: ont-sars-cov-2-articv5-2-0-400
+      kit:
+        name: ARTIC V5.2.0-400
+        slug: ARTIC_V5-2-0-400
+      sequencer_technology:
+        name: ONT
+        slug: ont
+      pathogen:
+        name: SARS CoV 2
+        slug: sars-cov-2
+
+    # ARTIC V5.3.2-400
+    - name: illumina-sars-cov-2-articv5-3-2-400
+      kit:
+        name: ARTIC V5.3.2-400
+        slug: ARTIC_V5-3-2-400
+      sequencer_technology:
+        name: Illumina
+        slug: illumina
+      pathogen:
+        name: SARS CoV 2
+        slug: sars-cov-2
+
+    - name: ont-sars-cov-2-articv5-3-2-400
+      kit:
+        name: ARTIC V5.3.2-400
+        slug: ARTIC_V5-3-2-400
+      sequencer_technology:
+        name: ONT
+        slug: ont
+      pathogen:
+        name: SARS CoV 2
+        slug: sars-cov-2
+
     # Midnight-IDT_V1
     - name: ont-sars-cov-2-midnight-idt-v1
       kit:
