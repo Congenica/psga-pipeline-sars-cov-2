@@ -71,6 +71,10 @@
         {
             "file": "ncov2019-artic/output_plots/0774181d-fb20-4a73-b887-38af7eda9b38.depth.png",
             "type": "png/qc"
+        },
+        {
+            "file": "reheadered_fasta/0774181d-fb20-4a73-b887-38af7eda9b38.fasta",
+            "type": "fasta/final"
         }
     ],
     "56a63f60-764d-4fc7-8764-a46023cbe324": [

@@ -115,8 +115,6 @@ class SampleIdResultFiles:
     primer_autodetection_completed_samples: list[str] = field(metadata={"required": True}, default_factory=list)
     # samples which completed ncov, whether passing or failing ncov qc
     ncov_completed_samples: list[str] = field(metadata={"required": True}, default_factory=list)
-    # samples passing ncov qc
-    ncov_qc_passed_samples: list[str] = field(metadata={"required": True}, default_factory=list)
 
 
 def load_data_from_csv(
@@ -608,8 +606,6 @@ def get_expected_output_files_per_sample(
                 )
             )
 
-        for sample_id in sample_ids_result_files.ncov_qc_passed_samples:
-            # expected files for samples which passed ncov QC
             _append_reheadered_fasta(output_path, sample_id, output_files)
 
     return output_files
@@ -758,9 +754,6 @@ def generate_pipeline_results_files(
         ncov_completed_samples=[]
         if sequencing_technology == UNKNOWN or not {FAILED_NCOV, PASSED_NCOV} <= events.keys()
         else list(set(events[FAILED_NCOV].samples) | set(events[PASSED_NCOV].samples)),
-        ncov_qc_passed_samples=[]
-        if sequencing_technology == UNKNOWN or PASSED_NCOV not in events
-        else list(events[PASSED_NCOV].samples),
     )
 
     _generate_resultfiles_json(
