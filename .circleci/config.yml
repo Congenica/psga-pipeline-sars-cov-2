@@ -1,0 +1,51 @@
+version: 2.1
+# Since this workflow relies on docker images being in ECR, it only gets triggered
+# by the trigger_integration_tests step defined in Github Actions once images have been pushed
+parameters:
+  GHA_Event:
+    type: string
+    default: ""
+  GHA_Actor:
+    type: string
+    default: ""
+  GHA_Action:
+    type: string
+    default: ""
+  GHA_Meta:
+    type: string
+    default: ""
+jobs:
+  integration_tests:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: xlarge
+    steps:
+      - checkout
+      - run:
+          name: Test pipelines
+          no_output_timeout: 30m
+          command: |
+            cd /tmp
+            echo "Installing minikube"
+            curl -LO https://storage.googleapis.com/minikube/releases/v1.29.0/minikube-linux-amd64
+            echo "aafb65cbee8e971ec00509fdb1817254b17d6bee4890b839c3b6e8f11e97413a minikube-linux-amd64" | sha256sum --check
+            sudo install minikube-linux-amd64 /usr/local/bin/minikube
+            echo "Installing kubectl"
+            curl -LO "https://dl.k8s.io/release/v1.26.1/bin/linux/amd64/kubectl"
+            echo "d57be22cfa25f7427cfb538cfc8853d763878f8b36c76ce93830f6f2d67c6e5d kubectl" | sha256sum --check
+            sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+            docker login -u AWS -p $(aws ecr get-login-password --region eu-west-2) 566277102435.dkr.ecr.eu-west-2.amazonaws.com
+            cd ${CIRCLE_WORKING_DIRECTORY}/minikube
+            minikube start --cpus=6 --memory=28672 --vm-driver=docker
+            minikube addons enable storage-provisioner
+            sed -i "s/dev_latest/${CIRCLE_SHA1}/g" pipelines/*
+            ./startup.sh
+            ./run_pipelines.sh
+
+workflows:
+  test:
+    # Do not run when branch is pushed, trigger via Github Actions instead
+    when: << pipeline.parameters.GHA_Action >>
+    jobs:
+      - integration_tests:
+          name: Integration tests

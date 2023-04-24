@@ -1,17 +1,17 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: sars-cov-2-pipeline-minikube
+  name: synthetic-pipeline-minikube
 spec:
   selector:
     matchLabels:
-      app: sars-cov-2-pipeline-minikube
+      app: synthetic-pipeline-minikube
   strategy:
     type: Recreate
   template:
     metadata:
       labels:
-        app: sars-cov-2-pipeline-minikube
+        app: synthetic-pipeline-minikube
     spec:
       affinity:
         nodeAffinity:
@@ -23,21 +23,19 @@ spec:
                 values:
                 - "true"
       containers:
-      - image: 566277102435.dkr.ecr.eu-west-2.amazonaws.com/congenica/psga-nonprod/sars-cov-2-pipeline:dev_latest
-        name: sars-cov-2-pipeline-minikube
+      - image: 566277102435.dkr.ecr.eu-west-2.amazonaws.com/congenica/psga-nonprod/synthetic-pipeline:dev_latest
+        name: synthetic-pipeline-minikube
         command:
         - /bin/bash
         args:
         - -c
         - "while true; do sleep 30; done;"
-        imagePullPolicy: Never
+        imagePullPolicy: IfNotPresent
         env:
         - name: DOCKER_IMAGE_URI_PATH
           value: '566277102435.dkr.ecr.eu-west-2.amazonaws.com/congenica/psga-nonprod'
         - name: DOCKER_IMAGE_TAG
           value: 'dev_latest'
-        - name: SCRATCH
-          value: 'false'
         - name: AWS_MAX_CONNECTIONS
           value: '20'
         - name: AWS_MAX_PARALLEL_TRANSFERS
@@ -45,7 +43,7 @@ spec:
         - name: K8S_NODE
           value: farmNode
         - name: K8S_PULL_POLICY
-          value: Never
+          value: IfNotPresent
         - name: K8S_SERVICE_ACCOUNT
           value: psga-minikube-admin
         - name: QUEUE_SIZE
@@ -54,15 +52,15 @@ spec:
           value: psga-minikube-pvc
         - name: K8S_STORAGE_MOUNT_PATH
           value: /data
-        - name: PROCESS_MEMORY_VERY_LOW
+        - name: K8S_PROCESS_MEMORY_VERY_LOW
           value: '250'
-        - name: PROCESS_MEMORY_LOW
+        - name: K8S_PROCESS_MEMORY_LOW
           value: '500'
-        - name: PROCESS_MEMORY_MEDIUM
+        - name: K8S_PROCESS_MEMORY_MEDIUM
           value: '1000'
-        - name: PROCESS_MEMORY_HIGH
+        - name: K8S_PROCESS_MEMORY_HIGH
           value: '2000'
-        - name: PROCESS_MEMORY_VERY_HIGH
+        - name: K8S_PROCESS_MEMORY_VERY_HIGH
           value: '4000'
         - name: NXF_WORK
           value: /data/work

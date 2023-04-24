@@ -9,6 +9,7 @@ jobs:
     needs:
       - check_and_test
     strategy:
+      fail-fast: false
       matrix:
         image:
           - name: s-aureus-pipeline
@@ -40,9 +41,19 @@ jobs:
       name: ${{ matrix.image.name }}
       dockerfile: ${{ matrix.image.dockerfile }}
       pathogen: ${{ matrix.image.pathogen }}
+  trigger_integration_tests:
+    name: Trigger integration tests on CircleCI
+    runs-on: ubuntu-22.04
+    needs:
+      - build_image
+    steps:
+      - name: Trigger integration tests
+        id: trigger_integration_tests
+        uses: CircleCI-Public/trigger-circleci-pipeline-action@v1.0.5
+        env:
+          CCI_TOKEN: ${{ secrets.CIRCLECI_TOKEN }}
   publish_configs:
     name: Publish configs
-    needs: build_image
     uses: ./.github/workflows/publish_configs.yaml
     secrets:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}

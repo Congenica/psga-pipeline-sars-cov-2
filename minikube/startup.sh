@@ -1,39 +1,42 @@
 #!/usr/bin/env bash
+set -euo pipefail # exit on any failures
 
-wait_for_pod() {
-    local __POD="${1}"
+source config.sh
 
-    printf "waiting for pod ${__POD} to run "
-    while [[ $(kubectl get pods ${__POD} -o 'jsonpath={..status.conditions[?(@.type=="Ready")].status}') != "True" ]]; do
-        printf "." && sleep 1
-    done
-    printf "\n${__POD} is running\n"
-}
-
-# label minikube node so that it matches against the cluster
+echo "Labeling minikube node so that it matches against the cluster"
 kubectl label --overwrite node minikube farmNode=true
 
-# create new namespace and set it as default
+echo "Making sure namespace $KUBE_NAMESPACE exists and it's set as default for kubectl context"
 kubectl apply -f create_namespace.yaml
-kubectl config set-context $(kubectl config current-context) --namespace=psga-minikube
+kubectl config set-context minikube --namespace=$KUBE_NAMESPACE
 
-# set service account
+echo "Setting up service account"
 kubectl apply -f service_account.yaml
 
-# set psga resources (e.g. pvc)
+if kubectl get secret | grep -q regcred; then
+  echo "Docker secret exists, removing it"
+  kubectl delete secret generic regcred
+else
+  echo "Creating docker secret for ECR pulls within minikube"
+  kubectl create secret generic regcred \
+    --from-file=.dockerconfigjson=$HOME/.docker/config.json \
+    --type=kubernetes.io/dockerconfigjson
+  kubectl patch serviceaccount psga-minikube-admin -p '{"imagePullSecrets": [{"name": "regcred"}]}'
+fi
+
+echo "Setting psga resources (e.g. pvc)"
 kubectl apply -f deploy_psga_resources.yaml
 
-## deploy sars-cov-2 pipeline
-kubectl apply -f deploy_sars_cov_2_pipeline.yaml
-pipeline_pod="$( kubectl get pods -l app=sars-cov-2-pipeline-minikube --no-headers -o custom-columns=':metadata.name' )"
-wait_for_pod "${pipeline_pod}"
+echo "Listing running pods"
+kubectl get pods
 
-## deploy synthetic pipeline
-kubectl apply -f deploy_synthetic_pipeline.yaml
-pipeline_pod="$( kubectl get pods -l app=synthetic-pipeline-minikube --no-headers -o custom-columns=':metadata.name' )"
-wait_for_pod "${pipeline_pod}"
+for name in $PIPELINES; do
+  echo "Deploying $name pipeline"
+  kubectl apply -f pipelines/$name.yaml
+done
 
-## deploy s-aureus pipeline
-kubectl apply -f deploy_s_aureus_pipeline.yaml
-pipeline_pod="$( kubectl get pods -l app=s-aureus-pipeline-minikube --no-headers -o custom-columns=':metadata.name' )"
-wait_for_pod "${pipeline_pod}"
+for name in $PIPELINES; do
+  app_name=$name-pipeline-minikube
+  echo "Waiting for the $app_name deployment to be ready"
+  kubectl wait deployment $app_name --for condition=Available=True --timeout=300s
+done

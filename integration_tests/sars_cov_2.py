@@ -14,7 +14,6 @@ def get_expected_output_files(output_path: str, sample_ids: list[str], sequencin
         all_samples=sample_ids,
         primer_autodetection_completed_samples=[] if sequencing_technology == UNKNOWN else sample_ids,
         ncov_completed_samples=[] if sequencing_technology == UNKNOWN else sample_ids,
-        ncov_qc_passed_samples=[] if sequencing_technology == UNKNOWN else sample_ids,
     )
 
     output_files_per_sample = get_expected_output_files_per_sample(

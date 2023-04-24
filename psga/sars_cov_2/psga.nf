@@ -63,8 +63,7 @@ workflow psga {
             ch_primer_autodetection_csv = Channel.empty()
             ch_ncov_qc_csv = Channel.empty()
 
-            // there is no QC for the input fasta, so we assume they all passed
-            ch_qc_passed_fasta = reheader_fasta(ch_fasta_files)
+            ch_reheadered_fasta = reheader_fasta(ch_fasta_files)
 
         } else {
 
@@ -95,31 +94,15 @@ workflow psga {
                 }
                 .set { ch_ncov_input_files }
 
+            // this workflow calls the script reheadering the output fasta file internally for performance reasons.
+            // Therefore, the nextflow process reheader_fasta() is not called explicitly
             ncov2019_artic(ch_ncov_input_files)
             ch_ncov_qc_csv = ncov2019_artic.out.ch_ncov_qc_csv
-            ch_fasta_files = ncov2019_artic.out.ch_ncov_sample_fasta
-
-            // create a channel of sample names passing ncov QC
-            // the ncov qc file contains 1 record only
-            ch_ncov_qc_csv
-                .splitCsv(header:true)
-                .filter { it.qc_pass =~ /TRUE/ }
-                .map { it -> it.sample_name }
-                .set{ ch_qc_passed_sample_id }
-
-            // create a channel of fasta files for the samples passing QC
-            // 1) map fasta to (sample_id, fasta)
-            // 2) join the sample_id of the previous mapping with the sample_id passing QC. Result: (sample_id, fasta)
-            // 3) select the fasta file from the previous tuple
-            ch_fasta_files
-                .map{ file -> tuple( file.baseName, file ) }
-                .join(ch_qc_passed_sample_id)
-                .map{ it -> it[1] }
-                .set{ ch_qc_passed_fasta }
+            ch_reheadered_fasta = ncov2019_artic.out.ch_ncov_sample_fasta
 
         }
 
-        pangolin(ch_qc_passed_fasta)
+        pangolin(ch_reheadered_fasta)
 
         submit_analysis_run_results(
             ch_metadata,
@@ -132,6 +115,6 @@ workflow psga {
         ch_analysis_run_results_submitted = submit_analysis_run_results.out.ch_analysis_run_results_submitted
 
     emit:
-        ch_qc_passed_fasta
+        ch_reheadered_fasta
         ch_analysis_run_results_submitted
 }
