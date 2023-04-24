@@ -1,6 +1,6 @@
 import shutil
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any, Callable, Dict
 import re
 import csv
 import pickle as Pickle
@@ -38,7 +38,11 @@ SCHEME_TYPE = Dict[str, Dict[str, Path]]
 
 def create_automaton(input_path: Path, filetype: str = FASTA) -> ahocorasick.Automaton:
     """
-    Store the reads in a trie structure for primer look up
+    Store the reads in an Aho-Corasick automaton trie structure for primer look up
+
+    :param input_path: the path of the input file to create the automaton for. File to be accessible with SeqIO.
+    :param filetype: the type of file (e.g. FASTA)
+    :return: the Aho-Corasick automaton object
     """
     automaton = ahocorasick.Automaton()
     with open(input_path, "r") as fd:
@@ -50,15 +54,20 @@ def create_automaton(input_path: Path, filetype: str = FASTA) -> ahocorasick.Aut
 
 def dump_pickle(output_path: Path, object_to_pickle: Any) -> None:
     """
-    Dump a Python object using pickle
+    Dump a Python object to file using pickle
+
+    :param output_path: the path of the pickle output file
+    :param object_to_pickle: the Python object to dump using pickle
     """
     with open(output_path, "wb") as pickle_out:
         Pickle.dump(object_to_pickle, pickle_out)
 
 
-def _decorate_with_new_line(method):
+def _decorate_with_new_line(method: Callable) -> Callable:
     """
-    Automatically add new line
+    A decorator to automatically add a new line
+    :param method: a method to write something
+    :return: the decorated method
     """
 
     def decorated(text):
@@ -83,9 +92,16 @@ def extract_primer_sequences(
     * left primer: forward read
     * right primer: reverse/complement read
 
-    Some scheme bed files do not have `strand`.
+    Some scheme bed files do not have `strand` (+, -).
     In these cases, the strand is obtained from the sequence name (e.g. _LEFT, _RIGHT).
     An error is raised if the strand cannot be inferred
+
+    :param ref_fasta: the reference FASTA file path
+    :param scheme_bed: the BED file containing coordinates of scheme primers
+    :param scheme_fasta: the FASTA file containing sequences of scheme primers
+    :param primer: the name of the primer (e.g. ARTIC_V4)
+    :param strands_in_name: a list containing the strand names. These can be present in the primer name in the BED file
+    :param left_strand: the name of the left strand, if specified in the primer name in the BED file
     """
 
     if not strands_in_name:
@@ -135,7 +151,13 @@ def extract_primer_sequences(
 
 def prepare_dest_files(dest_schemes_path: Path, scheme_name: str, pathogen: str, version_path: Path) -> SCHEME_TYPE:
     """
-    Prepare the primers destination files, particularly fasta and pickle
+    Prepare the primers destination files (e.g. reference fasta, scheme BED/FASTA/PICKLE)
+
+    :param dest_schemes_path: the path storing the destination primer scheme files
+    :param scheme_name: the name of the primer scheme
+    :param pathogen: the name of the pathogen
+    :param version_path: the path containing the primer version
+    :return: object storing fasta and pickle paths for each primer scheme
     """
     schemes = {}
     version_name = version_path.name
@@ -173,7 +195,12 @@ def prepare_dest_files(dest_schemes_path: Path, scheme_name: str, pathogen: str,
     return schemes
 
 
-def raise_if_not_dir(source_schemes_path: Path):
+def raise_if_not_dir(source_schemes_path: Path) -> None:
+    """
+    Raise FileNotFoundError if source_schems_path is not a directory
+
+    :param source_scheme_path: the path to the source primer schemes
+    """
     if not source_schemes_path.is_dir():
         raise FileNotFoundError("Path to the source scheme was not found. Check input arguments")
 
@@ -183,6 +210,11 @@ def process_sars_cov_2_epi2me_labs_primers(
 ) -> SCHEME_TYPE:
     """
     Process SARS-CoV-2 primer schemes in the epi2me-labs repo
+
+    :param base_path: the path to the epi2me-labs cloned repository
+    :param source_schemes: the subpath to the primer schemes within the cloned repository
+    :param dest_schemes_path: the path storing the destination primer scheme files
+    :return: object storing fasta and pickle paths for each primer scheme
     """
     schemes = {}
     source_schemes_path = base_path / source_schemes
@@ -198,6 +230,11 @@ def process_sars_cov_2_epi2me_labs_primers(
 def process_sars_cov_2_quick_lab_primers(base_path: Path, source_schemes: str, dest_schemes_path: Path) -> SCHEME_TYPE:
     """
     Process SARS-CoV-2 ARTIC primer schemes in the quick-lab repo
+
+    :param base_path: the path to the quick-lab cloned repository
+    :param source_schemes: the subpath to the primer schemes within the cloned repository
+    :param dest_schemes_path: the path storing the destination primer scheme files
+    :return: object storing fasta and pickle paths for each primer scheme
     """
     schemes = {}
     source_schemes_path = base_path / source_schemes
@@ -244,6 +281,10 @@ def process_sars_cov_2_quick_lab_primers(base_path: Path, source_schemes: str, d
 def generate_primer_index_file(pathogen: str, dest_schemes_path: Path, schemes: SCHEME_TYPE) -> None:
     """
     Generate an index summarising the primer fasta, pickle and primer number
+
+    :param pathogen: the pathogen name
+    :param dest_schemes_path: the path storing the destination primer scheme files
+    :param schemes: object storing fasta and pickle paths for each primer scheme
     """
     scheme_index_path = dest_schemes_path / f"{pathogen}_primer_index.csv"
     with open(scheme_index_path, "w", newline="") as outputfile:
@@ -283,6 +324,18 @@ def prepare_primers(
     source_schemes: str,
     dest_schemes_path: Path,
 ) -> SCHEME_TYPE:
+    """
+    An entry point function for cloning the repository and invoking the repository-specific function
+    responsible for organising the primer data.
+
+    :param source_name: the name of the source (e.g. 'epi2me_labs')
+    :param primer_repo: the repository URL storing the primers
+    :param repo_commit: the repository commit to checkout
+    :param pathogen: the pathogen name
+    :param source_schemes: the subpath to the primer schemes within the cloned repository
+    :param dest_schemes_path: the path storing the destination primer scheme files
+    :return: object storing fasta and pickle paths for each primer scheme
+    """
     # use a temporary directory for cloning the repository
     with tempfile.TemporaryDirectory() as tmpdir:
         print(f"Cloning repo {primer_repo} on {repo_commit}")
@@ -324,6 +377,10 @@ def fetch_primers(
         --dependencies-file ../../docker/sars_cov_2/primers.sources \
         --dest-schemes ../../data/sars_cov_2/primer_schemes \
         --pathogen sars-cov-2
+
+    :param dependencies_file: the file storing the primer sources to use
+    :param dest_schemes: the path storing the destination primer scheme files
+    :param pathogen: the pathogen name
     """
     dest_schemes_path = Path(dest_schemes)
     shutil.rmtree(dest_schemes_path, ignore_errors=True)
