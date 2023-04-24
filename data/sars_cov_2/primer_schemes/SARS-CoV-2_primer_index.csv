@@ -4,6 +4,11 @@ ARTIC_V2,/primer_schemes/ARTIC/SARS-CoV-2/V2/SARS-CoV-2.scheme.fasta,/primer_sch
 ARTIC_V3,/primer_schemes/ARTIC/SARS-CoV-2/V3/SARS-CoV-2.scheme.fasta,/primer_schemes/ARTIC/SARS-CoV-2/V3/SARS-CoV-2.scheme.pickle,109
 ARTIC_V4,/primer_schemes/ARTIC/SARS-CoV-2/V4/SARS-CoV-2.scheme.fasta,/primer_schemes/ARTIC/SARS-CoV-2/V4/SARS-CoV-2.scheme.pickle,99
 ARTIC_V4-1,/primer_schemes/ARTIC/SARS-CoV-2/V4-1/SARS-CoV-2.scheme.fasta,/primer_schemes/ARTIC/SARS-CoV-2/V4-1/SARS-CoV-2.scheme.pickle,103
+ARTIC_v5-0-0-400,/primer_schemes/ARTIC/SARS-CoV-2/v5-0-0-400/SARS-CoV-2.scheme.fasta,/primer_schemes/ARTIC/SARS-CoV-2/v5-0-0-400/SARS-CoV-2.scheme.pickle,96
+ARTIC_v5-1-0-400,/primer_schemes/ARTIC/SARS-CoV-2/v5-1-0-400/SARS-CoV-2.scheme.fasta,/primer_schemes/ARTIC/SARS-CoV-2/v5-1-0-400/SARS-CoV-2.scheme.pickle,105
+ARTIC_v5-2-0-1200,/primer_schemes/ARTIC/SARS-CoV-2/v5-2-0-1200/SARS-CoV-2.scheme.fasta,/primer_schemes/ARTIC/SARS-CoV-2/v5-2-0-1200/SARS-CoV-2.scheme.pickle,29
+ARTIC_v5-2-0-400,/primer_schemes/ARTIC/SARS-CoV-2/v5-2-0-400/SARS-CoV-2.scheme.fasta,/primer_schemes/ARTIC/SARS-CoV-2/v5-2-0-400/SARS-CoV-2.scheme.pickle,108
+ARTIC_v5-3-2-400,/primer_schemes/ARTIC/SARS-CoV-2/v5-3-2-400/SARS-CoV-2.scheme.fasta,/primer_schemes/ARTIC/SARS-CoV-2/v5-3-2-400/SARS-CoV-2.scheme.pickle,96
 Midnight-IDT_V1,/primer_schemes/Midnight-IDT/SARS-CoV-2/V1/SARS-CoV-2.scheme.fasta,/primer_schemes/Midnight-IDT/SARS-CoV-2/V1/SARS-CoV-2.scheme.pickle,29
 Midnight-ONT_V1,/primer_schemes/Midnight-ONT/SARS-CoV-2/V1/SARS-CoV-2.scheme.fasta,/primer_schemes/Midnight-ONT/SARS-CoV-2/V1/SARS-CoV-2.scheme.pickle,29
 Midnight-ONT_V2,/primer_schemes/Midnight-ONT/SARS-CoV-2/V2/SARS-CoV-2.scheme.fasta,/primer_schemes/Midnight-ONT/SARS-CoV-2/V2/SARS-CoV-2.scheme.pickle,29
