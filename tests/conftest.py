@@ -66,11 +66,6 @@ def fetch_primers_data_path(test_data_path: Path) -> Path:
 
 
 @pytest.fixture
-def fetch_primers_primer_schemes_data_path(fetch_primers_data_path: Path, primer_schemes_dir: str) -> Path:
-    return fetch_primers_data_path / primer_schemes_dir
-
-
-@pytest.fixture
 def integration_test_validation_data_path(test_data_path: Path) -> Path:
     return test_data_path / "integration_test_validation"
 
