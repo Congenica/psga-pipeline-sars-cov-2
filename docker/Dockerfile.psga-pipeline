@@ -12,6 +12,10 @@ FROM debian:buster-slim
 COPY --from=condabuild /opt/conda/envs/custom_env /opt/conda/envs/custom_env
 ENV PATH=/opt/conda/envs/custom_env/bin:$PATH
 
+RUN apt-get update && \
+    apt-get install -y procps && \
+    apt-get clean
+
 # pin the versions of pip and poetry
 ENV PIP_VERSION=22.2.2 \
     POETRY_VERSION=1.1.13
