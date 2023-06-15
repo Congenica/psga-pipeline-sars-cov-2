@@ -4,6 +4,7 @@ channels:
   - conda-forge # required for awscli, click, pandas
 dependencies:
   - awscli=1.25.92
+  - procps-ng=4.0.3   # required for ps
   - pip:
     - biopython==1.80
     - click==7.1.2

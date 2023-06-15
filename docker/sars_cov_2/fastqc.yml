@@ -4,4 +4,5 @@ channels:
   - conda-forge # required for awscli
 dependencies:
   - awscli=1.25.92
+  - procps-ng=4.0.3   # required for ps
   - fastqc=0.11.9

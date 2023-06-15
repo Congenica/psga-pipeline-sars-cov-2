@@ -4,6 +4,7 @@ channels:
   - conda-forge # required for awscli
 dependencies:
   - awscli=1.25.92
+  - procps-ng=4.0.3   # required for ps
   - pangolin=4.2
   - pangolin-data=1.19
   - scorpio=0.3.17
