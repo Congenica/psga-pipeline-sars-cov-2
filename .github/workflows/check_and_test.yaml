@@ -29,6 +29,14 @@ jobs:
           poetry install
           poetry run pytest tests/ --alluredir=${{ env.ALLURE_DIR }}
 
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: eu-west-2
+          mask-aws-account-id: false
+
       # Before copying Allure Results to S3, the number of existing results with the same Git hash are identified. This
       # number is appended as a suffix to the name of the artifact before copying to S3 to avoid overwriting any
       # existing results that were captured on this Git hash.
