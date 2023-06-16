@@ -30,12 +30,12 @@ jobs:
           poetry run pytest tests/ --alluredir=${{ env.ALLURE_DIR }}
 
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v1
+        uses: aws-actions/configure-aws-credentials@v2
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: eu-west-2
-          mask-aws-account-id: false
+          mask-aws-account-id: true
 
       # Before copying Allure Results to S3, the number of existing results with the same Git hash are identified. This
       # number is appended as a suffix to the name of the artifact before copying to S3 to avoid overwriting any
@@ -60,11 +60,3 @@ jobs:
       - name: Upload Allure Results to S3
         id: upload-to-s3
         run: aws s3 cp $ALLURE_RESULTS_POD $ALLURE_RESULTS_S3
-
-  test_traceability:
-    needs: check_and_test
-    uses: ./.github/workflows/test_traceability.yml
-    secrets: inherit
-    with:
-      docker_tag: dev_latest
-      trace_to_jira: false
