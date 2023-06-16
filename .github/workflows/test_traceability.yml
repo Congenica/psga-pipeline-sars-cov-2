@@ -1,0 +1,63 @@
+name: Test traceability
+on:
+  workflow_call:
+    inputs:
+      docker_tag:
+        description: 'The Docker tag of the rt-test-traceability image to use'
+        required: true
+        type: string
+      trace_to_jira:
+        description: 'Bool to control if tests should be traced back to Jira or not'
+        required: true
+        type: boolean
+
+jobs:
+  test-traceability-job:
+    name: Run test-traceability
+    runs-on: psga-prod-build
+    env:
+      CONGENICA_AWS_ACCOUNT_DEV: 144563655722.dkr.ecr.eu-west-1.amazonaws.com
+      REPO_NAME: psga-pipeline
+
+    steps:
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: eu-west-2
+
+      - name: Login to Amazon ECR
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Pull test-traceability image from the Congenica dev ECR
+        id: pull-test-traceability-image
+        run: |
+          aws ecr get-login-password --region eu-west-1 | docker login --username AWS --password-stdin "${{ env.CONGENICA_AWS_ACCOUNT_DEV }}"
+          FULL_IMAGE_PATH=${{ env.CONGENICA_AWS_ACCOUNT_DEV }}/congenica/dev/rt-test-traceability:${{ inputs.docker_tag }}
+          echo "TEST_TRACEABILITY_IMAGE=$FULL_IMAGE_PATH" >> $GITHUB_OUTPUT
+          docker pull $FULL_IMAGE_PATH
+
+      # Passes the most recent set of Allure Results from the current Git hash to the test traceability code. There
+      # could be a race condition where two builds produce a set of Allure Results from the same Git hash at roughly the
+      # same time, leading to the wrong set of Allure Results being used. However, the chances of this are minimal as
+      # two builds executing against a single branch on the same Git hash is highly unlikely.
+      - name: Run test traceability
+        run: |
+          BUCKET_URL_ROOT=s3://psga-artefacts/allure-results/${{ env.REPO_NAME }}
+          BUCKET_URL_PARTIAL=$BUCKET_URL_ROOT/${{ github.sha }}
+          ALLURE_ARTIFACT_NAME=$(aws s3 ls $BUCKET_URL_PARTIAL | awk '{print $4}' | tail -n1)
+          BUCKET_URL_FULL=$BUCKET_URL_ROOT/$ALLURE_ARTIFACT_NAME
+          docker run --env AWS_ACCESS_KEY_ID="${{ secrets.AWS_ACCESS_KEY_ID }}" \
+                     --env AWS_SECRET_ACCESS_KEY="${{ secrets.AWS_SECRET_ACCESS_KEY }}" \
+                     --env TT_ALLURE_RESULTS_S3_URL="$BUCKET_URL_FULL" \
+                     --env TT_JIRA_COMPONENT="Analysis" \
+                     --env TT_JIRA_PROJECT_KEY="PSG" \
+                     --env TT_JIRA_TEST_REPOSITORY_PATH="${{ env.REPO_NAME }}" \
+                     --env TT_JIRA_TOKEN=${{ secrets.JIRA_TOKEN }} \
+                     --env TT_LOG_LEVEL="DEBUG" \
+                     --env TT_REPO_NAME="${{ env.REPO_NAME }}" \
+                     --env TT_SHOULD_TRACE_RESULTS_TO_JIRA=${{ inputs.trace_to_jira }} \
+                     --rm \
+                     ${{ steps.pull-test-traceability-image.outputs.TEST_TRACEABILITY_IMAGE }} \
+                     /bin/bash -c "poetry run pytest -k TestTraceTests"

@@ -5,20 +5,58 @@ jobs:
   check_and_test:
     name: Install dependencies and run tests
     runs-on: ubuntu-22.04
+    env:
+      ALLURE_DIR: ${{ github.workspace }}/allure-results
     steps:
       - name: Check out repo
         uses: actions/checkout@v3
+
       - name: Install python
         uses: actions/setup-python@v4
         with:
           python-version: '3.10'
+
       - name: Install Poetry
         run: curl -sSL https://install.python-poetry.org | python3 -
+
       - name: Pre-commit checks
         run: |
           pip install pre-commit==2.17.0
           pre-commit run --all-files
+
       - name: Install dependencies and run tests
         run: |
           poetry install
-          poetry run pytest tests/
+          poetry run pytest tests/ --alluredir=${{ env.ALLURE_DIR }}
+
+      # Before copying Allure Results to S3, the number of existing results with the same Git hash are identified. This
+      # number is appended as a suffix to the name of the artifact before copying to S3 to avoid overwriting any
+      # existing results that were captured on this Git hash.
+
+      # For example, when a set of tests are kicked off from a branch where the head of the branch has Git hash
+      # e1e3a8195fecdd78cf0a78c648453314ca872b81:
+
+      #   - The first set of Allure Results will be named e1e3a8195fecdd78cf0a78c648453314ca872b81_0.tar.gz
+      #   - The second set of Allure Results will be named e1e3a8195fecdd78cf0a78c648453314ca872b81_1.tar.gz
+      #   - etc
+      - name: Compress Allure Results
+        run: |
+          ARTIFACT_S3_PATH_PARTIAL=s3://psga-artefacts/allure-results/psga-pipeline
+          ARTIFACT_COUNT=$(aws s3 ls $ARTIFACT_S3_PATH_PARTIAL/${{ github.sha }} | wc -l)
+          ARTIFACT_NAME=${{ github.sha }}_$ARTIFACT_COUNT.tar.gz
+          ARTIFACT_PATH=${{ env.ALLURE_DIR }}/$ARTIFACT_NAME
+          tar -czf $ARTIFACT_PATH -C ${{ env.ALLURE_DIR }} .
+          echo "ALLURE_RESULTS_POD=$ARTIFACT_PATH" >> $GITHUB_ENV
+          echo "ALLURE_RESULTS_S3=$ARTIFACT_S3_PATH_PARTIAL/$ARTIFACT_NAME" >> $GITHUB_ENV
+
+      - name: Upload Allure Results to S3
+        id: upload-to-s3
+        run: aws s3 cp $ALLURE_RESULTS_POD $ALLURE_RESULTS_S3
+
+  test_traceability:
+    needs: check_and_test
+    uses: ./.github/workflows/test_traceability.yml
+    secrets: inherit
+    with:
+      docker_tag: dev_latest
+      trace_to_jira: false
