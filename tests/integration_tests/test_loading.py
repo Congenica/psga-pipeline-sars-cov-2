@@ -62,6 +62,7 @@ from tests.integration_tests.util import create_paths
         ),
     ],
 )
+@pytest.mark.jira(identifier="69e0f0ab-f1f5-4e4d-aaaf-a6ad78b06522", confirms="PSG-3621")
 def test_load_data_from_csv(
     tmp_path: Path, integration_test_validation_data_path: Path, pathogen: str, csv_file: str, config: dict, exc: str
 ):
@@ -90,6 +91,7 @@ def test_load_data_from_csv(
         ["a", "b", "c"],
     ],
 )
+@pytest.mark.jira(identifier="c0de6e77-b6c4-42d5-9d2b-fd0ccb1aaa35", confirms="PSG-3621")
 def test_get_file_paths(tmp_path, path_list):
     paths = [os.path.join(tmp_path, f) for f in path_list]
     create_paths(paths)

@@ -41,6 +41,7 @@ from tests.util.test_notification import load_log_file_to_dict
         ),
     ],
 )
+@pytest.mark.jira(identifier="5ef0808f-a41a-4ea9-abb1-c46d620a0247", confirms="PSG-3621")
 def test_validate_metadata(
     check_metadata_data_path: Path,
     metadata_file: str,
@@ -236,6 +237,7 @@ def test_validate_metadata(
         ),
     ],
 )
+@pytest.mark.jira(identifier="53c2d945-92e5-4f92-b256-3891fca6bb18", confirms="PSG-3621")
 def test_check_metadata(
     tmp_path: Path,
     check_metadata_data_path: Path,

@@ -113,6 +113,7 @@ def rmfile(filepath: Path, filename: str) -> None:
         "quick-lab, artic v5.3.2-400 (source primer bed with mispelled name)",
     ],
 )
+@pytest.mark.jira(identifier="337f1ac9-8b1c-4ccd-ae61-b7a7fa482b4a", confirms="PSG-3621")
 def test_extract_primer_sequences(
     tmp_path: Path,
     primer_data: dict,
@@ -139,6 +140,7 @@ def test_extract_primer_sequences(
     assert_files_are_equal(scheme_fasta_path, expected_scheme_fasta_path)
 
 
+@pytest.mark.jira(identifier="ee8f4c43-c5d4-4904-8ef3-ef72035b5c5d", confirms="PSG-3621")
 def test_extract_primer_sequences_unknown_strand_error(
     tmp_path: Path,
     fetch_primers_data_path: Path,
@@ -170,6 +172,7 @@ def test_extract_primer_sequences_unknown_strand_error(
         f"Missing {REFERENCE} {FASTA} file",
     ],
 )
+@pytest.mark.jira(identifier="b048656c-163a-4aec-bc76-83ad39491d12", confirms="PSG-3621")
 def test_extract_primer_sequences_file_not_found_error(
     tmp_path: Path,
     primer_data: dict,
@@ -202,6 +205,7 @@ def test_extract_primer_sequences_file_not_found_error(
         QUICK_LAB,
     ],
 )
+@pytest.mark.jira(identifier="7ba24142-060d-4b50-9100-0243d92c4231", confirms="PSG-3621")
 def test_organise_primers(
     tmp_path: Path,
     primer_schemes_dir: str,

@@ -19,6 +19,7 @@ from tests.util.test_notification import load_log_file_to_dict
     "level",
     [level.lower() for level in LOG_LEVELS],
 )
+@pytest.mark.jira(identifier="f0126ecb-25fa-4880-8ec3-ffc2125f488c", confirms="PSG-3621")
 def test_logger(tmp_path: Path, message: str, level: str, sample: str):
     log_file = tmp_path / "messages.log"
     assert not log_file.is_file()

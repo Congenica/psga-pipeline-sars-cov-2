@@ -161,6 +161,7 @@ def assert_primer_automaton(
         f"{SARS_COV_2}_primer_index.csv",
     ],
 )
+@pytest.mark.jira(identifier="7ea6a401-37f4-4e7d-8c99-b1b4276adfa1", confirms="PSG-3621")
 def test_build_primers_automaton(
     tmp_path: Path,
     primer_autodetection_primer_schemes_data_path: Path,
@@ -192,6 +193,7 @@ def test_build_primers_automaton(
         )
     ],
 )
+@pytest.mark.jira(identifier="5d595f04-ef60-4c98-ae45-14000dbb4143", confirms="PSG-3621")
 def test_count_primer_matches(
     primer_autodetection_sample_dir_data_path: Path,
     sample: str,
@@ -261,6 +263,7 @@ def test_count_primer_matches(
         ),
     ],
 )
+@pytest.mark.jira(identifier="2116ec3e-87c2-40e3-bd70-aa369d4d79e2", confirms="PSG-3621")
 def test_compute_primer_data(
     primer_autodetection_sample_dir_data_path: Path,
     primers_automaton_fixture: dict[str, PrimerAutomaton],
@@ -288,6 +291,7 @@ def test_compute_primer_data(
         ),
     ],
 )
+@pytest.mark.jira(identifier="61bf55d8-2717-44ce-bea9-f9ef6c05ee73", confirms="PSG-3621")
 def test_generate_metrics(
     tmp_path: Path,
     primer_autodetection_data_path: Path,
@@ -320,6 +324,7 @@ def test_generate_metrics(
         ("not_found", "a0446f6f-7d24-478c-8d92-7c77036930d8", UNKNOWN, 0, "none", DEFAULT_PRIMER),
     ],
 )
+@pytest.mark.jira(identifier="f370404a-c340-4677-bc83-507657db0d80", confirms="PSG-3621")
 def test_select_primer(
     tmp_path: Path,
     primer_autodetection_data_path: Path,
@@ -347,6 +352,7 @@ def test_select_primer(
         ("not_found", "a0446f6f-7d24-478c-8d92-7c77036930d8", "unknown"),
     ],
 )
+@pytest.mark.jira(identifier="a52a1a34-0d96-405c-8782-4cdfcf7be06e", confirms="PSG-3621")
 def test_write_primer_data(
     tmp_path: Path,
     primer_autodetection_data_path: Path,
@@ -368,6 +374,7 @@ def test_write_primer_data(
         ("not_found", "a0446f6f-7d24-478c-8d92-7c77036930d8", DEFAULT_PRIMER),
     ],
 )
+@pytest.mark.jira(identifier="6831b9e0-7803-419f-8e08-0d554d1f6cf5", confirms="PSG-3621")
 def test_write_selected_primer(
     tmp_path: Path,
     primer_autodetection_data_path: Path,
@@ -386,6 +393,7 @@ def test_write_selected_primer(
         ("not_found", "a0446f6f-7d24-478c-8d92-7c77036930d8", "unknown"),
     ],
 )
+@pytest.mark.jira(identifier="7d937435-6fda-49dc-80c2-1e74142a8d65", confirms="PSG-3621")
 def test_generate_primer_autodetection_output_files(
     tmp_path: Path,
     primer_autodetection_data_path: Path,
@@ -408,6 +416,7 @@ def test_generate_primer_autodetection_output_files(
         (f"{SARS_COV_2}_primer_index.csv", "a0446f6f-7d24-478c-8d92-7c77036930d8", "unknown"),
     ],
 )
+@pytest.mark.jira(identifier="e4021c9e-609f-45b5-b366-9943b1146148", confirms="PSG-3621")
 def test_primer_autodetection(
     tmp_path: Path,
     primer_autodetection_data_path: Path,

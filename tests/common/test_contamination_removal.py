@@ -28,6 +28,7 @@ def assert_rik_output_csv(output_path: Path, expected_rik_output_csv: dict[str, 
         "rik_output_two_reads_exception.txt",
     ],
 )
+@pytest.mark.jira(identifier="16c0752b-146f-4ea1-ab63-4fc2c04d6575", confirms="PSG-3621")
 def test_get_contaminated_reads_exception(contamination_removal_data_path: Path, input_file: str):
     input_path = contamination_removal_data_path / input_file
     with pytest.raises(ValueError, match="cannot be negative"):
@@ -41,6 +42,7 @@ def test_get_contaminated_reads_exception(contamination_removal_data_path: Path,
         ("rik_output_two_reads.txt", 696),
     ],
 )
+@pytest.mark.jira(identifier="80d91164-7c98-4399-80ef-821627f8336f", confirms="PSG-3621")
 def test_get_contaminated_reads(
     contamination_removal_data_path: Path, input_file: str, expected_contaminated_reads: int
 ):
@@ -69,6 +71,7 @@ def test_get_contaminated_reads(
         ),
     ],
 )
+@pytest.mark.jira(identifier="12f810d0-8760-4e33-8912-db5dfff59675", confirms="PSG-3621")
 def test_write_rik_output_csv(
     tmp_path: Path, sample_id: str, contaminated_reads: int, expected_rik_output_csv: dict[str, str]
 ):
@@ -98,6 +101,7 @@ def test_write_rik_output_csv(
         ),
     ],
 )
+@pytest.mark.jira(identifier="15090941-15df-46d2-9a5d-5ffd660818d4", confirms="PSG-3621")
 def test_process_rik(
     tmp_path: Path,
     contamination_removal_data_path: Path,
@@ -132,6 +136,7 @@ def test_process_rik(
         ),
     ],
 )
+@pytest.mark.jira(identifier="5fb18309-ccdf-44ce-852d-d723d767b180", confirms="PSG-3621")
 def test_contamination_removal(
     tmp_path: Path,
     contamination_removal_data_path: Path,
