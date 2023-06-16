@@ -44,7 +44,7 @@ jobs:
           ARTIFACT_S3_PATH_PARTIAL=s3://psga-artefacts/allure-results/psga-pipeline
           ARTIFACT_COUNT=$(aws s3 ls $ARTIFACT_S3_PATH_PARTIAL/${{ github.sha }} | wc -l)
           ARTIFACT_NAME=${{ github.sha }}_$ARTIFACT_COUNT.tar.gz
-          ARTIFACT_PATH=${{ env.ALLURE_DIR }}/$ARTIFACT_NAME
+          ARTIFACT_PATH=${{ github.workspace }}/$ARTIFACT_NAME
           tar -czf $ARTIFACT_PATH -C ${{ env.ALLURE_DIR }} .
           echo "ALLURE_RESULTS_POD=$ARTIFACT_PATH" >> $GITHUB_ENV
           echo "ALLURE_RESULTS_S3=$ARTIFACT_S3_PATH_PARTIAL/$ARTIFACT_NAME" >> $GITHUB_ENV
