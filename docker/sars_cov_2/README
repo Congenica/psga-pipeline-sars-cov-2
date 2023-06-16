@@ -1,0 +1,3 @@
+The dependency `procps-ng` is needed in order to execute `ps`, which is required
+for generating reports.
+`ps` is already available in the two ncov docker images

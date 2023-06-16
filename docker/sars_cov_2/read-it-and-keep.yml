@@ -4,6 +4,7 @@ channels:
   - conda-forge # required for awscli, click
 dependencies:
   - awscli=1.25.92
+  - procps-ng=4.0.3   # required for ps
   - read-it-and-keep=0.3.0
   - pip:
     - click==7.1.2
