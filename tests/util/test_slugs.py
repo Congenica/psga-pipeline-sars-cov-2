@@ -13,6 +13,7 @@ from scripts.util.slugs import get_file_with_type, FileType
     ],
 )
 @pytest.mark.parametrize("sample_id", ["roger", "clio"])
+@pytest.mark.jira(identifier="aa8c8f26-fd37-41ef-b003-7aec00b71728", confirms="PSG-3621")
 def test_get_file_with_type(
     output_path: str,
     inner_dirs: list[str],
