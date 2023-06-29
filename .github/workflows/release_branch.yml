@@ -89,10 +89,3 @@ jobs:
 
       - name: Push the release image to prod
         run: docker push $PROD_RELEASE_NAME
-
-  test_traceability:
-    uses: ./.github/workflows/test_traceability.yml
-    secrets: inherit
-    with:
-      docker_tag: dev_latest
-      trace_to_jira: true
