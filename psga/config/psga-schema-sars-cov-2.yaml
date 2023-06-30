@@ -146,7 +146,7 @@ pipeline:
     - name: illumina-sars-cov-2-articv5-0-0-400
       kit:
         name: ARTIC V5.0.0-400
-        slug: ARTIC_V5-0-0-400
+        slug: ARTIC_v5-0-0-400
       sequencer_technology:
         name: Illumina
         slug: illumina
@@ -157,7 +157,7 @@ pipeline:
     - name: ont-sars-cov-2-articv5-0-0-400
       kit:
         name: ARTIC V5.0.0-400
-        slug: ARTIC_V5-0-0-400
+        slug: ARTIC_v5-0-0-400
       sequencer_technology:
         name: ONT
         slug: ont
@@ -169,7 +169,7 @@ pipeline:
     - name: illumina-sars-cov-2-articv5-1-0-400
       kit:
         name: ARTIC V5.1.0-400
-        slug: ARTIC_V5-1-0-400
+        slug: ARTIC_v5-1-0-400
       sequencer_technology:
         name: Illumina
         slug: illumina
@@ -180,7 +180,7 @@ pipeline:
     - name: ont-sars-cov-2-articv5-1-0-400
       kit:
         name: ARTIC V5.1.0-400
-        slug: ARTIC_V5-1-0-400
+        slug: ARTIC_v5-1-0-400
       sequencer_technology:
         name: ONT
         slug: ont
@@ -192,7 +192,7 @@ pipeline:
     - name: illumina-sars-cov-2-articv5-2-0-1200
       kit:
         name: ARTIC V5.2.0-1200
-        slug: ARTIC_V5-2-0-1200
+        slug: ARTIC_v5-2-0-1200
       sequencer_technology:
         name: Illumina
         slug: illumina
@@ -203,7 +203,7 @@ pipeline:
     - name: ont-sars-cov-2-articv5-2-0-1200
       kit:
         name: ARTIC V5.2.0-1200
-        slug: ARTIC_V5-2-0-1200
+        slug: ARTIC_v5-2-0-1200
       sequencer_technology:
         name: ONT
         slug: ont
@@ -215,7 +215,7 @@ pipeline:
     - name: illumina-sars-cov-2-articv5-2-0-400
       kit:
         name: ARTIC V5.2.0-400
-        slug: ARTIC_V5-2-0-400
+        slug: ARTIC_v5-2-0-400
       sequencer_technology:
         name: Illumina
         slug: illumina
@@ -226,7 +226,7 @@ pipeline:
     - name: ont-sars-cov-2-articv5-2-0-400
       kit:
         name: ARTIC V5.2.0-400
-        slug: ARTIC_V5-2-0-400
+        slug: ARTIC_v5-2-0-400
       sequencer_technology:
         name: ONT
         slug: ont
@@ -238,7 +238,7 @@ pipeline:
     - name: illumina-sars-cov-2-articv5-3-2-400
       kit:
         name: ARTIC V5.3.2-400
-        slug: ARTIC_V5-3-2-400
+        slug: ARTIC_v5-3-2-400
       sequencer_technology:
         name: Illumina
         slug: illumina
@@ -249,7 +249,7 @@ pipeline:
     - name: ont-sars-cov-2-articv5-3-2-400
       kit:
         name: ARTIC V5.3.2-400
-        slug: ARTIC_V5-3-2-400
+        slug: ARTIC_v5-3-2-400
       sequencer_technology:
         name: ONT
         slug: ont
