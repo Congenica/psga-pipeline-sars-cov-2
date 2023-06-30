@@ -52,7 +52,7 @@ jobs:
           docker run --env AWS_ACCESS_KEY_ID="${{ secrets.AWS_ACCESS_KEY_ID }}" \
                      --env AWS_SECRET_ACCESS_KEY="${{ secrets.AWS_SECRET_ACCESS_KEY }}" \
                      --env TT_ALLURE_RESULTS_S3_URL="$BUCKET_URL_FULL" \
-                     --env TT_JIRA_COMPONENT="Analysis" \
+                     --env TT_JIRA_COMPONENT="Pipelines" \
                      --env TT_JIRA_PROJECT_KEY="PSG" \
                      --env TT_JIRA_TEST_REPOSITORY_PATH="${{ env.REPO_NAME }}" \
                      --env TT_JIRA_TOKEN=${{ secrets.JIRA_TOKEN }} \
