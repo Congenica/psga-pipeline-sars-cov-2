@@ -69,4 +69,4 @@ jobs:
     secrets: inherit
     with:
       docker_tag: dev_latest
-      trace_to_jira: false
+      trace_to_jira: ${{ github.ref == 'refs/heads/main' && true || false }}
