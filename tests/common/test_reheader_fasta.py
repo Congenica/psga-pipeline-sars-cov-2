@@ -19,6 +19,7 @@ from scripts.common.reheader_fasta import reheader_fasta, FASTA_FILE_EXTENSION, 
         ">{sample_id}|5524211|gb|AAD44166.1| cytochrome b [Elephas maximus maximus]",
     ],
 )
+@pytest.mark.jira(identifier="83399fd1-3412-4aac-b602-0004d11424c4", confirms="PSG-3621")
 def test_reheader_fasta(tmp_path: Path, fasta_file_generator: Callable, input_fasta_header: str):
 
     fasta_file_generator(

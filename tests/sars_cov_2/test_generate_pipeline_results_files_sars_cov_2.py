@@ -55,6 +55,7 @@ from tests.utils_tests import assert_csvs_are_equal, assert_jsons_are_equal
         ),
     ],
 )
+@pytest.mark.jira(identifier="b3573927-a7d0-43a3-83b1-dd1e61f21859", confirms="PSG-3621")
 def test_generate_pipeline_results_files(
     tmp_path: Path,
     pipeline_results_files_data_path: Path,

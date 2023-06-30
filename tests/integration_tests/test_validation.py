@@ -47,6 +47,7 @@ def create_output_files(pathogen: str, samples: Path, root: Path, sequencing_tec
         ),
     ],
 )
+@pytest.mark.jira(identifier="62e11544-ba67-4124-8b8f-c23418b37881", confirms="PSG-3621")
 def test_compare_merged_output_file(
     integration_test_validation_data_path: Path,
     pathogen: str,
@@ -99,6 +100,7 @@ def test_compare_merged_output_file(
         ),
     ],
 )
+@pytest.mark.jira(identifier="9020247d-84ec-446d-98c8-4de0b39e8c4d", confirms="PSG-3621")
 def test_validation(
     tmp_path: Path,
     integration_test_validation_data_path: Path,

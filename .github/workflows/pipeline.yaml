@@ -62,3 +62,11 @@ jobs:
   check_and_test:
     name: Install dependencies and run tests
     uses: ./.github/workflows/check_and_test.yaml
+    secrets: inherit
+  test_traceability:
+    needs: check_and_test
+    uses: ./.github/workflows/test_traceability.yml
+    secrets: inherit
+    with:
+      docker_tag: dev_latest
+      trace_to_jira: ${{ github.ref == 'refs/heads/main' && true || false }}

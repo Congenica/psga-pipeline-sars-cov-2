@@ -21,6 +21,7 @@ from tests.utils_tests import assert_jsons_are_equal
         ),
     ],
 )
+@pytest.mark.jira(identifier="102bd1eb-18ec-4c15-b92e-f0ba55ccf61a", confirms="PSG-3621")
 def test_csv_to_json(
     tmp_path: Path,
     pipeline_results_files_data_path: Path,
