@@ -394,12 +394,16 @@ input_fields:
 output_fields:
   - field_name: STATUS
     field_type: string
+    ui:
+      name: "Status"
     required: true
     validation_rules:
       - rule_type: not_null
 
   - field_name: CONTAMINATED_READS
     field_type: number
+    ui:
+      name: "Contaminated Reads"
     required: true
     validation_rules:
       - rule_type: integer
@@ -407,18 +411,24 @@ output_fields:
 
   - field_name: PRIMER_INPUT
     field_type: string
+    ui:
+      name: "Primer Input"
     required: true
     validation_rules:
       - rule_type: not_null
 
   - field_name: PRIMER_DETECTED
     field_type: string
+    ui:
+      name: "Primer Detected"
     required: true
     validation_rules:
       - rule_type: not_null
 
   - field_name: PRIMER_NUMREADS
     field_type: number
+    ui:
+      name: "Primer Number Reads"
     required: true
     validation_rules:
       - rule_type: integer
@@ -426,6 +436,8 @@ output_fields:
 
   - field_name: PRIMER_UNIQUE_NUMREADS
     field_type: number
+    ui:
+      name: "Primer Unique Number Reads"
     required: true
     validation_rules:
       - rule_type: integer
@@ -433,6 +445,8 @@ output_fields:
 
   - field_name: PRIMER_AMBIGUOUS_NUMREADS
     field_type: number
+    ui:
+      name: "Primer Ambiguous Number Reads"
     required: true
     validation_rules:
       - rule_type: integer
@@ -440,10 +454,17 @@ output_fields:
 
   - field_name: PRIMER_COVERAGE
     field_type: string
+    ui:
+      name: "Primer Coverage"
+      format: "style: percent"
     required: true
 
   - field_name: NCOV_PCT_N_BASES
     field_type: number
+    ui:
+      name: "NCOV N bases"
+      format: "style: percent"
+      divisor: 100
     required: true
     validation_rules:
       - rule_type: integer
@@ -451,6 +472,10 @@ output_fields:
 
   - field_name: NCOV_PCT_COVERED_BASES
     field_type: number
+    ui:
+      name: "NCOV Covered Bases"
+      format: "style: percent"
+      divisor: 100
     required: true
     validation_rules:
       - rule_type: integer
@@ -458,6 +483,8 @@ output_fields:
 
   - field_name: NCOV_LONGEST_NO_N_RUN
     field_type: number
+    ui:
+      name: "NCOV Longest Number N Run"
     required: true
     validation_rules:
       - rule_type: integer
@@ -465,6 +492,8 @@ output_fields:
 
   - field_name: NCOV_NUM_ALIGNED_READS
     field_type: number
+    ui:
+      name: "NCOV Number Aligned Reads"
     required: true
     validation_rules:
       - rule_type: integer
@@ -472,6 +501,8 @@ output_fields:
 
   - field_name: NCOV_QC_PASS
     field_type: string
+    ui:
+      name: "NCOV QC Pass"
     required: true
     validation_rules:
       - rule_type: enum
@@ -482,60 +513,84 @@ output_fields:
 
   - field_name: PANGOLIN_LINEAGE
     field_type: string
+    ui:
+      name: "Pangolin Lineage"
     required: true
     validation_rules:
       - rule_type: not_null
 
   - field_name: PANGOLIN_CONFLICT
     field_type: string
+    ui:
+      name: "Pangolin Conflict"
     required: true
 
   - field_name: PANGOLIN_AMBIGUITY_SCORE
     field_type: string
+    ui:
+      name: "Pangolin Ambiguity Score"
     required: true
 
   - field_name: PANGOLIN_SCORPIO_CALL
     field_type: string
+    ui:
+      name: "Pangolin Scorpio Call"
     required: true
 
   - field_name: PANGOLIN_SCORPIO_SUPPORT
     field_type: string
+    ui:
+      name: "Pangolin Scorpia Support"
     required: true
 
   - field_name: PANGOLIN_SCORPIO_CONFLICT
     field_type: string
+    ui:
+      name: "Pangolin Scorpio Conflict"
     required: true
 
   - field_name: PANGOLIN_SCORPIO_NOTES
     field_type: string
+    ui:
+      name: "Pangolin Scorpia Notes"
     required: true
 
   - field_name: PANGOLIN_PANGO_DESIGNATION_VERSION
     field_type: string
+    ui:
+      name: "Pangolin Pango Designation Version"
     required: true
     validation_rules:
       - rule_type: not_null
 
   - field_name: PANGOLIN_VERSION
     field_type: string
+    ui:
+      name: "Pangolin Version"
     required: true
     validation_rules:
       - rule_type: not_null
 
   - field_name: PANGOLIN_SCORPIO_VERSION
     field_type: string
+    ui:
+      name: "Pangolin Scorpio Version"
     required: true
     validation_rules:
       - rule_type: not_null
 
   - field_name: PANGOLIN_CONSTELLATION_VERSION
     field_type: string
+    ui:
+      name: "Pangolin Constellation Version"
     required: true
     validation_rules:
       - rule_type: not_null
 
   - field_name: PANGOLIN_IS_DESIGNATED
     field_type: string
+    ui:
+      name: "Pangolin Is Designated"
     required: true
     validation_rules:
       - rule_type: enum
@@ -545,18 +600,24 @@ output_fields:
 
   - field_name: PANGOLIN_QC_STATUS
     field_type: string
+    ui:
+      name: "Pangolin QC Status"
     required: true
     validation_rules:
       - rule_type: not_null
 
   - field_name: PANGOLIN_QC_NOTES
     field_type: string
+    ui:
+      name: "Pangolin QC Notes"
     required: true
     validation_rules:
       - rule_type: not_null
 
   - field_name: PANGOLIN_NOTE
     field_type: string
+    ui:
+      name: "Pangolin Note"
     required: true
 #output_row_validation_rules:
 #- {}
