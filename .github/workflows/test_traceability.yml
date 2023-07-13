@@ -54,7 +54,7 @@ jobs:
                      --env TT_ALLURE_RESULTS_S3_URL="$BUCKET_URL_FULL" \
                      --env TT_JIRA_COMPONENT="Pipelines" \
                      --env TT_JIRA_PROJECT_KEY="PSG" \
-                     --env TT_JIRA_TEST_REPOSITORY_PATH="${{ env.REPO_NAME }}" \
+                     --env TT_JIRA_TEST_REPOSITORY_PATH="${{ env.REPO_NAME }}/unit" \
                      --env TT_JIRA_TOKEN=${{ secrets.JIRA_TOKEN }} \
                      --env TT_LOG_LEVEL="DEBUG" \
                      --env TT_REPO_NAME="${{ env.REPO_NAME }}" \
