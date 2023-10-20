@@ -22,7 +22,7 @@ def printMainConfig() {
         * NXF_OPTS                                    : ${NXF_OPTS}
 
         Global parameters:
-        * config-path                                    : ${params.config-path}
+        * metadata                                    : ${params.metadata}
         * run                                         : ${params.run}
         * sequencing_technology                       : ${params.sequencing_technology}
         * kit                                         : ${params.kit}
@@ -71,7 +71,7 @@ def printMainHelp() {
         NXF_OPTS                Pass JVM options to Nextflow (default: -Xms1g -Xmx4g)
 
       Mandatory parameters:
-        --config-path              The path to the config-directory. This can be an s3 path
+        --metadata              The path to the metadata file. This can be an s3 path
         --run                   A (unique) string identifying the analysis run (batch)
         --sequencing_technology The technology used for sequencing the samples. Values: 'illumina', 'ont', 'unknown'
         --kit                   The kit used for sequencing the samples (e.g. the scheme version of the primers)
