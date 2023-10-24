@@ -15,11 +15,11 @@ if ( params.sequencing_technology == "illumina" ) {
 }
 
 /*
- * process the metadata.csv and organise sample files in channels.
+ * process the samples.csv and organise sample files in channels.
  */
 workflow organise_metadata_sample_files {
     main:
-        check_metadata(params.metadata)
+        check_metadata("${params.configPath}samples.csv")
         ch_metadata = check_metadata.out.ch_metadata
 
         // organise sample input files by file type
