@@ -375,15 +375,19 @@ pipeline_version:
   docker_tag: dev_latest
 
 input_fields:
-  - field_name: sample_id
+  - field_name: file_1_type
     field_type: string
     required: true
+    read_only: true
     validation_rules:
-      - rule_type: min_max
-        min: 36
-        max: 36
-      - rule_type: regex
-        expression: "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"
+      - rule_type: not_null
+
+  - field_name: file_2_type
+    field_type: string
+    required: false
+    read_only: true
+    validation_rules:
+      - rule_type: not_null
 
 #input_row_validation_rules:
 #- {}

@@ -3,7 +3,6 @@ pipeline:
   name: Synthetic
   docker_image: "synthetic-pipeline"
   protocols:
-
     # Unknown
 
     - name: illumina-synthetic-unknown
@@ -68,17 +67,7 @@ pipeline:
 pipeline_version:
   docker_tag: dev_latest
 
-input_fields:
-  - field_name: sample_id
-    field_type: string
-    required: true
-    validation_rules:
-      - rule_type: min_max
-        min: 36
-        max: 36
-      - rule_type: regex
-        expression: "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"
-
+input_fields: []
 #input_row_validation_rules:
 #- {}
 #
@@ -109,7 +98,6 @@ output_fields:
     required: true
     validation_rules:
       - rule_type: not_null
-
 #output_row_validation_rules:
 #- {}
 #
