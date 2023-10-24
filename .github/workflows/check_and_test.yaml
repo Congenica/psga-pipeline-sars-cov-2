@@ -1,6 +1,11 @@
 name: Check and test
 on:
   workflow_call:
+
+permissions:
+  id-token: write   # This is required for requesting the JWT
+  contents: read    # This is required for actions/checkout
+
 jobs:
   check_and_test:
     name: Install dependencies and run tests
@@ -9,7 +14,7 @@ jobs:
       ALLURE_DIR: ${{ github.workspace }}/allure-results
     steps:
       - name: Check out repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Install python
         uses: actions/setup-python@v4
@@ -30,11 +35,11 @@ jobs:
           poetry run pytest tests/ --alluredir=${{ env.ALLURE_DIR }}
 
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v2.2.0
+        uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: eu-west-2
+          role-to-assume: ${{ secrets.CICD_OIDC_ROLE }}
+          role-session-name: cicd-role-session
           mask-aws-account-id: true
 
       # Before copying Allure Results to S3, the number of existing results with the same Git hash are identified. This
