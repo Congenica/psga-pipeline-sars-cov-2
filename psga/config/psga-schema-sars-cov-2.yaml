@@ -374,7 +374,20 @@ pipeline:
 pipeline_version:
   docker_tag: dev_latest
 
-input_fields: []
+input_fields:
+  - field_name: file_1_type
+    field_type: string
+    required: true
+    read_only: true
+    validation_rules:
+      - rule_type: not_null
+
+  - field_name: file_2_type
+    field_type: string
+    required: false
+    read_only: true
+    validation_rules:
+      - rule_type: not_null
 
 #input_row_validation_rules:
 #- {}
