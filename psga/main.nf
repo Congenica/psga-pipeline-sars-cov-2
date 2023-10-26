@@ -63,8 +63,8 @@ if( NXF_EXECUTOR == "k8s" && "[:]" in [
 if ( params.run == "" ) {
     throw new Exception("Error: '--run' must be defined")
 }
-if ( params.metadata == "" ) {
-    throw new Exception("Error: '--metadata' must be defined")
+if ( params.configPath == "" ) {
+    throw new Exception("Error: '--config-path' must be defined")
 }
 if ( params.sequencing_technology == "" ) {
     throw new Exception("Error: '--sequencing_technology' must be defined")
