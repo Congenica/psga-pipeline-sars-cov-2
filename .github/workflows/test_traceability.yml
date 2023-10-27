@@ -49,7 +49,7 @@ jobs:
       # two builds executing against a single branch on the same Git hash is highly unlikely.
       - name: Run test traceability
         run: |
-          BUCKET_URL_ROOT=s3://psga-artefacts/allure-results/${{ env.REPO_NAME }}
+          BUCKET_URL_ROOT=s3://congenica-test-evidence/${{ env.REPO_NAME }}/unit
           BUCKET_URL_PARTIAL=$BUCKET_URL_ROOT/${{ github.sha }}
           ALLURE_ARTIFACT_NAME=$(aws s3 ls $BUCKET_URL_PARTIAL | awk '{print $4}' | tail -n1)
           BUCKET_URL_FULL=$BUCKET_URL_ROOT/$ALLURE_ARTIFACT_NAME

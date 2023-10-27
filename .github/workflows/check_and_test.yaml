@@ -54,7 +54,7 @@ jobs:
       #   - etc
       - name: Compress Allure Results
         run: |
-          ARTIFACT_S3_PATH_PARTIAL=s3://psga-artefacts/allure-results/psga-pipeline
+          ARTIFACT_S3_PATH_PARTIAL=s3://congenica-test-evidence/psga-pipeline/unit
           ARTIFACT_COUNT=$(aws s3 ls $ARTIFACT_S3_PATH_PARTIAL/${{ github.sha }} | wc -l)
           ARTIFACT_NAME=${{ github.sha }}_$ARTIFACT_COUNT.tar.gz
           ARTIFACT_PATH=${{ github.workspace }}/$ARTIFACT_NAME
