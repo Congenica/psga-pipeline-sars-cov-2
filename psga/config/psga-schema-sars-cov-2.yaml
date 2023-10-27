@@ -610,3 +610,12 @@ output_fields:
 
 # output_row_validation_rules: []
 # output_set_validation_rules: []
+
+settings:
+  - field_name: sequencing_technology
+    field_type: "string"
+    validation_rules:
+      - rule_type: enum
+        values: ["ILLUMINA", "ONT"]
+  - field_name: kit
+    field_type: "string"
