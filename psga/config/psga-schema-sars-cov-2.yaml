@@ -621,6 +621,6 @@ settings:
     required: false
     validation_rules:
       - rule_type: enum
-        values: ["ILLUMINA", "ONT"]
+        values: ["illumina", "ont", "unknown"]
   - field_name: kit
     field_type: "string"
