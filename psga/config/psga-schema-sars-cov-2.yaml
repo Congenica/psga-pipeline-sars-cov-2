@@ -625,7 +625,7 @@ settings:
         values: ["illumina", "ont", "unknown"]
   - field_name: kit
     field_type: "string"
-    # TODO: This setting should be `required: true`. It has been set to `false` 
+    # TODO: This setting should be `required: true`. It has been set to `false`
     #   for now to ensure that the existing protocols using this pipeline don't
     #   break while we implement the settings value definition for protocols in
     #   the backend. Once the protocols have all a value set for this field, we
@@ -633,7 +633,7 @@ settings:
     required: false
     validation_rules:
       - rule_type: enum
-        values: 
+        values:
           - ARTIC_V1
           - ARTIC_V2
           - ARTIC_V3
