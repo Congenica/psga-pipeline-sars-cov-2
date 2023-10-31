@@ -620,8 +620,49 @@ output_fields:
     ui:
       name: "Pangolin Note"
     required: true
-#output_row_validation_rules:
-#- {}
-#
-#output_set_validation_rules:
-#- {}
+
+# output_row_validation_rules: []
+# output_set_validation_rules: []
+
+settings:
+  - field_name: sequencing_technology
+    field_type: "string"
+    # TODO: This setting should be `required: true`. It has been set to `false`
+    #   for now to ensure that the existing protocols using this pipeline don't
+    #   break while we implement the settings value definition for protocols in
+    #   the backend. Once the protocols have all a value set for this field, we
+    #   must make it required.
+    required: false
+    validation_rules:
+      - rule_type: enum
+        values: ["illumina", "ont", "unknown"]
+  - field_name: kit
+    field_type: "string"
+    # TODO: This setting should be `required: true`. It has been set to `false`
+    #   for now to ensure that the existing protocols using this pipeline don't
+    #   break while we implement the settings value definition for protocols in
+    #   the backend. Once the protocols have all a value set for this field, we
+    #   must make it required.
+    required: false
+    validation_rules:
+      - rule_type: enum
+        values:
+          - ARTIC_V1
+          - ARTIC_V2
+          - ARTIC_V3
+          - ARTIC_V4
+          - ARTIC_V4-1
+          - ARTIC_v5-0-0-400
+          - ARTIC_v5-1-0-400
+          - ARTIC_v5-2-0-1200
+          - ARTIC_v5-2-0-400
+          - ARTIC_v5-3-2-400
+          - Midnight-IDT_v1
+          - Midnight-ONT_V1
+          - Midnight-ONT_V2
+          - Midnight-ONT_V3
+          - neb-varskip-v1a
+          - neb-varskip-v1a-long
+          - neb-varskip-v2
+          - neb-varskip-v2b
+          - unknown
