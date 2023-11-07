@@ -259,23 +259,13 @@ output_fields:
 settings:
   - field_name: sequencing_technology
     field_type: "string"
-    # TODO: This setting should be `required: true`. It has been set to `false`
-    #   for now to ensure that the existing protocols using this pipeline don't
-    #   break while we implement the settings value definition for protocols in
-    #   the backend. Once the protocols have all a value set for this field, we
-    #   must make it required.
-    required: false
+    required: true
     validation_rules:
       - rule_type: enum
         values: ["illumina", "ont", "unknown"]
   - field_name: kit
     field_type: "string"
-    # TODO: This setting should be `required: true`. It has been set to `false`
-    #   for now to ensure that the existing protocols using this pipeline don't
-    #   break while we implement the settings value definition for protocols in
-    #   the backend. Once the protocols have all a value set for this field, we
-    #   must make it required.
-    required: false
+    required: true
     validation_rules:
       - rule_type: enum
         values:
