@@ -2,30 +2,6 @@
 pipeline:
   name: Staphylococcus aureus
   docker_image: "s-aureus-pipeline"
-  protocols:
-    # primer does not matter for pipeline
-
-    - name: illumina-s-aureus-unknown
-      kit:
-        name: Unknown
-        slug: unknown
-      sequencer_technology:
-        name: Illumina
-        slug: illumina
-      pathogen:
-        name: Staphylococcus aureus
-        slug: s-aureus
-
-    - name: ont-s-aureus-unknown
-      kit:
-        name: Unknown
-        slug: unknown
-      sequencer_technology:
-        name: ONT
-        slug: ont
-      pathogen:
-        name: Staphylococcus aureus
-        slug: s-aureus
 
 pipeline_version:
   docker_tag: dev_latest
