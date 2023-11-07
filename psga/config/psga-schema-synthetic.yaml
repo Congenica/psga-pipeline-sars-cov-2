@@ -2,67 +2,6 @@
 pipeline:
   name: Synthetic
   docker_image: "synthetic-pipeline"
-  protocols:
-    # Unknown
-
-    - name: illumina-synthetic-unknown
-      kit:
-        name: Unknown
-        slug: unknown
-      sequencer_technology:
-        name: Illumina
-        slug: illumina
-      pathogen:
-        name: Synthetic
-        slug: synthetic
-
-    - name: ont-synthetic-unknown
-      kit:
-        name: Unknown
-        slug: unknown
-      sequencer_technology:
-        name: ONT
-        slug: ont
-      pathogen:
-        name: Synthetic
-        slug: synthetic
-
-    # PRIMER 1
-
-    - name: illumina-synthetic-primera-v1
-      kit:
-        name: Primer A V1
-        slug: Primer-A_V1
-      sequencer_technology:
-        name: Illumina
-        slug: illumina
-      pathogen:
-        name: Synthetic
-        slug: synthetic
-
-    - name: ont-synthetic-primera-v1
-      kit:
-        name: Primer A V1
-        slug: Primer-A_V1
-      sequencer_technology:
-        name: ONT
-        slug: ont
-      pathogen:
-        name: Synthetic
-        slug: synthetic
-
-    # Midnight ONT V3
-
-    - name: ont-synthetic-primerb-ont-v3
-      kit:
-        name: Primer B ONT V3
-        slug: Primer-B-ONT_V3
-      sequencer_technology:
-        name: ONT
-        slug: ont
-      pathogen:
-        name: Synthetic
-        slug: synthetic
 
 pipeline_version:
   docker_tag: dev_latest
