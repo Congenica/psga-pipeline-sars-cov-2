@@ -11,6 +11,10 @@ on:
         required: true
         type: boolean
 
+permissions:
+  id-token: write   # This is required for requesting the JWT
+  contents: read    # This is required for actions/checkout
+
 jobs:
   test-traceability-job:
     name: Run test-traceability
@@ -21,11 +25,11 @@ jobs:
 
     steps:
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v2
+        uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: eu-west-2
+          role-to-assume: ${{ secrets.CICD_OIDC_ROLE }}
+          role-session-name: cicd-role-session
           mask-aws-account-id: true
 
       - name: Login to Amazon ECR
@@ -45,7 +49,7 @@ jobs:
       # two builds executing against a single branch on the same Git hash is highly unlikely.
       - name: Run test traceability
         run: |
-          BUCKET_URL_ROOT=s3://psga-artefacts/allure-results/${{ env.REPO_NAME }}
+          BUCKET_URL_ROOT=s3://congenica-test-evidence/${{ env.REPO_NAME }}/unit
           BUCKET_URL_PARTIAL=$BUCKET_URL_ROOT/${{ github.sha }}
           ALLURE_ARTIFACT_NAME=$(aws s3 ls $BUCKET_URL_PARTIAL | awk '{print $4}' | tail -n1)
           BUCKET_URL_FULL=$BUCKET_URL_ROOT/$ALLURE_ARTIFACT_NAME
