@@ -1,6 +1,7 @@
 ---
 pipeline:
   name: Staphylococcus aureus
+  slug: s-aureus
   docker_image: "s-aureus-pipeline"
 
 pipeline_version:

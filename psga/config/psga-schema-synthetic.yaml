@@ -1,6 +1,7 @@
 ---
 pipeline:
   name: Synthetic
+  slug: synthetic
   docker_image: "synthetic-pipeline"
 
 pipeline_version:
