@@ -1,6 +1,7 @@
 ---
 pipeline:
   name: SARS CoV 2
+  slug: sars-cov-2
   docker_image: "sars-cov-2-pipeline"
 
 pipeline_version:
