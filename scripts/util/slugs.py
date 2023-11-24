@@ -1,5 +1,6 @@
 from os.path import join as join_path  # used to join FS paths and S3 URIs
 from dataclasses import dataclass, field
+from typing import Optional
 
 SAMPLE_FILE_TYPE = dict[str, str]
 RESULTFILES_TYPE = dict[str, list[SAMPLE_FILE_TYPE]]
@@ -9,6 +10,7 @@ RESULTFILES_TYPE = dict[str, list[SAMPLE_FILE_TYPE]]
 class FileType:
     extension: str = field(metadata={"required": True})
     filetype: str = field(metadata={"required": True})
+    order: Optional[int] = None
 
 
 def get_file_with_type(
@@ -18,13 +20,15 @@ def get_file_with_type(
     sample_id: str,
 ) -> list[SAMPLE_FILE_TYPE]:
     """
-    Return a dictionary { "file": "path/to/sample_id.ext", "type": "filetype" }
+    Return a dictionary { "file": "path/to/sample_id.ext", "type": "filetype", "order": None }
     """
-    sample_files = [
-        {
-            "file": join_path(output_path, *inner_dirs, f"{sample_id}{elem.extension}"),
-            "type": f"{elem.filetype}",
+    sample_result_files = []
+    for result_file in filetypes:
+        sample_result_file = {
+            "file": join_path(output_path, *inner_dirs, f"{sample_id}{result_file.extension}"),
+            "type": f"{result_file.filetype}",
         }
-        for elem in filetypes
-    ]
-    return sample_files
+        if result_file.order:
+            sample_result_file["order"] = result_file.order
+        sample_result_files.append(sample_result_file)
+    return sample_result_files
