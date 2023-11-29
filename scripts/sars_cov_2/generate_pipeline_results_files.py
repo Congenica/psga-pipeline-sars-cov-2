@@ -477,9 +477,9 @@ def get_expected_output_files_per_sample(
     else:
         if sequencing_technology == ILLUMINA:
             contamination_removal_clean_fastq = [
-                FileType(f"_{r}.fastq.gz", "fastq/cleaned-sequence-data") for r in [1, 2]
+                FileType(f"_{r}.fastq.gz", "fastq/cleaned-sequence-data", r) for r in [1, 2]
             ]
-            fastqc = [FileType(f"_{r}_fastqc.zip", "fastqc/qc") for r in [1, 2]]
+            fastqc = [FileType(f"_{r}_fastqc.zip", "fastqc/qc", r) for r in [1, 2]]
             ncov_bam = [
                 FileType(".sorted.bam", "bam/untrimmed"),
                 FileType(".sorted.bam.bai", "bai/untrimmed"),
