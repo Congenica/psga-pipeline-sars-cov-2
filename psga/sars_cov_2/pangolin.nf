@@ -10,7 +10,7 @@ process pangolin_pipeline {
     /* We parametrise the data directory so that we can change the version
      * of `pangolin-data` without having to release a new version of the
      * pipeline.
-     */ 
+     */
     path pangolin_data_dir
 
   output:
