@@ -1,4 +1,5 @@
 include { organise_metadata_sample_files } from './common/organise_metadata_sample_files.nf'
+include { get_pangolin_data_dir } from './common/get_pangolin_data_dir.nf'
 include { fastqc } from './common/fastqc.nf'
 include { primer_autodetection } from './common/primer_autodetection.nf'
 
@@ -55,6 +56,9 @@ workflow psga {
         ch_metadata = organise_metadata_sample_files.out.ch_metadata
         ch_sample_files = organise_metadata_sample_files.out.ch_sample_files
 
+        reference_data_file = path("${params.configPath}reference_data.csv")
+        pangolin_data_dir = get_pangolin_data_dir(reference_data_file)
+
         if ( params.sequencing_technology == "unknown" ) {
 
             // files are FASTA
@@ -102,7 +106,7 @@ workflow psga {
 
         }
 
-        pangolin(ch_reheadered_fasta)
+        pangolin(ch_reheadered_fasta, pangolin_data_dir)
 
         submit_analysis_run_results(
             ch_metadata,
