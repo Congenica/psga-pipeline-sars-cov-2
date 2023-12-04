@@ -7,6 +7,11 @@ process pangolin_pipeline {
 
   input:
     path reheadered_fasta
+    /* We parametrise the data directory so that we can change the version
+     * of `pangolin-data` without having to release a new version of the
+     * pipeline.
+     */ 
+    path pangolin_data_dir
 
   output:
     path "${pangolin_out_directory}/${output_filename}", emit: ch_pangolin_lineage_csv
@@ -16,6 +21,6 @@ process pangolin_pipeline {
     pangolin_out_directory = "pangolin_output"
     output_filename = "${sample_name}_lineage_report.csv"
   """
-  pangolin ${reheadered_fasta} --outdir ${pangolin_out_directory} --outfile ${output_filename}
+  pangolin ${reheadered_fasta} --outdir ${pangolin_out_directory} --outfile ${output_filename} --datadir ${pangolin_data_dir}
   """
 }
