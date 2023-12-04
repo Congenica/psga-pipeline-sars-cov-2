@@ -14,7 +14,7 @@ ENV PATH=/opt/conda/envs/custom_env/bin:$PATH
 
 # pin the versions of pip and poetry
 ENV PIP_VERSION=22.2.2 \
-    POETRY_VERSION=1.1.13
+    POETRY_VERSION=1.7.1
 
 ARG pathogen
 COPY ./psga/common /app/psga/common
