@@ -7,7 +7,6 @@ from scripts.common.reference_data import ReferenceDataNotFoundError, get_locati
 
 
 class TestReferenceData:
-
     @pytest.fixture(autouse=True)
     def setup_cli_runner(self):
         self.cli_runner = CliRunner()
@@ -20,10 +19,7 @@ class TestReferenceData:
             {"NAME": "ref-B", "LOCATION": "path/ref-B"},
         ]
         self.reference_data_csv = tmpdir.join("reference_data.csv")
-        self.create_reference_data_csv(
-            headers=headers,
-            rows=rows
-        )
+        self.create_reference_data_csv(headers=headers, rows=rows)
 
     def create_reference_data_csv(self, headers: list[str], rows: list[dict[str, str]]) -> None:
         with self.reference_data_csv.open("w") as fd:
@@ -33,10 +29,7 @@ class TestReferenceData:
 
     @pytest.mark.jira(identifier="4bbf75c9-f54a-4585-9b86-61931eba22da", confirms="PSG-4792")
     def test_get_location_with_valid_csv_and_name_check_output(self):
-        result = self.cli_runner.invoke(get_location, [
-            str(self.reference_data_csv),
-            "ref-A"
-        ])
+        result = self.cli_runner.invoke(get_location, [str(self.reference_data_csv), "ref-A"])
         assert result.exit_code == 0
         assert result.output == f"{pathlib.Path('path/ref-A').absolute()}\n"
 
@@ -46,10 +39,7 @@ class TestReferenceData:
         rows = [{"nAmE": "ref-A", "lOcAtIoN": "path/ref-A"}]
         self.create_reference_data_csv(headers=headers, rows=rows)
 
-        result = self.cli_runner.invoke(get_location, [
-            str(self.reference_data_csv),
-            "ref-A"
-        ])
+        result = self.cli_runner.invoke(get_location, [str(self.reference_data_csv), "ref-A"])
         assert result.exit_code == 0
         assert result.output == f"{pathlib.Path('path/ref-A').absolute()}\n"
 
@@ -57,18 +47,12 @@ class TestReferenceData:
     def test_get_location_with_empty_csv_check_exception(self):
         self.create_reference_data_csv(headers=["NAME", "LOCATION"], rows=[])
 
-        result = self.cli_runner.invoke(get_location, [
-            str(self.reference_data_csv),
-            "ref-A"
-        ])
+        result = self.cli_runner.invoke(get_location, [str(self.reference_data_csv), "ref-A"])
         assert result.exit_code == 1
         assert isinstance(result.exception, ReferenceDataNotFoundError)
 
     @pytest.mark.jira(identifier="dd667211-7cc2-4b70-9840-093e5ad687ba", confirms="PSG-4792")
     def test_get_location_with_name_not_found_check_exception(self):
-        result = self.cli_runner.invoke(get_location, [
-            str(self.reference_data_csv),
-            "NOT-PRESENT"
-        ])
+        result = self.cli_runner.invoke(get_location, [str(self.reference_data_csv), "NOT-PRESENT"])
         assert result.exit_code == 1
         assert isinstance(result.exception, ReferenceDataNotFoundError)

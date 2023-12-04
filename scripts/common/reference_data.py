@@ -24,7 +24,7 @@ def normalise_csv(file_lines: Iterator[str]) -> Iterator[str]:
     return chain([next(file_lines).lower()], file_lines)
 
 
-def reference_data_csv_to_dict(reference_data_file: pathlib.Path) -> None:
+def reference_data_csv_to_dict(reference_data_file: pathlib.Path) -> dict[str, pathlib.Path]:
     """
     :param reference_data_file: The path to the Reference Data CSV file.
     :returns: Iterates over the Reference Data CSV file and returns a dictionary where the
@@ -66,10 +66,9 @@ def get_location(reference_data_file: pathlib.Path, name: str) -> None:
     reference_data_sets = reference_data_csv_to_dict(reference_data_file=reference_data_file)
     if name not in reference_data_sets:
         raise ReferenceDataNotFoundError(
-            f'The Reference Data with name "{name}" was not found '
-            f'in the CSV file "{reference_data_file}".'
+            f'The Reference Data with name "{name}" was not found ' f'in the CSV file "{reference_data_file}".'
         )
-    location: pathlib.Path = reference_data_sets[name]
+    location = reference_data_sets[name]
     print(location.absolute())
 
 
