@@ -3,7 +3,7 @@ import pathlib
 import pytest
 from click.testing import CliRunner
 
-from scripts.util.reference_data import ReferenceDataNotFoundError, get_location
+from scripts.common.reference_data import ReferenceDataNotFoundError, get_location
 
 
 class TestReferenceData:
