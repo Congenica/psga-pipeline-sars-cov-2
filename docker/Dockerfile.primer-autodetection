@@ -1,4 +1,4 @@
-FROM condaforge/mambaforge:4.14.0-0 AS condabuild
+FROM condaforge/mambaforge:23.3.1-1 AS condabuild
 
 ARG pathogen
 COPY docker/${pathogen}/primer-autodetection.yml /environment.yml
