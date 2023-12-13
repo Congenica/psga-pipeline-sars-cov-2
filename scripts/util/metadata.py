@@ -3,10 +3,10 @@ from dataclasses import dataclass, field
 from scripts.util.notifications import Event, Notification
 
 SAMPLE_ID = "SAMPLE_ID"
-SEQ_FILE_1 = "SEQ_FILE_1"
-SEQ_FILE_2 = "SEQ_FILE_2"
+seq_file_1 = "seq_file_1"
+seq_file_2 = "seq_file_2"
 
-EXPECTED_HEADERS = {SAMPLE_ID, SEQ_FILE_1, SEQ_FILE_2}
+EXPECTED_HEADERS = {SAMPLE_ID, seq_file_1, seq_file_2}
 ILLUMINA = "illumina"
 ONT = "ont"
 UNKNOWN = "unknown"
