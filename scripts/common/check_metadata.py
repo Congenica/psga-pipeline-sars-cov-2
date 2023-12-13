@@ -81,9 +81,7 @@ def validate_metadata(
             else:
                 file_1 = row[seq_file_1]
                 # this returns 0 or 1 extension
-                extensions = [
-                    ext for ext in supported_extensions if file_1.endswith(ext)
-                ]
+                extensions = [ext for ext in supported_extensions if file_1.endswith(ext)]
                 if not extensions:
                     errs.append(
                         f"{SAMPLE_ID}: {sample_id} has invalid file for sequencing technology {sequencing_technology}. "
@@ -92,17 +90,12 @@ def validate_metadata(
                 else:
                     # check file_2 if required
                     file_1_ext = extensions[0]
-                    two_reads = (
-                        SUPPORTED_FILES[sequencing_technology][file_1_ext][FILE_NUM]
-                        == 2
-                    )
+                    two_reads = SUPPORTED_FILES[sequencing_technology][file_1_ext][FILE_NUM] == 2
                     if two_reads:
                         if not row[seq_file_2]:
                             errs.append(f"{seq_file_2} for {sample_id} not available")
                         elif not row[seq_file_2].endswith(file_1_ext):
-                            errs.append(
-                                f"{seq_file_1} and {seq_file_2} for {sample_id} have different file types"
-                            )
+                            errs.append(f"{seq_file_1} and {seq_file_2} for {sample_id} have different file types")
 
             if errs:
                 sample_errors = "\n".join(errs)
@@ -125,9 +118,7 @@ def validate_metadata(
     type=click.Path(exists=True, file_okay=True, readable=True),
     help="The metadata CSV input file",
 )
-@click.option(
-    "--analysis-run-name", required=True, type=str, help="The name of the analysis run"
-)
+@click.option("--analysis-run-name", required=True, type=str, help="The name of the analysis run")
 @click.option(
     "--sequencing-technology",
     required=True,
@@ -155,10 +146,7 @@ def check_metadata(
     )
 
     if samples.invalid:
-        raise ClickException(
-            "Errors encountered for sample ids: "
-            + ", ".join(map(str, sorted(samples.invalid)))
-        )
+        raise ClickException("Errors encountered for sample ids: " + ", ".join(map(str, sorted(samples.invalid))))
 
 
 if __name__ == "__main__":
