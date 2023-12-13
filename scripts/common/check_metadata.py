@@ -11,8 +11,8 @@ from scripts.util.metadata import (
     ONT,
     UNKNOWN,
     SAMPLE_ID,
-    SEQ_FILE_1,
-    SEQ_FILE_2,
+    seq_file_1,
+    seq_file_2,
     EXPECTED_HEADERS,
     generate_notifications,
     normalise_row,
@@ -76,10 +76,10 @@ def validate_metadata(
                 errs.append(f"{SAMPLE_ID} not available")
 
             # check file_1
-            if not row[SEQ_FILE_1]:
-                errs.append(f"{SEQ_FILE_1} for {sample_id} not available")
+            if not row[seq_file_1]:
+                errs.append(f"{seq_file_1} for {sample_id} not available")
             else:
-                file_1 = row[SEQ_FILE_1]
+                file_1 = row[seq_file_1]
                 # this returns 0 or 1 extension
                 extensions = [ext for ext in supported_extensions if file_1.endswith(ext)]
                 if not extensions:
@@ -92,14 +92,17 @@ def validate_metadata(
                     file_1_ext = extensions[0]
                     two_reads = SUPPORTED_FILES[sequencing_technology][file_1_ext][FILE_NUM] == 2
                     if two_reads:
-                        if not row[SEQ_FILE_2]:
-                            errs.append(f"{SEQ_FILE_2} for {sample_id} not available")
-                        elif not row[SEQ_FILE_2].endswith(file_1_ext):
-                            errs.append(f"{SEQ_FILE_1} and {SEQ_FILE_2} for {sample_id} have different file types")
+                        if not row[seq_file_2]:
+                            errs.append(f"{seq_file_2} for {sample_id} not available")
+                        elif not row[seq_file_2].endswith(file_1_ext):
+                            errs.append(f"{seq_file_1} and {seq_file_2} for {sample_id} have different file types")
 
             if errs:
                 sample_errors = "\n".join(errs)
-                click.echo(f"Invalid row for {SAMPLE_ID} {sample_id}:\n{sample_errors}", err=True)
+                click.echo(
+                    f"Invalid row for {SAMPLE_ID} {sample_id}:\n{sample_errors}",
+                    err=True,
+                )
                 processed_samples.invalid.append(sample_id)
                 continue
 
