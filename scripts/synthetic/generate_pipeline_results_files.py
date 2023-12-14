@@ -198,7 +198,7 @@ def generate_pipeline_results_files(
     # generate a cycle list so that generated data for each sample is predictable
     SYNTHETIC_DATA_POOL = cycle(SYNTHETIC_DATA)
 
-    df_metadata = load_data_from_csv(Path(metadata_file), EXPECTED_METADATA_HEADERS)
+    df_metadata = load_data_from_csv(Path(metadata_file), EXPECTED_METADATA_HEADERS["illumina"])
     all_samples = sorted(df_metadata[SAMPLE_ID].tolist())
 
     # generate some synthetic results.
