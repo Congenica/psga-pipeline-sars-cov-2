@@ -24,7 +24,7 @@ log_file = f"{Path(__file__).stem}.log"
 logger = get_structlog_logger(log_file=log_file)
 
 
-SEQUENCING_TECHNOLOGIES = [ILLUMINA, ONT, UNKNOWN]
+SEQUENCING_TECHNOLOGIES: list[str] = [ILLUMINA, ONT, UNKNOWN]
 FILE_NUM = "file_num"
 SUPPORTED_FILES = {
     ILLUMINA: {
@@ -63,7 +63,7 @@ def validate_metadata(
     with open(metadata_path, "r") as metadata_fd:
         reader = csv.DictReader(metadata_fd, delimiter=",")
 
-        check_csv_columns(set(reader.fieldnames), EXPECTED_HEADERS)
+        check_csv_columns(set(reader.fieldnames), EXPECTED_HEADERS[sequencing_technology])
         supported_extensions = list(SUPPORTED_FILES[sequencing_technology])
 
         for row in reader:

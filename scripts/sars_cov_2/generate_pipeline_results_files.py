@@ -705,7 +705,7 @@ def generate_pipeline_results_files(
     Generate pipeline results files
     """
     # data loading
-    df_metadata = load_data_from_csv(metadata_file, EXPECTED_METADATA_HEADERS)
+    df_metadata = load_data_from_csv(metadata_file, EXPECTED_METADATA_HEADERS[sequencing_technology])
     df_contamination_removal = load_data_from_csv(
         contamination_removal_csv_file,
         EXPECTED_CONTAMINATION_REMOVAL_HEADERS,
