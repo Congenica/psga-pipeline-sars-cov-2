@@ -6,7 +6,7 @@ import click
 import pandas as pd
 
 from scripts.util.logger import get_structlog_logger
-from scripts.util.metadata import EXPECTED_HEADERS as EXPECTED_METADATA_HEADERS, SAMPLE_ID
+from scripts.util.metadata import EXPECTED_HEADERS as EXPECTED_METADATA_HEADERS, ILLUMINA, SAMPLE_ID
 from scripts.validation.check_csv_columns import check_csv_columns
 from scripts.util.convert import csv_to_json
 from scripts.util.data_loading import write_json
@@ -198,7 +198,7 @@ def generate_pipeline_results_files(
     # generate a cycle list so that generated data for each sample is predictable
     SYNTHETIC_DATA_POOL = cycle(SYNTHETIC_DATA)
 
-    df_metadata = load_data_from_csv(Path(metadata_file), EXPECTED_METADATA_HEADERS["illumina"])
+    df_metadata = load_data_from_csv(Path(metadata_file), EXPECTED_METADATA_HEADERS[ILLUMINA])
     all_samples = sorted(df_metadata[SAMPLE_ID].tolist())
 
     # generate some synthetic results.

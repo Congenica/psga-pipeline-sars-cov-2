@@ -41,7 +41,9 @@ from tests.util.test_notification import load_log_file_to_dict
         ),
     ],
 )
-@pytest.mark.jira(identifier="5ef0808f-a41a-4ea9-abb1-c46d620a0247", confirms="PSG-3621")
+@pytest.mark.jira(
+    identifier="5ef0808f-a41a-4ea9-abb1-c46d620a0247", confirms="PSG-3621"
+)
 def test_validate_metadata(
     check_metadata_data_path: Path,
     metadata_file: str,
@@ -49,7 +51,9 @@ def test_validate_metadata(
     valid_samples: list[str],
     invalid_samples: list[str],
 ):
-    samples = validate_metadata(check_metadata_data_path / metadata_file, sequencing_technology)
+    samples = validate_metadata(
+        check_metadata_data_path / metadata_file, sequencing_technology
+    )
 
     assert sorted(samples.valid) == sorted(valid_samples)
     assert sorted(samples.invalid) == sorted(invalid_samples)
@@ -117,44 +121,25 @@ def test_validate_metadata(
             "good_metadata_illumina.csv",
             "just_a_name",
             "ont",
-            [
-                "37a36d1c-5985-4836-87b5-b36bac75d81b",
-                "47a36d1c-5985-4836-87b5-b36bac75d81b",
-                "485347c5-ff6a-454c-ac34-bc353d05dd70",
-                "57a36d1c-5985-4836-87b5-b36bac75d81b",
-                "885347c5-ff6a-454c-ac34-bc353d05dd70",
-                "985347c5-ff6a-454c-ac34-bc353d05dd70",
-            ],
             [],
-            0,
-            None,
+            [],
+            1,
+            "Error: Unexpected headers, got:\n"
+            "SAMPLE_ID, seq_file_1, seq_file_2\n"
+            ", but expect at least \n"
+            "SAMPLE_ID, seq_file_1\n",
         ),
         (
             "good_metadata_ont.csv",
             "just_a_name",
             "illumina",
-            [
-                "47a36d1c-5985-4836-87b5-b36bac75d81b",
-                "485347c5-ff6a-454c-ac34-bc353d05dd70",
-            ],
-            [
-                "37a36d1c-5985-4836-87b5-b36bac75d81b",
-                "57a36d1c-5985-4836-87b5-b36bac75d81b",
-                "885347c5-ff6a-454c-ac34-bc353d05dd70",
-                "985347c5-ff6a-454c-ac34-bc353d05dd70",
-            ],
+            [],
+            [],
             1,
-            "Invalid row for SAMPLE_ID 37a36d1c-5985-4836-87b5-b36bac75d81b:\n"
-            + "seq_file_2 for 37a36d1c-5985-4836-87b5-b36bac75d81b not available\n"
-            + "Invalid row for SAMPLE_ID 57a36d1c-5985-4836-87b5-b36bac75d81b:\n"
-            + "seq_file_2 for 57a36d1c-5985-4836-87b5-b36bac75d81b not available\n"
-            + "Invalid row for SAMPLE_ID 885347c5-ff6a-454c-ac34-bc353d05dd70:\n"
-            + "seq_file_2 for 885347c5-ff6a-454c-ac34-bc353d05dd70 not available\n"
-            + "Invalid row for SAMPLE_ID 985347c5-ff6a-454c-ac34-bc353d05dd70:\n"
-            + "seq_file_2 for 985347c5-ff6a-454c-ac34-bc353d05dd70 not available\n"
-            + "Error: Errors encountered for sample ids: "
-            + "37a36d1c-5985-4836-87b5-b36bac75d81b, 57a36d1c-5985-4836-87b5-b36bac75d81b, "
-            + "885347c5-ff6a-454c-ac34-bc353d05dd70, 985347c5-ff6a-454c-ac34-bc353d05dd70\n",
+            "Error: Unexpected headers, got:\n"
+            "SAMPLE_ID, seq_file_1\n"
+            ", but expect at least \n"
+            "SAMPLE_ID, seq_file_1, seq_file_2\n",
         ),
         (
             "good_metadata_ont.csv",
@@ -246,7 +231,9 @@ def test_validate_metadata(
         ),
     ],
 )
-@pytest.mark.jira(identifier="53c2d945-92e5-4f92-b256-3891fca6bb18", confirms="PSG-3621")
+@pytest.mark.jira(
+    identifier="53c2d945-92e5-4f92-b256-3891fca6bb18", confirms="PSG-3621"
+)
 def test_check_metadata(
     tmp_path: Path,
     check_metadata_data_path: Path,
@@ -284,15 +271,19 @@ def test_check_metadata(
 
     else:
         if exit_code == 1:
-            assert rv.output == exception_msg
+            assert rv.output == exception_msg, rv.output
 
         assert log_file.is_file()
         log_dict = load_log_file_to_dict(log_file, "sample")
 
         if valid_samples is not None:
-            processed_valid_samples = [k for k, v in log_dict.items() if v["level"] == "info"]
+            processed_valid_samples = [
+                k for k, v in log_dict.items() if v["level"] == "info"
+            ]
             assert sorted(valid_samples) == sorted(processed_valid_samples)
 
         if invalid_samples is not None:
-            processed_invalid_samples = [k for k, v in log_dict.items() if v["level"] == "error"]
+            processed_invalid_samples = [
+                k for k, v in log_dict.items() if v["level"] == "error"
+            ]
             assert sorted(invalid_samples) == sorted(processed_invalid_samples)
