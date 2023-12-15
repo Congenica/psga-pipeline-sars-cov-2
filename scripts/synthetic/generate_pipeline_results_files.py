@@ -8,10 +8,10 @@ import pandas as pd
 from scripts.util.logger import get_structlog_logger
 from scripts.util.metadata import (
     EXPECTED_HEADERS as EXPECTED_METADATA_HEADERS,
-    ILLUMINA,
-    ONT,
     SAMPLE_ID,
-    UNKNOWN,
+    ONT,
+    ILLUMINA,
+    UNKNOWN
 )
 from scripts.validation.check_csv_columns import check_csv_columns
 from scripts.util.convert import csv_to_json
@@ -100,9 +100,7 @@ def _generate_results_csv(
     """
 
     status_col_data = [
-        {SAMPLE_ID: s, STATUS: "Failed"}
-        if s in qc_unrelated_failing_samples
-        else {SAMPLE_ID: s, STATUS: "Completed"}
+        {SAMPLE_ID: s, STATUS: "Failed"} if s in qc_unrelated_failing_samples else {SAMPLE_ID: s, STATUS: "Completed"}
         for s in all_samples
     ]
     df_status = pd.DataFrame(status_col_data)
@@ -133,9 +131,7 @@ def get_expected_output_files_per_sample(
     Return a dictionary {sample_id, list_of_expected_output_paths}
     """
     # initialise the dictionary keys
-    output_files: RESULTFILES_TYPE = {
-        sample_id: [] for sample_id in sample_ids_result_files
-    }
+    output_files: RESULTFILES_TYPE = {sample_id: [] for sample_id in sample_ids_result_files}
 
     for sample_id in sample_ids_result_files:
         output_files[sample_id] = get_file_with_type(
@@ -207,7 +203,7 @@ def generate_pipeline_results_files(
     output_results_json_file: str,
     output_resultfiles_json_file: str,
     output_path: str,
-    sequencing_technology: str
+    sequencing_technology: str,
 ) -> None:
     """
     Generate pipeline results files
@@ -215,18 +211,14 @@ def generate_pipeline_results_files(
     # generate a cycle list so that generated data for each sample is predictable
     SYNTHETIC_DATA_POOL = cycle(SYNTHETIC_DATA)
 
-    df_metadata = load_data_from_csv(
-        Path(metadata_file), EXPECTED_METADATA_HEADERS[sequencing_technology]
-    )
+    df_metadata = load_data_from_csv(Path(metadata_file), EXPECTED_METADATA_HEADERS[sequencing_technology])
     all_samples = sorted(df_metadata[SAMPLE_ID].tolist())
 
     # generate some synthetic results.
     successful_samples = all_samples
     qc_unrelated_failing_samples: list[str] = []
 
-    synthetic_sample_results = [
-        next(SYNTHETIC_DATA_POOL) for sample in successful_samples
-    ]
+    synthetic_sample_results = [next(SYNTHETIC_DATA_POOL) for sample in successful_samples]
 
     synthetic_results = {
         SAMPLE_ID: successful_samples,
@@ -236,15 +228,11 @@ def generate_pipeline_results_files(
     }
     df_synthetic = pd.DataFrame(data=synthetic_results)
 
-    _generate_results_csv(
-        all_samples, df_synthetic, qc_unrelated_failing_samples, output_results_csv_file
-    )
+    _generate_results_csv(all_samples, df_synthetic, qc_unrelated_failing_samples, output_results_csv_file)
 
     csv_to_json(output_results_csv_file, output_results_json_file, SAMPLE_ID)
 
-    _generate_resultfiles_json(
-        successful_samples, output_path, Path(output_resultfiles_json_file)
-    )
+    _generate_resultfiles_json(successful_samples, output_path, Path(output_resultfiles_json_file))
 
 
 if __name__ == "__main__":
