@@ -8,8 +8,8 @@ def check_csv_columns(reader_fieldnames: set[str], expected_fieldnames: set[str]
     if expected_fieldnames != reader_fieldnames:
         err = (
             "Unexpected headers, got:\n"
-            + ", ".join(reader_fieldnames)
+            + ", ".join(sorted(reader_fieldnames))
             + "\n, but expect at least \n"
-            + ", ".join(expected_fieldnames)
+            + ", ".join(sorted(expected_fieldnames))
         )
         raise ClickException(err)
