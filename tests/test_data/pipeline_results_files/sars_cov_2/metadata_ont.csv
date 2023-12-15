@@ -1,8 +1,8 @@
-SAMPLE_ID,seq_file_1,seq_file_2
-e80f3c63-d139-4c14-bd72-7a43897ab40d,s3://synthetic-data-dev/ERR7150151.fastq.gz,
-56a63f60-764d-4fc7-8764-a46023cbe324,s3://synthetic-data-dev/ERR7150152.fastq.gz,
-0774181d-fb20-4a73-b887-38af7eda9b38,s3://synthetic-data-dev/ERR7150153.fastq.gz,
-a0951432-cd94-45b5-96d5-b721c037a451,s3://synthetic-data-dev/ERR7150154.fastq.gz,
-985347c5-ff6a-454c-ac34-bc353d05dd70,s3://synthetic-data-dev/ERR7150243.fastq.gz,
-b1131432-cd94-45b5-96d5-b721c037a451,s3://synthetic-data-dev/ERR8150243.fastq.gz,
-e2331432-cd94-45b5-96d5-b721c037a451,s3://synthetic-data-dev/ERR9150243.fastq.gz,
+SAMPLE_ID,seq_file_1
+e80f3c63-d139-4c14-bd72-7a43897ab40d,s3://synthetic-data-dev/ERR7150151.fastq.gz
+56a63f60-764d-4fc7-8764-a46023cbe324,s3://synthetic-data-dev/ERR7150152.fastq.gz
+0774181d-fb20-4a73-b887-38af7eda9b38,s3://synthetic-data-dev/ERR7150153.fastq.gz
+a0951432-cd94-45b5-96d5-b721c037a451,s3://synthetic-data-dev/ERR7150154.fastq.gz
+985347c5-ff6a-454c-ac34-bc353d05dd70,s3://synthetic-data-dev/ERR7150243.fastq.gz
+b1131432-cd94-45b5-96d5-b721c037a451,s3://synthetic-data-dev/ERR8150243.fastq.gz
+e2331432-cd94-45b5-96d5-b721c037a451,s3://synthetic-data-dev/ERR9150243.fastq.gz

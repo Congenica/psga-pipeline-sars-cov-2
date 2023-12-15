@@ -117,44 +117,25 @@ def test_validate_metadata(
             "good_metadata_illumina.csv",
             "just_a_name",
             "ont",
-            [
-                "37a36d1c-5985-4836-87b5-b36bac75d81b",
-                "47a36d1c-5985-4836-87b5-b36bac75d81b",
-                "485347c5-ff6a-454c-ac34-bc353d05dd70",
-                "57a36d1c-5985-4836-87b5-b36bac75d81b",
-                "885347c5-ff6a-454c-ac34-bc353d05dd70",
-                "985347c5-ff6a-454c-ac34-bc353d05dd70",
-            ],
             [],
-            0,
-            None,
+            [],
+            1,
+            "Error: Unexpected headers, got:\n"
+            "SAMPLE_ID, seq_file_1, seq_file_2\n"
+            ", but expect at least \n"
+            "SAMPLE_ID, seq_file_1\n",
         ),
         (
             "good_metadata_ont.csv",
             "just_a_name",
             "illumina",
-            [
-                "47a36d1c-5985-4836-87b5-b36bac75d81b",
-                "485347c5-ff6a-454c-ac34-bc353d05dd70",
-            ],
-            [
-                "37a36d1c-5985-4836-87b5-b36bac75d81b",
-                "57a36d1c-5985-4836-87b5-b36bac75d81b",
-                "885347c5-ff6a-454c-ac34-bc353d05dd70",
-                "985347c5-ff6a-454c-ac34-bc353d05dd70",
-            ],
+            [],
+            [],
             1,
-            "Invalid row for SAMPLE_ID 37a36d1c-5985-4836-87b5-b36bac75d81b:\n"
-            + "seq_file_2 for 37a36d1c-5985-4836-87b5-b36bac75d81b not available\n"
-            + "Invalid row for SAMPLE_ID 57a36d1c-5985-4836-87b5-b36bac75d81b:\n"
-            + "seq_file_2 for 57a36d1c-5985-4836-87b5-b36bac75d81b not available\n"
-            + "Invalid row for SAMPLE_ID 885347c5-ff6a-454c-ac34-bc353d05dd70:\n"
-            + "seq_file_2 for 885347c5-ff6a-454c-ac34-bc353d05dd70 not available\n"
-            + "Invalid row for SAMPLE_ID 985347c5-ff6a-454c-ac34-bc353d05dd70:\n"
-            + "seq_file_2 for 985347c5-ff6a-454c-ac34-bc353d05dd70 not available\n"
-            + "Error: Errors encountered for sample ids: "
-            + "37a36d1c-5985-4836-87b5-b36bac75d81b, 57a36d1c-5985-4836-87b5-b36bac75d81b, "
-            + "885347c5-ff6a-454c-ac34-bc353d05dd70, 985347c5-ff6a-454c-ac34-bc353d05dd70\n",
+            "Error: Unexpected headers, got:\n"
+            "SAMPLE_ID, seq_file_1\n"
+            ", but expect at least \n"
+            "SAMPLE_ID, seq_file_1, seq_file_2\n",
         ),
         (
             "good_metadata_ont.csv",
@@ -284,7 +265,7 @@ def test_check_metadata(
 
     else:
         if exit_code == 1:
-            assert rv.output == exception_msg
+            assert rv.output == exception_msg, rv.output
 
         assert log_file.is_file()
         log_dict = load_log_file_to_dict(log_file, "sample")

@@ -6,7 +6,7 @@ import click
 import pandas as pd
 
 from scripts.util.logger import get_structlog_logger
-from scripts.util.metadata import EXPECTED_HEADERS as EXPECTED_METADATA_HEADERS, SAMPLE_ID
+from scripts.util.metadata import EXPECTED_HEADERS as EXPECTED_METADATA_HEADERS, SAMPLE_ID, ONT, ILLUMINA, UNKNOWN
 from scripts.validation.check_csv_columns import check_csv_columns
 from scripts.util.convert import csv_to_json
 from scripts.util.data_loading import write_json
@@ -185,12 +185,19 @@ def _generate_resultfiles_json(
     required=True,
     help="output_path output path where sample result files are stored (e.g. s3://bucket/path/analysis_run)",
 )
+@click.option(
+    "--sequencing-technology",
+    type=click.Choice([ILLUMINA, ONT, UNKNOWN], case_sensitive=True),
+    required=True,
+    help="the sequencer technology used for sequencing the samples",
+)
 def generate_pipeline_results_files(
     metadata_file: str,
     output_results_csv_file: str,
     output_results_json_file: str,
     output_resultfiles_json_file: str,
     output_path: str,
+    sequencing_technology: str,
 ) -> None:
     """
     Generate pipeline results files
@@ -198,7 +205,7 @@ def generate_pipeline_results_files(
     # generate a cycle list so that generated data for each sample is predictable
     SYNTHETIC_DATA_POOL = cycle(SYNTHETIC_DATA)
 
-    df_metadata = load_data_from_csv(Path(metadata_file), EXPECTED_METADATA_HEADERS)
+    df_metadata = load_data_from_csv(Path(metadata_file), EXPECTED_METADATA_HEADERS[sequencing_technology])
     all_samples = sorted(df_metadata[SAMPLE_ID].tolist())
 
     # generate some synthetic results.

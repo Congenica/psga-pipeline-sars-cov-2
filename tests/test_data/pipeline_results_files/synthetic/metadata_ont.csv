@@ -1,3 +1,3 @@
-SAMPLE_ID,seq_file_1,seq_file_2
-0774181d-fb20-4a73-b887-38af7eda9b38,s3://synthetic-data-dev/ERR7150153.fastq.gz,
-a0951432-cd94-45b5-96d5-b721c037a451,s3://synthetic-data-dev/ERR7150154.fastq.gz,
+SAMPLE_ID,seq_file_1
+0774181d-fb20-4a73-b887-38af7eda9b38,s3://synthetic-data-dev/ERR7150153.fastq.gz
+a0951432-cd94-45b5-96d5-b721c037a451,s3://synthetic-data-dev/ERR7150154.fastq.gz
