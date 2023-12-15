@@ -6,13 +6,7 @@ import click
 import pandas as pd
 
 from scripts.util.logger import get_structlog_logger
-from scripts.util.metadata import (
-    EXPECTED_HEADERS as EXPECTED_METADATA_HEADERS,
-    SAMPLE_ID,
-    ONT,
-    ILLUMINA,
-    UNKNOWN
-)
+from scripts.util.metadata import EXPECTED_HEADERS as EXPECTED_METADATA_HEADERS, SAMPLE_ID, ONT, ILLUMINA, UNKNOWN
 from scripts.validation.check_csv_columns import check_csv_columns
 from scripts.util.convert import csv_to_json
 from scripts.util.data_loading import write_json
