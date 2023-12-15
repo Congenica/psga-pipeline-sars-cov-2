@@ -25,3 +25,10 @@ synthetic-images:
 s-aureus-images:
 	docker build --build-arg pathogen=${S_AUREUS} -t ${DOCKER_IMAGE_URI_PATH}/s-aureus-pipeline:${DOCKER_IMAGE_TAG} -f docker/Dockerfile.psga-pipeline .
 	docker build --build-arg pathogen=${S_AUREUS} -t ${DOCKER_IMAGE_URI_PATH}/s-aureus:${DOCKER_IMAGE_TAG} -f docker/Dockerfile.s-aureus .
+
+
+build-sars-cov-2-local:
+		docker build --build-arg pathogen=${SARS_COV_2} -t sars-cov-2-pipeline:${DOCKER_IMAGE_TAG} -f docker/Dockerfile.psga-pipeline .
+
+test:
+	poetry run pytest tests/
