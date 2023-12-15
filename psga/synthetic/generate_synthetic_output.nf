@@ -22,6 +22,7 @@ process generate_synthetic_output {
 
   python ${PSGA_ROOT_PATH}/scripts/synthetic/generate_pipeline_results_files.py \
     --metadata-file "${ch_metadata}" \
+    --sequencing-technology "${params.sequencing_technology}" \
     --output-path "${params.output_path}"
   """
 }

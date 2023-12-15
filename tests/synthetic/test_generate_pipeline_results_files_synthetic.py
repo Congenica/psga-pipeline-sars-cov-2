@@ -4,7 +4,7 @@ import json
 from click.testing import CliRunner
 
 from scripts.synthetic.generate_pipeline_results_files import generate_pipeline_results_files
-from scripts.util.metadata import SAMPLE_ID
+from scripts.util.metadata import ILLUMINA, ONT, SAMPLE_ID, UNKNOWN
 from tests.utils_tests import assert_csvs_are_equal, assert_jsons_are_equal
 
 
@@ -14,25 +14,28 @@ from tests.utils_tests import assert_csvs_are_equal, assert_jsons_are_equal
     [False, True],
 )
 @pytest.mark.parametrize(
-    "metadata,exp_results_csv,exp_results_json,exp_resultfiles_json",
+    "metadata,exp_results_csv,exp_results_json,exp_resultfiles_json,sequencing_technology",
     [
         (
             "metadata_illumina.csv",
             "results_illumina.csv",
             "results_illumina.json",
             "resultfiles_illumina.json",
+            ILLUMINA,
         ),
         (
             "metadata_ont.csv",
             "results_ont.csv",
             "results_ont.json",
             "resultfiles_ont.json",
+            ONT,
         ),
         (
             "metadata_unknown.csv",
             "results_unknown.csv",
             "results_unknown.json",
             "resultfiles_unknown.json",
+            UNKNOWN,
         ),
     ],
 )
@@ -45,6 +48,7 @@ def test_generate_pipeline_results_files(
     exp_results_csv: str,
     exp_results_json: str,
     exp_resultfiles_json: str,
+    sequencing_technology: str,
     use_s3_uri: bool,
 ):
 
@@ -65,6 +69,8 @@ def test_generate_pipeline_results_files(
         output_resultfiles_json_file,
         "--output-path",
         output_path,
+        "--sequencing-technology",
+        sequencing_technology,
     ]
 
     rv = CliRunner().invoke(
@@ -72,7 +78,7 @@ def test_generate_pipeline_results_files(
         args,
     )
 
-    assert rv.exit_code == 0
+    assert rv.exit_code == 0, rv.output
 
     # assert results.csv
     exp_output_results_csv_file = pipeline_results_files_data_path / pathogen / exp_results_csv
