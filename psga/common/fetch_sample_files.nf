@@ -4,8 +4,7 @@
 process stage_sample_file {
   tag "${task.index} - ${file_1}"
   input:
-    // use val for file_2 as it is part of the tuple, but is not used. This avoids the unwanted warning.
-    tuple val(sample_id), path(file_1), val(file_2)
+    tuple val(sample_id), path(file_1)
 
   output:
     path(file_1), emit: ch_sample_files
