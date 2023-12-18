@@ -1,4 +1,4 @@
-METADATA="s3://psga-test-static-data/pipeline_ci_tests/sars_cov_2/illumina/unknown/metadata.csv"
+CONFIG_PATH="s3://psga-test-static-data/pipeline_ci_tests/sars_cov_2/illumina/unknown/"
 OUTPUT_PATH="/data/output/pipeline_ci_illumina"
 NXF_WORK="/data/work/pipeline_ci_illumina"
 ANALYSIS_RUN="illumina"

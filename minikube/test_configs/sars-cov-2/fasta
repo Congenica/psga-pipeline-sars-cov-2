@@ -1,4 +1,4 @@
-METADATA="s3://psga-test-static-data/pipeline_ci_tests/sars_cov_2/unknown/none/metadata.csv"
+CONFIG_PATH="s3://psga-test-static-data/pipeline_ci_tests/sars_cov_2/unknown/none/"
 OUTPUT_PATH="/data/output/pipeline_ci_unknown"
 NXF_WORK="/data/work/pipeline_ci_unknown"
 ANALYSIS_RUN="unknown"
