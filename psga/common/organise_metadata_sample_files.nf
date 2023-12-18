@@ -26,10 +26,10 @@ workflow organise_metadata_sample_files {
         ch_metadata
             .splitCsv(header: true, sep: ',')
             .branch {
-                bam: it.seq_file_2 == '' && it.seq_file_1 =~ /\.bam$/
-                fastq: it.seq_file_2 == '' && it.seq_file_1 =~ /\.(fq|fastq?)(?:\.gz)?$/
                 fastq_pair: it.seq_file_2 =~ /\.(fq|fastq?)(?:\.gz)?$/ && it.seq_file_1 =~ /\.(fq|fastq?)(?:\.gz)?$/
-                fasta: it.seq_file_2 == '' && it.seq_file_1 =~ /\.(fa|fasta?)(?:\.gz)?$/
+                fastq: it.seq_file_1 =~ /\.(fq|fastq?)(?:\.gz)?$/
+                fasta: it.seq_file_1 =~ /\.(fa|fasta?)(?:\.gz)?$/
+                bam: it.seq_file_1 =~ /\.bam$/
             }
             .set { ch_metadata_samples }
 
