@@ -133,7 +133,8 @@ process ncov2019_artic_nf_pipeline_medaka {
 
   # extract the sample name from the fastq file
   sample_id="$(ls *.fastq.gz | head -n 1 | cut -d"_" -f1)"
-  fastq_file="${sample_id}.fastq.gz"
+  # Why are we recreating the file name when it is passed in?
+  fastq_file="${sample_id}_1.fastq.gz"
 
   # extract scheme and version from primer
   scheme="$(cat ${sample_id}_primer.txt | cut -d_ -f1)"
