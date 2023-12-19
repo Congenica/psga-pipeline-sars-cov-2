@@ -132,7 +132,7 @@ process ncov2019_artic_nf_pipeline_medaka {
   reheadered_fasta="reheadered_fasta"
 
   # extract the sample name from the fastq file
-  sample_id="$(ls *.fastq.gz | head -n 1 | cut -d"." -f1)"
+  sample_id="$(ls *.fastq.gz | head -n 1 | cut -d"_" -f1)"
   fastq_file="${sample_id}.fastq.gz"
 
   # extract scheme and version from primer
