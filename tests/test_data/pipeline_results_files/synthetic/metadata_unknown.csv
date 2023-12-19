@@ -1,3 +1,3 @@
 SAMPLE_ID,seq_file_1
-a0951432-cd94-45b5-96d5-b721c037a451,s3://synthetic-data-dev/ERR7150154.fa
-985347c5-ff6a-454c-ac34-bc353d05dd70,s3://synthetic-data-dev/ERR7150243.fa
+a0951432-cd94-45b5-96d5-b721c037a451,s3://synthetic-data-dev/ERR7150154_1.fa
+985347c5-ff6a-454c-ac34-bc353d05dd70,s3://synthetic-data-dev/ERR7150243_1.fa
