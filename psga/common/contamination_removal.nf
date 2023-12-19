@@ -38,7 +38,7 @@ process contamination_removal_ont {
 
   readItAndKeep --tech ont --ref_fasta ${ref_genome_fasta} --reads1 ${file_1} --outprefix out 2>&1 | tee ${rik_output_file}
 
-  mv -f out.reads.fastq.gz cleaned_fastq/${sample_id}.fastq.gz
+  mv -f out.reads.fastq.gz cleaned_fastq/${sample_id}_1.fastq.gz
 
   python ${PSGA_ROOT_PATH}/scripts/common/contamination_removal.py \
     --input-path "${rik_output_file}" \
