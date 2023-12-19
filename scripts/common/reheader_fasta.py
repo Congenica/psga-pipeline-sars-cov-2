@@ -15,7 +15,7 @@ def convert_file(source_file: Path, output_dir: Path) -> None:
     # get the sample name from the filename
     source_file_extensions = "".join(source_file.suffixes)
     # use source_file.stem?
-    sample_name = str(source_file.name).replace(source_file_extensions, "").rstrip("_1")
+    sample_name = str(source_file.name).replace(source_file_extensions, "").replace("_1", "")
 
     output_file = output_dir / f"{sample_name}.{FASTA_FILE_HANDLE}"
 
