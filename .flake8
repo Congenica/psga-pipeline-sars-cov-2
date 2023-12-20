@@ -1,0 +1,5 @@
+# Flake8 does not yet support TOML, hence why this is here
+
+[flake8]
+max-line-length = 120
+extend-ignore = E203,W503

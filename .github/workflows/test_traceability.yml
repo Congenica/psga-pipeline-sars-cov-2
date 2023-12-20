@@ -60,7 +60,6 @@ jobs:
                      --env TT_JIRA_PROJECT_KEY="PSG" \
                      --env TT_JIRA_TEST_TYPE="unit" \
                      --env TT_JIRA_TOKEN=${{ secrets.JIRA_TOKEN }} \
-                     --env TT_LOG_LEVEL="DEBUG" \
                      --env TT_REPO_NAME="${{ env.REPO_NAME }}" \
                      --env TT_SHOULD_TRACE_RESULTS_TO_JIRA=${{ inputs.trace_to_jira }} \
                      --rm \

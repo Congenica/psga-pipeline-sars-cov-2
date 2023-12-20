@@ -1,3 +1,3 @@
-SAMPLE_ID,SEQ_FILE_1,SEQ_FILE_2
-37a36d1c-5985-4836-87b5-b36bac75d81b,s3://synthetic-data-dev/fasta/ERR7150151.fasta,
-985347c5-ff6a-454c-ac34-bc353d05dd70,s3://synthetic-data-dev/fasta/ERR7150243.fa,
+SAMPLE_ID,seq_file_1
+37a36d1c-5985-4836-87b5-b36bac75d81b,s3://synthetic-data-dev/fasta/ERR7150151_1.fasta
+985347c5-ff6a-454c-ac34-bc353d05dd70,s3://synthetic-data-dev/fasta/ERR7150243_1.fa

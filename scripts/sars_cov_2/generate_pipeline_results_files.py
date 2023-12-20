@@ -489,8 +489,8 @@ def get_expected_output_files_per_sample(
             ncov_fasta = [FileType(".primertrimmed.consensus.fa", "fasta/consensus")]
             ncov_variants = [FileType(".variants.tsv", "tsv/final")]
         elif sequencing_technology == ONT:
-            contamination_removal_clean_fastq = [FileType(".fastq.gz", "fastq/cleaned-sequence-data")]
-            fastqc = [FileType("_fastqc.zip", "fastqc/qc")]
+            contamination_removal_clean_fastq = [FileType("_1.fastq.gz", "fastq/cleaned-sequence-data")]
+            fastqc = [FileType("_1_fastqc.zip", "fastqc/qc")]
             ncov_bam = [
                 FileType(".sorted.bam", "bam/untrimmed"),
                 FileType(".sorted.bam.bai", "bai/untrimmed"),
@@ -705,7 +705,7 @@ def generate_pipeline_results_files(
     Generate pipeline results files
     """
     # data loading
-    df_metadata = load_data_from_csv(metadata_file, EXPECTED_METADATA_HEADERS)
+    df_metadata = load_data_from_csv(metadata_file, EXPECTED_METADATA_HEADERS[sequencing_technology])
     df_contamination_removal = load_data_from_csv(
         contamination_removal_csv_file,
         EXPECTED_CONTAMINATION_REMOVAL_HEADERS,
