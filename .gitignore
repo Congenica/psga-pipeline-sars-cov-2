@@ -221,3 +221,8 @@ dmypy.json
 
 # Vagrant
 .vagrant/
+
+# Locally running Nextflow
+.nextflow.log*
+**/.nextflow/history
+**/.nextflow/cache/
