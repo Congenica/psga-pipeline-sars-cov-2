@@ -7,6 +7,13 @@ pipeline:
 pipeline_version:
   docker_tag: dev_latest
 
+resources:
+  - reference_data:
+      slug: "pangolin-data"
+      selection_rules:
+        slug: "pangolin-data"
+        version: "1.23.1"  # TODO: agree what version to select
+
 input_fields:
   - field_name: file_1_type
     field_type: string
