@@ -56,7 +56,7 @@ workflow psga {
         ch_metadata = organise_metadata_sample_files.out.ch_metadata
         ch_sample_files = organise_metadata_sample_files.out.ch_sample_files
 
-        reference_data_file = path("${params.configPath}reference_data.csv")
+        reference_data_file = file("${params.configPath}reference_data.csv")
         pangolin_data_dir = get_pangolin_data_dir(reference_data_file)
 
         if ( params.sequencing_technology == "unknown" ) {
