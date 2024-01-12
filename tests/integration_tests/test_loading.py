@@ -9,7 +9,7 @@ from integration_tests.loading import get_file_paths, load_data_from_csv
 from tests.integration_tests.util import create_paths
 
 
-@pytest.mark.parametrize("pathogen", ["sars_cov_2", "synthetic"])
+@pytest.mark.parametrize("pathogen", ["sars_cov_2"])
 @pytest.mark.parametrize(
     "csv_file,config,exc",
     [

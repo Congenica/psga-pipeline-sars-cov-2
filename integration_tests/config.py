@@ -44,19 +44,4 @@ data_config = {
             },
         },
     },
-    "synthetic": {
-        "config": {
-            # name of the column used for listing the samples
-            "sample_name_column": "SAMPLE_ID",
-            "columns_to_validate": [
-                "SAMPLE_ID",
-                "STATUS",
-                "QC_STATUS",
-                "LINEAGE",
-                "REGION_OF_DIFFERENCE",
-            ],
-            # abs tolerances for the columns to round
-            "columns_to_round": {},
-        },
-    },
 }
