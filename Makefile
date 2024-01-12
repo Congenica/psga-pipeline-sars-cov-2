@@ -25,12 +25,5 @@ shell_local: build-sars-cov-2-local
 	${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG} \
 	bash
 
-shell_local_dev:
-	docker run \
-	--rm \
-	-it \
-	condaforge/mambaforge:23.3.1-1 \
-	bash
-
 test:
 	poetry run pytest tests/

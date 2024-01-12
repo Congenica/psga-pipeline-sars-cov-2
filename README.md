@@ -158,7 +158,7 @@ To update to a specific version that is not the latest version, re-run the add c
 - Remove python from pyproject or environment files
 - Put containers in their actual processes
 - Add flake8/black and fix all linting (88 chars)
-- Why does this fail: `# RUN if [ -f /app/scripts/${pathogen}/Makefile ]; then cd /app/scripts/${pathogen} && make; fi;`
+- Stop running generate files script
 
 ### Notes on installing packages
 

@@ -68,4 +68,4 @@ COPY scripts/common /app/scripts/common
 WORKDIR /app/psga
 
 # # generic construct if scripts must be executed at this stage (e.g. for generating default files)
-# RUN if [ -f /app/scripts/${pathogen}/Makefile ]; then cd /app/scripts/${pathogen} && make; fi;
+RUN if [ -f /app/scripts/${pathogen}/Makefile ]; then cd /app/scripts/${pathogen} && make; fi;
