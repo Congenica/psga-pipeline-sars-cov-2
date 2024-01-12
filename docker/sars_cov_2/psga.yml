@@ -4,18 +4,26 @@ channels:
   - conda-forge
   - defaults
 dependencies:
-  # - python=3.10.6
-  - make=4.3
+  - python=3.10
   - gcc=12.1.0
+  # TODO: Remove Used in Docker image build
+  - make=4.3
   - procps-ng=4.0.3 # required for ps
+  # Pipeline running
   - nextflow=22.10.0
   - awscli=1.25.92
+  # Fastqc
   - fastqc=0.11.9
+  # HTStools
   - htslib=1.16
   - samtools=1.16.1
   - bcftools=1.16
+  # Read it and Keep
   - read-it-and-keep=0.3.0
-  - pangolin=4.3
-  - pangolin-data=1.21
-  - scorpio=0.3.17
-  - constellations=0.1.12
+  # Primer autodetection
+  - biopython=1.78 # forced to higher to support newer python, pangolin wants 1.74
+  # Pangolin
+  # - pangolin=4.3 # install with pip/git
+  # - pangolin-data=1.21
+  # - scorpio=0.3.17
+  # - constellations=0.1.12
