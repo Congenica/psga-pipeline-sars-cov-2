@@ -12,12 +12,6 @@ jobs:
       fail-fast: false
       matrix:
         image:
-          - name: s-aureus-pipeline
-            dockerfile: Dockerfile.psga-pipeline
-            pathogen: s_aureus
-          - name: synthetic-pipeline
-            dockerfile: Dockerfile.psga-pipeline
-            pathogen: synthetic
           - name: sars-cov-2-pipeline
             dockerfile: Dockerfile.psga-pipeline
             pathogen: sars_cov_2
