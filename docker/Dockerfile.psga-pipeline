@@ -13,8 +13,8 @@ COPY --from=condabuild /opt/conda/envs/custom_env /opt/conda/envs/custom_env
 ENV PATH=/opt/conda/envs/custom_env/bin:$PATH
 
 # # pin the versions of pip and poetry
-# ENV PIP_VERSION=22.2.2 \
-#   POETRY_VERSION=1.1.13
+# ENV PIP_VERSION=22.2 \
+#   POETRY_VERSION=1.7
 
 ARG pathogen
 COPY ./pyproject.toml ./poetry.lock ./app/
@@ -30,8 +30,8 @@ WORKDIR /app
 #    install setuptools here to avoid the warning / error:
 #    ModuleNotFoundError: No module named '_distutils_hack'
 #    This error does not disappear if this is installed via conda
-RUN nextflow plugin install nf-amazon@1.11.0 \
-  && pip install setuptools==63.1.0 \
+RUN nextflow plugin install nf-amazon@1.11 \
+  && pip install setuptools==63.1 \
   && pip install --progress-bar=off --no-cache-dir --upgrade pip \
   && pip install --progress-bar=off --no-cache-dir poetry \
   # the following uninstall & install commands are a fix for urllib3 being installed by something else
