@@ -152,7 +152,15 @@ poetry add package@latest
 
 To update to a specific version that is not the latest version, re-run the add command specifying a different version constraint.
 
-### Notes on packages
+## TODO
+
+- Integrate ncov pipelines
+- Remove python from pyproject or environment files
+- Put containers in their actual processes
+- Add flake8/black and fix all linting (88 chars)
+- Why does this fail: `# RUN if [ -f /app/scripts/${pathogen}/Makefile ]; then cd /app/scripts/${pathogen} && make; fi;`
+
+### Notes on installing packages
 
 - Pangolin v4.3 requires exactly v1.74 of BioPython.
   Github has a release of 4.3.1 which is more generous, however this hasn't been released to conda.
