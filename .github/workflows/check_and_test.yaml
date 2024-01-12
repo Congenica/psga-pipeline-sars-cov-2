@@ -3,8 +3,8 @@ on:
   workflow_call:
 
 permissions:
-  id-token: write   # This is required for requesting the JWT
-  contents: read    # This is required for actions/checkout
+  id-token: write # This is required for requesting the JWT
+  contents: read # This is required for actions/checkout
 
 jobs:
   check_and_test:
@@ -19,7 +19,7 @@ jobs:
       - name: Install python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.10'
+          python-version: "3.10"
 
       - name: Install Poetry
         run: pip install poetry==1.1.13
@@ -54,7 +54,7 @@ jobs:
       #   - etc
       - name: Compress Allure Results
         run: |
-          ARTIFACT_S3_PATH_PARTIAL=s3://congenica-test-evidence/psga-pipeline/unit
+          ARTIFACT_S3_PATH_PARTIAL=s3://congenica-test-evidence/psga-pipeline-sars-cov-2/unit
           ARTIFACT_COUNT=$(aws s3 ls $ARTIFACT_S3_PATH_PARTIAL/${{ github.sha }} | wc -l)
           ARTIFACT_NAME=${{ github.sha }}_$ARTIFACT_COUNT.tar.gz
           ARTIFACT_PATH=${{ github.workspace }}/$ARTIFACT_NAME
