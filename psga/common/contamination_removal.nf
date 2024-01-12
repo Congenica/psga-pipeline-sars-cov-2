@@ -24,7 +24,7 @@ process contamination_removal_ont {
 
   ref_genome_fasta=!{ref_genome_fasta}
   file_1=!{file_1}
-  sample_id=$( echo ${file_1} | cut -d '_' -f1 )
+  sample_id=$( echo ${file_1} | cut -d '.' -f1 )
   rik_output_file="counting/${sample_id}.txt"
   output_csv="${sample_id}_contamination_removal.csv"
 

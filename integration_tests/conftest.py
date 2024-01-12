@@ -12,7 +12,7 @@ def pytest_addoption(parser):
 
 @pytest.fixture(scope="session")
 def results_csv(pytestconfig):
-    return pytestconfig.getoption("results_csv")
+    return pytestconfig.getoption("results_csv", skip=True)
 
 
 @pytest.fixture(scope="session")

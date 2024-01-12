@@ -21,7 +21,6 @@ from primer_cols import (
     PRIMER_AUTODETECTION_PRIMER_COL,
     PRIMER_AUTODETECTION_NUMREADS_COL,
     PRIMER_AUTODETECTION_UNIQUE_NUMREADS_COL,
-    PRIMER_AUTODETECTION_AMBIGUOUS_NUMREADS_COL,
     PRIMER_AUTODETECTION_COVERAGE_COL,
 )
 
@@ -66,11 +65,11 @@ def build_primers_automaton(primer_index: Path) -> dict[str, PrimerAutomaton]:
                 TOTAL_NUM_PRIMER: int(row[TOTAL_NUM_PRIMER]),
                 PRIMER_AUTODETECTION_NUMREADS_COL: 0,
                 PRIMER_AUTODETECTION_UNIQUE_NUMREADS_COL: 0,
-                PRIMER_AUTODETECTION_AMBIGUOUS_NUMREADS_COL: 0,
             }
 
             # this can be optimised by generating the automaton at build time (one-off)
             automaton = load_pickle(primer_pickle_path)
+            automaton.make_automaton()
             primers_automaton[primer] = PrimerAutomaton(
                 data=data,
                 automaton=automaton,
@@ -79,7 +78,7 @@ def build_primers_automaton(primer_index: Path) -> dict[str, PrimerAutomaton]:
     return primers_automaton
 
 
-def count_primer_matches(sample_fastq: Path, primers_automaton: dict) -> dict:
+def count_primer_matches(sample_fastq: Path, primers_automaton: dict, primer_base_window: int) -> dict:
     """
     Perform an exact search of the primer sequences (all schemes) in the sample_fastq
     """
@@ -93,38 +92,26 @@ def count_primer_matches(sample_fastq: Path, primers_automaton: dict) -> dict:
         # This search is performed using an ahocorasick structure and optimised to search
         # at the beginning of the read only
         for sample_sequence in SeqIO.parse(fastq_file, "fastq"):
-            sample_read = str(sample_sequence.seq)
+            # fastq_file is assumed to be adapter-trimmed, e.g.
+            # * trim_galore (illumina)
+            # * porechop (ont)
+            # Trimmer algorithms might not remove the adapter sequences entirely.
+            # Therefore, here the primer is searched in a prefix window of primer_base_window bases,
+            # rather than at the very beginning of the read.
+            sample_read = str(sample_sequence.seq)[0:primer_base_window]
 
             for primer in primers_automaton:
                 primer_auto = primers_automaton[primer]
-                # search for primers matching the prefix of sample_read
-                # (the wildcard argument is mandatory, but unused - no base will ever be '?'), e.g.
-                # keys: ['AGA', 'AAGA', 'ATGA', 'GTAT']
-                # sample_read: 'AAGATT'
-                # output: ['AAGA']
-                found_primer = set(primer_auto.automaton.keys(sample_read, "?", ahocorasick.MATCH_AT_MOST_PREFIX))
-                # search for primers matching the prefix of sample_read (wildcard 'N' is used).
-                # This enables the counting of primers upon uncertainty in sample reads. e.g.
-                # keys: ['AGA', 'AAGA', 'ATGA', 'GTAT']
-                # sample_read: 'ANGATT'
-                # output: ['AAGA', 'ATGA']
-                # Depending on the number of Ns in sample_read, this can return:
-                # - "sample_read does not contain N in primer sequence"
-                #     => found_primer = {} or {primer}, ambiguous_primers = {}
-                # - "sample_read contains Ns in primer sequence"
-                #     => found_primer = {}, ambiguous_primers = {*}
-                # The found primer (if exists) is removed as that's an exact match
-                ambiguous_primers = (
-                    set(primer_auto.automaton.keys(sample_read, "N", ahocorasick.MATCH_AT_MOST_PREFIX)) - found_primer
-                )
-
-                # increment the read count as necessary
-                if found_primer:
+                # list: (primer_end_position_in_read, primer)
+                primers_found_in_read = list(primer_auto.automaton.iter(sample_read))
+                if primers_found_in_read:
+                    # count only 1 primer found for this read
                     primer_auto.data[PRIMER_AUTODETECTION_NUMREADS_COL] += 1
-                    unique_hits[primer].update(found_primer)
+                    # Note that primers_found_in_read is sorted by primer_end_position_in_read,
+                    # so the first primer in this list is the first one found in read
+                    unique_hits[primer].add(primers_found_in_read[0][1])
 
-                if ambiguous_primers:
-                    primer_auto.data[PRIMER_AUTODETECTION_AMBIGUOUS_NUMREADS_COL] += 1
+                    # In contrast to previous implementations, the number of ambiguous primers is no longer counted
 
     # Add the unique number of primers found in the sample reads
     for primer in unique_hits:
@@ -133,16 +120,16 @@ def count_primer_matches(sample_fastq: Path, primers_automaton: dict) -> dict:
     return unique_hits
 
 
-def compute_primer_data(sample_fastq: Path, primers_automaton: dict) -> dict:
+def compute_primer_data(sample_fastq: Path, primers_automaton: dict, primer_base_window: int) -> dict:
     """
     Perform an exact search of the primer sequences (all schemes) in the sample_fastq
     """
-    count_primer_matches(sample_fastq, primers_automaton)
+    count_primer_matches(sample_fastq, primers_automaton, primer_base_window)
 
     return primers_automaton
 
 
-def generate_metrics(primer_index: Path, sample_fastq: Path, output_path: Path) -> None:
+def generate_metrics(primer_index: Path, sample_fastq: Path, output_path: Path, primer_base_window: int) -> None:
     """
     Generate metrics for all primers.
     Metrics are saved to separate CSV files
@@ -152,12 +139,11 @@ def generate_metrics(primer_index: Path, sample_fastq: Path, output_path: Path) 
         TOTAL_NUM_PRIMER,
         PRIMER_AUTODETECTION_NUMREADS_COL,
         PRIMER_AUTODETECTION_UNIQUE_NUMREADS_COL,
-        PRIMER_AUTODETECTION_AMBIGUOUS_NUMREADS_COL,
     ]
 
     primers_automaton = build_primers_automaton(primer_index)
 
-    primers_automaton = compute_primer_data(sample_fastq, primers_automaton)
+    primers_automaton = compute_primer_data(sample_fastq, primers_automaton, primer_base_window)
 
     for primer in primers_automaton:
         with open(output_path / f"{primer}{COVERAGE_SUFFIX}", "w", newline="") as primer_coverage_csv:
@@ -288,18 +274,25 @@ def generate_primer_autodetection_output_files(output_path: Path, sample_id: str
     required=True,
     help="The primer name / version (e.g. ARTIC_V4) passed to the pipeline",
 )
+@click.option(
+    "--primer-base-window",
+    type=int,
+    required=True,
+    help="The number of bases to look up primers from the start of the read",
+)
 def primer_autodetection(
     primer_index: str,
     sample_fastq: str,
     output_path: str,
     sample_id: str,
     primer_input: str,
+    primer_base_window: int,
 ) -> None:
     """
     Generate the primer autodetection output files
     """
     output_path_obj = Path(output_path)
-    generate_metrics(Path(primer_index), Path(sample_fastq), output_path_obj)
+    generate_metrics(Path(primer_index), Path(sample_fastq), output_path_obj, primer_base_window)
     generate_primer_autodetection_output_files(output_path_obj, sample_id, primer_input)
 
 
