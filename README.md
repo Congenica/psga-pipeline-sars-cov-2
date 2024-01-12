@@ -11,18 +11,6 @@ Congenica sequencing protocol is based on the ARTIC consortium and works as foll
 - produce viral genome assemblies from sequence data (ncov2019-artic-nf);
 - assign epidemiological lineages (Pangolin-Scorpio)
 
-### Synthetic
-
-This is a proof-of-concept pathogen pipeline which can also be used as a template.
-
-### S-aureus
-
-This pathogen pipeline is based on Bactopia. It works as follows:
-
-- produce bacterial genome assemblies from sequence data
-- Call variants
-- Detect antibiotic resistance genes
-
 ## Operation
 
 This pipeline runs on a Kubernetes environment. The main workflow coordinates the execution of processes within Kubernetes jobs.
