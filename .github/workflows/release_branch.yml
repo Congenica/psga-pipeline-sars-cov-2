@@ -27,6 +27,9 @@ jobs:
       matrix:
         image:
           - sars-cov-2-pipeline
+          - ncov2019-artic-nf-nanopore
+          - ncov2019-artic-nf-illumina
+          - pangolin
     steps:
       - name: Check out repo
         uses: actions/checkout@v3

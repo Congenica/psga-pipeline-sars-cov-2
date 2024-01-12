@@ -151,3 +151,13 @@ poetry add package@latest
 ```
 
 To update to a specific version that is not the latest version, re-run the add command specifying a different version constraint.
+
+### Notes on packages
+
+- Pangolin v4.3 requires exactly v1.74 of BioPython.
+  Github has a release of 4.3.1 which is more generous, however this hasn't been released to conda.
+  When this gets updated, it should be possible to bring the pangolin code into the main docker image.
+  An alternative is to install the pangolin release directly from github and then install dependencies in the docker image.
+  ```
+  pangolin = {git = "https://github.com/cov-lineages/pangolin.git", rev = "v4.3.1"}
+  ```
