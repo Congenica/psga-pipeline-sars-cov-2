@@ -1,2 +1,2 @@
 all:
-	python generate_default_files.py
+	PYTHONPATH="/app" python generate_default_files.py
