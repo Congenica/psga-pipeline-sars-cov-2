@@ -4,7 +4,7 @@ channels:
   - conda-forge
   - defaults
 dependencies:
-  - python=3.10.6
+  # - python=3.10.6
   - make=4.3
   - gcc=12.1.0
   - procps-ng=4.0.3 # required for ps
@@ -14,9 +14,8 @@ dependencies:
   - htslib=1.16
   - samtools=1.16.1
   - bcftools=1.16
-  - biopython==1.80
+  - read-it-and-keep=0.3.0
   - pangolin=4.3
   - pangolin-data=1.21
   - scorpio=0.3.17
   - constellations=0.1.12
-  - read-it-and-keep=0.3.0
