@@ -54,6 +54,17 @@ COPY ./scripts/${pathogen} /app/scripts/${pathogen}
 COPY ./integration_tests/*.py ./app/integration_tests/
 COPY ./integration_tests/expected_data/${pathogen} ./app/integration_tests/expected_data/${pathogen}
 
+# FASTQC
+COPY data/${pathogen}/fastqc/* /
+
+# PRIMER AUTODETECTION
+COPY scripts/common /app/scripts/common
+COPY data/${pathogen}/primer_schemes /primer_schemes
+
+# READ IT AND KEEP
+COPY data/${pathogen}/read-it-and-keep/* /
+COPY scripts/common /app/scripts/common
+
 WORKDIR /app/psga
 
 # # generic construct if scripts must be executed at this stage (e.g. for generating default files)
