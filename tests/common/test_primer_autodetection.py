@@ -42,12 +42,12 @@ from scripts.common.primer_cols import (
     PRIMER_AUTODETECTION_PRIMER_COL,
     PRIMER_AUTODETECTION_NUMREADS_COL,
     PRIMER_AUTODETECTION_UNIQUE_NUMREADS_COL,
-    PRIMER_AUTODETECTION_AMBIGUOUS_NUMREADS_COL,
 )
 from tests.utils_tests import assert_csvs_are_equal, assert_files_are_equal
 
 DEFAULT_PRIMER = "ARTIC_V4-1"
 PRIMER_TEST = "primer_test"
+PRIMER_BASE_WINDOW = 70
 
 
 def copy_with_wildcard(input_path: Path, output_path: Path, suffix: str):
@@ -90,15 +90,29 @@ def assert_primer_data(sample_id: str, tmp_path: Path, input_path: Path):
     assert_csvs_are_equal(output_path, expected_output_path, PRIMER_AUTODETECTION_SAMPLE_ID_COL)
 
 
-def assert_selected_primer_file(sample_id: str, primer_autodetection_data_path: Path, tmp_path: Path, found_dir: str):
+def assert_selected_primer_file(sample_id: str, primer_autodetection_data_path: Path, tmp_path: Path, sample_dir: str):
     primer_file = f"{sample_id}_primer.txt"
-    expected_output_path = primer_autodetection_data_path / found_dir / primer_file
+    expected_output_path = primer_autodetection_data_path / sample_dir / primer_file
     output_path = tmp_path / primer_file
     assert_files_are_equal(output_path, expected_output_path)
 
 
 @pytest.fixture
 def primers_automaton_fixture(primer_autodetection_primer_schemes_data_path: Path) -> dict[str, PrimerAutomaton]:
+    artic_v4_automaton = load_pickle(
+        primer_autodetection_primer_schemes_data_path / "ARTIC" / SARS_COV_2 / "V4" / f"{SARS_COV_2}.{SCHEME}.{PICKLE}"
+    )
+    artic_v4_automaton.make_automaton()
+
+    midnight_v2_automaton = load_pickle(
+        primer_autodetection_primer_schemes_data_path
+        / "Midnight-ONT"
+        / SARS_COV_2
+        / "V2"
+        / f"{SARS_COV_2}.{SCHEME}.{PICKLE}"
+    )
+    midnight_v2_automaton.make_automaton()
+
     automaton_dictionary = {
         "ARTIC_V4": PrimerAutomaton(
             data={
@@ -106,15 +120,8 @@ def primers_automaton_fixture(primer_autodetection_primer_schemes_data_path: Pat
                 TOTAL_NUM_PRIMER: 4,
                 PRIMER_AUTODETECTION_NUMREADS_COL: 0,
                 PRIMER_AUTODETECTION_UNIQUE_NUMREADS_COL: 0,
-                PRIMER_AUTODETECTION_AMBIGUOUS_NUMREADS_COL: 0,
             },
-            automaton=load_pickle(
-                primer_autodetection_primer_schemes_data_path
-                / "ARTIC"
-                / SARS_COV_2
-                / "V4"
-                / f"{SARS_COV_2}.{SCHEME}.{PICKLE}"
-            ),
+            automaton=artic_v4_automaton,
         ),
         "Midnight-ONT_V2": PrimerAutomaton(
             data={
@@ -122,15 +129,8 @@ def primers_automaton_fixture(primer_autodetection_primer_schemes_data_path: Pat
                 TOTAL_NUM_PRIMER: 4,
                 PRIMER_AUTODETECTION_NUMREADS_COL: 0,
                 PRIMER_AUTODETECTION_UNIQUE_NUMREADS_COL: 0,
-                PRIMER_AUTODETECTION_AMBIGUOUS_NUMREADS_COL: 0,
             },
-            automaton=load_pickle(
-                primer_autodetection_primer_schemes_data_path
-                / "Midnight-ONT"
-                / SARS_COV_2
-                / "V2"
-                / f"{SARS_COV_2}.{SCHEME}.{PICKLE}"
-            ),
+            automaton=midnight_v2_automaton,
         ),
     }
     return automaton_dictionary
@@ -188,7 +188,6 @@ def test_build_primers_automaton(
             {
                 PRIMER_AUTODETECTION_NUMREADS_COL: 2,
                 PRIMER_AUTODETECTION_UNIQUE_NUMREADS_COL: 1,
-                PRIMER_AUTODETECTION_AMBIGUOUS_NUMREADS_COL: 1,
             },
         )
     ],
@@ -202,17 +201,18 @@ def test_count_primer_matches(
     expected_data: dict[str, int],
 ):
     # build a simplified primer_automaton obj for this test
+    automaton = create_automaton(primer_autodetection_sample_dir_data_path / fasta)
+    automaton.make_automaton()
     primers_automaton = {
         PRIMER_TEST: PrimerAutomaton(
             data={
                 PRIMER_AUTODETECTION_NUMREADS_COL: 0,
                 PRIMER_AUTODETECTION_UNIQUE_NUMREADS_COL: 0,
-                PRIMER_AUTODETECTION_AMBIGUOUS_NUMREADS_COL: 0,
             },
-            automaton=create_automaton(primer_autodetection_sample_dir_data_path / fasta),
+            automaton=automaton,
         ),
     }
-    unique_hits = count_primer_matches(primer_autodetection_sample_dir_data_path / sample, primers_automaton)
+    unique_hits = count_primer_matches(primer_autodetection_sample_dir_data_path / sample, primers_automaton, 5)
 
     assert unique_hits == expected_unique_hits
     assert primers_automaton[PRIMER_TEST].data == expected_data
@@ -230,19 +230,17 @@ def test_count_primer_matches(
                     TOTAL_NUM_PRIMER: 4,
                     PRIMER_AUTODETECTION_NUMREADS_COL: 3,
                     PRIMER_AUTODETECTION_UNIQUE_NUMREADS_COL: 2,
-                    PRIMER_AUTODETECTION_AMBIGUOUS_NUMREADS_COL: 1,
                 },
                 "Midnight-ONT_V2": {
                     PRIMER_AUTODETECTION_PRIMER_COL: "Midnight-ONT_V2",
                     TOTAL_NUM_PRIMER: 4,
                     PRIMER_AUTODETECTION_NUMREADS_COL: 0,
                     PRIMER_AUTODETECTION_UNIQUE_NUMREADS_COL: 0,
-                    PRIMER_AUTODETECTION_AMBIGUOUS_NUMREADS_COL: 0,
                 },
             },
         ),
+        # Midnight-ONT_V2 SAMPLE
         (
-            # SAMPLE without actual primers
             "a0446f6f-7d24-478c-8d92-7c77036930d8",
             {
                 "ARTIC_V4": {
@@ -250,14 +248,12 @@ def test_count_primer_matches(
                     TOTAL_NUM_PRIMER: 4,
                     PRIMER_AUTODETECTION_NUMREADS_COL: 0,
                     PRIMER_AUTODETECTION_UNIQUE_NUMREADS_COL: 0,
-                    PRIMER_AUTODETECTION_AMBIGUOUS_NUMREADS_COL: 1,
                 },
                 "Midnight-ONT_V2": {
                     PRIMER_AUTODETECTION_PRIMER_COL: "Midnight-ONT_V2",
                     TOTAL_NUM_PRIMER: 4,
                     PRIMER_AUTODETECTION_NUMREADS_COL: 0,
                     PRIMER_AUTODETECTION_UNIQUE_NUMREADS_COL: 0,
-                    PRIMER_AUTODETECTION_AMBIGUOUS_NUMREADS_COL: 0,
                 },
             },
         ),
@@ -271,7 +267,7 @@ def test_compute_primer_data(
     expected_data: dict[str, dict],
 ):
     sample_fastq = primer_autodetection_sample_dir_data_path / f"{sample_id}.fastq.gz"
-    primers_automaton = compute_primer_data(sample_fastq, primers_automaton_fixture)
+    primers_automaton = compute_primer_data(sample_fastq, primers_automaton_fixture, PRIMER_BASE_WINDOW)
     for primer in primers_automaton:
         assert primers_automaton[primer].data == expected_data[primer]
 
@@ -286,7 +282,7 @@ def test_compute_primer_data(
         ),
         (
             f"{SARS_COV_2}_primer_index.csv",
-            # SAMPLE without actual primers
+            # Midnight v2 SAMPLE
             "a0446f6f-7d24-478c-8d92-7c77036930d8",
         ),
     ],
@@ -308,34 +304,33 @@ def test_generate_metrics(
     primers = prefix_path_to_index(orig_index_path, tmp_index_path, primer_autodetection_data_path)
     sample_fastq = primer_autodetection_sample_dir_data_path / f"{sample_id}.fastq.gz"
 
-    generate_metrics(tmp_index_path, sample_fastq, tmp_path)
+    generate_metrics(tmp_index_path, sample_fastq, tmp_path, PRIMER_BASE_WINDOW)
 
     for primer in primers:
         assert_primer_coverage(primer, tmp_path, expected_output_path)
 
 
 @pytest.mark.parametrize(
-    "found_dir,sample_id,primer_input,expected_score,expected_detected_primer,expected_selected_primer",
+    "sample_dir,sample_id,primer_input,expected_score,expected_detected_primer,expected_selected_primer",
     [
-        ("found", "9729bce7-f0a9-4617-b6e0-6145307741d1", "ARTIC_V3", 423, "ARTIC_V4-1", "ARTIC_V3"),
-        ("found", "9729bce7-f0a9-4617-b6e0-6145307741d1", UNKNOWN, 423, "ARTIC_V4-1", "ARTIC_V4-1"),
-        ("not_found", "a0446f6f-7d24-478c-8d92-7c77036930d8", "ARTIC_V3", 0, "none", "ARTIC_V3"),
-        # test the hack
-        ("not_found", "a0446f6f-7d24-478c-8d92-7c77036930d8", UNKNOWN, 0, "none", DEFAULT_PRIMER),
+        ("sample_1", "9729bce7-f0a9-4617-b6e0-6145307741d1", "ARTIC_V3", 423, "ARTIC_V4-1", "ARTIC_V3"),
+        ("sample_1", "9729bce7-f0a9-4617-b6e0-6145307741d1", UNKNOWN, 423, "ARTIC_V4-1", "ARTIC_V4-1"),
+        ("sample_2", "a0446f6f-7d24-478c-8d92-7c77036930d8", "ARTIC_V3", 2, "Midnight-ONT_V2", "ARTIC_V3"),
+        ("sample_2", "a0446f6f-7d24-478c-8d92-7c77036930d8", UNKNOWN, 2, "Midnight-ONT_V2", "Midnight-ONT_V2"),
     ],
 )
 @pytest.mark.jira(identifier="f370404a-c340-4677-bc83-507657db0d80", confirms="PSG-3621")
 def test_select_primer(
     tmp_path: Path,
     primer_autodetection_data_path: Path,
-    found_dir: str,
+    sample_dir: str,
     sample_id: str,
     primer_input: str,
     expected_score: int,
     expected_detected_primer: str,
     expected_selected_primer: str,
 ):
-    input_path = primer_autodetection_data_path / found_dir
+    input_path = primer_autodetection_data_path / sample_dir
     copy_with_wildcard(input_path, tmp_path, COVERAGE_SUFFIX)
     detected_primer_df, selected_primer = select_primer(tmp_path, sample_id, primer_input)
 
@@ -346,21 +341,21 @@ def test_select_primer(
 
 
 @pytest.mark.parametrize(
-    "found_dir,sample_id,primer_input",
+    "sample_dir,sample_id,primer_input",
     [
-        ("found", "9729bce7-f0a9-4617-b6e0-6145307741d1", "unknown"),
-        ("not_found", "a0446f6f-7d24-478c-8d92-7c77036930d8", "unknown"),
+        ("sample_1", "9729bce7-f0a9-4617-b6e0-6145307741d1", "unknown"),
+        ("sample_2", "a0446f6f-7d24-478c-8d92-7c77036930d8", "unknown"),
     ],
 )
 @pytest.mark.jira(identifier="a52a1a34-0d96-405c-8782-4cdfcf7be06e", confirms="PSG-3621")
 def test_write_primer_data(
     tmp_path: Path,
     primer_autodetection_data_path: Path,
-    found_dir: str,
+    sample_dir: str,
     sample_id: str,
     primer_input: str,
 ):
-    input_path = primer_autodetection_data_path / found_dir
+    input_path = primer_autodetection_data_path / sample_dir
     copy_with_wildcard(input_path, tmp_path, COVERAGE_SUFFIX)
     detected_primer_df, _ = select_primer(tmp_path, sample_id, primer_input)
     write_primer_data(tmp_path, detected_primer_df, sample_id, primer_input)
@@ -368,45 +363,45 @@ def test_write_primer_data(
 
 
 @pytest.mark.parametrize(
-    "found_dir,sample_id,detected_primer",
+    "sample_dir,sample_id,detected_primer",
     [
-        ("found", "9729bce7-f0a9-4617-b6e0-6145307741d1", "ARTIC_V4-1"),
-        ("not_found", "a0446f6f-7d24-478c-8d92-7c77036930d8", DEFAULT_PRIMER),
+        ("sample_1", "9729bce7-f0a9-4617-b6e0-6145307741d1", "ARTIC_V4-1"),
+        ("sample_2", "a0446f6f-7d24-478c-8d92-7c77036930d8", "Midnight-ONT_V2"),
     ],
 )
 @pytest.mark.jira(identifier="6831b9e0-7803-419f-8e08-0d554d1f6cf5", confirms="PSG-3621")
 def test_write_selected_primer(
     tmp_path: Path,
     primer_autodetection_data_path: Path,
-    found_dir: str,
+    sample_dir: str,
     sample_id: str,
     detected_primer: str,
 ):
     write_selected_primer(tmp_path, sample_id, detected_primer)
-    assert_selected_primer_file(sample_id, primer_autodetection_data_path, tmp_path, found_dir)
+    assert_selected_primer_file(sample_id, primer_autodetection_data_path, tmp_path, sample_dir)
 
 
 @pytest.mark.parametrize(
-    "found_dir,sample_id,primer_input",
+    "sample_dir,sample_id,primer_input",
     [
-        ("found", "9729bce7-f0a9-4617-b6e0-6145307741d1", "unknown"),
-        ("not_found", "a0446f6f-7d24-478c-8d92-7c77036930d8", "unknown"),
+        ("sample_1", "9729bce7-f0a9-4617-b6e0-6145307741d1", "unknown"),
+        ("sample_2", "a0446f6f-7d24-478c-8d92-7c77036930d8", "unknown"),
     ],
 )
 @pytest.mark.jira(identifier="7d937435-6fda-49dc-80c2-1e74142a8d65", confirms="PSG-3621")
 def test_generate_primer_autodetection_output_files(
     tmp_path: Path,
     primer_autodetection_data_path: Path,
-    found_dir: str,
+    sample_dir: str,
     sample_id: str,
     primer_input: str,
 ):
-    input_path = primer_autodetection_data_path / found_dir
+    input_path = primer_autodetection_data_path / sample_dir
     copy_with_wildcard(input_path, tmp_path, COVERAGE_SUFFIX)
     generate_primer_autodetection_output_files(tmp_path, sample_id, primer_input)
     assert_primer_detection(sample_id, tmp_path, input_path)
     assert_primer_data(sample_id, tmp_path, input_path)
-    assert_selected_primer_file(sample_id, primer_autodetection_data_path, tmp_path, found_dir)
+    assert_selected_primer_file(sample_id, primer_autodetection_data_path, tmp_path, sample_dir)
 
 
 @pytest.mark.parametrize(
@@ -447,6 +442,8 @@ def test_primer_autodetection(
             sample_id,
             "--primer-input",
             primer_input,
+            "--primer-base-window",
+            PRIMER_BASE_WINDOW,
         ],
     )
     assert rv.exit_code == 0

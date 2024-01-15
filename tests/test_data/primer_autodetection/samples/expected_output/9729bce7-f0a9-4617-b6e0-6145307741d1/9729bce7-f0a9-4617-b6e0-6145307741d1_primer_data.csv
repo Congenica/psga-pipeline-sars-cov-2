@@ -1,2 +1,2 @@
-primer_detected,primer_numreads,primer_unique_numreads,primer_ambiguous_numreads,primer_coverage,sample_id,primer_input
-ARTIC_V4,3,2,1,0.5,9729bce7-f0a9-4617-b6e0-6145307741d1,unknown
+primer_detected,primer_numreads,primer_unique_numreads,primer_coverage,sample_id,primer_input
+ARTIC_V4,3,2,0.5,9729bce7-f0a9-4617-b6e0-6145307741d1,unknown

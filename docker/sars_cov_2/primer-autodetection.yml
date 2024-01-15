@@ -5,6 +5,8 @@ channels:
 dependencies:
   - awscli=1.25.92
   - procps-ng=4.0.3   # required for ps
+  - trim-galore=0.6.10
+  - artic-porechop=0.3.2pre
   - pip:
     - biopython==1.80
     - click==7.1.2
