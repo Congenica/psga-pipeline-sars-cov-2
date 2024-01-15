@@ -7,9 +7,23 @@ permissions:
   contents: read # This is required for actions/checkout
 
 jobs:
+  start-runner:
+    uses: Congenica/psga-reusable-workflows/.github/workflows/ec2-runner-start.yaml@main
+    secrets:
+      role-to-assume: ${{ secrets.CICD_OIDC_ROLE }}
+      github-token: ${{ secrets.GH_PSGA_SYSTEM_PAT }}
+    with:
+      aws-region: ${{ vars.AWS_REGION }}
+      ec2-instance-type: ${{ vars.AWS_INSTANCE_TYPE }}
+      subnet-id: ${{ vars.GH_RUNNER_SUBNET_ID }}
+      security-group-id: ${{ vars.GH_RUNNER_SECURITY_GROUP_ID }}
+      iam-role-name: ${{ vars.GH_RUNNER_IAM_ROLE_NAME }}
+      env_type: nonprod
+
   check_and_test:
     name: Install dependencies and run tests
-    runs-on: ubuntu-22.04
+    needs: start-runner # required to start the main job when the runner is ready
+    runs-on: ${{ needs.start-runner.outputs.label }}
     env:
       ALLURE_DIR: ${{ github.workspace }}/allure-results
     steps:
@@ -17,7 +31,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Install python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: "3.10"
 
@@ -65,3 +79,17 @@ jobs:
       - name: Upload Allure Results to S3
         id: upload-to-s3
         run: aws s3 cp $ALLURE_RESULTS_POD $ALLURE_RESULTS_S3
+
+  stop-runner:
+    if: ${{ always() }} # required to stop the runner even if previous jobs failed or are cancelled
+    needs:
+      - start-runner # required to get output from the start-runner job
+      - check_and_test # required to wait when the main job is done
+    uses: Congenica/psga-reusable-workflows/.github/workflows/ec2-runner-stop.yaml@main
+    secrets:
+      role-to-assume: ${{ secrets.CICD_OIDC_ROLE }}
+      github-token: ${{ secrets.GH_PSGA_SYSTEM_PAT }}
+    with:
+      aws-region: ${{ vars.AWS_REGION }}
+      label: ${{ needs.start-runner.outputs.label }}
+      ec2-instance-id: ${{ needs.start-runner.outputs.ec2-instance-id }}
