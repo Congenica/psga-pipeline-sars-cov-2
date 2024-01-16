@@ -21,7 +21,7 @@ dependencies:
   # Read it and Keep
   - read-it-and-keep=0.3.0
   # Primer autodetection
-  - biopython=1.78 # forced to higher to support newer python, pangolin wants 1.74
+  - biopython=1.80
   # Pangolin
   # - pangolin=4.3 # install with pip/git
   # - pangolin-data=1.21
