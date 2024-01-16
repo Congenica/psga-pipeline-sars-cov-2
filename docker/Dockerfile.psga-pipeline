@@ -30,8 +30,8 @@ WORKDIR /app
 #    install setuptools here to avoid the warning / error:
 #    ModuleNotFoundError: No module named '_distutils_hack'
 #    This error does not disappear if this is installed via conda
-RUN nextflow plugin install nf-amazon@1.11 \
-  && pip install setuptools==63.1 \
+RUN nextflow plugin install nf-amazon@1.11.0 \
+  && pip install setuptools==63.1.0 \
   && pip install --progress-bar=off --no-cache-dir --upgrade pip \
   && pip install --progress-bar=off --no-cache-dir poetry \
   # the following uninstall & install commands are a fix for urllib3 being installed by something else
