@@ -38,8 +38,7 @@ jobs:
   trigger_integration_tests:
     name: Trigger integration tests on CircleCI
     runs-on: ubuntu-22.04
-    needs: 
-      - build_image
+    needs: build_image
     steps:
       - name: Trigger integration tests
         id: trigger_integration_tests
@@ -52,6 +51,7 @@ jobs:
     secrets:
       CICD_OIDC_ROLE: ${{ secrets.CICD_OIDC_ROLE }}
       S3_BUCKET_PATH: ${{ secrets.S3_BUCKET_PATH_DEV }}
+      GH_PSGA_SYSTEM_PAT: ${{ secrets.GH_PSGA_SYSTEM_PAT }}
   check_and_test:
     name: Install dependencies and run tests
     uses: ./.github/workflows/check_and_test.yaml
