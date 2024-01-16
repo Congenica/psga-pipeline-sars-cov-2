@@ -19,9 +19,24 @@ jobs:
     with:
       actions_env: prod
       release_enabled: true
+
+  start-runner:
+    uses: Congenica/psga-reusable-workflows/.github/workflows/ec2-runner-start.yaml@main
+    secrets:
+      role-to-assume: ${{ secrets.CICD_OIDC_ROLE }}
+      github-token: ${{ secrets.GH_PSGA_SYSTEM_PAT }}
+    with:
+      aws-region: ${{ vars.AWS_REGION }}
+      ec2-instance-type: ${{ vars.AWS_INSTANCE_TYPE }}
+      subnet-id: ${{ vars.GH_RUNNER_SUBNET_ID }}
+      security-group-id: ${{ vars.GH_RUNNER_SECURITY_GROUP_ID }}
+      iam-role-name: ${{ vars.GH_RUNNER_IAM_ROLE_NAME }}
+      env_type: prod
+
   build_release_image:
     name: Build and push the release image
-    runs-on: ubuntu-22.04
+    needs: start-runner # required to start the main job when the runner is ready
+    runs-on: ${{ needs.start-runner.outputs.label }}
     environment: prod
     strategy:
       matrix:
@@ -57,7 +72,7 @@ jobs:
           mask-aws-account-id: false
 
       - name: Login to dev Amazon ECR
-        uses: aws-actions/amazon-ecr-login@v1
+        uses: aws-actions/amazon-ecr-login@v2
 
       - name: Pull the docker image from dev, build the release image and push to dev
         run: |
@@ -88,7 +103,21 @@ jobs:
           mask-aws-account-id: false
 
       - name: Login to prod Amazon ECR
-        uses: aws-actions/amazon-ecr-login@v1
+        uses: aws-actions/amazon-ecr-login@v2
 
       - name: Push the release image to prod
         run: docker push $PROD_RELEASE_NAME
+
+  stop-runner:
+    if: ${{ always() }} # required to stop the runner even if previous jobs failed or are cancelled
+    needs:
+      - start-runner # required to get output from the start-runner job
+      - build_release_image # required to wait when the main job is done
+    uses: Congenica/psga-reusable-workflows/.github/workflows/ec2-runner-stop.yaml@main
+    secrets:
+      role-to-assume: ${{ secrets.CICD_OIDC_ROLE }}
+      github-token: ${{ secrets.GH_PSGA_SYSTEM_PAT }}
+    with:
+      aws-region: ${{ vars.AWS_REGION }}
+      label: ${{ needs.start-runner.outputs.label }}
+      ec2-instance-id: ${{ needs.start-runner.outputs.ec2-instance-id }}
