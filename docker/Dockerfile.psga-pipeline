@@ -19,7 +19,7 @@ ENV PATH=/opt/conda/envs/custom_env/bin:$PATH
 ARG pathogen
 COPY ./pyproject.toml ./poetry.lock ./app/
 
-WORKDIR /app
+WORKDIR /app/psga
 
 # NOTES:
 # 1. must install the nf-amazon version mentioned in nextflow release notes
@@ -58,14 +58,16 @@ COPY ./integration_tests/expected_data/${pathogen} ./app/integration_tests/expec
 COPY data/${pathogen}/fastqc/* /
 
 # PRIMER AUTODETECTION
-COPY scripts/common /app/scripts/common
+# COPY scripts/common /app/scripts/common
 COPY data/${pathogen}/primer_schemes /primer_schemes
 
 # READ IT AND KEEP
+# COPY scripts/common /app/scripts/common
 COPY data/${pathogen}/read-it-and-keep/* /
-COPY scripts/common /app/scripts/common
 
 WORKDIR /app/psga
+
+ENV PYTHONPATH=/app/
 
 # # generic construct if scripts must be executed at this stage (e.g. for generating default files)
 RUN if [ -f /app/scripts/${pathogen}/Makefile ]; then cd /app/scripts/${pathogen} && make; fi;
