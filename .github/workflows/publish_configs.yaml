@@ -8,7 +8,7 @@ on:
         required: false
       actions_env:
         type: string
-        default: ~
+        default: nonprod
         required: false
     secrets:
       S3_BUCKET_PATH:
