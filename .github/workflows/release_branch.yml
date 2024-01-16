@@ -19,7 +19,7 @@ jobs:
     with:
       actions_env: prod
       release_enabled: true
-  
+
   start-runner:
     uses: Congenica/psga-reusable-workflows/.github/workflows/ec2-runner-start.yaml@main
     secrets:
