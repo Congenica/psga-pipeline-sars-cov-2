@@ -11,18 +11,6 @@ Congenica sequencing protocol is based on the ARTIC consortium and works as foll
 - produce viral genome assemblies from sequence data (ncov2019-artic-nf);
 - assign epidemiological lineages (Pangolin-Scorpio)
 
-### Synthetic
-
-This is a proof-of-concept pathogen pipeline which can also be used as a template.
-
-### S-aureus
-
-This pathogen pipeline is based on Bactopia. It works as follows:
-
-- produce bacterial genome assemblies from sequence data
-- Call variants
-- Detect antibiotic resistance genes
-
 ## Operation
 
 This pipeline runs on a Kubernetes environment. The main workflow coordinates the execution of processes within Kubernetes jobs.
@@ -163,3 +151,22 @@ poetry add package@latest
 ```
 
 To update to a specific version that is not the latest version, re-run the add command specifying a different version constraint.
+
+## TODO
+
+- Integrate ncov pipelines
+- Stop splitting out common and code (remove pathogen refs)
+- Remove python from pyproject or environment files
+- Put containers in their actual processes
+- Add flake8/black and fix all linting (88 chars)
+- Stop running generate files script
+
+### Notes on installing packages
+
+- Pangolin v4.3 requires exactly v1.74 of BioPython.
+  Github has a release of 4.3.1 which is more generous, however this hasn't been released to conda.
+  When this gets updated, it should be possible to bring the pangolin code into the main docker image.
+  An alternative is to install the pangolin release directly from github and then install dependencies in the docker image.
+  ```
+  pangolin = {git = "https://github.com/cov-lineages/pangolin.git", rev = "v4.3.1"}
+  ```

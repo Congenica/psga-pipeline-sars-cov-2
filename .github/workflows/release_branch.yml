@@ -45,9 +45,6 @@ jobs:
           - ncov2019-artic-nf-nanopore
           - ncov2019-artic-nf-illumina
           - pangolin
-          - read-it-and-keep
-          - primer-autodetection
-          - fastqc
     steps:
       - name: Check out repo
         uses: actions/checkout@v3
