@@ -32,8 +32,7 @@ RUN nextflow plugin install nf-amazon@1.11.0 \
 
 WORKDIR /
 
-COPY ./psga/common /app/psga/common
-COPY ./psga/${pathogen} ./psga/*.sh ./psga/main.nf /app/psga/
+COPY ./psga /app/psga/
 COPY ./scripts/ /app/scripts
 
 # scripts for running the validation following integration tests execution
