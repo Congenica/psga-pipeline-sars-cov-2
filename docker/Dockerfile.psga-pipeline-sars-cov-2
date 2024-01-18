@@ -13,7 +13,7 @@ ENV PATH=/opt/conda/envs/custom_env/bin:$PATH
 
 COPY ./pyproject.toml ./poetry.lock ./app/
 
-WORKDIR /app/psga
+WORKDIR /app
 
 # NOTES:
 # 1. must install the nf-amazon version mentioned in nextflow release notes
