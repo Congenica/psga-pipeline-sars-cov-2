@@ -11,7 +11,7 @@ import ahocorasick
 
 from concat_csv import concat
 
-from scripts.primer_colsprimer_cols import (
+from scripts.primer_cols import (
     PRIMER_INDEX_COLS,
     PRIMER_NAME,
     PICKLE_PATH,
