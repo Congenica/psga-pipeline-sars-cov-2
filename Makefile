@@ -16,8 +16,8 @@ build_sars_cov_2_local:
 
 build_local_images: build_sars_cov_2_local
 	docker build --build-arg pathogen=${SARS_COV_2} -t ncov2019-artic-nf-illumina:${DOCKER_IMAGE_TAG} -f docker/Dockerfile.ncov2019-artic-nf-illumina .
-	docker build --build-arg pathogen=${SARS_COV_2} -t ncov2019-artic-nf-nanopore:${DOCKER_IMAGE_TAG} -f docker/Dockerfile.ncov2019-artic-nf-nanopore .
-	docker build --build-arg pathogen=${SARS_COV_2} -t pangolin:${DOCKER_IMAGE_TAG} -f docker/Dockerfile.pangolin .
+	# docker build --build-arg pathogen=${SARS_COV_2} -t ncov2019-artic-nf-nanopore:${DOCKER_IMAGE_TAG} -f docker/Dockerfile.ncov2019-artic-nf-nanopore .
+	# docker build --build-arg pathogen=${SARS_COV_2} -t pangolin:${DOCKER_IMAGE_TAG} -f docker/Dockerfile.pangolin .
 
 shell_local: build_sars_cov_2_local
 	docker run \
