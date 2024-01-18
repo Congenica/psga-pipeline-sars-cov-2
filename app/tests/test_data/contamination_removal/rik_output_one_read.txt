@@ -1,4 +1,0 @@
-Input reads file 1	75703
-Input reads file 2	0
-Kept reads 1	75703
-Kept reads 2	0
