@@ -84,7 +84,7 @@ process ncov2019_artic_nf_pipeline_illumina {
   samtools index ${output_bam}/${sample_id}.${trimmed_bam_file_ext} ${output_bam}/${sample_id}.${trimmed_bam_file_ext}.bai
 
   # reheader fasta file
-  python ${PSGA_ROOT_PATH}/scripts/common/reheader_fasta.py --input-dir ${output_fasta} --output-dir ${reheadered_fasta}
+  python ${PSGA_ROOT_PATH}/scripts/reheader_fasta.py --input-dir ${output_fasta} --output-dir ${reheadered_fasta}
   '''
 }
 
@@ -225,6 +225,6 @@ process ncov2019_artic_nf_pipeline_medaka {
   done
 
   # reheader fasta file
-  python ${PSGA_ROOT_PATH}/scripts/common/reheader_fasta.py --input-dir ${output_fasta} --output-dir ${reheadered_fasta}
+  python ${PSGA_ROOT_PATH}/scripts/ncov/reheader_fasta.py --input-dir ${output_fasta} --output-dir ${reheadered_fasta}
   '''
 }
