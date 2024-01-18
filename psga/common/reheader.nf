@@ -19,6 +19,6 @@ process reheader_fasta {
   mkdir input_dir reheadered_fasta
   cp ${fasta} input_dir/${fasta%.*}.consensus.fa
 
-  python ${PSGA_ROOT_PATH}/scripts/common/reheader_fasta.py --input-dir input_dir --output-dir reheadered_fasta
+  python ${PSGA_ROOT_PATH}/scripts/reheader_fasta.py --input-dir input_dir --output-dir reheadered_fasta
   '''
 }

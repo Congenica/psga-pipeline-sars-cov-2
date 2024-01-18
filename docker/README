@@ -1,15 +1,14 @@
-
 # Building notes:
 
 To speed up the building of docker images, pangolin and ncov repositories are cloned externally in order to fetch the environment yaml files.
 These yaml files are then copied to the docker image.
 Similarly, the sars-cov-2 primer schemes are obtained locally and then copied over to the docker image.
 
-
 ## Preparing the primers for SARS-CoV-2 pathogen:
+
 ```
 # run this script from the current location
-python ../scripts/common/fetch_primers.py \
+python ../scripts/fetch_primers.py \
     --dependencies-file sars_cov_2/ncov.deps \
     --dest-schemes primer_schemes \
     --pathogen sars-cov-2
