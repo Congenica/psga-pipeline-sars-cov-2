@@ -1,4 +1,4 @@
-FROM condaforge/mambaforge:4.14.0-0 AS condabuild
+FROM condaforge/mambaforge:23.3.1-1 AS condabuild
 
 ARG pathogen
 COPY docker/${pathogen}/ncov2019-artic-nf/environments/nanopore/environment.yml /environment.yml
@@ -6,7 +6,7 @@ RUN mamba env create -f /environment.yml -n custom_env \
   && conda clean --all -y
 
 
-FROM debian:buster-slim
+FROM debian:bookworm-slim
 RUN apt-get update \
   && apt-get install -y --no-install-recommends procps rename \
   && apt-get clean -y \
@@ -21,14 +21,14 @@ ENV LANG=C.UTF-8
 
 # install medaka models
 RUN medaka tools download_models \
-        --models r103_fast_variant_g507 r103_hac_variant_g507 r103_prom_variant_g3210 r103_sup_variant_g507 \
-                 r941_min_fast_variant_g507 r941_min_hac_variant_g507 r941_min_sup_variant_g507 \
-                 r941_prom_fast_variant_g507 r941_prom_hac_variant_g507 r941_prom_sup_variant_g507 \
-                 r941_prom_variant_g303 r941_prom_variant_g322 r941_prom_variant_g360
+  --models r103_fast_variant_g507 r103_hac_variant_g507 r103_prom_variant_g3210 r103_sup_variant_g507 \
+  r941_min_fast_variant_g507 r941_min_hac_variant_g507 r941_min_sup_variant_g507 \
+  r941_prom_fast_variant_g507 r941_prom_hac_variant_g507 r941_prom_sup_variant_g507 \
+  r941_prom_variant_g303 r941_prom_variant_g322 r941_prom_variant_g360
 
 ARG pathogen
 COPY docker/${pathogen}/ncov2019-artic-nf /ncov2019-artic-nf
 COPY psga/${pathogen}/ncov-nanopore.config psga/${pathogen}/ncov-common.config /
 COPY data/${pathogen}/ncov2019-artic-nf/* /
 COPY data/${pathogen}/primer_schemes /primer_schemes
-COPY scripts/common /app/scripts/common
+COPY scripts/ncov /app/scripts/ncov
