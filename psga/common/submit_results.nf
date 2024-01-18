@@ -15,6 +15,6 @@ process submit_results {
 
   script:
   """
-  python ${PSGA_ROOT_PATH}/scripts/common/concat_csv.py --input-path . --output-csv-path ${ch_output_path} --sortby-col ${ch_sortby_col}
+  python ${PSGA_ROOT_PATH}/scripts/concat_csv.py --input-path . --output-csv-path ${ch_output_path} --sortby-col ${ch_sortby_col}
   """
 }

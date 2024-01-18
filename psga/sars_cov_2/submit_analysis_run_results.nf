@@ -35,7 +35,7 @@ process submit_pipeline_results_files {
       ncov_opt="--contamination-removal-csv-file \"${ch_contamination_removal_csv_file}\" --primer-autodetection-csv-file \"${ch_primer_autodetection_csv_file}\" --ncov-qc-csv-file \"${ch_ncov_qc_result_csv_file}\""
   fi
 
-  python ${PSGA_ROOT_PATH}/scripts/sars_cov_2/generate_pipeline_results_files.py \
+  python ${PSGA_ROOT_PATH}/scripts/generate_pipeline_results_files.py \
     --analysis-run-name "${params.run}" \
     --metadata-file "${ch_metadata}" \
     --pangolin-csv-file "${ch_pangolin_csv_file}" \

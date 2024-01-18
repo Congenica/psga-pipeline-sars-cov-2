@@ -32,6 +32,6 @@ process primer_autodetection {
   sample_id=$( echo ${file_1} | cut -d '_' -f1)
   primer_index="/primer_schemes/!{pathogen}_primer_index.csv"
 
-  python ${PSGA_ROOT_PATH}/scripts/common/primer_autodetection.py --primer-index "${primer_index}" --sample-fastq "${file_1}" --sample-id "${sample_id}" --primer-input !{params.kit}
+  python ${PSGA_ROOT_PATH}/scripts/primer_autodetection.py --primer-index "${primer_index}" --sample-fastq "${file_1}" --sample-id "${sample_id}" --primer-input !{params.kit}
   '''
 }

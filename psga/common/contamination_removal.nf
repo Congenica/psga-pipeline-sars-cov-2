@@ -40,7 +40,7 @@ process contamination_removal_ont {
 
   mv -f out.reads.fastq.gz cleaned_fastq/${sample_id}_1.fastq.gz
 
-  python ${PSGA_ROOT_PATH}/scripts/common/contamination_removal.py \
+  python ${PSGA_ROOT_PATH}/scripts/contamination_removal.py \
     --input-path "${rik_output_file}" \
     --output-csv-path "${output_csv}" \
     --sample-id "${sample_id}"
@@ -91,7 +91,7 @@ process contamination_removal_illumina {
   mv -f out.reads_1.fastq.gz cleaned_fastq/${sample_id}_1.fastq.gz
   mv -f out.reads_2.fastq.gz cleaned_fastq/${sample_id}_2.fastq.gz
 
-  python ${PSGA_ROOT_PATH}/scripts/common/contamination_removal.py \
+  python ${PSGA_ROOT_PATH}/scripts/contamination_removal.py \
     --input-path "${rik_output_file}" \
     --output-csv-path "${output_csv}" \
     --sample-id "${sample_id}"
