@@ -5,6 +5,7 @@ channels:
   - defaults
 dependencies:
   - python=3.10
+  - poetry=1.7
   - gcc=12.1.0
   # TODO: Remove Used in Docker image build
   - make=4.3
