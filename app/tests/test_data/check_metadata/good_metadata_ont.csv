@@ -1,7 +1,0 @@
-SAMPLE_ID,seq_file_1
-37a36d1c-5985-4836-87b5-b36bac75d81b,s3://synthetic-data-dev/ont/ERR7150151_1.fastq.gz
-57a36d1c-5985-4836-87b5-b36bac75d81b,s3://synthetic-data-dev/ont/ERR7150151_1.fastq
-885347c5-ff6a-454c-ac34-bc353d05dd70,s3://synthetic-data-dev/ont/ERR7150243_1.fq.gz
-985347c5-ff6a-454c-ac34-bc353d05dd70,s3://synthetic-data-dev/ont/ERR7150243_1.fq
-47a36d1c-5985-4836-87b5-b36bac75d81b,s3://synthetic-data-dev/ont/ERR7150151_1.bam
-485347c5-ff6a-454c-ac34-bc353d05dd70,s3://synthetic-data-dev/ont/ERR7150243_1.bam

@@ -46,7 +46,8 @@ jobs:
       - name: Install dependencies and run tests
         run: |
           poetry install
-          PYTHONPATH=app/ poetry run pytest tests/ --alluredir=${{ env.ALLURE_DIR }}
+          cd app
+          PYTHONPATH=. poetry run pytest tests/ --alluredir=${{ env.ALLURE_DIR }}
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4

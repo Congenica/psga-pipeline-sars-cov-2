@@ -31,6 +31,7 @@ RUN nextflow plugin install nf-amazon@1.11.0 \
 WORKDIR /
 
 COPY ./app /app
+COPY ./scripts /app/scripts
 
 # scripts for running the validation following integration tests execution
 COPY ./integration_tests/*.py ./app/integration_tests/

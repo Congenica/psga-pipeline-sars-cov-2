@@ -1,5 +1,0 @@
-sample_name,pct_N_bases,pct_covered_bases,longest_no_N_run,num_aligned_reads,fasta,bam,qc_pass
-e80f3c63-d139-4c14-bd72-7a43897ab40d,0.30,99.67,29798,2406868,e80f3c63-d139-4c14-bd72-7a43897ab40d.primertrimmed.consensus.fa,e80f3c63-d139-4c14-bd72-7a43897ab40d.mapped.primertrimmed.sorted.bam,TRUE
-56a63f60-764d-4fc7-8764-a46023cbe324,0.12,99.86,29822,2989521,56a63f60-764d-4fc7-8764-a46023cbe324.primertrimmed.consensus.fa,56a63f60-764d-4fc7-8764-a46023cbe324.mapped.primertrimmed.sorted.bam,TRUE
-0774181d-fb20-4a73-b887-38af7eda9b38,0.30,99.65,29783,3805878,0774181d-fb20-4a73-b887-38af7eda9b38.primertrimmed.consensus.fa,0774181d-fb20-4a73-b887-38af7eda9b38.mapped.primertrimmed.sorted.bam,FALSE
-a0951432-cd94-45b5-96d5-b721c037a451,0.30,99.65,29783,3805878,a0951432-cd94-45b5-96d5-b721c037a451.primertrimmed.consensus.fa,a0951432-cd94-45b5-96d5-b721c037a451.mapped.primertrimmed.sorted.bam,TRUE

@@ -1,5 +1,0 @@
-Processed 100000 reads (or read pairs)
-Input reads file 1	139499
-Input reads file 2	139499
-Kept reads 1	139151
-Kept reads 2	139151
