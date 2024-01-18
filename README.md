@@ -154,10 +154,8 @@ To update to a specific version that is not the latest version, re-run the add c
 
 ## TODO
 
-- Add flake8/black and fix all linting (88 chars)
-- Install poetry with conda, pin version
-- Put containers in their actual processes
 - Stop splitting out common and code (remove pathogen refs)
+- Put containers in their actual processes
 - Break out skeleton flow
 - Integrate ncov pipelines
 - Stop running generate files script

@@ -5,7 +5,7 @@ import click
 from integration_tests.loading import load_data_from_csv, get_file_paths
 from integration_tests.compare import compare_merged_output_file, compare_output_files_set
 from integration_tests.config import data_config
-from scripts.common.check_metadata import SEQUENCING_TECHNOLOGIES
+from scripts.check_metadata import SEQUENCING_TECHNOLOGIES
 from scripts.util.logger import get_structlog_logger
 
 log_file = f"{Path(__file__).stem}.log"

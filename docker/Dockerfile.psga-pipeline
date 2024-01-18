@@ -12,10 +12,6 @@ FROM debian:bookworm-slim
 COPY --from=condabuild /opt/conda/envs/custom_env /opt/conda/envs/custom_env
 ENV PATH=/opt/conda/envs/custom_env/bin:$PATH
 
-# # pin the versions of pip and poetry
-# ENV PIP_VERSION=22.2 \
-#   POETRY_VERSION=1.7
-
 ARG pathogen
 COPY ./pyproject.toml ./poetry.lock ./app/
 
@@ -31,13 +27,6 @@ WORKDIR /app/psga
 #    ModuleNotFoundError: No module named '_distutils_hack'
 #    This error does not disappear if this is installed via conda
 RUN nextflow plugin install nf-amazon@1.11.0 \
-  # && pip install setuptools==63.1.0 \
-  # && pip install --progress-bar=off --no-cache-dir --upgrade pip \
-  # && pip install --progress-bar=off --no-cache-dir poetry \
-  # # the following uninstall & install commands are a fix for urllib3 being installed by something else
-  # # in a version that breaks poetry installation, e.g. see https://github.com/python-poetry/poetry/issues/7878
-  # && pip uninstall -y urllib3 \
-  # && pip install urllib3==1.26.14 \
   && poetry config virtualenvs.create false \
   && poetry install --no-interaction --no-ansi --no-dev
 
@@ -45,10 +34,7 @@ WORKDIR /
 
 COPY ./psga/common /app/psga/common
 COPY ./psga/${pathogen} ./psga/*.sh ./psga/main.nf /app/psga/
-COPY ./scripts/common /app/scripts/common
-COPY ./scripts/util /app/scripts/util
-COPY ./scripts/validation /app/scripts/validation
-COPY ./scripts/${pathogen} /app/scripts/${pathogen}
+COPY ./scripts/ /app/scripts
 
 # scripts for running the validation following integration tests execution
 COPY ./integration_tests/*.py ./app/integration_tests/
@@ -58,11 +44,9 @@ COPY ./integration_tests/expected_data/${pathogen} ./app/integration_tests/expec
 COPY data/${pathogen}/fastqc/* /
 
 # PRIMER AUTODETECTION
-# COPY scripts/common /app/scripts/common
 COPY data/${pathogen}/primer_schemes /primer_schemes
 
 # READ IT AND KEEP
-# COPY scripts/common /app/scripts/common
 COPY data/${pathogen}/read-it-and-keep/* /
 
 WORKDIR /app/psga
@@ -70,4 +54,4 @@ WORKDIR /app/psga
 ENV PYTHONPATH=/app/
 
 # # generic construct if scripts must be executed at this stage (e.g. for generating default files)
-RUN if [ -f /app/scripts/${pathogen}/Makefile ]; then cd /app/scripts/${pathogen} && make; fi;
+RUN if [ -f /app/scripts/Makefile ]; then cd /app/scripts && make; fi;
