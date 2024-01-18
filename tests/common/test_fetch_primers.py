@@ -3,7 +3,7 @@ import shutil
 import pytest
 from Bio import SeqIO
 
-from scripts.common.fetch_primers import (
+from scripts.fetch_primers import (
     extract_primer_sequences,
     generate_primer_index_file,
     ORGANISE_PRIMERS,
@@ -16,7 +16,7 @@ from scripts.common.fetch_primers import (
     REFERENCE,
     SCHEME,
 )
-from scripts.common.primer_autodetection import load_pickle
+from scripts.primer_autodetection import load_pickle
 from tests.utils_tests import assert_files_are_equal
 
 PATH = "path"
@@ -212,7 +212,6 @@ def test_organise_primers(
     primer_data: dict,
     data_source: str,
 ):
-
     data = primer_data[data_source]
     dest_schemes_path = tmp_path / primer_schemes_dir
 

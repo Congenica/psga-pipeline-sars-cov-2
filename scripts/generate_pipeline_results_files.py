@@ -5,11 +5,11 @@ from functools import partial, reduce
 import click
 import pandas as pd
 
-from scripts.common.contamination_removal import (
+from scripts.contamination_removal import (
     CONTAMINATION_REMOVAL_SAMPLE_ID_COL,
     EXPECTED_CONTAMINATION_REMOVAL_HEADERS,
 )
-from scripts.common.primer_cols import (
+from scripts.primer_cols import (
     PRIMER_AUTODETECTION_SAMPLE_ID_COL,
     EXPECTED_PRIMER_AUTODETECTION_HEADERS,
 )

@@ -3,7 +3,7 @@ from typing import Callable
 import pytest
 from click.testing import CliRunner
 
-from scripts.common.reheader_fasta import reheader_fasta, FASTA_FILE_EXTENSION, FASTA_FILE_HANDLE
+from scripts.reheader_fasta import reheader_fasta, FASTA_FILE_EXTENSION, FASTA_FILE_HANDLE
 
 
 @pytest.mark.parametrize(
@@ -21,7 +21,6 @@ from scripts.common.reheader_fasta import reheader_fasta, FASTA_FILE_EXTENSION, 
 )
 @pytest.mark.jira(identifier="83399fd1-3412-4aac-b602-0004d11424c4", confirms="PSG-3621")
 def test_reheader_fasta(tmp_path: Path, fasta_file_generator: Callable, input_fasta_header: str):
-
     fasta_file_generator(
         path=tmp_path,
         extension=FASTA_FILE_EXTENSION,
