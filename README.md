@@ -153,6 +153,7 @@ To update to a specific version that is not the latest version, re-run the add c
 - Remove python from pyproject or environment files
 - bump mypy commit hook
 - add **init** to at least scripts.util
+- Stop copying integration tests into the docker image
 
 ### Notes on installing packages
 
@@ -163,3 +164,9 @@ To update to a specific version that is not the latest version, re-run the add c
   ```
   pangolin = {git = "https://github.com/cov-lineages/pangolin.git", rev = "v4.3.1"}
   ```
+
+## notes
+
+- This repo has tests and scripts outside the app dir
+- Scripts are copied in at runtime. The tests that run on them assume they do not live inside app/.
+- Integration tests are copied into the docker image.
