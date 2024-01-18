@@ -154,12 +154,14 @@ To update to a specific version that is not the latest version, re-run the add c
 
 ## TODO
 
-- Integrate ncov pipelines
-- Stop splitting out common and code (remove pathogen refs)
-- Remove python from pyproject or environment files
-- Put containers in their actual processes
 - Add flake8/black and fix all linting (88 chars)
+- Install poetry with conda, pin version
+- Put containers in their actual processes
+- Stop splitting out common and code (remove pathogen refs)
+- Break out skeleton flow
+- Integrate ncov pipelines
 - Stop running generate files script
+- Remove python from pyproject or environment files
 
 ### Notes on installing packages
 
