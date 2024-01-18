@@ -1,5 +1,5 @@
 .git
 .vscode
 # nextflow output files
-psga/work
-psga/.nextflow*
+app/work
+app/.nextflow*

@@ -17,7 +17,7 @@ This pipeline runs on a Kubernetes environment. The main workflow coordinates th
 
 ### Environment variables and input parameters
 
-See: psga/modules/help.nf .
+See: app/modules/help.nf .
 
 The help can also be printed with the command: `nextflow run . --help`.
 The current configuration can be printed with the command: `nextflow run . --print_config`.
@@ -77,16 +77,6 @@ exit
 ```
 
 ## Development
-
-### Add new pathogens
-
-A synthetic pathogen pipeline is available as a template pipeline. In summary:
-
-1. write the nextflow pipeline `psga/pathogenX/psga.nf` and update `psga/pathogenX/help.nf` accordingly
-2. add Python scripts to: `scripts/pathogenX/`
-3. add Python unit tests to: `tests/pathogenX/`
-4. add integration tests to: `integration_tests/`
-5. create dockerfiles in `docker/` and dependencies in `docker/pathogenX`
 
 ### Install dependency packages using Python Poetry tool
 
