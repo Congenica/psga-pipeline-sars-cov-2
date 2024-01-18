@@ -151,6 +151,8 @@ To update to a specific version that is not the latest version, re-run the add c
 - Integrate ncov pipelines
 - Stop running generate files script
 - Remove python from pyproject or environment files
+- bump mypy commit hook
+- add **init** to at least scripts.util
 
 ### Notes on installing packages
 
