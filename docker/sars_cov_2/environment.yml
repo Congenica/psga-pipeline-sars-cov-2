@@ -1,4 +1,4 @@
-name: psga
+name: psga-pipeline-sars-cov-2
 channels:
   - bioconda
   - conda-forge

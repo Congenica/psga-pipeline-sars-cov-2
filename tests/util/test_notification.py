@@ -68,7 +68,6 @@ def load_log_file_to_dict(log_file: Path, key: str) -> dict:
 )
 @pytest.mark.jira(identifier="e3e580c9-ad11-4567-a0b1-49fe467b6f22", confirms="PSG-3621")
 def test_notification(tmp_path: Path, events: dict[str, Event]):
-
     log_file = tmp_path / "messages.log"
     assert not log_file.is_file()
 

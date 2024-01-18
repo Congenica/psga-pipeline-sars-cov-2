@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# TODO: Unclear this is used
 # Copy reports, logs and workdir logs for this analysis run to the output directory
 # To enable the main log and reports, invoke nextflow as follows:
 # nextflow -log <ANALYSIS_RUN>.log run . -with-trace <PIPELINE PARAMETERS>

@@ -21,7 +21,7 @@ ENV LANG=C.UTF-8
 
 ARG pathogen
 COPY docker/${pathogen}/ncov2019-artic-nf /ncov2019-artic-nf
-COPY psga/ncov-illumina.config psga/ncov-common.config /
+COPY app/ncov-illumina.config app/ncov-common.config /
 COPY data/${pathogen}/ncov2019-artic-nf/* /
 COPY data/${pathogen}/primer_schemes /primer_schemes
-COPY scripts/ncov /app/scripts/ncov
+COPY app/scripts/ncov /app/scripts/ncov

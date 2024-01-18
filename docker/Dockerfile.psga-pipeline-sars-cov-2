@@ -1,7 +1,6 @@
 FROM condaforge/mambaforge:23.3.1-1 AS condabuild
 
-ARG pathogen
-COPY docker/${pathogen}/psga.yml /environment.yml
+COPY docker/sars_cov_2/environment.yml /environment.yml
 
 RUN mamba env create -f /environment.yml -n custom_env \
   && conda clean --all -y
@@ -12,7 +11,6 @@ FROM debian:bookworm-slim
 COPY --from=condabuild /opt/conda/envs/custom_env /opt/conda/envs/custom_env
 ENV PATH=/opt/conda/envs/custom_env/bin:$PATH
 
-ARG pathogen
 COPY ./pyproject.toml ./poetry.lock ./app/
 
 WORKDIR /app/psga
@@ -32,23 +30,22 @@ RUN nextflow plugin install nf-amazon@1.11.0 \
 
 WORKDIR /
 
-COPY ./psga /app/psga/
-COPY ./scripts/ /app/scripts
+COPY ./app /app
 
 # scripts for running the validation following integration tests execution
 COPY ./integration_tests/*.py ./app/integration_tests/
-COPY ./integration_tests/expected_data/${pathogen} ./app/integration_tests/expected_data/${pathogen}
+COPY ./integration_tests/expected_data/sars_cov_2 ./app/integration_tests/expected_data/sars_cov_2
 
 # FASTQC
-COPY data/${pathogen}/fastqc/* /
+COPY data/sars_cov_2/fastqc/* /
 
 # PRIMER AUTODETECTION
-COPY data/${pathogen}/primer_schemes /primer_schemes
+COPY data/sars_cov_2/primer_schemes /primer_schemes
 
 # READ IT AND KEEP
-COPY data/${pathogen}/read-it-and-keep/* /
+COPY data/sars_cov_2/read-it-and-keep/* /
 
-WORKDIR /app/psga
+WORKDIR /app
 
 ENV PYTHONPATH=/app/
 

@@ -47,7 +47,7 @@ if ( params.sequencing_technology in ["illumina", "ont"] ) {
  * Main workflow for the pathogen: SARS-CoV-2.
  * This workflow is based on ncov2019-artic and Pangolin pipelines.
  */
-workflow psga {
+workflow SarsCov2Workflow {
 
     main:
 
