@@ -9,7 +9,7 @@ import click
 from Bio import SeqIO
 import ahocorasick
 
-from concat_csv import concat
+from scripts.concat_csv import concat
 
 from scripts.primer_cols import (
     PRIMER_INDEX_COLS,
