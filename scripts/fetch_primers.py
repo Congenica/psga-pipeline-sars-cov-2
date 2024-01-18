@@ -10,7 +10,7 @@ from git import Repo
 from Bio import SeqIO
 import ahocorasick
 
-from primer_cols import PRIMER_INDEX_COLS, PRIMER_NAME, FASTA_PATH, PICKLE_PATH, TOTAL_NUM_PRIMER
+from scripts.primer_cols import PRIMER_INDEX_COLS, PRIMER_NAME, FASTA_PATH, PICKLE_PATH, TOTAL_NUM_PRIMER
 
 SARS_COV_2 = "SARS-CoV-2"
 EPI2ME_LABS = "epi2me-labs"
