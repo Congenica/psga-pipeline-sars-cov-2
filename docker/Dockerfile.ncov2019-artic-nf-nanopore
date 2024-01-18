@@ -28,7 +28,7 @@ RUN medaka tools download_models \
 
 ARG pathogen
 COPY docker/${pathogen}/ncov2019-artic-nf /ncov2019-artic-nf
-COPY psga/${pathogen}/ncov-nanopore.config psga/${pathogen}/ncov-common.config /
+COPY psga/ncov-nanopore.config psga/${pathogen}/ncov-common.config /
 COPY data/${pathogen}/ncov2019-artic-nf/* /
 COPY data/${pathogen}/primer_schemes /primer_schemes
 COPY scripts/ncov /app/scripts/ncov
