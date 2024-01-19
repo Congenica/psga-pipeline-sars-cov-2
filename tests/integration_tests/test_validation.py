@@ -4,7 +4,7 @@ import pytest
 from click.testing import CliRunner
 import pandas as pd
 
-from scripts.util.metadata import SAMPLE_ID
+from app.scripts.util.metadata import SAMPLE_ID
 from integration_tests.compare import compare_merged_output_file, ValidationError
 from integration_tests.config import data_config
 from integration_tests.loading import load_data_from_csv

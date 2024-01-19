@@ -5,11 +5,11 @@ import pytest
 
 from click.testing import CliRunner
 
-from scripts.fetch_primers import (
+from app.scripts.fetch_primers import (
     create_automaton,
 )
 
-from scripts.primer_autodetection import (
+from app.scripts.primer_autodetection import (
     load_pickle,
     build_primers_automaton,
     count_primer_matches,
@@ -27,12 +27,12 @@ from scripts.primer_autodetection import (
     PRIMER_DATA_SUFFIX,
     UNKNOWN,
 )
-from scripts.fetch_primers import (
+from app.scripts.fetch_primers import (
     SARS_COV_2,
     SCHEME,
     PICKLE,
 )
-from scripts.primer_cols import (
+from app.scripts.primer_cols import (
     PRIMER_INDEX_COLS,
     PRIMER_NAME,
     FASTA_PATH,

@@ -3,8 +3,8 @@ import pytest
 from click.testing import CliRunner
 import structlog
 
-from scripts.check_metadata import check_metadata, validate_metadata
-from scripts.util.logger import get_structlog_logger
+from app.scripts.check_metadata import check_metadata, validate_metadata
+from app.scripts.util.logger import get_structlog_logger
 from tests.util.test_notification import load_log_file_to_dict
 
 

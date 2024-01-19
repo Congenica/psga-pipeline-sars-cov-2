@@ -3,8 +3,8 @@ import pytest
 import json
 from click.testing import CliRunner
 
-from scripts.generate_pipeline_results_files import generate_pipeline_results_files
-from scripts.util.metadata import SAMPLE_ID
+from app.scripts.generate_pipeline_results_files import generate_pipeline_results_files
+from app.scripts.util.metadata import SAMPLE_ID
 from tests.utils_tests import assert_csvs_are_equal, assert_jsons_are_equal
 
 

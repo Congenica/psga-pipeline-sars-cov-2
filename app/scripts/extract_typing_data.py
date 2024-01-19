@@ -1,7 +1,7 @@
 from pathlib import Path
 import click
 
-from scripts.util.data_loading import load_yaml, write_yaml
+from app.scripts.util.data_loading import load_yaml, write_yaml
 
 # script for generating sars-cov-2 typing data YAML file from DATA_SOURCE (see variable below)
 # Assumptions: the repo is cloned locally
