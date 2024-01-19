@@ -19,7 +19,7 @@ jobs:
       github-token: ${{ secrets.GH_PSGA_SYSTEM_PAT }}
     with:
       aws-region: ${{ vars.AWS_REGION }}
-      ec2-instance-type: ${{ vars.AWS_INSTANCE_TYPE }}
+      ec2-instance-type: m5.2xlarge
       subnet-id: ${{ vars.GH_RUNNER_SUBNET_ID }}
       security-group-id: ${{ vars.GH_RUNNER_SECURITY_GROUP_ID }}
       iam-role-name: ${{ vars.GH_RUNNER_IAM_ROLE_NAME }}
@@ -41,6 +41,7 @@ jobs:
           role-to-assume: ${{ secrets.CICD_OIDC_ROLE }}
           role-session-name: cicd-role-session
           mask-aws-account-id: false
+          output-credentials: true
 
       - name: Login to dev Amazon ECR
         uses: aws-actions/amazon-ecr-login@v2
@@ -56,10 +57,12 @@ jobs:
 
       - name: Run tests
         run: |
+          export AWS_ACCESS_KEY_ID=${{ steps.creds.outputs.aws-access-key-id }}
+          export AWS_SECRET_ACCESS_KEY=${{ steps.creds.outputs.aws-secret-access-key }}
           aws s3 ls
-          sed -i "s/dev_latest/${{ github.sha }}/g" pipelines/*
           ./startup.sh
           ./run_pipelines.sh
+        #   sed -i "s/dev_latest/${{ github.sha }}/g" pipelines/*
 
   stop-runner:
     if: ${{ always() }} # required to stop the runner even if previous jobs failed or are cancelled
