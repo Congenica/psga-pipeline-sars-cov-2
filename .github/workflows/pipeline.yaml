@@ -4,62 +4,62 @@ on:
     branches-ignore:
       - "release/**"
 jobs:
-  # check_and_test:
-  #   name: Install dependencies and run tests
-  #   uses: ./.github/workflows/check_and_test.yaml
-  #   secrets: inherit
-  # build_image:
-  #   name: Build and push image
-  #   needs:
-  #     - check_and_test
-  #   strategy:
-  #     fail-fast: false
-  #     matrix:
-  #       image:
-  #         - name: sars-cov-2-pipeline
-  #           dockerfile: Dockerfile.psga-pipeline-sars-cov-2
-  #           pathogen: sars_cov_2
-  #         - name: pangolin
-  #           pathogen: sars_cov_2
-  #         - name: ncov2019-artic-nf-nanopore
-  #           pathogen: sars_cov_2
-  #         - name: ncov2019-artic-nf-illumina
-  #           pathogen: sars_cov_2
-  #   uses: ./.github/workflows/build_image.yaml
-  #   secrets: inherit
-  #   with:
-  #     name: ${{ matrix.image.name }}
-  #     dockerfile: ${{ matrix.image.dockerfile }}
-  #     pathogen: ${{ matrix.image.pathogen }}
+  check_and_test:
+    name: Install dependencies and run tests
+    uses: ./.github/workflows/check_and_test.yaml
+    secrets: inherit
+  build_image:
+    name: Build and push image
+    needs:
+      - check_and_test
+    strategy:
+      fail-fast: false
+      matrix:
+        image:
+          - name: sars-cov-2-pipeline
+            dockerfile: Dockerfile.psga-pipeline-sars-cov-2
+            pathogen: sars_cov_2
+          - name: pangolin
+            pathogen: sars_cov_2
+          - name: ncov2019-artic-nf-nanopore
+            pathogen: sars_cov_2
+          - name: ncov2019-artic-nf-illumina
+            pathogen: sars_cov_2
+    uses: ./.github/workflows/build_image.yaml
+    secrets: inherit
+    with:
+      name: ${{ matrix.image.name }}
+      dockerfile: ${{ matrix.image.dockerfile }}
+      pathogen: ${{ matrix.image.pathogen }}
   trigger_gh_actions_integration_tests:
     name: Trigger GH actions integration tests
-    # needs:
-    #   - build_image
+    needs:
+      - build_image
     uses: ./.github/workflows/integration_tests.yaml
     secrets:
       CICD_OIDC_ROLE: ${{ secrets.CICD_OIDC_ROLE }}
       GH_PSGA_SYSTEM_PAT: ${{ secrets.GH_PSGA_SYSTEM_PAT }}
-  # trigger_integration_tests:
-  #   name: Trigger integration tests on CircleCI
-  #   runs-on: ubuntu-22.04
-  #   needs: build_image
-  #   steps:
-  #     - name: Trigger integration tests
-  #       id: trigger_integration_tests
-  #       uses: CircleCI-Public/trigger-circleci-pipeline-action@v1.1.0
-  #       env:
-  #         CCI_TOKEN: ${{ secrets.CIRCLECI_TOKEN }}
-  # publish_configs:
-  #   name: Publish configs
-  #   uses: ./.github/workflows/publish_configs.yaml
-  #   secrets:
-  #     CICD_OIDC_ROLE: ${{ secrets.CICD_OIDC_ROLE }}
-  #     S3_BUCKET_PATH: ${{ secrets.S3_BUCKET_PATH_DEV }}
-  #     GH_PSGA_SYSTEM_PAT: ${{ secrets.GH_PSGA_SYSTEM_PAT }}
-  # test_traceability:
-  #   needs: check_and_test
-  #   uses: ./.github/workflows/test_traceability.yml
-  #   secrets: inherit
-  #   with:
-  #     docker_tag: dev_latest
-  #     trace_to_jira: ${{ github.ref == 'refs/heads/main' && true || false }}
+  trigger_integration_tests:
+    name: Trigger integration tests on CircleCI
+    runs-on: ubuntu-22.04
+    needs: build_image
+    steps:
+      - name: Trigger integration tests
+        id: trigger_integration_tests
+        uses: CircleCI-Public/trigger-circleci-pipeline-action@v1.1.0
+        env:
+          CCI_TOKEN: ${{ secrets.CIRCLECI_TOKEN }}
+  publish_configs:
+    name: Publish configs
+    uses: ./.github/workflows/publish_configs.yaml
+    secrets:
+      CICD_OIDC_ROLE: ${{ secrets.CICD_OIDC_ROLE }}
+      S3_BUCKET_PATH: ${{ secrets.S3_BUCKET_PATH_DEV }}
+      GH_PSGA_SYSTEM_PAT: ${{ secrets.GH_PSGA_SYSTEM_PAT }}
+  test_traceability:
+    needs: check_and_test
+    uses: ./.github/workflows/test_traceability.yml
+    secrets: inherit
+    with:
+      docker_tag: dev_latest
+      trace_to_jira: ${{ github.ref == 'refs/heads/main' && true || false }}

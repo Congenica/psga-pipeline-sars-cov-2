@@ -31,43 +31,24 @@ jobs:
     runs-on: ${{ needs.start-runner.outputs.label }}
     environment: ${{ inputs.actions_env }}
     steps:
-      - name: Check out repo
-        uses: actions/checkout@v4
+      #   - name: Check out repo
+      #     uses: actions/checkout@v4
 
-      - name: Configure AWS Credentials
-        id: creds
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-region: eu-west-2
-          role-to-assume: ${{ secrets.CICD_OIDC_ROLE }}
-          role-session-name: cicd-role-session
-          mask-aws-account-id: false
-          output-credentials: true
+      #   - name: Configure AWS Credentials
+      #     id: creds
+      #     uses: aws-actions/configure-aws-credentials@v4
+      #     with:
+      #       aws-region: eu-west-2
+      #       role-to-assume: ${{ secrets.CICD_OIDC_ROLE }}
+      #       role-session-name: cicd-role-session
+      #       mask-aws-account-id: false
 
-      - name: Login to dev Amazon ECR
-        uses: aws-actions/amazon-ecr-login@v2
-
-      - name: Install Kubectl
-        uses: azure/setup-kubectl@v1
-
-      - name: start minikube
-        id: minikube
-        uses: medyagh/setup-minikube@latest
-        with:
-          cpus: 6
-          memory: 28672
-          addons: storage-provisioner
-          start-args: "--force --embed-certs"
+      #   - name: Login to dev Amazon ECR
+      #     uses: aws-actions/amazon-ecr-login@v2
 
       - name: Run tests
         run: |
-          export AWS_ACCESS_KEY_ID=${{ steps.creds.outputs.aws-access-key-id }}
-          export AWS_SECRET_ACCESS_KEY=${{ steps.creds.outputs.aws-secret-access-key }}
-          aws s3 ls
-          cd minikube
-          ./startup.sh
-          ./run_pipelines.sh
-        #   sed -i "s/dev_latest/${{ github.sha }}/g" pipelines/*
+          echo "run 3x integration tests here, one for each image"
 
   stop-runner:
     if: ${{ always() }} # required to stop the runner even if previous jobs failed or are cancelled
