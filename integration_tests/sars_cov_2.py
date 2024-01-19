@@ -1,6 +1,6 @@
 from os.path import join as join_path  # used to join FS paths and S3 URIs
 
-from scripts.sars_cov_2.generate_pipeline_results_files import get_expected_output_files_per_sample, SampleIdResultFiles
+from scripts.generate_pipeline_results_files import get_expected_output_files_per_sample, SampleIdResultFiles
 from scripts.util.metadata import UNKNOWN
 
 

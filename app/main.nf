@@ -20,7 +20,7 @@ if (params.help) {
     exit 0
 }
 
-include { psga } from "./psga.nf"
+include { SarsCov2Workflow } from "./SarsCov2.nf"
 
 
 // Required environment variables
@@ -77,5 +77,5 @@ if ( params.output_path == "" ) {
 }
 
 workflow {
-    psga_workflow = psga()
+    sars_cov_2_workflow = SarsCov2Workflow()
 }

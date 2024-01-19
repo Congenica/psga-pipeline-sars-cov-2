@@ -17,7 +17,7 @@ This pipeline runs on a Kubernetes environment. The main workflow coordinates th
 
 ### Environment variables and input parameters
 
-See: psga/modules/help.nf .
+See: app/modules/help.nf .
 
 The help can also be printed with the command: `nextflow run . --help`.
 The current configuration can be printed with the command: `nextflow run . --print_config`.
@@ -77,16 +77,6 @@ exit
 ```
 
 ## Development
-
-### Add new pathogens
-
-A synthetic pathogen pipeline is available as a template pipeline. In summary:
-
-1. write the nextflow pipeline `psga/pathogenX/psga.nf` and update `psga/pathogenX/help.nf` accordingly
-2. add Python scripts to: `scripts/pathogenX/`
-3. add Python unit tests to: `tests/pathogenX/`
-4. add integration tests to: `integration_tests/`
-5. create dockerfiles in `docker/` and dependencies in `docker/pathogenX`
 
 ### Install dependency packages using Python Poetry tool
 
@@ -154,12 +144,16 @@ To update to a specific version that is not the latest version, re-run the add c
 
 ## TODO
 
-- Integrate ncov pipelines
 - Stop splitting out common and code (remove pathogen refs)
-- Remove python from pyproject or environment files
 - Put containers in their actual processes
-- Add flake8/black and fix all linting (88 chars)
+- Break out skeleton flow
+- install + use results writer
+- Integrate ncov pipelines
 - Stop running generate files script
+- Remove python from pyproject or environment files
+- bump mypy commit hook
+- add **init** to at least scripts.util
+- Stop copying integration tests into the docker image
 
 ### Notes on installing packages
 
@@ -170,3 +164,9 @@ To update to a specific version that is not the latest version, re-run the add c
   ```
   pangolin = {git = "https://github.com/cov-lineages/pangolin.git", rev = "v4.3.1"}
   ```
+
+## notes
+
+- This repo has tests and scripts outside the app dir
+- Scripts are copied in at runtime. The tests that run on them assume they do not live inside app/.
+- Integration tests are copied into the docker image.
