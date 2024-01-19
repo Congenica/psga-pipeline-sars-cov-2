@@ -4,6 +4,10 @@ on:
     branches-ignore:
       - "release/**"
 jobs:
+  check_and_test:
+    name: Install dependencies and run tests
+    uses: ./.github/workflows/check_and_test.yaml
+    secrets: inherit
   build_image:
     name: Build and push image
     needs:
@@ -52,10 +56,6 @@ jobs:
   #     CICD_OIDC_ROLE: ${{ secrets.CICD_OIDC_ROLE }}
   #     S3_BUCKET_PATH: ${{ secrets.S3_BUCKET_PATH_DEV }}
   #     GH_PSGA_SYSTEM_PAT: ${{ secrets.GH_PSGA_SYSTEM_PAT }}
-  check_and_test:
-    name: Install dependencies and run tests
-    uses: ./.github/workflows/check_and_test.yaml
-    secrets: inherit
   # test_traceability:
   #   needs: check_and_test
   #   uses: ./.github/workflows/test_traceability.yml
