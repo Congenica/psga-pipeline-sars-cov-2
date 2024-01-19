@@ -47,6 +47,9 @@ jobs:
       - name: Login to dev Amazon ECR
         uses: aws-actions/amazon-ecr-login@v2
 
+      - name: Install Kubectl
+        uses: azure/setup-kubectl@v1
+
       - name: start minikube
         id: minikube
         uses: medyagh/setup-minikube@latest
