@@ -52,12 +52,19 @@ jobs:
 
       - name: start minikube
         id: minikube
-        uses: medyagh/setup-minikube@latest
-        with:
-          cpus: 5
-          memory: 28672
-          addons: storage-provisioner
-          start-args: "--force"
+        run: |
+          echo "Installing minikube"
+          curl -LO https://storage.googleapis.com/minikube/releases/v1.29.0/minikube-linux-amd64
+          echo "aafb65cbee8e971ec00509fdb1817254b17d6bee4890b839c3b6e8f11e97413a minikube-linux-amd64" | sha256sum --check
+          sudo install minikube-linux-amd64 /usr/local/bin/minikube
+          echo "Installing kubectl"
+          curl -LO "https://dl.k8s.io/release/v1.26.1/bin/linux/amd64/kubectl"
+          echo "d57be22cfa25f7427cfb538cfc8853d763878f8b36c76ce93830f6f2d67c6e5d kubectl" | sha256sum --check
+          sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+          docker login -u AWS -p $(aws ecr get-login-password --region eu-west-2) 566277102435.dkr.ecr.eu-west-2.amazonaws.com
+          cd ${CIRCLE_WORKING_DIRECTORY}/minikube
+          minikube start --cpus=6 --memory=28672 --vm-driver=docker
+          minikube addons enable storage-provisioner
 
       - name: Run tests
         run: |
