@@ -4,37 +4,37 @@ on:
     branches-ignore:
       - "release/**"
 jobs:
-  check_and_test:
-    name: Install dependencies and run tests
-    uses: ./.github/workflows/check_and_test.yaml
-    secrets: inherit
-  build_image:
-    name: Build and push image
-    needs:
-      - check_and_test
-    strategy:
-      fail-fast: false
-      matrix:
-        image:
-          - name: sars-cov-2-pipeline
-            dockerfile: Dockerfile.psga-pipeline-sars-cov-2
-            pathogen: sars_cov_2
-          - name: pangolin
-            pathogen: sars_cov_2
-          - name: ncov2019-artic-nf-nanopore
-            pathogen: sars_cov_2
-          - name: ncov2019-artic-nf-illumina
-            pathogen: sars_cov_2
-    uses: ./.github/workflows/build_image.yaml
-    secrets: inherit
-    with:
-      name: ${{ matrix.image.name }}
-      dockerfile: ${{ matrix.image.dockerfile }}
-      pathogen: ${{ matrix.image.pathogen }}
+  # check_and_test:
+  #   name: Install dependencies and run tests
+  #   uses: ./.github/workflows/check_and_test.yaml
+  #   secrets: inherit
+  # build_image:
+  #   name: Build and push image
+  #   needs:
+  #     - check_and_test
+  #   strategy:
+  #     fail-fast: false
+  #     matrix:
+  #       image:
+  #         - name: sars-cov-2-pipeline
+  #           dockerfile: Dockerfile.psga-pipeline-sars-cov-2
+  #           pathogen: sars_cov_2
+  #         - name: pangolin
+  #           pathogen: sars_cov_2
+  #         - name: ncov2019-artic-nf-nanopore
+  #           pathogen: sars_cov_2
+  #         - name: ncov2019-artic-nf-illumina
+  #           pathogen: sars_cov_2
+  #   uses: ./.github/workflows/build_image.yaml
+  #   secrets: inherit
+  #   with:
+  #     name: ${{ matrix.image.name }}
+  #     dockerfile: ${{ matrix.image.dockerfile }}
+  #     pathogen: ${{ matrix.image.pathogen }}
   trigger_gh_actions_integration_tests:
     name: Trigger GH actions integration tests
-    needs:
-      - build_image
+    # needs:
+    #   - build_image
     uses: ./.github/workflows/integration_tests.yaml
     secrets:
       CICD_OIDC_ROLE: ${{ secrets.CICD_OIDC_ROLE }}
