@@ -35,7 +35,7 @@ jobs:
     name: Trigger GH actions integration tests
     needs:
       - build_image
-    uses: ./github/workflows/integration_tests.yaml
+    uses: ./.github/workflows/integration_tests.yaml
     secrets:
       CICD_OIDC_ROLE: ${{ secrets.CICD_OIDC_ROLE }}
       GH_PSGA_SYSTEM_PAT: ${{ secrets.GH_PSGA_SYSTEM_PAT }}
