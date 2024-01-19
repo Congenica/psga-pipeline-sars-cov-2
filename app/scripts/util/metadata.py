@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 
-from scripts.util.notifications import Event, Notification
+from app.scripts.util.notifications import Event, Notification
 
 SAMPLE_ID = "SAMPLE_ID"
 seq_file_1 = "seq_file_1"

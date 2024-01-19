@@ -4,8 +4,8 @@ from click.testing import CliRunner
 import pandas as pd
 from pandas.testing import assert_frame_equal
 
-from scripts.concat_csv import concat_csv, concat
-from scripts.util.metadata import SAMPLE_ID
+from app.scripts.concat_csv import concat_csv, concat
+from app.scripts.util.metadata import SAMPLE_ID
 from tests.utils_tests import assert_csvs_are_equal
 
 

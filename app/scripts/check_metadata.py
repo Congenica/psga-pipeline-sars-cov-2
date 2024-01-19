@@ -5,8 +5,8 @@ import csv
 import click
 from click import ClickException
 
-from scripts.util.logger import get_structlog_logger
-from scripts.util.metadata import (
+from app.scripts.util.logger import get_structlog_logger
+from app.scripts.util.metadata import (
     ILLUMINA,
     ONT,
     UNKNOWN,
@@ -18,7 +18,7 @@ from scripts.util.metadata import (
     normalise_row,
     ProcessedSamples,
 )
-from scripts.validation.check_csv_columns import check_csv_columns
+from app.scripts.validation.check_csv_columns import check_csv_columns
 
 log_file = f"{Path(__file__).stem}.log"
 logger = get_structlog_logger(log_file=log_file)

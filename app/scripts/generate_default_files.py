@@ -1,9 +1,9 @@
 import csv
 import click
 
-from scripts.contamination_removal import EXPECTED_CONTAMINATION_REMOVAL_HEADERS
-from scripts.primer_cols import EXPECTED_PRIMER_AUTODETECTION_HEADERS
-from scripts.generate_pipeline_results_files import (
+from app.scripts.contamination_removal import EXPECTED_CONTAMINATION_REMOVAL_HEADERS
+from app.scripts.primer_cols import EXPECTED_PRIMER_AUTODETECTION_HEADERS
+from app.scripts.generate_pipeline_results_files import (
     EXPECTED_NCOV_HEADERS,
     EXPECTED_PANGOLIN_HEADERS,
 )
