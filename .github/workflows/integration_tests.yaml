@@ -65,8 +65,7 @@ jobs:
           curl -LO "https://dl.k8s.io/release/v1.26.1/bin/linux/amd64/kubectl"
           echo "d57be22cfa25f7427cfb538cfc8853d763878f8b36c76ce93830f6f2d67c6e5d kubectl" | sha256sum --check
           sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
-          docker login -u AWS -p $(aws ecr get-login-password --region eu-west-2) 566277102435.dkr.ecr.eu-west-2.amazonaws.com
-          cd ${CIRCLE_WORKING_DIRECTORY}/minikube
+          cd /actions-runner/_work/psga-pipeline-sars-cov-2/psga-pipeline-sars-cov-2/minikube
           minikube start --cpus=6 --memory=28672 --vm-driver=docker
           minikube addons enable storage-provisioner
 
