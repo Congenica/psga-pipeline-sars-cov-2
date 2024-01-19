@@ -54,6 +54,7 @@ jobs:
           memory: 28672
           driver: docker
           addons: storage-provisioner
+          start-args: "--force"
 
       - name: Run tests
         run: |
