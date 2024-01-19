@@ -1,2 +1,2 @@
 all:
-	python generate_default_files.py
+	python scripts/generate_default_files.py

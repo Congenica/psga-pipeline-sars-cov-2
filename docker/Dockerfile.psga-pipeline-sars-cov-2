@@ -11,10 +11,9 @@ FROM debian:bookworm-slim
 COPY --from=condabuild /opt/conda/envs/custom_env /opt/conda/envs/custom_env
 ENV PATH=/opt/conda/envs/custom_env/bin:$PATH
 
-COPY ./pyproject.toml ./poetry.lock ./app/
-
 WORKDIR /app
 
+COPY pyproject.toml poetry.lock ./
 # NOTES:
 # 1. must install the nf-amazon version mentioned in nextflow release notes
 #    (e.g. see: https://github.com/nextflow-io/nextflow/releases/tag/v22.10.0 bumps nf-amazon@1.11.0)
@@ -28,14 +27,14 @@ RUN nextflow plugin install nf-amazon@1.11.0 \
   && poetry config virtualenvs.create false \
   && poetry install --no-interaction --no-ansi --no-dev
 
-WORKDIR /
+# WORKDIR /
 
-COPY ./app /app
+COPY ./app ./
 # COPY ./scripts /app/scripts
 
 # scripts for running the validation following integration tests execution
-COPY ./integration_tests/*.py ./app/integration_tests/
-COPY ./integration_tests/expected_data/sars_cov_2 ./app/integration_tests/expected_data/sars_cov_2
+COPY ./integration_tests/*.py /app/integration_tests/
+COPY ./integration_tests/expected_data/sars_cov_2 /app/integration_tests/expected_data/sars_cov_2
 
 # FASTQC
 COPY data/sars_cov_2/fastqc/* /
@@ -46,9 +45,9 @@ COPY data/sars_cov_2/primer_schemes /primer_schemes
 # READ IT AND KEEP
 COPY data/sars_cov_2/read-it-and-keep/* /
 
-WORKDIR /app
+# WORKDIR /app
 
-ENV PYTHONPATH=/app/
+ENV PYTHONPATH=/
 
 # # generic construct if scripts must be executed at this stage (e.g. for generating default files)
-RUN if [ -f /app/scripts/Makefile ]; then cd /app/scripts && make; fi;
+RUN make -f scripts/Makefile;
