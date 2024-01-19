@@ -53,6 +53,10 @@ jobs:
       - name: start minikube
         id: minikube
         run: |
+          echo $PWD
+          echo $HOME
+          echo $USER
+          cd /tmp
           echo "Installing minikube"
           curl -LO https://storage.googleapis.com/minikube/releases/v1.29.0/minikube-linux-amd64
           echo "aafb65cbee8e971ec00509fdb1817254b17d6bee4890b839c3b6e8f11e97413a minikube-linux-amd64" | sha256sum --check
