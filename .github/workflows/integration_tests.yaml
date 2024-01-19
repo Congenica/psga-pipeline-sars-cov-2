@@ -64,6 +64,7 @@ jobs:
           export AWS_ACCESS_KEY_ID=${{ steps.creds.outputs.aws-access-key-id }}
           export AWS_SECRET_ACCESS_KEY=${{ steps.creds.outputs.aws-secret-access-key }}
           aws s3 ls
+          cd minikube
           ./startup.sh
           ./run_pipelines.sh
         #   sed -i "s/dev_latest/${{ github.sha }}/g" pipelines/*
