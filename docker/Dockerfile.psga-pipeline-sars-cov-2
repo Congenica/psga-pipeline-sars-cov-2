@@ -42,6 +42,7 @@ COPY data/sars_cov_2/primer_schemes /primer_schemes
 # READ IT AND KEEP
 COPY data/sars_cov_2/read-it-and-keep/* /
 
+# PYTHONPATH is being set because it's not getting properly set up in bookworm with poetry
 ENV PYTHONPATH=/
 
 # # generic construct if scripts must be executed at this stage (e.g. for generating default files)
