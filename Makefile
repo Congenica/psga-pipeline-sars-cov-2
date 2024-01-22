@@ -23,8 +23,17 @@ shell_local: build_sars_cov_2_local
 	docker run \
 	--rm \
 	-it \
+	--volume ${PWD}/app:/app \
 	${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG} \
 	bash
+
+test_fastq_local:# build_sars_cov_2_local
+	docker run \
+	--rm \
+	-it \
+	--volume ${PWD}/app:/app \
+	${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG} \
+	nextflow run ./fastq.nf
 
 test:
 	poetry run pytest tests/

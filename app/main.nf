@@ -20,7 +20,7 @@ if (params.help) {
     exit 0
 }
 
-include { SarsCov2Workflow } from "./SarsCov2.nf"
+include { SarsCov2Workflow } from "./sars_cov_2.nf"
 
 
 // Required environment variables
