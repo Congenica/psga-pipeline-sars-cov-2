@@ -2,7 +2,7 @@ from pathlib import Path
 import pytest
 import structlog
 
-from scripts.util.logger import LOG_LEVELS, get_structlog_logger
+from app.scripts.util.logger import LOG_LEVELS, get_structlog_logger
 from tests.util.test_notification import load_log_file_to_dict
 
 

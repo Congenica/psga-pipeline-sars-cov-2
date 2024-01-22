@@ -2,8 +2,8 @@ import pytest
 from pathlib import Path
 from click.testing import CliRunner
 
-from scripts.extract_typing_data import extract_typing_data
-from scripts.util.data_loading import load_yaml
+from app.scripts.extract_typing_data import extract_typing_data
+from app.scripts.util.data_loading import load_yaml
 
 
 @pytest.mark.jira(identifier="84e2a22c-3be7-4ac0-9418-e9e5f5a90790", confirms="PSG-3621")

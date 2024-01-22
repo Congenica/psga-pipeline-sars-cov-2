@@ -4,7 +4,7 @@ import pytest
 
 import pandas as pd
 
-from scripts.util.metadata import SAMPLE_ID
+from app.scripts.util.metadata import SAMPLE_ID
 from integration_tests.loading import get_file_paths, load_data_from_csv
 from tests.integration_tests.util import create_paths
 

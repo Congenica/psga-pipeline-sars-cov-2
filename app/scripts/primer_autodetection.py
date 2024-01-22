@@ -9,9 +9,9 @@ import click
 from Bio import SeqIO
 import ahocorasick
 
-from scripts.concat_csv import concat
+from app.scripts.concat_csv import concat
 
-from scripts.primer_cols import (
+from app.scripts.primer_cols import (
     PRIMER_INDEX_COLS,
     PRIMER_NAME,
     PICKLE_PATH,

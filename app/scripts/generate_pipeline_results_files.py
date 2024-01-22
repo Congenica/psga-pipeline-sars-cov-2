@@ -5,21 +5,21 @@ from functools import partial, reduce
 import click
 import pandas as pd
 
-from scripts.contamination_removal import (
+from app.scripts.contamination_removal import (
     CONTAMINATION_REMOVAL_SAMPLE_ID_COL,
     EXPECTED_CONTAMINATION_REMOVAL_HEADERS,
 )
-from scripts.primer_cols import (
+from app.scripts.primer_cols import (
     PRIMER_AUTODETECTION_SAMPLE_ID_COL,
     EXPECTED_PRIMER_AUTODETECTION_HEADERS,
 )
-from scripts.util.logger import get_structlog_logger, ERROR, WARNING, INFO
-from scripts.util.metadata import EXPECTED_HEADERS as EXPECTED_METADATA_HEADERS, SAMPLE_ID, ILLUMINA, ONT, UNKNOWN
-from scripts.util.convert import csv_to_json
-from scripts.util.data_loading import write_json
-from scripts.util.notifications import Event, Notification
-from scripts.util.slugs import get_file_with_type, FileType, RESULTFILES_TYPE
-from scripts.validation.check_csv_columns import check_csv_columns
+from app.scripts.util.logger import get_structlog_logger, ERROR, WARNING, INFO
+from app.scripts.util.metadata import EXPECTED_HEADERS as EXPECTED_METADATA_HEADERS, SAMPLE_ID, ILLUMINA, ONT, UNKNOWN
+from app.scripts.util.convert import csv_to_json
+from app.scripts.util.data_loading import write_json
+from app.scripts.util.notifications import Event, Notification
+from app.scripts.util.slugs import get_file_with_type, FileType, RESULTFILES_TYPE
+from app.scripts.validation.check_csv_columns import check_csv_columns
 
 log_file = f"{Path(__file__).stem}.log"
 logger = get_structlog_logger(log_file=log_file)

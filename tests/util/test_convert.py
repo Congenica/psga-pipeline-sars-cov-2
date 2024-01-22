@@ -1,7 +1,7 @@
 from pathlib import Path
 import pytest
 
-from scripts.util.convert import csv_to_json
+from app.scripts.util.convert import csv_to_json
 from tests.utils_tests import assert_jsons_are_equal
 
 

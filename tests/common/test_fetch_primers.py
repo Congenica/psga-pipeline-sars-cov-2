@@ -3,7 +3,7 @@ import shutil
 import pytest
 from Bio import SeqIO
 
-from scripts.fetch_primers import (
+from app.scripts.fetch_primers import (
     extract_primer_sequences,
     generate_primer_index_file,
     ORGANISE_PRIMERS,
@@ -16,7 +16,7 @@ from scripts.fetch_primers import (
     REFERENCE,
     SCHEME,
 )
-from scripts.primer_autodetection import load_pickle
+from app.scripts.primer_autodetection import load_pickle
 from tests.utils_tests import assert_files_are_equal
 
 PATH = "path"
