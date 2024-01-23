@@ -19,6 +19,7 @@ if ( params.sequencing_technology == "illumina" ) {
  */
 workflow organise_metadata_sample_files {
     main:
+        return
         check_metadata("${params.configPath}samples.csv")
         ch_metadata = check_metadata.out.ch_metadata
 

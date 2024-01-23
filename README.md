@@ -147,6 +147,7 @@ To update to a specific version that is not the latest version, re-run the add c
 - Stop splitting out common and code (remove pathogen refs)
 - Put containers in their actual processes
 - Break out skeleton flow
+- extract scripts to use template
 - install + use results writer
 - Integrate ncov pipelines
 - Stop running generate files script

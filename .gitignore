@@ -221,3 +221,7 @@ dmypy.json
 
 # Vagrant
 .vagrant/
+
+# Nextflow specific
+.nextflow*
+work/
