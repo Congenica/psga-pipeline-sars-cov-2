@@ -3,7 +3,7 @@
  * https://github.com/GlobalPathogenAnalysisService/read-it-and-keep
  * This tool keeps the reads that match the provided target genome.
  */
-process CONTAMINATION_REMOVAL_ONT {
+process PROCESS_ONT_FASTQ {
   publishDir "${params.output_path}/contamination_removal", mode: 'copy', overwrite: true, pattern: '{*_contamination_removal.csv,cleaned_fastq/*.fastq.gz,counting/*.txt}'
 
   input:
