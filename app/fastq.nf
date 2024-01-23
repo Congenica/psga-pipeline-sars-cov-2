@@ -1,6 +1,7 @@
 #!/usr/bin/env nextflow
 
-// include { BAM_TO_FASTQ_ONT } from './modules/bam_to_fastq.nf'
+include { BAM_TO_FASTQ_ONT } from './modules/bam_to_fastq.nf'
+include { CONTAMINATION_REMOVAL_ONT } from './modules/contamination_removal.nf'
 
 // process PREPAREONTFASTQ {
 
@@ -15,6 +16,10 @@
 //     echo "working now!"
 //     """
 // }
+
+// Params to be moved to config
+// TODO: This is copied in by docker. Let's put it not at /
+params.rik_ref_genome_fasta = "/MN908947.3.no_poly_A.fa"
 
 workflow {
 
@@ -33,12 +38,12 @@ workflow {
         }
         .branch {
                 fastq_pair: it[1].seq_file_2 =~ /\.(fq|fastq?)(?:\.gz)?$/ && it[1].seq_file_1 =~ /\.(fq|fastq?)(?:\.gz)?$/
-                fastq: it[1].seq_file_1 =~ /\.(fq|fastq?)(?:\.gz)?$/
+                fastq_single: it[1].seq_file_1 =~ /\.(fq|fastq?)(?:\.gz)?$/
                 fasta: it[1].seq_file_1 =~ /\.(fa|fasta?)(?:\.gz)?$/
                 bam: it[1].seq_file_1 =~ /\.bam$/
             }
 
-    samples.fastq.view()
+    samples.fastq_single.view()
 
     if (params.sequencing_technology == "illumina") {
         // samples.bam -> convert to fastq
@@ -52,7 +57,11 @@ workflow {
         // prepareONTFastq()
         BAM_TO_FASTQ_ONT(samples.bam)
 
-        // samples.fastq.mix(BAM_TO_FASTQ_ONT.out)
+        CONTAMINATION_REMOVAL_ONT(
+            params.rik_ref_genome_fasta,
+            samples.fastq_single.mix(BAM_TO_FASTQ_ONT.out)
+        )
+        CONTAMINATION_REMOVAL_ONT.out.ch_cleaned_fastq.view()
         // Contamination removal
             // Fastqc
             // autodetection
