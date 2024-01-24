@@ -4,8 +4,8 @@ from click.testing import CliRunner
 import pandas as pd
 from pandas.testing import assert_frame_equal
 
-from scripts.common.concat_csv import concat_csv, concat
-from scripts.util.metadata import SAMPLE_ID
+from app.scripts.concat_csv import concat_csv, concat
+from app.scripts.util.metadata import SAMPLE_ID
 from tests.utils_tests import assert_csvs_are_equal
 
 
@@ -45,7 +45,6 @@ def test_concat(tmp_path: Path, concat_csv_data_path: Path):
 
 @pytest.mark.jira(identifier="7aaa925b-e92a-49a7-b0df-0a781b25d9c5", confirms="PSG-3621")
 def test_concat_csv(tmp_path: Path, concat_csv_data_path: Path):
-
     output_csv_path = Path(tmp_path / "concat.csv")
     expected_output_csv_path = Path(concat_csv_data_path / "expected_output" / "result.csv")
 

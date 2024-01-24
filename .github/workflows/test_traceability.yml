@@ -3,25 +3,39 @@ on:
   workflow_call:
     inputs:
       docker_tag:
-        description: 'The Docker tag of the rt-test-traceability image to use'
+        description: "The Docker tag of the rt-test-traceability image to use"
         required: true
         type: string
       trace_to_jira:
-        description: 'Bool to control if tests should be traced back to Jira or not'
+        description: "Bool to control if tests should be traced back to Jira or not"
         required: true
         type: boolean
 
 permissions:
-  id-token: write   # This is required for requesting the JWT
-  contents: read    # This is required for actions/checkout
+  id-token: write # This is required for requesting the JWT
+  contents: read # This is required for actions/checkout
 
 jobs:
+  start-runner:
+    uses: Congenica/psga-reusable-workflows/.github/workflows/ec2-runner-start.yaml@main
+    secrets:
+      role-to-assume: ${{ secrets.CICD_OIDC_ROLE }}
+      github-token: ${{ secrets.GH_PSGA_SYSTEM_PAT }}
+    with:
+      aws-region: ${{ vars.AWS_REGION }}
+      ec2-instance-type: ${{ vars.AWS_INSTANCE_TYPE }}
+      subnet-id: ${{ vars.GH_RUNNER_SUBNET_ID }}
+      security-group-id: ${{ vars.GH_RUNNER_SECURITY_GROUP_ID }}
+      iam-role-name: ${{ vars.GH_RUNNER_IAM_ROLE_NAME }}
+      env_type: nonprod
+
   test-traceability-job:
     name: Run test-traceability
-    runs-on: ubuntu-22.04
+    needs: start-runner # required to start the main job when the runner is ready
+    runs-on: ${{ needs.start-runner.outputs.label }}
     env:
       CONGENICA_AWS_ACCOUNT_DEV: 144563655722.dkr.ecr.eu-west-1.amazonaws.com
-      REPO_NAME: psga-pipeline
+      REPO_NAME: psga-pipeline-sars-cov-2
 
     steps:
       - name: Configure AWS Credentials
@@ -33,7 +47,7 @@ jobs:
           mask-aws-account-id: true
 
       - name: Login to Amazon ECR
-        uses: aws-actions/amazon-ecr-login@v1
+        uses: aws-actions/amazon-ecr-login@v2
 
       - name: Pull test-traceability image from the Congenica dev ECR
         id: pull-test-traceability-image
@@ -58,11 +72,24 @@ jobs:
                      --env TT_ALLURE_RESULTS_S3_URL="$BUCKET_URL_FULL" \
                      --env TT_JIRA_COMPONENT="Pipelines" \
                      --env TT_JIRA_PROJECT_KEY="PSG" \
-                     --env TT_JIRA_TEST_REPOSITORY_PATH="${{ env.REPO_NAME }}/unit" \
+                     --env TT_JIRA_TEST_TYPE="unit" \
                      --env TT_JIRA_TOKEN=${{ secrets.JIRA_TOKEN }} \
-                     --env TT_LOG_LEVEL="DEBUG" \
                      --env TT_REPO_NAME="${{ env.REPO_NAME }}" \
                      --env TT_SHOULD_TRACE_RESULTS_TO_JIRA=${{ inputs.trace_to_jira }} \
                      --rm \
                      ${{ steps.pull-test-traceability-image.outputs.TEST_TRACEABILITY_IMAGE }} \
                      /bin/bash -c "poetry run pytest -k TestTraceTests"
+
+  stop-runner:
+    if: ${{ always() }} # required to stop the runner even if previous jobs failed or are cancelled
+    needs:
+      - start-runner # required to get output from the start-runner job
+      - test-traceability-job # required to wait when the main job is done
+    uses: Congenica/psga-reusable-workflows/.github/workflows/ec2-runner-stop.yaml@main
+    secrets:
+      role-to-assume: ${{ secrets.CICD_OIDC_ROLE }}
+      github-token: ${{ secrets.GH_PSGA_SYSTEM_PAT }}
+    with:
+      aws-region: ${{ vars.AWS_REGION }}
+      label: ${{ needs.start-runner.outputs.label }}
+      ec2-instance-id: ${{ needs.start-runner.outputs.ec2-instance-id }}

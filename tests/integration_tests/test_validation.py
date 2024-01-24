@@ -4,7 +4,7 @@ import pytest
 from click.testing import CliRunner
 import pandas as pd
 
-from scripts.util.metadata import SAMPLE_ID
+from app.scripts.util.metadata import SAMPLE_ID
 from integration_tests.compare import compare_merged_output_file, ValidationError
 from integration_tests.config import data_config
 from integration_tests.loading import load_data_from_csv
@@ -23,7 +23,7 @@ def create_output_files(pathogen: str, samples: Path, root: Path, sequencing_tec
     create_paths(paths)
 
 
-@pytest.mark.parametrize("pathogen", ["sars_cov_2", "synthetic"])
+@pytest.mark.parametrize("pathogen", ["sars_cov_2"])
 @pytest.mark.parametrize(
     "results_csv,expected_results_csv,exc",
     [
@@ -69,7 +69,7 @@ def test_compare_merged_output_file(
         assert set(sample_names) == set(expected_sample_names)
 
 
-@pytest.mark.parametrize("pathogen", ["sars_cov_2", "synthetic"])
+@pytest.mark.parametrize("pathogen", ["sars_cov_2"])
 @pytest.mark.parametrize(
     "sequencing_technology",
     ["illumina", "ont", "unknown"],
@@ -111,7 +111,6 @@ def test_validation(
     exit_code: int,
     exception_msg: str,
 ):
-
     actual_path = integration_test_validation_data_path / pathogen / results_csv
     expected_path = integration_test_validation_data_path / pathogen / expected_results_csv
 

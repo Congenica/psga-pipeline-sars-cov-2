@@ -3,7 +3,7 @@ import csv
 import pytest
 from click.testing import CliRunner
 
-from scripts.common.contamination_removal import (
+from app.scripts.contamination_removal import (
     get_contaminated_reads,
     write_rik_output_csv,
     process_rik,

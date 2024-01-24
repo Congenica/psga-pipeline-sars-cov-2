@@ -8,25 +8,40 @@ on:
         required: false
       actions_env:
         type: string
-        default: ~
+        default: nonprod
         required: false
     secrets:
       S3_BUCKET_PATH:
         required: true
       CICD_OIDC_ROLE:
         required: true
+      GH_PSGA_SYSTEM_PAT:
+        required: true
 
 permissions:
-  id-token: write   # This is required for requesting the JWT
-  contents: read    # This is required for actions/checkout
+  id-token: write # This is required for requesting the JWT
+  contents: read # This is required for actions/checkout
 
 jobs:
+  start-runner:
+    uses: Congenica/psga-reusable-workflows/.github/workflows/ec2-runner-start.yaml@main
+    secrets:
+      role-to-assume: ${{ secrets.CICD_OIDC_ROLE }}
+      github-token: ${{ secrets.GH_PSGA_SYSTEM_PAT }}
+    with:
+      aws-region: ${{ vars.AWS_REGION }}
+      ec2-instance-type: ${{ vars.AWS_INSTANCE_TYPE }}
+      subnet-id: ${{ vars.GH_RUNNER_SUBNET_ID }}
+      security-group-id: ${{ vars.GH_RUNNER_SECURITY_GROUP_ID }}
+      iam-role-name: ${{ vars.GH_RUNNER_IAM_ROLE_NAME }}
+      env_type: ${{ inputs.actions_env }}
+
   upload:
     name: Upload
-    runs-on: ubuntu-22.04
+    needs: start-runner # required to start the main job when the runner is ready
+    runs-on: ${{ needs.start-runner.outputs.label }}
     environment: ${{ inputs.actions_env }}
     steps:
-
       - name: Check out repo
         uses: actions/checkout@v4
 
@@ -50,10 +65,24 @@ jobs:
             VERSIONS="${{ github.sha }} ${BRANCH_NAME}_latest"
           fi
           for version in $VERSIONS; do
-            for config in $(ls psga/config); do
+            for config in $(ls app/config); do
               S3_PATH="${{ secrets.S3_BUCKET_PATH }}/${version}/${config}"
-              yq e -i ".pipeline_version.docker_tag = \"${version}\"" psga/config/${config}
+              yq e -i ".pipeline_version.docker_tag = \"${version}\"" app/config/${config}
               echo "Publishing version ${version} for config ${config} to ${S3_PATH}"
-              aws s3 cp psga/config/${config} $S3_PATH
+              aws s3 cp app/config/${config} $S3_PATH
             done
           done
+
+  stop-runner:
+    if: ${{ always() }} # required to stop the runner even if previous jobs failed or are cancelled
+    needs:
+      - start-runner # required to get output from the start-runner job
+      - upload # required to wait when the main job is done
+    uses: Congenica/psga-reusable-workflows/.github/workflows/ec2-runner-stop.yaml@main
+    secrets:
+      role-to-assume: ${{ secrets.CICD_OIDC_ROLE }}
+      github-token: ${{ secrets.GH_PSGA_SYSTEM_PAT }}
+    with:
+      aws-region: ${{ vars.AWS_REGION }}
+      label: ${{ needs.start-runner.outputs.label }}
+      ec2-instance-id: ${{ needs.start-runner.outputs.ec2-instance-id }}

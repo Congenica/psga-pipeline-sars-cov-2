@@ -4,6 +4,10 @@ on:
     branches-ignore:
       - "release/**"
 jobs:
+  check_and_test:
+    name: Install dependencies and run tests
+    uses: ./.github/workflows/check_and_test.yaml
+    secrets: inherit
   build_image:
     name: Build and push image
     needs:
@@ -12,22 +16,8 @@ jobs:
       fail-fast: false
       matrix:
         image:
-          - name: s-aureus-pipeline
-            dockerfile: Dockerfile.psga-pipeline
-            pathogen: s_aureus
-          - name: synthetic-pipeline
-            dockerfile: Dockerfile.psga-pipeline
-            pathogen: synthetic
           - name: sars-cov-2-pipeline
-            dockerfile: Dockerfile.psga-pipeline
-            pathogen: sars_cov_2
-          - name: htstools
-            pathogen: sars_cov_2
-          - name: fastqc
-            pathogen: sars_cov_2
-          - name: read-it-and-keep
-            pathogen: sars_cov_2
-          - name: primer-autodetection
+            dockerfile: Dockerfile.psga-pipeline-sars-cov-2
             pathogen: sars_cov_2
           - name: pangolin
             pathogen: sars_cov_2
@@ -41,11 +31,18 @@ jobs:
       name: ${{ matrix.image.name }}
       dockerfile: ${{ matrix.image.dockerfile }}
       pathogen: ${{ matrix.image.pathogen }}
+  trigger_gh_actions_integration_tests:
+    name: Trigger GH actions integration tests
+    needs:
+      - build_image
+    uses: ./.github/workflows/integration_tests.yaml
+    secrets:
+      CICD_OIDC_ROLE: ${{ secrets.CICD_OIDC_ROLE }}
+      GH_PSGA_SYSTEM_PAT: ${{ secrets.GH_PSGA_SYSTEM_PAT }}
   trigger_integration_tests:
     name: Trigger integration tests on CircleCI
     runs-on: ubuntu-22.04
-    needs:
-      - build_image
+    needs: build_image
     steps:
       - name: Trigger integration tests
         id: trigger_integration_tests
@@ -58,10 +55,7 @@ jobs:
     secrets:
       CICD_OIDC_ROLE: ${{ secrets.CICD_OIDC_ROLE }}
       S3_BUCKET_PATH: ${{ secrets.S3_BUCKET_PATH_DEV }}
-  check_and_test:
-    name: Install dependencies and run tests
-    uses: ./.github/workflows/check_and_test.yaml
-    secrets: inherit
+      GH_PSGA_SYSTEM_PAT: ${{ secrets.GH_PSGA_SYSTEM_PAT }}
   test_traceability:
     needs: check_and_test
     uses: ./.github/workflows/test_traceability.yml

@@ -1,0 +1,49 @@
+FROM condaforge/mambaforge:23.3.1-1 AS condabuild
+
+COPY docker/sars_cov_2/environment.yml /environment.yml
+
+RUN mamba env create -f /environment.yml -n custom_env \
+  && conda clean --all -y
+
+# multi stage to reduce docker image size and avoid conda env activation
+FROM debian:bookworm-slim
+
+COPY --from=condabuild /opt/conda/envs/custom_env /opt/conda/envs/custom_env
+ENV PATH=/opt/conda/envs/custom_env/bin:$PATH
+
+WORKDIR /app
+
+COPY pyproject.toml poetry.lock ./
+# NOTES:
+# 1. must install the nf-amazon version mentioned in nextflow release notes
+#    (e.g. see: https://github.com/nextflow-io/nextflow/releases/tag/v22.10.0 bumps nf-amazon@1.11.0)
+#    Without version, nextflow plugin install will install the latest version for this plugin
+#    and the required plugin will be re-installed at runtime.
+# 2. make poetry install everything system wide, no need for a virtualenv in docker
+#    install setuptools here to avoid the warning / error:
+#    ModuleNotFoundError: No module named '_distutils_hack'
+#    This error does not disappear if this is installed via conda
+RUN nextflow plugin install nf-amazon@1.11.0 \
+  && poetry config virtualenvs.create false \
+  && poetry install --no-root --no-directory --compile --no-interaction --no-ansi --no-dev
+
+COPY ./app ./
+
+# scripts for running the validation following integration tests execution
+COPY ./integration_tests/*.py /app/integration_tests/
+COPY ./integration_tests/expected_data/sars_cov_2 /app/integration_tests/expected_data/sars_cov_2
+
+# FASTQC
+COPY data/sars_cov_2/fastqc/* /
+
+# PRIMER AUTODETECTION
+COPY data/sars_cov_2/primer_schemes /primer_schemes
+
+# READ IT AND KEEP
+COPY data/sars_cov_2/read-it-and-keep/* /
+
+# PYTHONPATH is being set because it's not getting properly set up in bookworm with poetry
+ENV PYTHONPATH=/
+
+# # generic construct if scripts must be executed at this stage (e.g. for generating default files)
+RUN make -f scripts/Makefile;

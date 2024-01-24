@@ -3,8 +3,8 @@ import pytest
 import json
 from click.testing import CliRunner
 
-from scripts.sars_cov_2.generate_pipeline_results_files import generate_pipeline_results_files
-from scripts.util.metadata import SAMPLE_ID
+from app.scripts.generate_pipeline_results_files import generate_pipeline_results_files
+from app.scripts.util.metadata import SAMPLE_ID
 from tests.utils_tests import assert_csvs_are_equal, assert_jsons_are_equal
 
 
@@ -72,7 +72,6 @@ def test_generate_pipeline_results_files(
     exp_resultfiles_json: str,
     use_s3_uri: bool,
 ):
-
     output_results_csv_file = tmp_path / "results.csv"
     output_results_json_file = tmp_path / "results.json"
     output_resultfiles_json_file = tmp_path / "resultfiles.json"

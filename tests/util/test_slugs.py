@@ -1,6 +1,6 @@
 import pytest
 
-from scripts.util.slugs import get_file_with_type, FileType
+from app.scripts.util.slugs import get_file_with_type, FileType
 
 
 @pytest.mark.parametrize("output_path", ["/", "s3://my_bucket/"])
