@@ -58,13 +58,13 @@ workflow {
         BAM_TO_FASTQ_ONT(samples.bam)
 
         // Contamination removal
+        // Fastqc
+        // autodetection TODO:
         PROCESS_ONT_FASTQ(
             params.rik_ref_genome_fasta,
             samples.fastq_single.mix(BAM_TO_FASTQ_ONT.out)
         )
         PROCESS_ONT_FASTQ.out.ch_cleaned_fastq.view()
-        // Fastqc
-            // autodetection
             // ...ncov..
     } else if (params.sequencing_technology == "unknown" ) {
         // Create FASTA channel

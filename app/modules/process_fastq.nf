@@ -4,16 +4,23 @@
  * This tool keeps the reads that match the provided target genome.
  */
 process PROCESS_ONT_FASTQ {
+  // Contamination Removal
   publishDir "${params.output_path}/contamination_removal", mode: 'copy', overwrite: true, pattern: '{*_contamination_removal.csv,cleaned_fastq/*.fastq.gz,counting/*.txt}'
+  // FASTQC
+  publishDir "${params.output_path}/fastqc", mode: 'copy', overwrite: true, pattern: '*_fastqc.zip'
 
   input:
     val ref_genome_fasta
     tuple val(meta), val(read_paths)
 
   output:
+    // Contamination Removal
     path "*_contamination_removal.csv", emit: ch_contamination_removal_csv
     path "cleaned_fastq/*.fastq.gz", emit: ch_output_file
     path "counting/*.txt"
+    // Fastqc
+    path "*_fastqc.zip", emit: ch_fastqc_zip_report
+
     tuple val(meta), path(cleaned_fastq_file), emit: ch_cleaned_fastq
 
   script:
@@ -38,6 +45,8 @@ process PROCESS_ONT_FASTQ {
       --input-path "${rik_output_file}" \
       --output-csv-path "${output_csv}" \
       --sample-id "${sample_id}"
+
+    fastqc --limits /limits.txt ${cleaned_fastq_file}
     """
 }
 
