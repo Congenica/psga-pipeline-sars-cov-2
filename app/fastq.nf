@@ -5,20 +5,7 @@ include { BAM_TO_FASTQ_ONT } from './modules/bam_to_fastq.nf'
 include { CONTAMINATION_REMOVAL } from './modules/contamination_removal.nf'
 include { FASTQC } from './modules/fastqc.nf'
 include { PRIMER_AUTODETECTION } from './modules/primer_autodetection.nf'
-
-// process PREPAREONTFASTQ {
-
-//     input:
-//     tuple val(meta), path(fastq)
-
-//     // output:
-//     // tuple val sample_id path fasta
-
-//     script:
-//     """
-//     echo "working now!"
-//     """
-// }
+include { NCOV2019_ARTIC_NF_PIPELINE_MEDAKA } from './modules/ncov2019_artic.nf'
 
 // Params to be moved to config
 // TODO: This is copied in by docker. Let's put it not at /
@@ -57,9 +44,7 @@ workflow {
             // autodetection
             // ...ncov..
     } else if (params.sequencing_technology == "ont") {
-        // prepareONTFastq()
         BAM_TO_FASTQ_ONT(samples.bam)
-
         CONTAMINATION_REMOVAL(
             params.rik_ref_genome_fasta,
             samples.fastq_single.mix(BAM_TO_FASTQ_ONT.out)
@@ -70,19 +55,16 @@ workflow {
         PRIMER_AUTODETECTION(
             CONTAMINATION_REMOVAL.out.ch_cleaned_fastq
         )
-
         // Add the primer as metadata
         ch_ncov_input = PRIMER_AUTODETECTION.out.ch_primer_detected.map {
             it ->
                 it[0]["PRIMER"] = it[2].text
                 [it[0], it[1]]
         }
-
         ch_ncov_input.view()
 
-        // ...ncov..
-        // it[1] instanceof List ? tuple(it[0], *it[1]) : it
-        // ncov2019_artic(ch_ncov_input_files) = primer_autodetect out
+        NCOV2019_ARTIC_NF_PIPELINE_MEDAKA(ch_ncov_input)
+
     } else if (params.sequencing_technology == "unknown" ) {
         // Create FASTA channel
         // Reheader FASTA
