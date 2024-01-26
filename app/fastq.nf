@@ -1,7 +1,7 @@
 #!/usr/bin/env nextflow
 
 include { BAM_TO_FASTQ_ONT } from './modules/bam_to_fastq.nf'
-include { PROCESS_ONT_FASTQ } from './modules/contamination_removal.nf'
+include { PROCESS_ONT_FASTQ } from './modules/process_fastq.nf'
 
 // process PREPAREONTFASTQ {
 

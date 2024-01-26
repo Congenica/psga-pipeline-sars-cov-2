@@ -20,6 +20,10 @@ process PROCESS_ONT_FASTQ {
     path "counting/*.txt"
     // Fastqc
     path "*_fastqc.zip", emit: ch_fastqc_zip_report
+    // primer autodetection
+    tuple path("*_primer.txt"), path(fastq), emit: ch_files
+    path "*_primer_data.csv", emit: ch_primer_data
+    path "*_primer_detection.csv", emit: ch_primer_coverage
 
     tuple val(meta), path(cleaned_fastq_file), emit: ch_cleaned_fastq
 
@@ -46,7 +50,15 @@ process PROCESS_ONT_FASTQ {
       --output-csv-path "${output_csv}" \
       --sample-id "${sample_id}"
 
-    fastqc --limits /limits.txt ${cleaned_fastq_file}
+    fastqc -q --limits /limits.txt --outdir \$PWD ${cleaned_fastq_file}
+
+    primer_index="/primer_schemes/sars_cov_2_primer_index.csv"
+
+    python ${PSGA_ROOT_PATH}/scripts/primer_autodetection.py \
+      --primer-index "${primer_index}" \
+      --sample-fastq "${cleaned_fastq_file}" \
+      --sample-id "${sample_id}" \
+      --primer-input ${params.kit}
     """
 }
 

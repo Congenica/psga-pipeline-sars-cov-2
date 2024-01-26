@@ -4,6 +4,11 @@ SARS_COV_2=sars_cov_2
 DOCKER_IMAGE_NAME=sars-cov-2-pipeline
 
 TEST_RUN_ID=10a0d649-045d-4419-a4c3-90892c0aa583
+TEST_OUTPUT_LOCAL=/app/output/${TEST_RUN_ID}
+
+CONTAINER_TEST_DATA_PATH=/app/local_test
+ONT_TEST_DATA_PATH=${CONTAINER_TEST_DATA_PATH}/ont/
+ILLUMINA_TEST_DATA_PATH=${CONTAINER_TEST_DATA_PATH}/illumina/
 
 # build images per pathogen
 sars-cov-2-images:
@@ -40,16 +45,29 @@ mounted_shell_local:# build_sars_cov_2_local
 	bash
 
 
-test_fastq_local:# build_sars_cov_2_local
+test_fastq_local_ont:# build_sars_cov_2_local
 	docker run \
 	--rm \
 	--volume ${PWD}/app:/app \
-	--volume ${PWD}/local_test/:/app/local_test \
+	--volume ${PWD}/local_test/:${CONTAINER_TEST_DATA_PATH} \
 	${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG} \
 	nextflow \
 		run ./fastq.nf \
-		-params-file /app/local_test/settings.json \
-		--config-path /app/local_test/
+		-params-file ${ONT_TEST_DATA_PATH}settings.json \
+		--config-path ${ONT_TEST_DATA_PATH}
+		--output_path ${TEST_OUTPUT_LOCAL}/ont
+
+test_fastq_local_illumina:# build_sars_cov_2_local
+	docker run \
+	--rm \
+	--volume ${PWD}/app:/app \
+	--volume ${PWD}/local_test/:${CONTAINER_TEST_DATA_PATH} \
+	${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG} \
+	nextflow \
+		run ./fastq.nf \
+		-params-file ${ILLUMINA_TEST_DATA_PATH_TEST_DATA_PATH}settings.json \
+		--config-path ${ILLUMINA_TEST_DATA_PATH}
+		--output_path ${TEST_OUTPUT_LOCAL}/illumina
 
 test_local: build_sars_cov_2_local
 	docker run \
