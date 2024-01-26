@@ -23,7 +23,7 @@ COPY pyproject.toml poetry.lock ./
 #    install setuptools here to avoid the warning / error:
 #    ModuleNotFoundError: No module named '_distutils_hack'
 #    This error does not disappear if this is installed via conda
-RUN nextflow plugin install nf-amazon@1.11.0 \
+RUN nextflow plugin install nf-amazon@2.1.4 \
   && poetry config virtualenvs.create false \
   && poetry install --no-root --no-directory --compile --no-interaction --no-ansi --no-dev
 

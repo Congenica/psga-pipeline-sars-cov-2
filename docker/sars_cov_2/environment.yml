@@ -11,7 +11,7 @@ dependencies:
   - make=4.3
   - procps-ng=4.0.3 # required for ps
   # Pipeline running
-  - nextflow=22.10.0
+  - nextflow=23.10.1
   - awscli=1.25.92
   # Fastqc
   - fastqc=0.11.9
