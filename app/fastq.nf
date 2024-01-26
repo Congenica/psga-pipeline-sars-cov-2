@@ -1,7 +1,10 @@
 #!/usr/bin/env nextflow
 
 include { BAM_TO_FASTQ_ONT } from './modules/bam_to_fastq.nf'
-include { PROCESS_ONT_FASTQ } from './modules/process_fastq.nf'
+// include { PROCESS_ONT_FASTQ } from './modules/process_fastq.nf'
+include { CONTAMINATION_REMOVAL } from './modules/contamination_removal.nf'
+include { FASTQC } from './modules/fastqc.nf'
+include { PRIMER_AUTODETECTION } from './modules/primer_autodetection.nf'
 
 // process PREPAREONTFASTQ {
 
@@ -57,15 +60,29 @@ workflow {
         // prepareONTFastq()
         BAM_TO_FASTQ_ONT(samples.bam)
 
-        // Contamination removal
-        // Fastqc
-        // autodetection TODO:
-        PROCESS_ONT_FASTQ(
+        CONTAMINATION_REMOVAL(
             params.rik_ref_genome_fasta,
             samples.fastq_single.mix(BAM_TO_FASTQ_ONT.out)
         )
-        PROCESS_ONT_FASTQ.out.ch_cleaned_fastq.view()
-            // ...ncov..
+        FASTQC(
+            CONTAMINATION_REMOVAL.out.ch_cleaned_fastq
+        )
+        PRIMER_AUTODETECTION(
+            CONTAMINATION_REMOVAL.out.ch_cleaned_fastq
+        )
+
+        // Add the primer as metadata
+        ch_ncov_input = PRIMER_AUTODETECTION.out.ch_primer_detected.map {
+            it ->
+                it[0]["PRIMER"] = it[2].text
+                [it[0], it[1]]
+        }
+
+        ch_ncov_input.view()
+
+        // ...ncov..
+        // it[1] instanceof List ? tuple(it[0], *it[1]) : it
+        // ncov2019_artic(ch_ncov_input_files) = primer_autodetect out
     } else if (params.sequencing_technology == "unknown" ) {
         // Create FASTA channel
         // Reheader FASTA

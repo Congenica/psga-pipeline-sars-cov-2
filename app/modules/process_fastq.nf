@@ -8,6 +8,8 @@ process PROCESS_ONT_FASTQ {
   publishDir "${params.output_path}/contamination_removal", mode: 'copy', overwrite: true, pattern: '{*_contamination_removal.csv,cleaned_fastq/*.fastq.gz,counting/*.txt}'
   // FASTQC
   publishDir "${params.output_path}/fastqc", mode: 'copy', overwrite: true, pattern: '*_fastqc.zip'
+  // Primer autodetection
+  publishDir "${params.output_path}/primer_autodetection", mode: 'copy', overwrite: true, pattern: '{*_primer_data.csv,*_primer_detection.csv}'
 
   input:
     val ref_genome_fasta
@@ -34,6 +36,7 @@ process PROCESS_ONT_FASTQ {
     rik_output_file = "counting/${sample_id}.txt"
     output_csv = "${sample_id}_contamination_removal.csv"
     cleaned_fastq_file = "cleaned_fastq/${sample_id}_1.fastq.gz"
+    primer_index="/primer_schemes/SARS-CoV-2_primer_index.csv"
 
     // NOTE: readItAndKeep always compresses the output, not matter what the input was so assume filename is .gz
     // This was gzipping the input file, but it doesn't seem to be necessary
@@ -51,8 +54,6 @@ process PROCESS_ONT_FASTQ {
       --sample-id "${sample_id}"
 
     fastqc -q --limits /limits.txt --outdir \$PWD ${cleaned_fastq_file}
-
-    primer_index="/primer_schemes/sars_cov_2_primer_index.csv"
 
     python ${PSGA_ROOT_PATH}/scripts/primer_autodetection.py \
       --primer-index "${primer_index}" \

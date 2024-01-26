@@ -149,6 +149,7 @@ To update to a specific version that is not the latest version, re-run the add c
 - Break out skeleton flow
 - extract scripts to use template
 - install + use results writer
+- stop using tee in read it and keep to get errors (test with two files of different sizes)
 - Integrate ncov pipelines
 - Stop running generate files script
 - Remove python from pyproject or environment files
