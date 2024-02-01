@@ -1,6 +1,6 @@
 #!/usr/bin/env nextflow
 
-include { BAM_TO_FASTQ_ONT } from './modules/bam_to_fastq.nf'
+include { BAM_TO_FASTQ_ONT, BAM_TO_FASTQ_ILLUMINA } from './modules/bam_to_fastq.nf'
 // include { PROCESS_ONT_FASTQ } from './modules/process_fastq.nf'
 include { CONTAMINATION_REMOVAL } from './modules/contamination_removal.nf'
 include { FASTQC } from './modules/fastqc.nf'
@@ -37,7 +37,7 @@ workflow {
 
     if (params.sequencing_technology == "illumina") {
         // samples.bam -> convert to fastq
-
+        BAM_TO_FASTQ_ILLUMINA(samples.bam)
         // PREPAREILLUMINAFASTQ()
             // Contamination removal
             // Fastqc
