@@ -2,6 +2,7 @@ DOCKER_IMAGE_URI_PATH=566277102435.dkr.ecr.eu-west-2.amazonaws.com/congenica/psg
 DOCKER_IMAGE_TAG=dev_latest
 SARS_COV_2=sars_cov_2
 DOCKER_IMAGE_NAME=sars-cov-2-pipeline
+NCOV_DOCKER_IMAGE_NAME=ncov2019-artic-nf
 
 TEST_RUN_ID=10a0d649-045d-4419-a4c3-90892c0aa583
 TEST_OUTPUT_LOCAL=/app/output/${TEST_RUN_ID}
@@ -20,6 +21,9 @@ sars-cov-2-images:
 build_sars_cov_2_local:
 	docker build --build-arg pathogen=${SARS_COV_2} -t ${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG} -f docker/Dockerfile.psga-pipeline-sars-cov-2 .
 
+build_ncov_local:
+	docker build --build-arg pathogen=${SARS_COV_2} -t ${NCOV_DOCKER_IMAGE_NAME}-nanopore:${DOCKER_IMAGE_TAG} -f docker/Dockerfile.${NCOV_DOCKER_IMAGE_NAME}-nanopore .
+	# docker build --build-arg pathogen=${SARS_COV_2} -t ncov2019-artic-nf-illumina:${DOCKER_IMAGE_TAG} -f docker/Dockerfile.ncov2019-artic-nf-illumina .
 
 build_local_images: build_sars_cov_2_local
 	docker build --build-arg pathogen=${SARS_COV_2} -t ncov2019-artic-nf-illumina:${DOCKER_IMAGE_TAG} -f docker/Dockerfile.ncov2019-artic-nf-illumina .
@@ -68,6 +72,9 @@ test_fastq_local_illumina:# build_sars_cov_2_local
 		-params-file ${ILLUMINA_TEST_DATA_PATH_TEST_DATA_PATH}settings.json \
 		--config-path ${ILLUMINA_TEST_DATA_PATH}
 		--output_path ${TEST_OUTPUT_LOCAL}/illumina
+
+
+# [[SAMPLE_ID:4a32dffd-584c-4f2a-8b17-e1e27b630f66, PRIMER:ARTIC_V3], /app/work/de/81000e4cb808e79fae00f384353a3c/4a32dffd-584c-4f2a-8b17-e1e27b630f66_1.fastq.gz]
 
 test_local: build_sars_cov_2_local
 	docker run \
