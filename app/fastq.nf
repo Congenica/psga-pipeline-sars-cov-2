@@ -50,7 +50,7 @@ workflow {
     }
     ch_ncov_input.view()
 
-    // NCOV2019_ARTIC_NF_PIPELINE(ch_ncov_input)
+    NCOV2019_ARTIC_NF_PIPELINE(ch_ncov_input)
 
     if (params.sequencing_technology == "unknown" ) {
         // Create FASTA channel

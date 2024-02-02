@@ -199,7 +199,7 @@ Once inside the shell the updated pipeline can be run using
 
 ```
 seqt="ont"
-nextflow run ./fastq.nf -params-file /app/local_test/$seqt/settings.json --config-path /app/local_test/$seqt/ --output_path /app/output/$seqt/
+nextflow run ./fastq.nf --run 61c06b0a-e5e8-4dbf-8bb0-729cce46a223 -params-file /app/local_test/$seqt/settings.json --config-path /app/local_test/$seqt/ --output_path /app/output/$seqt/
 ```
 
 Note, set seqt to "illumina" to run illumina.
@@ -211,5 +211,5 @@ make build_ncov_local
 
 cd app
 seqt="ncov_ont"
-nextflow run ./workflows/ncov.nf -params-file /app/local_test/$seqt/settings.json --config-path /app/local_test/$seqt/ --output_path /app/output/$seqt/
+nextflow run ./workflows/ncov.nf --run 61c06b0a-e5e8-4dbf-8bb0-729cce46a223 -params-file /app/local_test/$seqt/settings.json --config-path /app/local_test/$seqt/ --output_path /app/output/$seqt/
 ```

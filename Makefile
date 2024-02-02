@@ -75,7 +75,7 @@ test_fastq_local_illumina:# build_sars_cov_2_local
 		--output_path ${TEST_OUTPUT_LOCAL}/illumina
 
 
-mounted_ncov_ont_shell_local:# build_ncov_local
+mounted_ncov_ont_shell_local: build_ncov_local
 	docker run \
 	--rm \
 	-it \
@@ -83,6 +83,21 @@ mounted_ncov_ont_shell_local:# build_ncov_local
 	--volume ${PWD}/local_test/:/app/local_test \
 	${NCOV_ONT_DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG} \
 	bash
+
+
+test_ncov_ont_shell_local: build_ncov_local
+	docker run \
+	--rm \
+	-it \
+	--volume ${PWD}/app:/app \
+	--volume ${PWD}/local_test/:/app/local_test \
+	${NCOV_ONT_DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG} \
+	nextflow \
+		run ./workflows/ncov.nf \
+		--run 61c06b0a-e5e8-4dbf-8bb0-729cce46a223
+		-params-file /app/local_test/ncov_ont/settings.json \
+		--config-path /app/local_test/ncov_ont/ \
+		--output_path /app/output/ncov_ont/
 
 test_local: build_sars_cov_2_local
 	docker run \

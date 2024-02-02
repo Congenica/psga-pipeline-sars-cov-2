@@ -1,4 +1,8 @@
 /*
+ THIS IS A WORKFLOW COMBINING ALL THE EARLY STAGES TO MITIGATE SPINNG UP
+ LOTS OF CONTAINERS IN AWS BATCH
+ AN ALTERNATIVE IS TO CREATE A WORKFLOW FOR THESE STAGES
+ AND EXECUTE ALL WITH A LOCAL EXECUTOR
  * Run: read-it-and-keep
  * https://github.com/GlobalPathogenAnalysisService/read-it-and-keep
  * This tool keeps the reads that match the provided target genome.
