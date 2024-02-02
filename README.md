@@ -172,3 +172,44 @@ To update to a specific version that is not the latest version, re-run the add c
 - This repo has tests and scripts outside the app dir
 - Scripts are copied in at runtime. The tests that run on them assume they do not live inside app/.
 - Integration tests are copied into the docker image.
+
+## UPDATED - Running and testing locally
+
+Ensure you are building the correct platform.
+
+```
+export DOCKER_DEFAULT_PLATFORM=linux/amd64
+```
+
+### Fastq processing
+
+Sars-CoV-2 can be built using
+
+```
+make build_sars_cov_2_local
+```
+
+There is a command to enter a shell with app mounted to /app.
+
+```
+make mounted_shell_local
+```
+
+Once inside the shell the updated pipeline can be run using
+
+```
+seqt="ont"
+nextflow run ./fastq.nf -params-file /app/local_test/$seqt/settings.json --config-path /app/local_test/$seqt/ --output_path /app/output/$seqt/
+```
+
+Note, set seqt to "illumina" to run illumina.
+
+### NCOV
+
+```
+make build_ncov_local
+
+cd app
+seqt="ncov_ont"
+nextflow run ./workflows/ncov.nf -params-file /app/local_test/$seqt/settings.json --config-path /app/local_test/$seqt/ --output_path /app/output/$seqt/
+```

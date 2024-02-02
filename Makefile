@@ -3,6 +3,7 @@ DOCKER_IMAGE_TAG=dev_latest
 SARS_COV_2=sars_cov_2
 DOCKER_IMAGE_NAME=sars-cov-2-pipeline
 NCOV_DOCKER_IMAGE_NAME=ncov2019-artic-nf
+NCOV_ONT_DOCKER_IMAGE_NAME=ncov2019-artic-nf-nanopore
 
 TEST_RUN_ID=10a0d649-045d-4419-a4c3-90892c0aa583
 TEST_OUTPUT_LOCAL=/app/output/${TEST_RUN_ID}
@@ -22,7 +23,7 @@ build_sars_cov_2_local:
 	docker build --build-arg pathogen=${SARS_COV_2} -t ${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG} -f docker/Dockerfile.psga-pipeline-sars-cov-2 .
 
 build_ncov_local:
-	docker build --build-arg pathogen=${SARS_COV_2} -t ${NCOV_DOCKER_IMAGE_NAME}-nanopore:${DOCKER_IMAGE_TAG} -f docker/Dockerfile.${NCOV_DOCKER_IMAGE_NAME}-nanopore .
+	docker build --build-arg pathogen=${SARS_COV_2} -t ${NCOV_ONT_DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG} -f docker/Dockerfile.${NCOV_ONT_DOCKER_IMAGE_NAME} .
 	# docker build --build-arg pathogen=${SARS_COV_2} -t ncov2019-artic-nf-illumina:${DOCKER_IMAGE_TAG} -f docker/Dockerfile.ncov2019-artic-nf-illumina .
 
 build_local_images: build_sars_cov_2_local
@@ -74,7 +75,14 @@ test_fastq_local_illumina:# build_sars_cov_2_local
 		--output_path ${TEST_OUTPUT_LOCAL}/illumina
 
 
-# [[SAMPLE_ID:4a32dffd-584c-4f2a-8b17-e1e27b630f66, PRIMER:ARTIC_V3], /app/work/de/81000e4cb808e79fae00f384353a3c/4a32dffd-584c-4f2a-8b17-e1e27b630f66_1.fastq.gz]
+mounted_ncov_ont_shell_local:# build_ncov_local
+	docker run \
+	--rm \
+	-it \
+	--volume ${PWD}/app:/app \
+	--volume ${PWD}/local_test/:/app/local_test \
+	${NCOV_ONT_DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG} \
+	bash
 
 test_local: build_sars_cov_2_local
 	docker run \

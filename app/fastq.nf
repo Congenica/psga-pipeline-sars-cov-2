@@ -5,7 +5,7 @@ include { BAM_TO_FASTQ_ONT; BAM_TO_FASTQ_ILLUMINA } from './modules/bam_to_fastq
 include { CONTAMINATION_REMOVAL } from './modules/contamination_removal.nf'
 include { FASTQC } from './modules/fastqc.nf'
 include { PRIMER_AUTODETECTION } from './modules/primer_autodetection.nf'
-include { NCOV2019_ARTIC_NF_PIPELINE_MEDAKA } from './modules/ncov2019_artic.nf'
+include { NCOV2019_ARTIC_NF_PIPELINE } from './modules/ncov2019_artic.nf'
 
 // Params to be moved to config
 // TODO: This is copied in by docker. Let's put it not at /
@@ -50,7 +50,7 @@ workflow {
     }
     ch_ncov_input.view()
 
-    // NCOV2019_ARTIC_NF_PIPELINE_MEDAKA(ch_ncov_input)
+    // NCOV2019_ARTIC_NF_PIPELINE(ch_ncov_input)
 
     if (params.sequencing_technology == "unknown" ) {
         // Create FASTA channel
