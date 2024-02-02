@@ -8,7 +8,6 @@ process PANGOLIN_PIPELINE {
     tuple val(meta), path(fasta)
 
   output:
-    //   TODO: Output metadata
     tuple val(meta), path("${pangolin_out_directory}/${output_filename}"), emit: ch_pangolin_lineage_csv
 
   script:
