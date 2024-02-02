@@ -54,20 +54,19 @@ process CONTAMINATION_REMOVAL {
 
   input:
     val ref_genome_fasta
-    tuple val(meta), val(read_paths)
+    tuple val(meta), path(read_paths)
 
   output:
     path "*_contamination_removal.csv", emit: ch_contamination_removal_csv
     path "cleaned_fastq/*.fastq.gz", emit: ch_output_file
     path "counting/*.txt"
 
-    tuple val(meta), path(cleaned_fastq_file), emit: ch_cleaned_fastq
+    tuple val(meta), path("cleaned_fastq/${sample_id}_*.fastq.gz"), emit: ch_cleaned_fastq
 
   script:
 
     // Common Variables to both
     sample_id = meta.SAMPLE_ID
-    reads_file_1 = read_paths.seq_file_1
     rik_output_file = "counting/${sample_id}.txt"
     // Note: Added _1 to ont file here, it shouldn't matter...
     // As we will use the path and not reconstruct it elsewhere
@@ -76,9 +75,11 @@ process CONTAMINATION_REMOVAL {
 
     // NOTE: readItAndKeep always compresses the output, not matter what the input was so assume filename is .gz
     // This was gzipping the input file, but it doesn't seem to be necessary
-    if( params.sequencing_technology == 'illumina' )
+    if( params.sequencing_technology == 'illumina' ) {
       // Only if illumina
-      reads_file_2 = read_paths.seq_file_2
+      // TODO: ENSURE Ordering is correctly ordered
+      reads_file_1 = read_paths[0]
+      reads_file_2 = read_paths[1]
       cleaned_fastq_file_2 = "cleaned_fastq/${sample_id}_2.fastq.gz"
       """
       mkdir -p cleaned_fastq counting
@@ -99,7 +100,10 @@ process CONTAMINATION_REMOVAL {
         --output-csv-path "${output_csv}" \
         --sample-id "${sample_id}"
       """
-    else if( params.sequencing_technology == 'ont' )
+    }
+
+    else if( params.sequencing_technology == 'ont' ) {
+      reads_file_1 = read_paths
       """
       mkdir -p cleaned_fastq counting
 
@@ -117,4 +121,5 @@ process CONTAMINATION_REMOVAL {
         --output-csv-path "${output_csv}" \
         --sample-id "${sample_id}"
       """
+    }
 }
