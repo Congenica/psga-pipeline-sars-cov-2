@@ -3,7 +3,8 @@ DOCKER_IMAGE_TAG=dev_latest
 SARS_COV_2=sars_cov_2
 DOCKER_IMAGE_NAME=sars-cov-2-pipeline
 NCOV_DOCKER_IMAGE_NAME=ncov2019-artic-nf
-NCOV_ONT_DOCKER_IMAGE_NAME=ncov2019-artic-nf-nanopore
+NCOV_ONT_DOCKER_IMAGE_NAME=${NCOV_DOCKER_IMAGE_NAME}-nanopore
+NCOV_ILLUMINA_DOCKER_IMAGE_NAME=${NCOV_DOCKER_IMAGE_NAME}-illumina
 
 TEST_RUN_ID=10a0d649-045d-4419-a4c3-90892c0aa583
 TEST_OUTPUT_LOCAL=/app/output/${TEST_RUN_ID}
@@ -24,7 +25,7 @@ build_sars_cov_2_local:
 
 build_ncov_local:
 	docker build --build-arg pathogen=${SARS_COV_2} -t ${NCOV_ONT_DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG} -f docker/Dockerfile.${NCOV_ONT_DOCKER_IMAGE_NAME} .
-	# docker build --build-arg pathogen=${SARS_COV_2} -t ncov2019-artic-nf-illumina:${DOCKER_IMAGE_TAG} -f docker/Dockerfile.ncov2019-artic-nf-illumina .
+	docker build --build-arg pathogen=${SARS_COV_2} -t ${NCOV_ILLUMINA_DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG} -f docker/Dockerfile.${NCOV_ILLUMINA_DOCKER_IMAGE_NAME} .
 
 build_local_images: build_sars_cov_2_local
 	docker build --build-arg pathogen=${SARS_COV_2} -t ncov2019-artic-nf-illumina:${DOCKER_IMAGE_TAG} -f docker/Dockerfile.ncov2019-artic-nf-illumina .
@@ -98,6 +99,30 @@ test_ncov_ont_shell_local: build_ncov_local
 		-params-file /app/local_test/ncov_ont/settings.json \
 		--config-path /app/local_test/ncov_ont/ \
 		--output_path /app/output/ncov_ont/
+
+mounted_ncov_illumina_shell_local: build_ncov_local
+	docker run \
+	--rm \
+	-it \
+	--volume ${PWD}/app:/app \
+	--volume ${PWD}/local_test/:/app/local_test \
+	${NCOV_ILLUMINA_DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG} \
+	bash
+
+test_ncov_illumina_shell_local: build_ncov_local
+	docker run \
+	--rm \
+	-it \
+	--volume ${PWD}/app:/app \
+	--volume ${PWD}/local_test/:/app/local_test \
+	${NCOV_ILLUMINA_DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG} \
+	nextflow \
+		run ./workflows/ncov.nf \
+		--run 61c06b0a-e5e8-4dbf-8bb0-729cce46a223
+		-params-file /app/local_test/ncov_illumina/settings.json \
+		--config-path /app/local_test/ncov_illumina/ \
+		--output_path /app/output/ncov_illumina/
+
 
 test_local: build_sars_cov_2_local
 	docker run \

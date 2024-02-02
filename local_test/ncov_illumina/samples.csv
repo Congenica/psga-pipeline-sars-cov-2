@@ -1,0 +1,2 @@
+SAMPLE_ID,PRIMER,seq_file_1,seq_file_2
+15d3a409-d84e-4e7f-a832-5980956f8ee3,ARTIC_V3,/app/local_test/ncov_illumina/15d3a409-d84e-4e7f-a832-5980956f8ee3_1.fastq.gz,/app/local_test/ncov_illumina/15d3a409-d84e-4e7f-a832-5980956f8ee3_2.fastq.gz

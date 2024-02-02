@@ -29,9 +29,11 @@ workflow {
 
     samples.fastq.view()
 
-    // TODO: Make generic
+    // TODO: Handle both in one
     // BAM_TO_FASTQ_ILLUMINA(samples.bam)
     BAM_TO_FASTQ_ONT(samples.bam)
+
+    // ---- Single locally executed workflow
     CONTAMINATION_REMOVAL(
         params.rik_ref_genome_fasta,
         samples.fastq.mix(BAM_TO_FASTQ_ONT.out)
@@ -42,25 +44,27 @@ workflow {
     PRIMER_AUTODETECTION(
         CONTAMINATION_REMOVAL.out.ch_cleaned_fastq
     )
-    // Add the primer as metadata
+    // Add the primer to metadata
     ch_ncov_input = PRIMER_AUTODETECTION.out.ch_primer_detected.map {
         it ->
             it[0]["PRIMER"] = it[2].text
             [it[0], it[1]]
     }
+    // ---- END
     ch_ncov_input.view()
 
     NCOV2019_ARTIC_NF_PIPELINE(ch_ncov_input)
 
     if (params.sequencing_technology == "unknown" ) {
-        // Create FASTA channel
+        // TBD
         // Reheader FASTA
     }
 
     // pangolin
-    // .mix
+    // .mix with fasta channel
+    PANGOLIN_PIPELINE(NCOV2019_ARTIC_NF_PIPELINE.out.ch_ncov_sample_fasta)
 
-    // Combine results
+    // submit results
     // collect
 
 }
