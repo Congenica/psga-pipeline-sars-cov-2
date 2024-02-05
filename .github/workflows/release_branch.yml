@@ -16,6 +16,7 @@ jobs:
     secrets:
       CICD_OIDC_ROLE: ${{ secrets.CICD_OIDC_ROLE }}
       S3_BUCKET_PATH: ${{ secrets.S3_BUCKET_PATH_PROD }}
+      GH_PSGA_SYSTEM_PAT: ${{ secrets.GH_PSGA_SYSTEM_PAT }}
     with:
       actions_env: prod
       release_enabled: true
