@@ -58,7 +58,7 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-region: eu-west-2
-          role-to-assume: ${{ vars.CICD_OIDC_ROLE }}
+          role-to-assume: ${{ needs.vars.outputs.CICD_OIDC_ROLE }}
           role-session-name: cicd-role-session
           mask-aws-account-id: false
 
