@@ -23,17 +23,29 @@ permissions:
   contents: read # This is required for actions/checkout
 
 jobs:
+  vars:
+    runs-on: ubuntu-22.04
+    environment: ${{ inputs.actions_env }}
+    outputs:
+      CICD_OIDC_ROLE: ${{ vars.CICD_OIDC_ROLE }}
+      GH_RUNNER_SUBNET_ID: ${{ vars.GH_RUNNER_SUBNET_ID }}
+      GH_RUNNER_SECURITY_GROUP_ID: ${{ vars.GH_RUNNER_SECURITY_GROUP_ID }}
+      GH_RUNNER_IAM_ROLE_NAME: ${{ vars.GH_RUNNER_IAM_ROLE_NAME }}
+    steps:
+      - run: echo "Exposing env vars"
+
   start-runner:
     uses: Congenica/psga-reusable-workflows/.github/workflows/ec2-runner-start.yaml@main
+    needs: vars
     secrets:
-      role-to-assume: ${{ secrets.CICD_OIDC_ROLE }}
+      role-to-assume: ${{ needs.vars.outputs.CICD_OIDC_ROLE }}
       github-token: ${{ secrets.GH_PSGA_SYSTEM_PAT }}
     with:
       aws-region: ${{ vars.AWS_REGION }}
       ec2-instance-type: ${{ vars.AWS_INSTANCE_TYPE }}
-      subnet-id: ${{ vars.GH_RUNNER_SUBNET_ID }}
-      security-group-id: ${{ vars.GH_RUNNER_SECURITY_GROUP_ID }}
-      iam-role-name: ${{ vars.GH_RUNNER_IAM_ROLE_NAME }}
+      subnet-id: ${{  needs.vars.outputs.GH_RUNNER_SUBNET_ID }}
+      security-group-id: ${{  needs.vars.outputs.GH_RUNNER_SECURITY_GROUP_ID }}
+      iam-role-name: ${{  needs.vars.outputs.GH_RUNNER_IAM_ROLE_NAME }}
       env_type: ${{ inputs.actions_env }}
 
   upload:
@@ -80,7 +92,7 @@ jobs:
       - upload # required to wait when the main job is done
     uses: Congenica/psga-reusable-workflows/.github/workflows/ec2-runner-stop.yaml@main
     secrets:
-      role-to-assume: ${{ secrets.CICD_OIDC_ROLE }}
+      role-to-assume: ${{ needs.vars.outputs.CICD_OIDC_ROLE }}
       github-token: ${{ secrets.GH_PSGA_SYSTEM_PAT }}
     with:
       aws-region: ${{ vars.AWS_REGION }}
