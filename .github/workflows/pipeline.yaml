@@ -37,6 +37,7 @@ jobs:
       - build_image
     uses: ./.github/workflows/integration_tests.yaml
     secrets:
+      # Will always run on nonprod therefore no need to set env var
       CICD_OIDC_ROLE: ${{ secrets.CICD_OIDC_ROLE }}
       GH_PSGA_SYSTEM_PAT: ${{ secrets.GH_PSGA_SYSTEM_PAT }}
   trigger_integration_tests:
@@ -53,6 +54,7 @@ jobs:
     name: Publish configs
     uses: ./.github/workflows/publish_configs.yaml
     secrets:
+      # Will always run on nonprod therefore no need to set env var
       CICD_OIDC_ROLE: ${{ secrets.CICD_OIDC_ROLE }}
       S3_BUCKET_PATH: ${{ secrets.S3_BUCKET_PATH_DEV }}
       GH_PSGA_SYSTEM_PAT: ${{ secrets.GH_PSGA_SYSTEM_PAT }}
