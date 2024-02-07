@@ -50,7 +50,9 @@ jobs:
 
   build_release_image:
     name: Build and push the release image
-    needs: start-runner # required to start the main job when the runner is ready
+    needs:
+      - vars
+      - start-runner # required to start the main job when the runner is ready
     runs-on: ${{ needs.start-runner.outputs.label }}
     environment: prod
     strategy:
