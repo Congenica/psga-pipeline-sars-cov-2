@@ -97,6 +97,7 @@ jobs:
     needs:
       - start-runner # required to get output from the start-runner job
       - test-traceability-job # required to wait when the main job is done
+      - vars
     uses: Congenica/psga-reusable-workflows/.github/workflows/ec2-runner-stop.yaml@main
     secrets:
       role-to-assume: ${{ needs.vars.outputs.CICD_OIDC_ROLE }}
