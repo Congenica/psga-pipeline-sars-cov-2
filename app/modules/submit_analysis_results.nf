@@ -1,9 +1,9 @@
 /* This workflow runs per sample analysis run */
 
-include { submit_results as submit_contamination_removal_results } from './modules/submit_results.nf'
-include { submit_results as submit_primer_autodetection_results } from './modules/submit_results.nf'
-include { submit_results as submit_ncov_qc_results } from './modules/submit_results.nf'
-include { submit_results as submit_pangolin_results } from './modules/submit_results.nf'
+include { submit_results as submit_contamination_removal_results } from './submit_results.nf'
+include { submit_results as submit_primer_autodetection_results } from './submit_results.nf'
+include { submit_results as submit_ncov_qc_results } from './submit_results.nf'
+include { submit_results as submit_pangolin_results } from './submit_results.nf'
 
 
 /*
@@ -49,7 +49,7 @@ process submit_pipeline_results_files {
 /*
  * Prepare and save the results for this analysis run.
  */
-workflow submit_analysis_run_results {
+workflow SUBMIT_ANALYSIS_RUN_RESULTS {
     take:
         ch_metadata
         ch_contamination_removal_csvs

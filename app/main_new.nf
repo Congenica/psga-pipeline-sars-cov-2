@@ -1,11 +1,13 @@
 #!/usr/bin/env nextflow
 
 include { BAM_TO_FASTQ_ONT; BAM_TO_FASTQ_ILLUMINA } from './modules/bam_to_fastq.nf'
-// include { PROCESS_ONT_FASTQ } from './modules/process_fastq.nf'
 include { CONTAMINATION_REMOVAL } from './modules/contamination_removal.nf'
 include { FASTQC } from './modules/fastqc.nf'
 include { PRIMER_AUTODETECTION } from './modules/primer_autodetection.nf'
 include { NCOV2019_ARTIC_NF_PIPELINE } from './modules/ncov2019_artic.nf'
+include { REHEADER_FASTA } from './modules/reheader_fasta.nf'
+include { PANGOLIN_PIPELINE } from './modules/pangolin.nf'
+include { SUBMIT_ANALYSIS_RUN_RESULTS } from './modules/submit_analysis_results.nf'
 
 // Params to be moved to config
 // TODO: This is copied in by docker. Let's put it not at /
@@ -27,15 +29,14 @@ workflow {
             fastq: it[1][0] =~ /\.(fq|fastq?)(?:\.gz)?$/
             fasta: it[1][0] =~ /\.(fa|fasta?)(?:\.gz)?$/
             bam: it[1][0] =~ /\.bam$/
-            }
-
-    samples.fastq.view()
+        }
 
     // TODO: Handle both in one
+    // We don't process BAMs right now so for later
     // BAM_TO_FASTQ_ILLUMINA(samples.bam)
     BAM_TO_FASTQ_ONT(samples.bam)
 
-    // ---- Single locally executed workflow
+    // ---- Single locally executed workflow option
     CONTAMINATION_REMOVAL(
         params.rik_ref_genome_fasta,
         samples.fastq.mix(BAM_TO_FASTQ_ONT.out)
@@ -57,22 +58,20 @@ workflow {
 
     NCOV2019_ARTIC_NF_PIPELINE(ch_ncov_input)
 
+    // If statement may not be required
     if (params.sequencing_technology == "unknown" ) {
-        // TODO:
-        // Reheader FASTA
+        REHEADER_FASTA(samples.fasta)
     }
 
-    // pangolin
-    // TODO: .mix with fasta channel
-    PANGOLIN_PIPELINE(NCOV2019_ARTIC_NF_PIPELINE.out.ch_ncov_sample_fasta)
+    PANGOLIN_PIPELINE(NCOV2019_ARTIC_NF_PIPELINE.out.ch_ncov_sample_fasta.mix(REHEADER_FASTA.out))
 
-    // submit results
-    submit_analysis_run_results(
+    // // submit results
+    SUBMIT_ANALYSIS_RUN_RESULTS(
         ch_metadata, // Original metadata input file
-        CONTAMINATION_REMOVAL.out.ch_contamination_removal_csv.collect()
-        PRIMER_AUTODETECTION.out.ch_primer_data.collect()
-        NCOV2019_ARTIC_NF_PIPELINE.out.ch_ncov_qc_csv.collect()
-        PANGOLIN_PIPELINE.out.ch_pangolin_lineage_csv.collect()
+        CONTAMINATION_REMOVAL.out.ch_contamination_removal_csv.collect(),
+        PRIMER_AUTODETECTION.out.ch_primer_data.collect(),
+        NCOV2019_ARTIC_NF_PIPELINE.out.ch_ncov_qc_csv.collect(),
+        PANGOLIN_PIPELINE.out.ch_pangolin_lineage_csv.collect(),
     )
 
 }

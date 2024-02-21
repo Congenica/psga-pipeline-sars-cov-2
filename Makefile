@@ -40,36 +40,36 @@ shell_local: build_sars_cov_2_local
 	bash
 
 
-mounted_shell_local:# build_sars_cov_2_local
+mounted_shell_local: build_sars_cov_2_local
 	docker run \
 	--rm \
 	-it \
 	--volume ${PWD}/app:/app \
-	--volume ${PWD}/local_test/:/app/local_test \
+	--volume ${PWD}/local_test/:${CONTAINER_TEST_DATA_PATH} \
 	${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG} \
 	bash
 
 
-test_fastq_local_ont:# build_sars_cov_2_local
+test_fastq_local_ont: build_sars_cov_2_local
 	docker run \
 	--rm \
 	--volume ${PWD}/app:/app \
 	--volume ${PWD}/local_test/:${CONTAINER_TEST_DATA_PATH} \
 	${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG} \
 	nextflow \
-		run ./fastq.nf \
+		run ./main_new.nf \
 		-params-file ${ONT_TEST_DATA_PATH}settings.json \
 		--config-path ${ONT_TEST_DATA_PATH}
 		--output_path ${TEST_OUTPUT_LOCAL}/ont
 
-test_fastq_local_illumina:# build_sars_cov_2_local
+test_fastq_local_illumina: build_sars_cov_2_local
 	docker run \
 	--rm \
 	--volume ${PWD}/app:/app \
 	--volume ${PWD}/local_test/:${CONTAINER_TEST_DATA_PATH} \
 	${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG} \
 	nextflow \
-		run ./fastq.nf \
+		run ./main_new.nf \
 		-params-file ${ILLUMINA_TEST_DATA_PATH_TEST_DATA_PATH}settings.json \
 		--config-path ${ILLUMINA_TEST_DATA_PATH}
 		--output_path ${TEST_OUTPUT_LOCAL}/illumina
@@ -81,7 +81,7 @@ mounted_ncov_ont_shell_local: build_ncov_local
 	-it \
 	--volume ${PWD}/app/modules:/app/modules \
 	--volume ${PWD}/app/workflows:/app/workflows \
-	--volume ${PWD}/local_test/:/app/local_test \
+	--volume ${PWD}/local_test/:${CONTAINER_TEST_DATA_PATH} \
 	${NCOV_ONT_DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG} \
 	bash
 
@@ -92,7 +92,7 @@ test_ncov_ont_local: build_ncov_local
 	-it \
 	--volume ${PWD}/app/modules:/modules \
 	--volume ${PWD}/app/workflows:/workflows \
-	--volume ${PWD}/local_test/:/app/local_test \
+	--volume ${PWD}/local_test/:${CONTAINER_TEST_DATA_PATH} \
 	--volume ${PWD}/app/output/ncov_ont/:/app/output/ncov_ont/ \
 	${NCOV_ONT_DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG} \
 	nextflow \
@@ -109,7 +109,7 @@ mounted_ncov_illumina_shell_local: build_ncov_local
 	-it \
 	--volume ${PWD}/app/modules:/app/modules \
 	--volume ${PWD}/app/workflows:/app/workflows \
-	--volume ${PWD}/local_test/:/app/local_test \
+	--volume ${PWD}/local_test/:${CONTAINER_TEST_DATA_PATH} \
 	${NCOV_ILLUMINA_DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG} \
 	bash
 
@@ -119,7 +119,7 @@ test_ncov_illumina_local: build_ncov_local
 	-it \
 	--volume ${PWD}/app/modules:/modules \
 	--volume ${PWD}/app/workflows:/workflows \
-	--volume ${PWD}/local_test/:/app/local_test \
+	--volume ${PWD}/local_test/:${CONTAINER_TEST_DATA_PATH} \
 	--volume ${PWD}/app/output/ncov_illumina/:/app/output/ncov_illumina/ \
 	${NCOV_ILLUMINA_DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG} \
 	nextflow \
@@ -137,7 +137,7 @@ mounted_pangolin_shell_local: build_pangolin_local
 	-it \
 	--volume ${PWD}/app/modules:/app/modules \
 	--volume ${PWD}/app/workflows:/app/workflows \
-	--volume ${PWD}/local_test/:/app/local_test \
+	--volume ${PWD}/local_test/:${CONTAINER_TEST_DATA_PATH} \
 	${PANGOLIN_DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG} \
 	bash
 
@@ -150,7 +150,7 @@ test_pangolin_local: build_pangolin_local
 	-it \
 	--volume ${PWD}/app/modules:/modules \
 	--volume ${PWD}/app/workflows:/workflows \
-	--volume ${PWD}/local_test/:/app/local_test \
+	--volume ${PWD}/local_test/:${CONTAINER_TEST_DATA_PATH} \
 	--volume ${PWD}/app/output/pangolin/:/app/output/pangolin/ \
 	${PANGOLIN_DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG} \
 	nextflow \
@@ -158,6 +158,23 @@ test_pangolin_local: build_pangolin_local
 		--run 61c06b0a-e5e8-4dbf-8bb0-729cce46a223 \
 		--config-path /app/local_test/fasta/ \
 		--output_path /app/output/pangolin/
+
+# N.B. for this to work, you need to add
+#   - nextflow=23.10.1
+# To docker/sars_cov_2/pangolin.yml
+test_fasta_local: build_sars_cov_2_local
+	docker run \
+	--rm \
+	-it \
+	--volume ${PWD}/app:/app \
+	--volume ${PWD}/local_test/:${CONTAINER_TEST_DATA_PATH} \
+	${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG} \
+	nextflow \
+		run ./main_new.nf \
+		--run 61c06b0a-e5e8-4dbf-8bb0-729cce46a223 \
+		--config-path /app/local_test/fasta/ \
+		-params-file /app/local_test/fasta/settings.json \
+		--output_path /app/output/fasta/
 
 test_local: build_sars_cov_2_local
 	docker run \
