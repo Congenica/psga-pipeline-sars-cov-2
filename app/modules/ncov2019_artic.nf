@@ -61,24 +61,10 @@ process NCOV2019_ARTIC_NF_PIPELINE {
         mv -f $fastq_file !{sample_id}
       done
 
-      ls !{sample_id}
-
       # note: we inject our configuration into ncov to override parameters
       # note: `pwd` is the workdir for this nextflow process
       # note: use /tmp as work dir, so that the intermediate files for this pipeline remain local
       #       instead of being shared with our pipeline
-      echo "nextflow run /ncov2019-artic-nf \
-          --illumina \
-          --prefix !{params.run} \
-          --directory !{sample_id} \
-          --outdir !{ncov_out_dir} \
-          --schemeDir /primer_schemes \
-          --scheme !{scheme} \
-          --schemeVersion !{scheme_version} \
-          --gff !{ncov2019_artic_nf_typing_gff} \
-          --yaml !{ncov2019_artic_nf_typing_yaml} \
-          -work-dir /tmp \
-          -c /ncov-illumina.config"
 
       nextflow run /ncov2019-artic-nf \
           --illumina \

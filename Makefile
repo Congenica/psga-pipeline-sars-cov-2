@@ -80,22 +80,26 @@ mounted_ncov_ont_shell_local: build_ncov_local
 	docker run \
 	--rm \
 	-it \
-	--volume ${PWD}/app:/app \
+	--volume ${PWD}/app/modules:/app/modules \
+	--volume ${PWD}/app/workflows:/app/workflows \
 	--volume ${PWD}/local_test/:/app/local_test \
 	${NCOV_ONT_DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG} \
 	bash
 
 
-test_ncov_ont_shell_local: build_ncov_local
+test_ncov_ont_local: build_ncov_local
 	docker run \
 	--rm \
 	-it \
-	--volume ${PWD}/app:/app \
+	--volume ${PWD}/app/modules:/modules \
+	--volume ${PWD}/app/workflows:/workflows \
 	--volume ${PWD}/local_test/:/app/local_test \
+	--volume ${PWD}/app/output/ncov_ont/:/app/output/ncov_ont/ \
 	${NCOV_ONT_DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG} \
 	nextflow \
 		run ./workflows/ncov.nf \
-		--run 61c06b0a-e5e8-4dbf-8bb0-729cce46a223
+		-c /app/local_test/ncov_ont/nextflow.config \
+		--run 61c06b0a-e5e8-4dbf-8bb0-729cce46a224 \
 		-params-file /app/local_test/ncov_ont/settings.json \
 		--config-path /app/local_test/ncov_ont/ \
 		--output_path /app/output/ncov_ont/
@@ -104,21 +108,25 @@ mounted_ncov_illumina_shell_local: build_ncov_local
 	docker run \
 	--rm \
 	-it \
-	--volume ${PWD}/app:/app \
+	--volume ${PWD}/app/modules:/app/modules \
+	--volume ${PWD}/app/workflows:/app/workflows \
 	--volume ${PWD}/local_test/:/app/local_test \
 	${NCOV_ILLUMINA_DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG} \
 	bash
 
-test_ncov_illumina_shell_local: build_ncov_local
+test_ncov_illumina_local: build_ncov_local
 	docker run \
 	--rm \
 	-it \
-	--volume ${PWD}/app:/app \
+	--volume ${PWD}/app/modules:/modules \
+	--volume ${PWD}/app/workflows:/workflows \
 	--volume ${PWD}/local_test/:/app/local_test \
+	--volume ${PWD}/app/output/ncov_illumina/:/app/output/ncov_illumina/ \
 	${NCOV_ILLUMINA_DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG} \
 	nextflow \
 		run ./workflows/ncov.nf \
-		--run 61c06b0a-e5e8-4dbf-8bb0-729cce46a223
+		-c /app/local_test/ncov_illumina/nextflow.config \
+		--run 61c06b0a-e5e8-4dbf-8bb0-729cce46a223 \
 		-params-file /app/local_test/ncov_illumina/settings.json \
 		--config-path /app/local_test/ncov_illumina/ \
 		--output_path /app/output/ncov_illumina/
