@@ -60,10 +60,8 @@ workflow {
 
     NCOV2019_ARTIC_NF_PIPELINE(ch_ncov_input)
 
-    // If statement may not be required
-    if (params.sequencing_technology == "unknown" ) {
-        REHEADER_FASTA(samples.fasta)
-    }
+    // Only for fasta samples
+    REHEADER_FASTA(samples.fasta)
 
     PANGOLIN_PIPELINE(NCOV2019_ARTIC_NF_PIPELINE.out.ch_ncov_sample_fasta.mix(REHEADER_FASTA.out))
 

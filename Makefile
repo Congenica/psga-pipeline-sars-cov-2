@@ -50,6 +50,7 @@ mounted_shell_local: build_sars_cov_2_local
 	bash
 
 
+# Running this requires commenting/disabling nextflow.config
 test_fastq_local_ont: build_sars_cov_2_local
 	docker run \
 	--rm \
@@ -58,11 +59,13 @@ test_fastq_local_ont: build_sars_cov_2_local
 	${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG} \
 	nextflow \
 		run ./main_new.nf \
+		-c /app/nextflow.local.config \
 		--run 61c06b0a-e5e8-4dbf-8bb0-729cce46a224 \
 		-params-file ${ONT_TEST_DATA_PATH}settings.json \
 		--config-path ${ONT_TEST_DATA_PATH}
 		--output_path ${TEST_OUTPUT_LOCAL}/ont
 
+# Running this requires commenting/disabling nextflow.config
 test_fastq_local_illumina: build_sars_cov_2_local
 	docker run \
 	--rm \
@@ -71,6 +74,7 @@ test_fastq_local_illumina: build_sars_cov_2_local
 	${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG} \
 	nextflow \
 		run ./main_new.nf \
+		-c /app/nextflow.local.config \
 		--run 61c06b0a-e5e8-4dbf-8bb0-729cce46a224 \
 		-params-file ${ILLUMINA_TEST_DATA_PATH}settings.json \
 		--config-path ${ILLUMINA_TEST_DATA_PATH}
