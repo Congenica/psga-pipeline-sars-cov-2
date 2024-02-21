@@ -13,7 +13,9 @@ params.rik_ref_genome_fasta = "/MN908947.3.no_poly_A.fa"
 
 workflow {
 
-    samples = Channel.fromPath("${params.configPath}samples.csv")
+    ch_metadata = Channel.fromPath("${params.configPath}samples.csv")
+
+    samples = ch_metadata
         .splitCsv(header: true, sep: ',')
         .map { row ->
             (readKeys, metaKeys) = row.keySet().split { it =~ /^seq_file_/ }
@@ -56,15 +58,21 @@ workflow {
     NCOV2019_ARTIC_NF_PIPELINE(ch_ncov_input)
 
     if (params.sequencing_technology == "unknown" ) {
-        // TBD
+        // TODO:
         // Reheader FASTA
     }
 
     // pangolin
-    // .mix with fasta channel
+    // TODO: .mix with fasta channel
     PANGOLIN_PIPELINE(NCOV2019_ARTIC_NF_PIPELINE.out.ch_ncov_sample_fasta)
 
     // submit results
-    // collect
+    submit_analysis_run_results(
+        ch_metadata, // Original metadata input file
+        CONTAMINATION_REMOVAL.out.ch_contamination_removal_csv.collect()
+        PRIMER_AUTODETECTION.out.ch_primer_data.collect()
+        NCOV2019_ARTIC_NF_PIPELINE.out.ch_ncov_qc_csv.collect()
+        PANGOLIN_PIPELINE.out.ch_pangolin_lineage_csv.collect()
+    )
 
 }

@@ -5,6 +5,7 @@ DOCKER_IMAGE_NAME=sars-cov-2-pipeline
 NCOV_DOCKER_IMAGE_NAME=ncov2019-artic-nf
 NCOV_ONT_DOCKER_IMAGE_NAME=${NCOV_DOCKER_IMAGE_NAME}-nanopore
 NCOV_ILLUMINA_DOCKER_IMAGE_NAME=${NCOV_DOCKER_IMAGE_NAME}-illumina
+PANGOLIN_DOCKER_IMAGE_NAME=pangolin
 
 TEST_RUN_ID=10a0d649-045d-4419-a4c3-90892c0aa583
 TEST_OUTPUT_LOCAL=/app/output/${TEST_RUN_ID}
@@ -27,10 +28,8 @@ build_ncov_local:
 	docker build --build-arg pathogen=${SARS_COV_2} -t ${NCOV_ONT_DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG} -f docker/Dockerfile.${NCOV_ONT_DOCKER_IMAGE_NAME} .
 	docker build --build-arg pathogen=${SARS_COV_2} -t ${NCOV_ILLUMINA_DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG} -f docker/Dockerfile.${NCOV_ILLUMINA_DOCKER_IMAGE_NAME} .
 
-build_local_images: build_sars_cov_2_local
-	docker build --build-arg pathogen=${SARS_COV_2} -t ncov2019-artic-nf-illumina:${DOCKER_IMAGE_TAG} -f docker/Dockerfile.ncov2019-artic-nf-illumina .
-	# docker build --build-arg pathogen=${SARS_COV_2} -t ncov2019-artic-nf-nanopore:${DOCKER_IMAGE_TAG} -f docker/Dockerfile.ncov2019-artic-nf-nanopore .
-	# docker build --build-arg pathogen=${SARS_COV_2} -t pangolin:${DOCKER_IMAGE_TAG} -f docker/Dockerfile.pangolin .
+build_pangolin_local:
+	docker build --build-arg pathogen=${SARS_COV_2} -t ${PANGOLIN_DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG} -f docker/Dockerfile.pangolin .
 
 shell_local: build_sars_cov_2_local
 	docker run \
@@ -131,6 +130,34 @@ test_ncov_illumina_local: build_ncov_local
 		--config-path /app/local_test/ncov_illumina/ \
 		--output_path /app/output/ncov_illumina/
 
+
+mounted_pangolin_shell_local: build_pangolin_local
+	docker run \
+	--rm \
+	-it \
+	--volume ${PWD}/app/modules:/app/modules \
+	--volume ${PWD}/app/workflows:/app/workflows \
+	--volume ${PWD}/local_test/:/app/local_test \
+	${PANGOLIN_DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG} \
+	bash
+
+# N.B. for this to work, you need to add
+#   - nextflow=23.10.1
+# To docker/sars_cov_2/pangolin.yml
+test_pangolin_local: build_pangolin_local
+	docker run \
+	--rm \
+	-it \
+	--volume ${PWD}/app/modules:/modules \
+	--volume ${PWD}/app/workflows:/workflows \
+	--volume ${PWD}/local_test/:/app/local_test \
+	--volume ${PWD}/app/output/pangolin/:/app/output/pangolin/ \
+	${PANGOLIN_DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG} \
+	nextflow \
+		run ./workflows/pangolin.nf \
+		--run 61c06b0a-e5e8-4dbf-8bb0-729cce46a223 \
+		--config-path /app/local_test/fasta/ \
+		--output_path /app/output/pangolin/
 
 test_local: build_sars_cov_2_local
 	docker run \
