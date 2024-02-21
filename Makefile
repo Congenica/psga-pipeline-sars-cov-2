@@ -58,6 +58,7 @@ test_fastq_local_ont: build_sars_cov_2_local
 	${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG} \
 	nextflow \
 		run ./main_new.nf \
+		--run 61c06b0a-e5e8-4dbf-8bb0-729cce46a224 \
 		-params-file ${ONT_TEST_DATA_PATH}settings.json \
 		--config-path ${ONT_TEST_DATA_PATH}
 		--output_path ${TEST_OUTPUT_LOCAL}/ont
@@ -70,7 +71,8 @@ test_fastq_local_illumina: build_sars_cov_2_local
 	${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG} \
 	nextflow \
 		run ./main_new.nf \
-		-params-file ${ILLUMINA_TEST_DATA_PATH_TEST_DATA_PATH}settings.json \
+		--run 61c06b0a-e5e8-4dbf-8bb0-729cce46a224 \
+		-params-file ${ILLUMINA_TEST_DATA_PATH}settings.json \
 		--config-path ${ILLUMINA_TEST_DATA_PATH}
 		--output_path ${TEST_OUTPUT_LOCAL}/illumina
 

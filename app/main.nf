@@ -26,21 +26,21 @@ include { SarsCov2Workflow } from "./sars_cov_2.nf"
 // Required environment variables
 // Add new env variables to common/help.nf
 if( "[:]" in [
-//     DOCKER_IMAGE_URI_PATH,
-//     DOCKER_IMAGE_TAG,
-//     AWS_CONNECTION_TIMEOUT,
-//     AWS_MAX_CONNECTIONS,
-//     AWS_MAX_PARALLEL_TRANSFERS,
-//     QUEUE_SIZE,
-//     PROCESS_MAX_RETRIES,
-//     PROCESS_CPU_LOW,
-//     PROCESS_CPU_HIGH,
-//     PROCESS_MEMORY_VERY_LOW,
-//     PROCESS_MEMORY_LOW,
-//     PROCESS_MEMORY_MEDIUM,
-//     PROCESS_MEMORY_HIGH,
-//     PROCESS_MEMORY_VERY_HIGH,
-//     NXF_WORK,
+    DOCKER_IMAGE_URI_PATH,
+    DOCKER_IMAGE_TAG,
+    AWS_CONNECTION_TIMEOUT,
+    AWS_MAX_CONNECTIONS,
+    AWS_MAX_PARALLEL_TRANSFERS,
+    QUEUE_SIZE,
+    PROCESS_MAX_RETRIES,
+    PROCESS_CPU_LOW,
+    PROCESS_CPU_HIGH,
+    PROCESS_MEMORY_VERY_LOW,
+    PROCESS_MEMORY_LOW,
+    PROCESS_MEMORY_MEDIUM,
+    PROCESS_MEMORY_HIGH,
+    PROCESS_MEMORY_VERY_HIGH,
+    NXF_WORK,
     NXF_EXECUTOR
     ]) {
     throw new Exception("Found unset environment variables. See '[:]' above. Abort")

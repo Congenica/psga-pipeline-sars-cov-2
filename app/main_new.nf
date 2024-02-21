@@ -31,6 +31,8 @@ workflow {
             bam: it[1][0] =~ /\.bam$/
         }
 
+    samples.fastq.view()
+
     // TODO: Handle both in one
     // We don't process BAMs right now so for later
     // BAM_TO_FASTQ_ILLUMINA(samples.bam)
