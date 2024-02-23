@@ -65,6 +65,13 @@ kubectl exec -it sars-cov-2-pipeline-minikube -- bash
 nextflow run . --metadata <metadata_path> --run <analysis_run> --sequencing_technology <sequencing_technology> --kit <kit> --output_path <output_path>
 nextflow run . --metadata <metadata_path> --run <analysis_run> --sequencing_technology <sequencing_technology> --kit <kit> --output_path <output_path>
 
+Running sars-cov-2/fasta test
+nextflow -log unknown.log run /app/main_new.nf --run unknown --sequencing_technology unknown --kit none --config-path s3://psga-test-static-data/pipeline_ci_tests/sars_cov_2/unknown/none/ --output_path /data/output/pipeline_ci_unknown
+Running sars-cov-2/illumina_unknown test
+nextflow -log illumina.log run /app/main_new.nf --run illumina --sequencing_technology illumina --kit unknown --config-path s3://psga-test-static-data/pipeline_ci_tests/sars_cov_2/illumina/unknown/ --output_path /data/output/pipeline_ci_illumina
+Running sars-cov-2/ont_unknown test
+nextflow -log ont.log run /app/main_new.nf --run ont --sequencing_technology ont --kit unknown --config-path s3://psga-test-static-data/pipeline_ci_tests/sars_cov_2/ont/unknown/ --output_path /data/output/pipeline_ci_ont
+
 # The following command cleans up the previous run's work directories and cache, but retains the published output:
 nextflow clean -f
 
@@ -74,6 +81,18 @@ exit
 
 # when finished:
 ./cleanup.sh
+```
+
+N.B.
+This requires AWS Access and Secret keys set in the env, you you can procure via:
+
+(Fill in your own profile name)
+
+```
+CREDS=`aws configure export-credentials --profile <profile-name>`
+echo export AWS_SECRET_ACCESS_KEY=$(echo ${CREDS} | jq .SecretAccessKey | tr -d \")
+echo export AWS_ACCESS_KEY_ID=$(echo ${CREDS} | jq .AccessKeyId | tr -d \")
+echo export AWS_SESSION_TOKEN=\"$(echo ${CREDS} | jq .SessionToken | tr -d \")\"
 ```
 
 ## Development
@@ -144,9 +163,6 @@ To update to a specific version that is not the latest version, re-run the add c
 
 ## TODO
 
-- Stop splitting out common and code (remove pathogen refs)
-- Put containers in their actual processes
-- Break out skeleton flow
 - extract scripts to use template
 - install + use results writer
 - stop using tee in read it and keep to get errors (test with two files of different sizes)
