@@ -1,37 +1,18 @@
-process BAM_TO_FASTQ_ONT {
+process BAM_TO_FASTQ {
   input:
     tuple val(meta), path(bam)
 
   output:
-    tuple val(meta), path(fastq_path)
+    tuple val(meta), path(output_path)
 
   script:
-    fastq_path = "${meta.SAMPLE_ID}.fastq"
-  """
-  # write singleton reads to (decompressed) fastq file. Do not append /1 and 2/ to the read name
-  samtools bam2fq -nO ${bam} > ${fastq_path}
-  """
-}
 
-
-process BAM_TO_FASTQ_ILLUMINA {
-  input:
-    tuple val(meta), path(bam)
-
-  output:
-  // TODO: Needs to output a path
-  // Can it output a pair?
-    tuple val(meta), path("${meta.SAMPLE_ID}_*.fastq.gz")
-
-  script:
-    fastq_preproc = "fastq_preproc"
-    fastq_directory = "fastq_files"
-
+  if( params.sequencing_technology == 'illumina' ) {
     sorted_bam = "${meta.SAMPLE_ID}.sorted.bam"
 
     fastq_1_path = "${meta.SAMPLE_ID}_1.fastq.gz"
     fastq_2_path = "${meta.SAMPLE_ID}_2.fastq.gz"
-    // reads_map = ["seq_file_1": file(fastq_1_path), "seq_file_2": file(fastq_2_path)]
+    output_path = "${meta.SAMPLE_ID}_*.fastq.gz"
 
     """
     # sort by coordinates
@@ -49,4 +30,14 @@ process BAM_TO_FASTQ_ILLUMINA {
       -s /dev/null \
       -n
     """
+
+  } else if( params.sequencing_technology == 'ont' ) {
+
+    output_path = "${meta.SAMPLE_ID}_1.fastq"
+    """
+    # write singleton reads to (decompressed) fastq file. Do not append /1 and 2/ to the read name
+    samtools bam2fq -nO ${bam} > ${output_path}
+
+    """
+  }
 }

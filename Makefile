@@ -31,6 +31,27 @@ build_ncov_local:
 build_pangolin_local:
 	docker build --build-arg pathogen=${SARS_COV_2} -t ${PANGOLIN_DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG} -f docker/Dockerfile.pangolin .
 
+build_minikube_local:
+	minikube image build --build-opt=build-arg=pathogen=${SARS_COV_2} -t ${DOCKER_IMAGE_URI_PATH}/${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG} -f docker/Dockerfile.psga-pipeline-sars-cov-2 .
+	# minikube image build --build-opt=build-arg=pathogen=${SARS_COV_2} -t ${DOCKER_IMAGE_URI_PATH}/${NCOV_ONT_DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG} -f docker/Dockerfile.${NCOV_ONT_DOCKER_IMAGE_NAME} .
+	# minikube image build --build-opt=build-arg=pathogen=${SARS_COV_2} -t ${DOCKER_IMAGE_URI_PATH}/${NCOV_ILLUMINA_DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG} -f docker/Dockerfile.${NCOV_ILLUMINA_DOCKER_IMAGE_NAME} .
+	minikube image build --build-opt=build-arg=pathogen=${SARS_COV_2} -t ${DOCKER_IMAGE_URI_PATH}/${PANGOLIN_DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG} -f docker/Dockerfile.pangolin .
+
+	docker build --build-arg pathogen=${SARS_COV_2} -t ${DOCKER_IMAGE_URI_PATH}/${NCOV_ONT_DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG} -f docker/Dockerfile.${NCOV_ONT_DOCKER_IMAGE_NAME} .
+	minikube image load ${DOCKER_IMAGE_URI_PATH}/${NCOV_ONT_DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG}
+	docker build --build-arg pathogen=${SARS_COV_2} -t ${DOCKER_IMAGE_URI_PATH}/${NCOV_ILLUMINA_DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG} -f docker/Dockerfile.${NCOV_ILLUMINA_DOCKER_IMAGE_NAME} .
+	minikube image load ${DOCKER_IMAGE_URI_PATH}/${NCOV_ILLUMINA_DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG}
+
+	# docker build --build-arg pathogen=${SARS_COV_2} -t ${DOCKER_IMAGE_URI_PATH}/${PANGOLIN_DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG} -f docker/Dockerfile.pangolin .
+	# minikube image load ${DOCKER_IMAGE_URI_PATH}/${PANGOLIN_DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG}
+
+reload_minikube:
+	kubectl delete -f minikube/pipelines/sars-cov-2.yaml
+	sleep 35
+	minikube image rm ${DOCKER_IMAGE_URI_PATH}/${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG}
+	make build_minikube_local
+	kubectl apply -f minikube/pipelines/sars-cov-2.yaml
+
 shell_local: build_sars_cov_2_local
 	docker run \
 	--rm \

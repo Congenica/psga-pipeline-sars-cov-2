@@ -1,6 +1,6 @@
 #!/usr/bin/env nextflow
 
-include { BAM_TO_FASTQ_ONT; BAM_TO_FASTQ_ILLUMINA } from './modules/bam_to_fastq.nf'
+include { BAM_TO_FASTQ } from './modules/bam_to_fastq.nf'
 include { CONTAMINATION_REMOVAL } from './modules/contamination_removal.nf'
 include { FASTQC } from './modules/fastqc.nf'
 include { PRIMER_AUTODETECTION } from './modules/primer_autodetection.nf'
@@ -22,7 +22,7 @@ workflow {
         .map { row ->
             (readKeys, metaKeys) = row.keySet().split { it =~ /^seq_file_/ }
             meta = row.subMap(metaKeys)
-            reads = row.subMap(readKeys).values()
+            reads = row.subMap(readKeys).findAll{it.value != ""}.values()
             [meta, reads]
         }
         .branch {
@@ -31,17 +31,12 @@ workflow {
             bam: it[1][0] =~ /\.bam$/
         }
 
-    samples.fastq.view()
-
-    // TODO: Handle both in one
-    // We don't process BAMs right now so for later
-    // BAM_TO_FASTQ_ILLUMINA(samples.bam)
-    BAM_TO_FASTQ_ONT(samples.bam)
+    BAM_TO_FASTQ(samples.bam)
 
     // ---- Single locally executed workflow option
     CONTAMINATION_REMOVAL(
         params.rik_ref_genome_fasta,
-        samples.fastq.mix(BAM_TO_FASTQ_ONT.out)
+        samples.fastq.mix(BAM_TO_FASTQ.out)
     )
     FASTQC(
         CONTAMINATION_REMOVAL.out.ch_cleaned_fastq

@@ -10,7 +10,7 @@ process PANGOLIN_PIPELINE {
     tuple val(meta), path(reheadered_fasta)
 
   output:
-    tuple val(meta), path("${pangolin_out_directory}/${output_filename}"), emit: ch_pangolin_lineage_csv
+    path("${pangolin_out_directory}/${output_filename}"), emit: ch_pangolin_lineage_csv
 
   script:
     sample_id = meta.SAMPLE_ID

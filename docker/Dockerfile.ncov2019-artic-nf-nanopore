@@ -1,4 +1,4 @@
-FROM condaforge/mambaforge:23.3.1-1 AS condabuild
+FROM --platform=linux/amd64 condaforge/mambaforge:23.3.1-1 AS condabuild
 
 ARG pathogen
 COPY docker/${pathogen}/ncov2019-artic-nf/environments/nanopore/environment.yml /environment.yml
@@ -6,7 +6,7 @@ RUN mamba env create -f /environment.yml -n custom_env \
   && conda clean --all -y
 
 
-FROM debian:bookworm-slim
+FROM --platform=linux/amd64 debian:bookworm-slim
 RUN apt-get update \
   && apt-get install -y --no-install-recommends procps rename \
   && apt-get clean -y \
