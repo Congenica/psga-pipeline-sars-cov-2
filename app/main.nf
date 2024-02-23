@@ -1,81 +1,72 @@
 #!/usr/bin/env nextflow
 
-// Enable DSL 2 syntax
-nextflow.enable.dsl = 2
+include { BAM_TO_FASTQ } from './modules/bam_to_fastq.nf'
+include { CONTAMINATION_REMOVAL } from './modules/contamination_removal.nf'
+include { FASTQC } from './modules/fastqc.nf'
+include { PRIMER_AUTODETECTION } from './modules/primer_autodetection.nf'
+include { NCOV2019_ARTIC_NF_PIPELINE } from './modules/ncov2019_artic.nf'
+include { REHEADER_FASTA } from './modules/reheader_fasta.nf'
+include { PANGOLIN_PIPELINE } from './modules/pangolin.nf'
+include { SUBMIT_ANALYSIS_RUN_RESULTS } from './modules/submit_analysis_results.nf'
 
-
-if (params.print_config) {
-    include { printMainConfig } from './common/help.nf'
-    include { printPathogenConfig } from "./help.nf"
-    printMainConfig()
-    printPathogenConfig()
-    exit 0
-}
-
-if (params.help) {
-    include { printMainHelp } from './common/help.nf'
-    include { printPathogenHelp } from "./help.nf"
-    printMainHelp()
-    printPathogenHelp()
-    exit 0
-}
-
-include { SarsCov2Workflow } from "./sars_cov_2.nf"
-
-
-// Required environment variables
-// Add new env variables to common/help.nf
-if( "[:]" in [
-    DOCKER_IMAGE_URI_PATH,
-    DOCKER_IMAGE_TAG,
-    AWS_CONNECTION_TIMEOUT,
-    AWS_MAX_CONNECTIONS,
-    AWS_MAX_PARALLEL_TRANSFERS,
-    QUEUE_SIZE,
-    PROCESS_MAX_RETRIES,
-    PROCESS_CPU_LOW,
-    PROCESS_CPU_HIGH,
-    PROCESS_MEMORY_VERY_LOW,
-    PROCESS_MEMORY_LOW,
-    PROCESS_MEMORY_MEDIUM,
-    PROCESS_MEMORY_HIGH,
-    PROCESS_MEMORY_VERY_HIGH,
-    NXF_WORK,
-    NXF_EXECUTOR
-    ]) {
-    throw new Exception("Found unset environment variables. See '[:]' above. Abort")
-}
-
-if( NXF_EXECUTOR == "k8s" && "[:]" in [
-    K8S_NODE,
-    K8S_PULL_POLICY,
-    K8S_SERVICE_ACCOUNT,
-    K8S_STORAGE_CLAIM_NAME,
-    K8S_STORAGE_MOUNT_PATH
-    ]) {
-    throw new Exception("Found unset K8S environment variables when using k8s executor. See '[:]' above. Abort")
-} else if( NXF_EXECUTOR == "awsbatch" && "[:]" in [
-    QUEUE
-    ]) {
-    throw new Exception("Found unset AWS BATCH environment variables when using awsbatch executor. See '[:]' above. Abort")
-}
-
-if ( params.run == "" ) {
-    throw new Exception("Error: '--run' must be defined")
-}
-if ( params.configPath == "" ) {
-    throw new Exception("Error: '--config-path' must be defined")
-}
-if ( params.sequencing_technology == "" ) {
-    throw new Exception("Error: '--sequencing_technology' must be defined")
-}
-if ( params.kit == "" ) {
-    throw new Exception("Error: '--kit' must be defined")
-}
-if ( params.output_path == "" ) {
-    throw new Exception("Error: '--output_path' must be defined")
-}
+// Params to be moved to config
+// TODO: This is copied in by docker. Let's put it not at /
+params.rik_ref_genome_fasta = "/MN908947.3.no_poly_A.fa"
 
 workflow {
-    sars_cov_2_workflow = SarsCov2Workflow()
+
+    ch_metadata = Channel.fromPath("${params.configPath}samples.csv")
+
+    samples = ch_metadata
+        .splitCsv(header: true, sep: ',')
+        .map { row ->
+            (readKeys, metaKeys) = row.keySet().split { it =~ /^seq_file_/ }
+            meta = row.subMap(metaKeys)
+            reads = row.subMap(readKeys).findAll{it.value != ""}.values()
+            [meta, reads]
+        }
+        .branch {
+            fastq: it[1][0] =~ /\.(fq|fastq?)(?:\.gz)?$/
+            fasta: it[1][0] =~ /\.(fa|fasta?)(?:\.gz)?$/
+            bam: it[1][0] =~ /\.bam$/
+        }
+
+    BAM_TO_FASTQ(samples.bam)
+
+    // ---- Single locally executed workflow option
+    CONTAMINATION_REMOVAL(
+        params.rik_ref_genome_fasta,
+        samples.fastq.mix(BAM_TO_FASTQ.out)
+    )
+    FASTQC(
+        CONTAMINATION_REMOVAL.out.ch_cleaned_fastq
+    )
+    PRIMER_AUTODETECTION(
+        CONTAMINATION_REMOVAL.out.ch_cleaned_fastq
+    )
+    // Add the primer to metadata
+    ch_ncov_input = PRIMER_AUTODETECTION.out.ch_primer_detected.map {
+        it ->
+            it[0]["PRIMER"] = it[2].text
+            [it[0], it[1]]
+    }
+    // ---- END
+    ch_ncov_input.view()
+
+    NCOV2019_ARTIC_NF_PIPELINE(ch_ncov_input)
+
+    // Only for fasta samples
+    REHEADER_FASTA(samples.fasta)
+
+    PANGOLIN_PIPELINE(NCOV2019_ARTIC_NF_PIPELINE.out.ch_ncov_sample_fasta.mix(REHEADER_FASTA.out))
+
+    // // submit results
+    SUBMIT_ANALYSIS_RUN_RESULTS(
+        ch_metadata, // Original metadata input file
+        CONTAMINATION_REMOVAL.out.ch_contamination_removal_csv.collect(),
+        PRIMER_AUTODETECTION.out.ch_primer_data.collect(),
+        NCOV2019_ARTIC_NF_PIPELINE.out.ch_ncov_qc_csv.collect(),
+        PANGOLIN_PIPELINE.out.ch_pangolin_lineage_csv.collect(),
+    )
+
 }
