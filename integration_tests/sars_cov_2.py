@@ -24,9 +24,7 @@ def get_expected_output_files(output_path: str, sample_ids: list[str], sequencin
     # generate a unified list of paths as non-sample results files must also be included
     output_files = [f["file"] for sample_files in output_files_per_sample.values() for f in sample_files]
 
-    output_files.extend(
-        [join_path(output_path, "logs", f) for f in ["check_metadata.log", "generate_pipeline_results_files.log"]]
-    )
+    output_files.extend([join_path(output_path, "logs", f) for f in ["generate_pipeline_results_files.log"]])
 
     if sequencing_technology != UNKNOWN:
         output_files.append(join_path(output_path, "ncov2019-artic", "ncov_qc.csv"))
