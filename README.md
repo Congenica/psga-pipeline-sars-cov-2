@@ -191,7 +191,7 @@ To update to a specific version that is not the latest version, re-run the add c
 
 ## UPDATED - Running and testing locally
 
-Ensure you are building the correct platform.
+Platform is now set in all the docker images but to ensure you are building for the correct platform.
 
 ```
 export DOCKER_DEFAULT_PLATFORM=linux/amd64
