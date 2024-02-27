@@ -25,6 +25,7 @@ jobs:
           name: Test pipelines
           no_output_timeout: 30m
           command: |
+            aws sts get-caller-identity
             cd /tmp
             echo "Installing minikube"
             curl -LO https://storage.googleapis.com/minikube/releases/v1.29.0/minikube-linux-amd64
