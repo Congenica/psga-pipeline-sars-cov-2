@@ -66,11 +66,11 @@ nextflow run . --metadata <metadata_path> --run <analysis_run> --sequencing_tech
 nextflow run . --metadata <metadata_path> --run <analysis_run> --sequencing_technology <sequencing_technology> --kit <kit> --output_path <output_path>
 
 Running sars-cov-2/fasta test
-nextflow -log unknown.log run /app/main_new.nf --run unknown --sequencing_technology unknown --kit none --config-path s3://psga-test-static-data/pipeline_ci_tests/sars_cov_2/unknown/none/ --output_path /data/output/pipeline_ci_unknown
+nextflow -log unknown.log run /app/main.nf --run unknown --sequencing_technology unknown --kit none --config-path s3://psga-test-static-data/pipeline_ci_tests/sars_cov_2/unknown/none/ --output_path /data/output/pipeline_ci_unknown
 Running sars-cov-2/illumina_unknown test
-nextflow -log illumina.log run /app/main_new.nf --run illumina --sequencing_technology illumina --kit unknown --config-path s3://psga-test-static-data/pipeline_ci_tests/sars_cov_2/illumina/unknown/ --output_path /data/output/pipeline_ci_illumina
+nextflow -log illumina.log run /app/main.nf --run illumina --sequencing_technology illumina --kit unknown --config-path s3://psga-test-static-data/pipeline_ci_tests/sars_cov_2/illumina/unknown/ --output_path /data/output/pipeline_ci_illumina
 Running sars-cov-2/ont_unknown test
-nextflow -log ont.log run /app/main_new.nf --run ont --sequencing_technology ont --kit unknown --config-path s3://psga-test-static-data/pipeline_ci_tests/sars_cov_2/ont/unknown/ --output_path /data/output/pipeline_ci_ont
+nextflow -log ont.log run /app/main.nf --run ont --sequencing_technology ont --kit unknown --config-path s3://psga-test-static-data/pipeline_ci_tests/sars_cov_2/ont/unknown/ --output_path /data/output/pipeline_ci_ont
 
 # The following command cleans up the previous run's work directories and cache, but retains the published output:
 nextflow clean -f

@@ -79,7 +79,7 @@ test_fastq_local_ont: build_sars_cov_2_local
 	--volume ${PWD}/local_test/:${CONTAINER_TEST_DATA_PATH} \
 	${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG} \
 	nextflow \
-		run ./main_new.nf \
+		run ./main.nf \
 		-c /app/nextflow.local.config \
 		--run 61c06b0a-e5e8-4dbf-8bb0-729cce46a224 \
 		-params-file ${ONT_TEST_DATA_PATH}settings.json \
@@ -94,7 +94,7 @@ test_fastq_local_illumina: build_sars_cov_2_local
 	--volume ${PWD}/local_test/:${CONTAINER_TEST_DATA_PATH} \
 	${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG} \
 	nextflow \
-		run ./main_new.nf \
+		run ./main.nf \
 		-c /app/nextflow.local.config \
 		--run 61c06b0a-e5e8-4dbf-8bb0-729cce46a224 \
 		-params-file ${ILLUMINA_TEST_DATA_PATH}settings.json \
@@ -197,7 +197,7 @@ test_fasta_local: build_sars_cov_2_local
 	--volume ${PWD}/local_test/:${CONTAINER_TEST_DATA_PATH} \
 	${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG} \
 	nextflow \
-		run ./main_new.nf \
+		run ./main.nf \
 		-c /app/nextflow.local.config \
 		--run 61c06b0a-e5e8-4dbf-8bb0-729cce46a223 \
 		--config-path /app/local_test/fasta/ \
