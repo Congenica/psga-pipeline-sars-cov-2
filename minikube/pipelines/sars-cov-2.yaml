@@ -75,8 +75,13 @@ spec:
           volumeMounts:
             - name: psga-persistent-storage
               mountPath: /data
+            - name: resources
+              mountPath: /app/resources
       serviceAccountName: psga-minikube-admin
       volumes:
         - name: psga-persistent-storage
           persistentVolumeClaim:
             claimName: psga-minikube-pvc
+        - name: resources
+          hostPath:
+            path: "/app/resources"
