@@ -29,10 +29,10 @@ jobs:
             aws s3 ls psga-nonprod-static-data
             cd /tmp
             wget https://s3.amazonaws.com/mountpoint-s3-release/latest/x86_64/mount-s3.deb
-            apt-get install ./mount-s3.deb
+            sudo apt-get install ./mount-s3.deb
             mount-s3 --version
             mkdir resources mp-cache
-            mount-s3 psga-nonprod-static-data resources --region eu-west-2 --cache mp-cache --metadata-ttl 3600 --read-only --allow-other
+            AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY} AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID} sudo mount-s3 psga-nonprod-static-data resources --region eu-west-2 --cache mp-cache --metadata-ttl 3600 --read-only --allow-other
             ls resources
             echo "Installing minikube"
             curl -LO https://storage.googleapis.com/minikube/releases/v1.29.0/minikube-linux-amd64
