@@ -46,7 +46,7 @@ build_minikube_local:
 	# minikube image load ${DOCKER_IMAGE_URI_PATH}/${PANGOLIN_DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG}
 
 reload_minikube:
-	kubectl delete -f minikube/pipelines/sars-cov-2.yaml
+	kubectl delete --ignore-not-found=true -f minikube/pipelines/sars-cov-2.yaml
 	sleep 35
 	minikube image rm ${DOCKER_IMAGE_URI_PATH}/${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG}
 	make build_minikube_local
