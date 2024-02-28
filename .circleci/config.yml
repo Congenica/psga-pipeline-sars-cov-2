@@ -32,7 +32,7 @@ jobs:
             sudo apt-get install ./mount-s3.deb
             mount-s3 --version
             mkdir resources mp-cache
-            AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY} AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID} sudo mount-s3 psga-nonprod-static-data resources --region eu-west-2 --cache mp-cache --metadata-ttl 3600 --read-only --allow-other
+            AWS_EC2_METADATA_DISABLED=true sudo mount-s3 psga-nonprod-static-data resources --region eu-west-2 --cache mp-cache --metadata-ttl 3600 --read-only --allow-other
             ls resources
             echo "Installing minikube"
             curl -LO https://storage.googleapis.com/minikube/releases/v1.29.0/minikube-linux-amd64
