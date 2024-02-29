@@ -10,6 +10,8 @@ jobs:
   #   secrets: inherit
   build_image:
     name: Build and push image
+    # needs:
+    #   - check_and_test
     strategy:
       fail-fast: false
       matrix:
@@ -41,7 +43,7 @@ jobs:
   trigger_integration_tests:
     name: Trigger integration tests on CircleCI
     runs-on: ubuntu-22.04
-    # needs: build_image
+    needs: build_image
     steps:
       - name: Trigger integration tests
         id: trigger_integration_tests
