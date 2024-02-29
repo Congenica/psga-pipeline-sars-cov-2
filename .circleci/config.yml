@@ -41,8 +41,6 @@ jobs:
             sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
             docker login -u AWS -p $(aws ecr get-login-password --region eu-west-2) 566277102435.dkr.ecr.eu-west-2.amazonaws.com
             cd ${CIRCLE_WORKING_DIRECTORY}/minikube
-            # TODO: Test that we can see this mount in minikube pod (locally)
-            # TODO: Test that we can see this mount in processes (locally) - assume this requires nextflow changes
             minikube start --cpus=6 --memory=28672 --vm-driver=docker --mount-string="/tmp/resources:/app/resources" --mount
             minikube addons enable storage-provisioner
             sed -i "s/dev_latest/${CIRCLE_SHA1}/g" pipelines/*
