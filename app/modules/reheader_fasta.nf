@@ -12,8 +12,7 @@ process REHEADER_FASTA {
 
   shell:
     '''
-    ls /app/resources/
-
+    echo $(ls /app/resources/)
 
     # standardise input fasta before re-headering
     fasta=!{fasta}
