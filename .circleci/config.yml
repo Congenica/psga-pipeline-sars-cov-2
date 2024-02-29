@@ -26,10 +26,6 @@ jobs:
           no_output_timeout: 30m
           command: |
             cd /tmp
-            wget https://s3.amazonaws.com/mountpoint-s3-release/latest/x86_64/mount-s3.deb
-            sudo apt-get install ./mount-s3.deb
-            mount-s3 --version
-            mkdir resources mp-cache
             echo "Installing minikube"
             curl -LO https://storage.googleapis.com/minikube/releases/v1.29.0/minikube-linux-amd64
             echo "aafb65cbee8e971ec00509fdb1817254b17d6bee4890b839c3b6e8f11e97413a minikube-linux-amd64" | sha256sum --check
@@ -42,7 +38,7 @@ jobs:
             cd ${CIRCLE_WORKING_DIRECTORY}/minikube
             # TODO: Test that we can see this mount in minikube pod (locally)
             # TODO: Test that we can see this mount in processes (locally) - assume this requires nextflow changes
-            minikube start --cpus=6 --memory=28672 --vm-driver=docker --mount-string="/tmp/resources:/app/resources" --mount
+            minikube start --cpus=6 --memory=28672 --vm-driver=docker
             minikube addons enable storage-provisioner
             sed -i "s/dev_latest/${CIRCLE_SHA1}/g" pipelines/*
             ./startup.sh
