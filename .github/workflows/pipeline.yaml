@@ -31,15 +31,15 @@ jobs:
       name: ${{ matrix.image.name }}
       dockerfile: ${{ matrix.image.dockerfile }}
       pathogen: ${{ matrix.image.pathogen }}
-  trigger_gh_actions_integration_tests:
-    name: Trigger GH actions integration tests
-    needs:
-      - build_image
-    uses: ./.github/workflows/integration_tests.yaml
-    secrets:
-      # Will always run on nonprod therefore no need to set env var
-      CICD_OIDC_ROLE: ${{ secrets.CICD_OIDC_ROLE }}
-      GH_PSGA_SYSTEM_PAT: ${{ secrets.GH_PSGA_SYSTEM_PAT }}
+  # trigger_gh_actions_integration_tests:
+  #   name: Trigger GH actions integration tests
+  #   needs:
+  #     - build_image
+  #   uses: ./.github/workflows/integration_tests.yaml
+  #   secrets:
+  #     # Will always run on nonprod therefore no need to set env var
+  #     CICD_OIDC_ROLE: ${{ secrets.CICD_OIDC_ROLE }}
+  #     GH_PSGA_SYSTEM_PAT: ${{ secrets.GH_PSGA_SYSTEM_PAT }}
   trigger_integration_tests:
     name: Trigger integration tests on CircleCI
     runs-on: ubuntu-22.04

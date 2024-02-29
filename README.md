@@ -36,6 +36,19 @@ See: https://medium.com/swlh/how-to-run-locally-built-docker-images-in-kubernete
 eval $(minikube -p minikube docker-env)
 ```
 
+Note on Apple Silicon ensure you DO NOT have DOCKER_DEFAULT_PLATFORM set.
+
+If you get errors around kubelet not being available try the following:
+
+```
+minikube delete --all --purge
+unset DOCKER_DEFAULT_PLATFORM
+
+# Mounting is required for reference data to work
+# Recommended to throw more than the default resources at it
+minikube start --mount-string="/$PWD/ref-data:/app/resources" --mount --cpus=5 --memory=7000
+```
+
 Make sure that the submodules are installed:
 
 ```commandline
