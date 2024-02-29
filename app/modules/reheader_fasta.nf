@@ -12,8 +12,6 @@ process REHEADER_FASTA {
 
   shell:
     '''
-    echo $(ls /app/resources/)
-
     # standardise input fasta before re-headering
     fasta=!{fasta}
     mkdir input_dir reheadered_fasta
