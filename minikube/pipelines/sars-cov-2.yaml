@@ -82,6 +82,6 @@ spec:
         - name: psga-persistent-storage
           persistentVolumeClaim:
             claimName: psga-minikube-pvc
-        - name:
+        - name: resources
           hostPath:
             path: /app/resources
