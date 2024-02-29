@@ -30,7 +30,6 @@ jobs:
             sudo apt-get install ./mount-s3.deb
             mount-s3 --version
             mkdir resources mp-cache
-            sudo -E mount-s3 psga-nonprod-static-data resources --region eu-west-2 --cache mp-cache --metadata-ttl 3600 --read-only --allow-other
             echo "Installing minikube"
             curl -LO https://storage.googleapis.com/minikube/releases/v1.29.0/minikube-linux-amd64
             echo "aafb65cbee8e971ec00509fdb1817254b17d6bee4890b839c3b6e8f11e97413a minikube-linux-amd64" | sha256sum --check
@@ -41,6 +40,8 @@ jobs:
             sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
             docker login -u AWS -p $(aws ecr get-login-password --region eu-west-2) 566277102435.dkr.ecr.eu-west-2.amazonaws.com
             cd ${CIRCLE_WORKING_DIRECTORY}/minikube
+            # TODO: Test that we can see this mount in minikube pod (locally)
+            # TODO: Test that we can see this mount in processes (locally) - assume this requires nextflow changes
             minikube start --cpus=6 --memory=28672 --vm-driver=docker --mount-string="/tmp/resources:/app/resources" --mount
             minikube addons enable storage-provisioner
             sed -i "s/dev_latest/${CIRCLE_SHA1}/g" pipelines/*
