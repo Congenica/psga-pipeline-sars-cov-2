@@ -17,9 +17,15 @@ process PANGOLIN_PIPELINE {
     sample_id = meta.SAMPLE_ID
     pangolin_out_directory = "pangolin_output"
     output_filename = "${sample_id}_lineage_report.csv"
-    pangolin_data_dir = "${reference_data_map["pangolin-data"]}/pangolin_data/data"
+    pangolin_data_dir = "${reference_data_map["pangolin-data"]}"
 
     println("Using reference data from: ${pangolin_data_dir}")
+
+    // use-old-datadir is meant to force pangolin to use older reference data
+    // even if newer is available.
+    // It doesn't seem to do this, so I've kept the older one installed
+    // Another alternative would be to install pangolin via pip
+    // so that pangolin_data doesn't get installed as a dep by conda
 
     """
     pangolin ${reheadered_fasta} \
