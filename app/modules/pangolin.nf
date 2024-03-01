@@ -25,6 +25,7 @@ process PANGOLIN_PIPELINE {
     pangolin ${reheadered_fasta} \
       --outdir ${pangolin_out_directory} \
       --outfile ${output_filename} \
-      --datadir ${pangolin_data_dir}
+      --datadir ${pangolin_data_dir} \
+      --use-old-datadir
     """
 }
