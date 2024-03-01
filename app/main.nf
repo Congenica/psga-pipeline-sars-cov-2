@@ -15,7 +15,7 @@ params.rik_ref_genome_fasta = "/MN908947.3.no_poly_A.fa"
 
 workflow {
 
-    reference_data_paths = Channel.fromPath("${params.configPath}reference_data.csv")
+    reference_data_map = Channel.fromPath("${params.configPath}reference_data.csv")
         .splitCsv(header: true)
         .reduce([]) { result, row -> [(row.NAME): "${RESOURCE_MOUNT_POINT}/${row.LOCATION}"] + result }
 
@@ -62,7 +62,7 @@ workflow {
     // Only for fasta samples
     REHEADER_FASTA(samples.fasta)
 
-    PANGOLIN_PIPELINE(NCOV2019_ARTIC_NF_PIPELINE.out.ch_ncov_sample_fasta.mix(REHEADER_FASTA.out), reference_data_paths)
+    PANGOLIN_PIPELINE(NCOV2019_ARTIC_NF_PIPELINE.out.ch_ncov_sample_fasta.mix(REHEADER_FASTA.out), reference_data_map)
 
     // // submit results
     SUBMIT_ANALYSIS_RUN_RESULTS(
