@@ -189,7 +189,7 @@ test_pangolin_local: build_pangolin_local
 
 # N.B. for this to work, you need to
 # comment out all of nextflow.config
-test_fasta_local: #build_sars_cov_2_local
+test_fasta_local: build_sars_cov_2_local
 	docker run \
 	--rm \
 	-it \

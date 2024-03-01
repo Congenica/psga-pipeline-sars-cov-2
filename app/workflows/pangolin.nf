@@ -20,8 +20,8 @@ workflow {
     ch_pangolin_input.view()
 
     reference_data_paths = Channel.fromPath("${params.configPath}reference_data.csv")
-        .splitCsv(header: true, 'sep': ',')
-        .reduce([]) { result, row -> ["${row.NAME}": row.LOCATION] + result }
+        .splitCsv(header: true)
+        .reduce([]) { result, row -> [(row.NAME): "${RESOURCE_MOUNT_POINT}/${row.LOCATION}"] + result }
 
     // FASTA
     // [
