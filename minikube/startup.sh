@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -euxo pipefail # exit on any failures
+set -euo pipefail # exit on any failures
 
 source config.sh
 
