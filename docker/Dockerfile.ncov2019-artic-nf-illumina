@@ -1,7 +1,6 @@
 FROM --platform=linux/amd64 condaforge/mambaforge:23.3.1-1 AS condabuild
 
-ARG pathogen
-COPY docker/${pathogen}/ncov2019-artic-nf/environments/illumina/environment.yml /environment.yml
+COPY docker/sars_cov_2/ncov2019-artic-nf/environments/illumina/environment.yml /environment.yml
 RUN mamba env create -f /environment.yml -n custom_env \
   && conda clean --all -y
 
@@ -19,9 +18,8 @@ ENV PATH=/ncov2019-artic-nf/bin:/opt/conda/envs/custom_env/bin:$PATH
 ENV LC_ALL=C.UTF-8
 ENV LANG=C.UTF-8
 
-ARG pathogen
-COPY docker/${pathogen}/ncov2019-artic-nf /ncov2019-artic-nf
+COPY docker/sars_cov_2/ncov2019-artic-nf /ncov2019-artic-nf
 COPY app/ncov-illumina.config app/ncov-common.config /
-COPY data/${pathogen}/ncov2019-artic-nf/* /
-COPY data/${pathogen}/primer_schemes /primer_schemes
+COPY data/sars_cov_2/ncov2019-artic-nf/* /
+COPY data/sars_cov_2/primer_schemes /primer_schemes
 COPY app/scripts/ncov /app/scripts/ncov
