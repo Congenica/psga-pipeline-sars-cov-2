@@ -16,33 +16,33 @@ ILLUMINA_TEST_DATA_PATH=${CONTAINER_TEST_DATA_PATH}/illumina/
 
 # build images per pathogen
 sars-cov-2-images:
-	docker build --build-arg pathogen=${SARS_COV_2} -t ${DOCKER_IMAGE_URI_PATH}/sars-cov-2-pipeline:${DOCKER_IMAGE_TAG} -f docker/Dockerfile.psga-pipeline-sars-cov-2 .
-	docker build --build-arg pathogen=${SARS_COV_2} -t ${DOCKER_IMAGE_URI_PATH}/ncov2019-artic-nf-illumina:${DOCKER_IMAGE_TAG} -f docker/Dockerfile.ncov2019-artic-nf-illumina .
-	docker build --build-arg pathogen=${SARS_COV_2} -t ${DOCKER_IMAGE_URI_PATH}/ncov2019-artic-nf-nanopore:${DOCKER_IMAGE_TAG} -f docker/Dockerfile.ncov2019-artic-nf-nanopore .
-	docker build --build-arg pathogen=${SARS_COV_2} -t ${DOCKER_IMAGE_URI_PATH}/pangolin:${DOCKER_IMAGE_TAG} -f docker/Dockerfile.pangolin .
+	docker build -t ${DOCKER_IMAGE_URI_PATH}/sars-cov-2-pipeline:${DOCKER_IMAGE_TAG} -f docker/Dockerfile.psga-pipeline-sars-cov-2 .
+	docker build -t ${DOCKER_IMAGE_URI_PATH}/ncov2019-artic-nf-illumina:${DOCKER_IMAGE_TAG} -f docker/Dockerfile.ncov2019-artic-nf-illumina .
+	docker build -t ${DOCKER_IMAGE_URI_PATH}/ncov2019-artic-nf-nanopore:${DOCKER_IMAGE_TAG} -f docker/Dockerfile.ncov2019-artic-nf-nanopore .
+	docker build -t ${DOCKER_IMAGE_URI_PATH}/pangolin:${DOCKER_IMAGE_TAG} -f docker/Dockerfile.pangolin .
 
 build_sars_cov_2_local:
-	docker build --build-arg pathogen=${SARS_COV_2} -t ${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG} -f docker/Dockerfile.psga-pipeline-sars-cov-2 .
+	docker build -t ${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG} -f docker/Dockerfile.psga-pipeline-sars-cov-2 .
 
 build_ncov_local:
-	docker build --build-arg pathogen=${SARS_COV_2} -t ${NCOV_ONT_DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG} -f docker/Dockerfile.${NCOV_ONT_DOCKER_IMAGE_NAME} .
-	docker build --build-arg pathogen=${SARS_COV_2} -t ${NCOV_ILLUMINA_DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG} -f docker/Dockerfile.${NCOV_ILLUMINA_DOCKER_IMAGE_NAME} .
+	docker build -t ${NCOV_ONT_DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG} -f docker/Dockerfile.${NCOV_ONT_DOCKER_IMAGE_NAME} .
+	docker build -t ${NCOV_ILLUMINA_DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG} -f docker/Dockerfile.${NCOV_ILLUMINA_DOCKER_IMAGE_NAME} .
 
 build_pangolin_local:
-	docker build --build-arg pathogen=${SARS_COV_2} -t ${PANGOLIN_DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG} -f docker/Dockerfile.pangolin .
+	docker build -t ${PANGOLIN_DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG} -f docker/Dockerfile.pangolin .
 
 build_minikube_local:
-	minikube image build --build-opt=build-arg=pathogen=${SARS_COV_2} -t ${DOCKER_IMAGE_URI_PATH}/${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG} -f docker/Dockerfile.psga-pipeline-sars-cov-2 .
-	# minikube image build --build-opt=build-arg=pathogen=${SARS_COV_2} -t ${DOCKER_IMAGE_URI_PATH}/${NCOV_ONT_DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG} -f docker/Dockerfile.${NCOV_ONT_DOCKER_IMAGE_NAME} .
-	# minikube image build --build-opt=build-arg=pathogen=${SARS_COV_2} -t ${DOCKER_IMAGE_URI_PATH}/${NCOV_ILLUMINA_DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG} -f docker/Dockerfile.${NCOV_ILLUMINA_DOCKER_IMAGE_NAME} .
-	minikube image build --build-opt=build-arg=pathogen=${SARS_COV_2} -t ${DOCKER_IMAGE_URI_PATH}/${PANGOLIN_DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG} -f docker/Dockerfile.pangolin .
+	minikube image build -t ${DOCKER_IMAGE_URI_PATH}/${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG} -f docker/Dockerfile.psga-pipeline-sars-cov-2 .
+	# minikube image build -t ${DOCKER_IMAGE_URI_PATH}/${NCOV_ONT_DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG} -f docker/Dockerfile.${NCOV_ONT_DOCKER_IMAGE_NAME} .
+	# minikube image build -t ${DOCKER_IMAGE_URI_PATH}/${NCOV_ILLUMINA_DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG} -f docker/Dockerfile.${NCOV_ILLUMINA_DOCKER_IMAGE_NAME} .
+	minikube image build -t ${DOCKER_IMAGE_URI_PATH}/${PANGOLIN_DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG} -f docker/Dockerfile.pangolin .
 
-	docker build --build-arg pathogen=${SARS_COV_2} -t ${DOCKER_IMAGE_URI_PATH}/${NCOV_ONT_DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG} -f docker/Dockerfile.${NCOV_ONT_DOCKER_IMAGE_NAME} .
+	docker build -t ${DOCKER_IMAGE_URI_PATH}/${NCOV_ONT_DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG} -f docker/Dockerfile.${NCOV_ONT_DOCKER_IMAGE_NAME} .
 	minikube image load ${DOCKER_IMAGE_URI_PATH}/${NCOV_ONT_DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG}
-	docker build --build-arg pathogen=${SARS_COV_2} -t ${DOCKER_IMAGE_URI_PATH}/${NCOV_ILLUMINA_DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG} -f docker/Dockerfile.${NCOV_ILLUMINA_DOCKER_IMAGE_NAME} .
+	docker build -t ${DOCKER_IMAGE_URI_PATH}/${NCOV_ILLUMINA_DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG} -f docker/Dockerfile.${NCOV_ILLUMINA_DOCKER_IMAGE_NAME} .
 	minikube image load ${DOCKER_IMAGE_URI_PATH}/${NCOV_ILLUMINA_DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG}
 
-	# docker build --build-arg pathogen=${SARS_COV_2} -t ${DOCKER_IMAGE_URI_PATH}/${PANGOLIN_DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG} -f docker/Dockerfile.pangolin .
+	# docker build -t ${DOCKER_IMAGE_URI_PATH}/${PANGOLIN_DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG} -f docker/Dockerfile.pangolin .
 	# minikube image load ${DOCKER_IMAGE_URI_PATH}/${PANGOLIN_DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG}
 
 reload_minikube:

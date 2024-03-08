@@ -77,7 +77,7 @@ jobs:
             DOCKERFILE="docker/${{ inputs.dockerfile }}"
           fi
           git submodule update --init --recursive
-          docker build --build-arg pathogen=${{ inputs.pathogen }} -t $ECR_IMAGE_NAME -t $ECR_BRANCH_LATEST_NAME -f $DOCKERFILE .
+          docker build -t $ECR_IMAGE_NAME -t $ECR_BRANCH_LATEST_NAME -f $DOCKERFILE .
           docker push $ECR_IMAGE_NAME
           docker push $ECR_BRANCH_LATEST_NAME
 
