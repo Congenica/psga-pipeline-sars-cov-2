@@ -140,7 +140,7 @@ def _generate_contamination_removal_notifications(
     analysis_run_name: str,
     all_samples: list[str],
     df_contamination_removal: pd.DataFrame,
-) -> tuple[list[str], Notification]:
+) -> tuple[list[str], dict[str, Event]]:
     """
     Generate and publish contamination_removal notifications.
     """
@@ -189,7 +189,7 @@ def _generate_primer_autodetection_notifications(
     analysis_run_name: str,
     all_samples: list[str],
     df_primer_autodetection: pd.DataFrame,
-) -> tuple[list[str], Notification]:
+) -> tuple[list[str], dict[str, Event]]:
     """
     Generate and publish primer_autodetection notifications.
     """
@@ -238,7 +238,7 @@ def _generate_ncov_notifications(
     analysis_run_name: str,
     all_samples: list[str],
     df_ncov_qc: pd.DataFrame,
-) -> tuple[list[str], Notification]:
+) -> tuple[list[str], dict[str, Event]]:
     """
     Generate and publish ncov notifications.
     Return the list of samples which failed not due to QC
@@ -287,7 +287,7 @@ def _generate_pangolin_notifications(
     analysis_run_name: str,
     all_samples: list[str],
     df_pangolin: pd.DataFrame,
-) -> tuple[list[str], Notification]:
+) -> tuple[list[str], dict[str, Event]]:
     """
     Generate and publish pangolin notifications.
     Return the list of samples which failed not due to QC
@@ -332,7 +332,7 @@ def _generate_notifications(
     df_primer_autodetection: pd.DataFrame,
     df_ncov_qc: pd.DataFrame,
     df_pangolin: pd.DataFrame,
-) -> tuple[list[str], Notification]:
+) -> tuple[list[str], dict[str, Event]]:
     """
     Generate and publish output pipeline notifications.
     Return the list of samples which failed not due to QC
@@ -405,7 +405,7 @@ def _generate_results_csv(
     df_ncov_qc: pd.DataFrame,
     df_pangolin: pd.DataFrame,
     qc_unrelated_failing_samples: list[str],
-    output_results_csv_file: str,
+    output_results_csv_file: Path,
 ) -> None:
     """
     Generate the pipeline results CSV file.
@@ -695,8 +695,8 @@ def generate_pipeline_results_files(
     primer_autodetection_csv_file: str,
     ncov_qc_csv_file: str,
     pangolin_csv_file: str,
-    output_results_csv_file: str,
-    output_results_json_file: str,
+    output_results_csv_file: Path,
+    output_results_json_file: Path,
     output_resultfiles_json_file: str,
     output_path: str,
     sequencing_technology: str,
@@ -741,19 +741,27 @@ def generate_pipeline_results_files(
 
     sample_ids_result_files = SampleIdResultFiles(
         all_samples=all_samples,
-        contamination_removal_completed_samples=[]
-        if sequencing_technology == UNKNOWN
-        or not {FAILED_CONTAMINATION_REMOVAL, PASSED_CONTAMINATION_REMOVAL} <= events.keys()
-        else list(
-            set(events[FAILED_CONTAMINATION_REMOVAL].samples) | set(events[PASSED_CONTAMINATION_REMOVAL].samples)
+        contamination_removal_completed_samples=(
+            []
+            if sequencing_technology == UNKNOWN
+            or not {FAILED_CONTAMINATION_REMOVAL, PASSED_CONTAMINATION_REMOVAL} <= events.keys()
+            else list(
+                set(events[FAILED_CONTAMINATION_REMOVAL].samples) | set(events[PASSED_CONTAMINATION_REMOVAL].samples)
+            )
         ),
-        primer_autodetection_completed_samples=[]
-        if sequencing_technology == UNKNOWN
-        or not {FAILED_PRIMER_AUTODETECTION, PASSED_PRIMER_AUTODETECTION} <= events.keys()
-        else list(set(events[FAILED_PRIMER_AUTODETECTION].samples) | set(events[PASSED_PRIMER_AUTODETECTION].samples)),
-        ncov_completed_samples=[]
-        if sequencing_technology == UNKNOWN or not {FAILED_NCOV, PASSED_NCOV} <= events.keys()
-        else list(set(events[FAILED_NCOV].samples) | set(events[PASSED_NCOV].samples)),
+        primer_autodetection_completed_samples=(
+            []
+            if sequencing_technology == UNKNOWN
+            or not {FAILED_PRIMER_AUTODETECTION, PASSED_PRIMER_AUTODETECTION} <= events.keys()
+            else list(
+                set(events[FAILED_PRIMER_AUTODETECTION].samples) | set(events[PASSED_PRIMER_AUTODETECTION].samples)
+            )
+        ),
+        ncov_completed_samples=(
+            []
+            if sequencing_technology == UNKNOWN or not {FAILED_NCOV, PASSED_NCOV} <= events.keys()
+            else list(set(events[FAILED_NCOV].samples) | set(events[PASSED_NCOV].samples))
+        ),
     )
 
     _generate_resultfiles_json(
