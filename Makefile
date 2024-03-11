@@ -33,15 +33,14 @@ build_pangolin_local:
 
 build_minikube_local:
 	minikube image build -t ${DOCKER_IMAGE_URI_PATH}/${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG} -f docker/Dockerfile.psga-pipeline-sars-cov-2 .
-	# minikube image build -t ${DOCKER_IMAGE_URI_PATH}/${NCOV_ONT_DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG} -f docker/Dockerfile.${NCOV_ONT_DOCKER_IMAGE_NAME} .
-	# minikube image build -t ${DOCKER_IMAGE_URI_PATH}/${NCOV_ILLUMINA_DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG} -f docker/Dockerfile.${NCOV_ILLUMINA_DOCKER_IMAGE_NAME} .
 	minikube image build -t ${DOCKER_IMAGE_URI_PATH}/${PANGOLIN_DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG} -f docker/Dockerfile.pangolin .
+	minikube image build -t ${DOCKER_IMAGE_URI_PATH}/${NCOV_ONT_DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG} -f docker/Dockerfile.${NCOV_ONT_DOCKER_IMAGE_NAME} .
+	minikube image build -t ${DOCKER_IMAGE_URI_PATH}/${NCOV_ILLUMINA_DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG} -f docker/Dockerfile.${NCOV_ILLUMINA_DOCKER_IMAGE_NAME} .
 
-	docker build -t ${DOCKER_IMAGE_URI_PATH}/${NCOV_ONT_DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG} -f docker/Dockerfile.${NCOV_ONT_DOCKER_IMAGE_NAME} .
-	minikube image load ${DOCKER_IMAGE_URI_PATH}/${NCOV_ONT_DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG}
-	docker build -t ${DOCKER_IMAGE_URI_PATH}/${NCOV_ILLUMINA_DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG} -f docker/Dockerfile.${NCOV_ILLUMINA_DOCKER_IMAGE_NAME} .
-	minikube image load ${DOCKER_IMAGE_URI_PATH}/${NCOV_ILLUMINA_DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG}
-
+	# docker build -t ${DOCKER_IMAGE_URI_PATH}/${NCOV_ONT_DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG} -f docker/Dockerfile.${NCOV_ONT_DOCKER_IMAGE_NAME} .
+	# minikube image load ${DOCKER_IMAGE_URI_PATH}/${NCOV_ONT_DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG}
+	# docker build -t ${DOCKER_IMAGE_URI_PATH}/${NCOV_ILLUMINA_DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG} -f docker/Dockerfile.${NCOV_ILLUMINA_DOCKER_IMAGE_NAME} .
+	# minikube image load ${DOCKER_IMAGE_URI_PATH}/${NCOV_ILLUMINA_DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG}
 	# docker build -t ${DOCKER_IMAGE_URI_PATH}/${PANGOLIN_DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG} -f docker/Dockerfile.pangolin .
 	# minikube image load ${DOCKER_IMAGE_URI_PATH}/${PANGOLIN_DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG}
 
