@@ -18,19 +18,14 @@ jobs:
         image:
           - name: sars-cov-2-pipeline
             dockerfile: Dockerfile.psga-pipeline-sars-cov-2
-            pathogen: sars_cov_2
           - name: pangolin
-            pathogen: sars_cov_2
           - name: ncov2019-artic-nf-nanopore
-            pathogen: sars_cov_2
           - name: ncov2019-artic-nf-illumina
-            pathogen: sars_cov_2
     uses: ./.github/workflows/build_image.yaml
     secrets: inherit
     with:
       name: ${{ matrix.image.name }}
       dockerfile: ${{ matrix.image.dockerfile }}
-      pathogen: ${{ matrix.image.pathogen }}
   # trigger_gh_actions_integration_tests:
   #   name: Trigger GH actions integration tests
   #   needs:

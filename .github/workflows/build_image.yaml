@@ -9,10 +9,6 @@ on:
         type: string
         required: false
         default: ""
-      pathogen:
-        type: string
-        required: false
-        default: ""
 
 permissions:
   id-token: write # This is required for requesting the JWT
