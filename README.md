@@ -49,6 +49,12 @@ unset DOCKER_DEFAULT_PLATFORM
 minikube start --mount-string="/$PWD/ref-data:/app/resources" --mount --cpus=5 --memory=7000
 ```
 
+Docker Desktop 4.27 broke minikube which breaks docker running amd64 images. Set the base image to this in the meantime.
+
+```
+minikube start --base-image gcr.io/k8s-minikube/kicbase-builds:v0.0.42-1703092832-17830
+```
+
 Make sure that the submodules are installed:
 
 ```commandline

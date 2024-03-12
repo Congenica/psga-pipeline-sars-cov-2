@@ -271,3 +271,10 @@ settings:
           - neb-varskip-v2b
           - unknown
           - none
+
+resources:
+  - reference_data:
+      slug: "pangolin-data"
+      selection_rules:
+        slug: "pangolin-data"
+        version: "^1.23"

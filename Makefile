@@ -170,6 +170,7 @@ mounted_pangolin_shell_local: build_pangolin_local
 # N.B. for this to work, you need to add
 #   - nextflow=23.10.1
 # To docker/sars_cov_2/pangolin.yml
+# and comment out all of nextflow.config
 test_pangolin_local: build_pangolin_local
 	docker run \
 	--rm \
@@ -185,9 +186,8 @@ test_pangolin_local: build_pangolin_local
 		--config-path /app/local_test/fasta/ \
 		--output_path /app/output/pangolin/
 
-# N.B. for this to work, you need to add
-#   - nextflow=23.10.1
-# To docker/sars_cov_2/pangolin.yml
+# N.B. for this to work, you need to
+# comment out all of nextflow.config
 test_fasta_local: build_sars_cov_2_local
 	docker run \
 	--rm \

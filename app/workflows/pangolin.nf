@@ -19,12 +19,21 @@ workflow {
 
     ch_pangolin_input.view()
 
+    reference_data_paths = Channel.fromPath("${params.configPath}reference_data.csv")
+        .splitCsv(header: true)
+        .reduce([]) { result, row -> [(row.NAME): "${RESOURCE_MOUNT_POINT}/${row.LOCATION}"] + result }
+
     // FASTA
     // [
     //     [SAMPLE_ID:4a32dffd-584c-4f2a-8b17-e1e27b630f66],
     //     /app/work/03/edebd4509e80cedd1a06b058492869/4a32dffd-584c-4f2a-8b17-e1e27b630f66_1.fasta
     // ]
+    // Reference data
+    // [
+    //     medaka:reference/pangolin-data/branch/prerelease/1.23.1/00001/f1b0a3799ebf31edae945d8fab2bd844ecc8952c,
+    //     pangolin-data:reference/pangolin-data/branch/prerelease/1.23.1/00001/f1b0a3799ebf31edae945d8fab2bd844ecc8952c
+    // ]
 
-    PANGOLIN_PIPELINE(ch_pangolin_input)
+    PANGOLIN_PIPELINE(ch_pangolin_input, reference_data_paths)
 
 }
