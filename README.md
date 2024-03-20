@@ -36,6 +36,25 @@ See: https://medium.com/swlh/how-to-run-locally-built-docker-images-in-kubernete
 eval $(minikube -p minikube docker-env)
 ```
 
+Note on Apple Silicon ensure you DO NOT have DOCKER_DEFAULT_PLATFORM set.
+
+If you get errors around kubelet not being available try the following:
+
+```
+minikube delete --all --purge
+unset DOCKER_DEFAULT_PLATFORM
+
+# Mounting is required for reference data to work
+# Recommended to throw more than the default resources at it
+minikube start --mount-string="/$PWD/ref-data:/app/resources" --mount --cpus=5 --memory=7000
+```
+
+Docker Desktop 4.27 broke minikube which breaks docker running amd64 images. Set the base image to this in the meantime.
+
+```
+minikube start --base-image gcr.io/k8s-minikube/kicbase-builds:v0.0.42-1703092832-17830
+```
+
 Make sure that the submodules are installed:
 
 ```commandline
@@ -65,6 +84,13 @@ kubectl exec -it sars-cov-2-pipeline-minikube -- bash
 nextflow run . --metadata <metadata_path> --run <analysis_run> --sequencing_technology <sequencing_technology> --kit <kit> --output_path <output_path>
 nextflow run . --metadata <metadata_path> --run <analysis_run> --sequencing_technology <sequencing_technology> --kit <kit> --output_path <output_path>
 
+Running sars-cov-2/fasta test
+nextflow -log unknown.log run /app/main.nf --run unknown --sequencing_technology unknown --kit none --config-path s3://psga-test-static-data/pipeline_ci_tests/sars_cov_2/unknown/none/ --output_path /data/output/pipeline_ci_unknown
+Running sars-cov-2/illumina_unknown test
+nextflow -log illumina.log run /app/main.nf --run illumina --sequencing_technology illumina --kit unknown --config-path s3://psga-test-static-data/pipeline_ci_tests/sars_cov_2/illumina/unknown/ --output_path /data/output/pipeline_ci_illumina
+Running sars-cov-2/ont_unknown test
+nextflow -log ont.log run /app/main.nf --run ont --sequencing_technology ont --kit unknown --config-path s3://psga-test-static-data/pipeline_ci_tests/sars_cov_2/ont/unknown/ --output_path /data/output/pipeline_ci_ont
+
 # The following command cleans up the previous run's work directories and cache, but retains the published output:
 nextflow clean -f
 
@@ -74,6 +100,18 @@ exit
 
 # when finished:
 ./cleanup.sh
+```
+
+N.B.
+This requires AWS Access and Secret keys set in the env, you you can procure via:
+
+(Fill in your own profile name)
+
+```
+CREDS=`aws configure export-credentials --profile <profile-name>`
+echo export AWS_SECRET_ACCESS_KEY=$(echo ${CREDS} | jq .SecretAccessKey | tr -d \")
+echo export AWS_ACCESS_KEY_ID=$(echo ${CREDS} | jq .AccessKeyId | tr -d \")
+echo export AWS_SESSION_TOKEN=\"$(echo ${CREDS} | jq .SessionToken | tr -d \")\"
 ```
 
 ## Development
@@ -144,10 +182,9 @@ To update to a specific version that is not the latest version, re-run the add c
 
 ## TODO
 
-- Stop splitting out common and code (remove pathogen refs)
-- Put containers in their actual processes
-- Break out skeleton flow
+- extract scripts to use template
 - install + use results writer
+- stop using tee in read it and keep to get errors (test with two files of different sizes)
 - Integrate ncov pipelines
 - Stop running generate files script
 - Remove python from pyproject or environment files
@@ -170,3 +207,44 @@ To update to a specific version that is not the latest version, re-run the add c
 - This repo has tests and scripts outside the app dir
 - Scripts are copied in at runtime. The tests that run on them assume they do not live inside app/.
 - Integration tests are copied into the docker image.
+
+## UPDATED - Running and testing locally
+
+Platform is now set in all the docker images but to ensure you are building for the correct platform.
+
+```
+export DOCKER_DEFAULT_PLATFORM=linux/amd64
+```
+
+### Fastq processing
+
+Sars-CoV-2 can be built using
+
+```
+make build_sars_cov_2_local
+```
+
+There is a command to enter a shell with app mounted to /app.
+
+```
+make mounted_shell_local
+```
+
+Once inside the shell the updated pipeline can be run using
+
+```
+seqt="ont"
+nextflow run ./fastq.nf --run 61c06b0a-e5e8-4dbf-8bb0-729cce46a223 -params-file /app/local_test/$seqt/settings.json --config-path /app/local_test/$seqt/ --output_path /app/output/$seqt/
+```
+
+Note, set seqt to "illumina" to run illumina.
+
+### NCOV
+
+```
+make build_ncov_local
+
+cd app
+seqt="ncov_ont"
+nextflow run ./workflows/ncov.nf --run 61c06b0a-e5e8-4dbf-8bb0-729cce46a223 -params-file /app/local_test/$seqt/settings.json --config-path /app/local_test/$seqt/ --output_path /app/output/$seqt/
+```

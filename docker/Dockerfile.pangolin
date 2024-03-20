@@ -1,12 +1,11 @@
-FROM condaforge/mambaforge:23.3.1-1 AS condabuild
+FROM --platform=linux/amd64 condaforge/mambaforge:23.3.1-1 AS condabuild
 
-ARG pathogen
-COPY docker/${pathogen}/pangolin.yml /environment.yml
+COPY docker/sars_cov_2/pangolin.yml /environment.yml
 
 RUN mamba env create -f /environment.yml -n custom_env \
   && conda clean --all -y
 
-FROM debian:bookworm-slim
+FROM --platform=linux/amd64 debian:bookworm-slim
 
 COPY --from=condabuild /opt/conda/envs/custom_env /opt/conda/envs/custom_env
 ENV PATH=/opt/conda/envs/custom_env/bin:$PATH

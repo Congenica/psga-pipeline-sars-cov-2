@@ -1,12 +1,11 @@
-FROM condaforge/mambaforge:23.3.1-1 AS condabuild
+FROM --platform=linux/amd64 condaforge/mambaforge:23.3.1-1 AS condabuild
 
-ARG pathogen
-COPY docker/${pathogen}/ncov2019-artic-nf/environments/nanopore/environment.yml /environment.yml
+COPY docker/sars_cov_2/ncov2019-artic-nf/environments/nanopore/environment.yml /environment.yml
 RUN mamba env create -f /environment.yml -n custom_env \
   && conda clean --all -y
 
 
-FROM debian:bookworm-slim
+FROM --platform=linux/amd64 debian:bookworm-slim
 RUN apt-get update \
   && apt-get install -y --no-install-recommends procps rename \
   && apt-get clean -y \
@@ -20,15 +19,10 @@ ENV LC_ALL=C.UTF-8
 ENV LANG=C.UTF-8
 
 # install medaka models
-RUN medaka tools download_models \
-  --models r103_fast_variant_g507 r103_hac_variant_g507 r103_prom_variant_g3210 r103_sup_variant_g507 \
-  r941_min_fast_variant_g507 r941_min_hac_variant_g507 r941_min_sup_variant_g507 \
-  r941_prom_fast_variant_g507 r941_prom_hac_variant_g507 r941_prom_sup_variant_g507 \
-  r941_prom_variant_g303 r941_prom_variant_g322 r941_prom_variant_g360
+RUN medaka tools download_models
 
-ARG pathogen
-COPY docker/${pathogen}/ncov2019-artic-nf /ncov2019-artic-nf
+COPY docker/sars_cov_2/ncov2019-artic-nf /ncov2019-artic-nf
 COPY app/ncov-nanopore.config app/ncov-common.config /
-COPY data/${pathogen}/ncov2019-artic-nf/* /
-COPY data/${pathogen}/primer_schemes /primer_schemes
+COPY data/sars_cov_2/ncov2019-artic-nf/* /
+COPY data/sars_cov_2/primer_schemes /primer_schemes
 COPY app/scripts/ncov /app/scripts/ncov
