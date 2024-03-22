@@ -35,8 +35,15 @@ process PANGOLIN_PIPELINE {
       --use-old-datadir
 
 
+    # Get the pangolin reference data version
+    declare -r pangolin_data_version=\$(
+        pangolin \
+            --datadir ${pangolin_data_dir} \
+            --pangolin-data-version \
+          | cut -d ' ' -f 2
+    )
+
     # Add pangolin_data_version column to the end of the result CSV file
-    declare -r pangolin_data_version=\$(pangolin --pangolin-data-version | cut -d ' ' -f 2)
     sed -i \
         -e "1s/\$/,pangolin_data_version/" \
         -e "2,\\\$s/\$/,\$pangolin_data_version/" \
