@@ -58,6 +58,7 @@ EXPECTED_PANGOLIN_HEADERS = {
     "qc_status",
     "qc_notes",
     "note",
+    "pangolin_data_version",
 }
 
 
