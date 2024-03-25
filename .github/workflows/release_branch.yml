@@ -14,6 +14,7 @@ jobs:
     environment: prod
     outputs:
       CICD_OIDC_ROLE: ${{ vars.CICD_OIDC_ROLE }}
+      DEV_CICD_OIDC_ROLE: ${{ vars.DEV_CICD_OIDC_ROLE }}
       GH_RUNNER_SUBNET_ID: ${{ vars.GH_RUNNER_SUBNET_ID }}
       GH_RUNNER_SECURITY_GROUP_ID: ${{ vars.GH_RUNNER_SECURITY_GROUP_ID }}
       GH_RUNNER_IAM_ROLE_NAME: ${{ vars.GH_RUNNER_IAM_ROLE_NAME }}
@@ -81,7 +82,7 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-region: eu-west-2
-          role-to-assume: ${{ needs.vars.outputs.CICD_OIDC_ROLE }}
+          role-to-assume: ${{ needs.vars.outputs.DEV_CICD_OIDC_ROLE }}
           role-session-name: cicd-dev-role-session
           mask-aws-account-id: false
 
