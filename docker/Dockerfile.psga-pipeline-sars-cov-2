@@ -47,3 +47,5 @@ ENV PYTHONPATH=/
 
 # # generic construct if scripts must be executed at this stage (e.g. for generating default files)
 RUN make -f scripts/Makefile;
+
+RUN apt-get update && apt-get install -y strace && apt-get clean && rm -rf /var/lib/apt/lists/*
