@@ -19,11 +19,7 @@ ENV LC_ALL=C.UTF-8
 ENV LANG=C.UTF-8
 
 # install medaka models
-RUN medaka tools download_models \
-  --models r103_fast_variant_g507 r103_hac_variant_g507 r103_prom_variant_g3210 r103_sup_variant_g507 \
-  r941_min_fast_variant_g507 r941_min_hac_variant_g507 r941_min_sup_variant_g507 \
-  r941_prom_fast_variant_g507 r941_prom_hac_variant_g507 r941_prom_sup_variant_g507 \
-  r941_prom_variant_g303 r941_prom_variant_g322 r941_prom_variant_g360
+RUN medaka tools download_models
 
 COPY docker/sars_cov_2/ncov2019-artic-nf /ncov2019-artic-nf
 COPY app/ncov-nanopore.config app/ncov-common.config /
