@@ -52,6 +52,8 @@ RUN apt-get update && apt-get install -y \
   bind9-dnsutils \
   iproute2 \
   vim \
+  less \
+  iftop \
   netcat-traditional \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/*
