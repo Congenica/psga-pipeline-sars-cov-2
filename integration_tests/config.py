@@ -32,6 +32,7 @@ data_config = {
                 "PANGOLIN_IS_DESIGNATED",
                 "PANGOLIN_QC_STATUS",
                 "PANGOLIN_QC_NOTES",
+                "PANGOLIN_DATA_VERSION",
             ],
             # abs tolerances for the columns to round
             "columns_to_round": {

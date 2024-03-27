@@ -39,7 +39,8 @@ process PANGOLIN_PIPELINE {
     declare -r pangolin_data_version=\$(
         pangolin \
             --datadir ${pangolin_data_dir} \
-            --pangolin-data-version \
+            --all-versions \
+          | grep pangolin-data \
           | cut -d ' ' -f 2
     )
 
