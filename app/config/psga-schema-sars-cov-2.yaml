@@ -217,6 +217,10 @@ output_fields:
     field_type: string
     required: true
 
+  - field_name: PANGOLIN_DATA_VERSION
+    field_type: string
+    required: true
+
 # output_row_validation_rules: []
 # output_set_validation_rules: []
 
