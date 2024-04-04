@@ -129,6 +129,18 @@ test_ncov_ont_local: build_ncov_local
 		--config-path /app/local_test/ncov_ont/ \
 		--output_path /app/output/ncov_ont/
 
+test_ncov_ont_dorado: build_ncov_local
+	docker run \
+	--rm \
+	-it \
+	--volume ${PWD}/app/modules:/modules \
+	--volume ${PWD}/app/workflows:/workflows \
+	--volume ${PWD}/local_test/:${CONTAINER_TEST_DATA_PATH} \
+	--volume ${PWD}/app/output/dorado/:/app/output/dorado/ \
+	--volume ${PWD}/docker/sars_cov_2/ncov2019-artic-nf:/ncov2019-artic-nf \
+	${NCOV_ONT_DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG} \
+	bash
+
 mounted_ncov_illumina_shell_local: build_ncov_local
 	docker run \
 	--rm \
