@@ -107,9 +107,7 @@ process NCOV2019_ARTIC_NF_PIPELINE {
         // ONT/medaka parameters used by
         // artic minion
         // {pore}_{device}_{caller variant}_{caller version}
-        // medaka_model = 'r941_min_hac_variant_g507'
-        default_medaka_model = '/opt/conda/envs/custom_env/lib/python3.9/site-packages/medaka/data/r1041_e82_400bps_sup_v4.3.0_model.tar.gz'
-        // medaka_model = 'r1041_e82_400bps_sup_v4.3.0'
+        default_medaka_model = 'r941_min_hac_variant_g507'
         normalise = 200
         // //guppyplex
         min_len = null
