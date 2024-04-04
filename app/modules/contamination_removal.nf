@@ -69,7 +69,12 @@ process CONTAMINATION_REMOVAL {
         --outprefix out 2>&1 \
       | tee ${rik_output_file}
 
-      mv -f out.reads.fastq.gz ${cleaned_fastq_file_1}
+      if [ ! -f out.reads.fastq.gz ]; then
+          touch out.reads.fastq
+          gzip out.reads.fastq
+      fi
+
+      mv -f out.reads.fastq.gz ${cleaned_fastq_file_1} || touch out.reads.fastq &&
 
       python ${PSGA_ROOT_PATH}/scripts/contamination_removal.py \
         --input-path "${rik_output_file}" \
