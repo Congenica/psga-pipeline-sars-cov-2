@@ -107,7 +107,7 @@ process NCOV2019_ARTIC_NF_PIPELINE {
         // ONT/medaka parameters used by
         // artic minion
         // {pore}_{device}_{caller variant}_{caller version}
-        medaka_model = 'r941_min_hac_variant_g507'
+        default_medaka_model = 'r941_min_hac_variant_g507'
         normalise = 200
         // //guppyplex
         min_len = null
@@ -129,6 +129,9 @@ process NCOV2019_ARTIC_NF_PIPELINE {
         # This is always going to be compressed because contamination removal gzips it
         gunzip -c !{gz_fastq_file} > !{fastq_file}
 
+        # We try to infer the medaka model, and fall back if it fails
+        medaka_model=$(medaka tools resolve_model --auto_model consensus !{fastq_file} || echo !{default_medaka_model})
+
         # move fastq file to a specific directory so that the output files will have the filename pattern:
         # <analysis_run>_<sample_id>
         # where analysis_run is ncov_prefix, and
@@ -144,7 +147,7 @@ process NCOV2019_ARTIC_NF_PIPELINE {
         #       instead of being shared with our pipeline
         nextflow run /ncov2019-artic-nf \
             --medaka \
-            --medakaModel !{medaka_model} \
+            --medakaModel ${medaka_model} \
             --normalise !{normalise} \
             --min_len !{min_len} \
             --max_len !{max_len} \
