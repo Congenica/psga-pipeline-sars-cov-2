@@ -656,7 +656,6 @@ def _generate_resultfiles_json(
 @click.option(
     "--pangolin-csv-file",
     type=click.Path(exists=True, file_okay=True, readable=True),
-    required=True,
     help="pangolin pipeline resulting csv file",
 )
 @click.option(

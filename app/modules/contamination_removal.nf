@@ -13,10 +13,10 @@ process CONTAMINATION_REMOVAL {
 
   output:
     path "*_contamination_removal.csv", emit: ch_contamination_removal_csv
-    path "cleaned_fastq/*.fastq.gz", emit: ch_output_file
     path "counting/*.txt"
 
-    tuple val(meta), path("cleaned_fastq/${sample_id}_*.fastq.gz"), emit: ch_cleaned_fastq
+    // This is optional because there may be no output file if there are no reads
+    tuple val(meta), path("cleaned_fastq/${sample_id}_*.fastq.gz"), optional: true, emit: ch_cleaned_fastq
 
   script:
 
@@ -69,12 +69,12 @@ process CONTAMINATION_REMOVAL {
         --outprefix out 2>&1 \
       | tee ${rik_output_file}
 
-      if [ ! -f out.reads.fastq.gz ]; then
-          touch out.reads.fastq
-          gzip out.reads.fastq
+      # If there are no reads there will be no output file
+      if [ -f out.reads.fastq.gz ]; then
+        mv -f out.reads.fastq.gz ${cleaned_fastq_file_1}
+      else
+        echo "No reads output file found for ${sample_id}"
       fi
-
-      mv -f out.reads.fastq.gz ${cleaned_fastq_file_1} || touch out.reads.fastq &&
 
       python ${PSGA_ROOT_PATH}/scripts/contamination_removal.py \
         --input-path "${rik_output_file}" \
