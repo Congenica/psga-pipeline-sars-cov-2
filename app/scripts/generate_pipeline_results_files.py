@@ -174,9 +174,6 @@ def _generate_contamination_removal_notifications(
         qc_unrelated_failing_contamination_removal_samples = [
             s for s in all_samples if s not in contamination_removal_all_samples
         ]
-        # We want to return all samples that have failed so they are correctly marked in results.csv
-        # This is anything that didn't get as far as having reads removed, or had no reads remaining after processing
-        failed_samples = qc_unrelated_failing_contamination_removal_samples + contamination_removal_samples_failing_qc
 
         events = {
             UNKNOWN_CONTAMINATION_REMOVAL: Event(
@@ -201,6 +198,10 @@ def _generate_contamination_removal_notifications(
 
     notifications = Notification(events=events)
     notifications.publish()
+    # We want to return all samples that have failed so they are correctly marked in results.csv
+    # This is anything that didn't get as far as having reads removed, or had no reads remaining after processing
+    failed_samples = qc_unrelated_failing_contamination_removal_samples + contamination_removal_samples_failing_qc
+
     return failed_samples, events
 
 
