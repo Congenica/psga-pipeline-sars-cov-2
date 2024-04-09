@@ -8,6 +8,7 @@ import pandas as pd
 from app.scripts.contamination_removal import (
     CONTAMINATION_REMOVAL_SAMPLE_ID_COL,
     EXPECTED_CONTAMINATION_REMOVAL_HEADERS,
+    CONTAMINATION_REMOVAL_PRESERVED_READS_COL,
 )
 from app.scripts.primer_cols import (
     PRIMER_AUTODETECTION_SAMPLE_ID_COL,
@@ -126,11 +127,13 @@ def load_data_from_csv(
     can be renamed to "sample_id"
     """
     if csv_file:
+        logger.info(csv_file)
         df = pd.read_csv(Path(csv_file))
         check_csv_columns(set(df.columns), expected_columns)
         if sample_name_col_to_rename:
             df = df.rename(columns={sample_name_col_to_rename: SAMPLE_ID})
     else:
+        logger.info(f"no {csv_file}")
         # create a dataframe with header but no rows
         df = pd.DataFrame({c: [] for c in expected_columns})
         df = df.rename(columns={sample_name_col_to_rename: SAMPLE_ID})
@@ -155,10 +158,25 @@ def _generate_contamination_removal_notifications(
     contamination_removal_samples_passing_qc = all_samples
 
     if not df_contamination_removal.empty:
-        contamination_removal_all_samples = df_contamination_removal[SAMPLE_ID].tolist()
+        # Failing samples have 0 reads remaining after removal
+        # N.B. QC is probably not the write term here but I wanted to avoid large scale changes
+        contamination_removal_samples_failing_qc = df_contamination_removal.loc[
+            df_contamination_removal[CONTAMINATION_REMOVAL_PRESERVED_READS_COL] == 0
+        ][SAMPLE_ID].tolist()
+        # Passing samples have more than 0 reads remaining after removal
+        contamination_removal_samples_passing_qc = df_contamination_removal.loc[
+            df_contamination_removal[CONTAMINATION_REMOVAL_PRESERVED_READS_COL] > 0
+        ][SAMPLE_ID].tolist()
+        contamination_removal_all_samples = (
+            contamination_removal_samples_failing_qc + contamination_removal_samples_passing_qc
+        )
+        # Samples which do not appear at all failed elsewhere
         qc_unrelated_failing_contamination_removal_samples = [
             s for s in all_samples if s not in contamination_removal_all_samples
         ]
+        # We want to return all samples that have failed so they are correctly marked in results.csv
+        # This is anything that didn't get as far as having reads removed, or had no reads remaining after processing
+        failed_samples = qc_unrelated_failing_contamination_removal_samples + contamination_removal_samples_failing_qc
 
         events = {
             UNKNOWN_CONTAMINATION_REMOVAL: Event(
@@ -183,7 +201,7 @@ def _generate_contamination_removal_notifications(
 
     notifications = Notification(events=events)
     notifications.publish()
-    return qc_unrelated_failing_contamination_removal_samples, events
+    return failed_samples, events
 
 
 def _generate_primer_autodetection_notifications(
@@ -519,8 +537,8 @@ def get_expected_output_files_per_sample(
             FileType("_primer_detection.csv", "csv/primer-detection"),
         ]
 
-        for sample_id in sample_ids_result_files.all_samples:
-            # expected files for all samples
+        for sample_id in sample_ids_result_files.contamination_removal_completed_samples:
+            # Only samples with preserved reads have a clean fastq
             output_files[sample_id].extend(
                 get_file_with_type(
                     output_path=output_path,
@@ -529,6 +547,9 @@ def get_expected_output_files_per_sample(
                     sample_id=sample_id,
                 )
             )
+
+        for sample_id in sample_ids_result_files.all_samples:
+            # expected files for all samples
             output_files[sample_id].extend(
                 get_file_with_type(
                     output_path=output_path,
@@ -706,11 +727,13 @@ def generate_pipeline_results_files(
     """
     # data loading
     df_metadata = load_data_from_csv(metadata_file, EXPECTED_METADATA_HEADERS[sequencing_technology])
+    logger.info(f"file path {contamination_removal_csv_file}")
     df_contamination_removal = load_data_from_csv(
         contamination_removal_csv_file,
         EXPECTED_CONTAMINATION_REMOVAL_HEADERS,
         CONTAMINATION_REMOVAL_SAMPLE_ID_COL,
     )
+    logger.info(df_contamination_removal)
     df_primer_autodetection = load_data_from_csv(
         primer_autodetection_csv_file,
         EXPECTED_PRIMER_AUTODETECTION_HEADERS,
@@ -745,9 +768,7 @@ def generate_pipeline_results_files(
             []
             if sequencing_technology == UNKNOWN
             or not {FAILED_CONTAMINATION_REMOVAL, PASSED_CONTAMINATION_REMOVAL} <= events.keys()
-            else list(
-                set(events[FAILED_CONTAMINATION_REMOVAL].samples) | set(events[PASSED_CONTAMINATION_REMOVAL].samples)
-            )
+            else events[PASSED_CONTAMINATION_REMOVAL].samples
         ),
         primer_autodetection_completed_samples=(
             []

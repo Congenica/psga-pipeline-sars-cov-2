@@ -88,7 +88,6 @@ test_fastq_local_ont: build_sars_cov_2_local
 		--output_path ${TEST_OUTPUT_LOCAL}/ont
 
 # Running this requires commenting/disabling nextflow.config
-# It will fail when it gets to ncov
 test_fastq_local_empty: build_sars_cov_2_local
 	docker run \
 	--rm \
@@ -100,7 +99,7 @@ test_fastq_local_empty: build_sars_cov_2_local
 		-c /app/nextflow.local.config \
 		--run 61c06b0a-e5e8-4dbf-8bb0-729cce46a224 \
 		-params-file ${EMPTY_TEST_DATA_PATH}settings.json \
-		--config-path ${EMPTY_TEST_DATA_PATH}
+		--config-path ${EMPTY_TEST_DATA_PATH} \
 		--output_path ${TEST_OUTPUT_LOCAL}/empty
 
 # Running this requires commenting/disabling nextflow.config

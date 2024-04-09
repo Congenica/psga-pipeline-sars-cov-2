@@ -28,16 +28,18 @@ process submit_pipeline_results_files {
 
   script:
   """
-  ncov_opt=""
-  if [[ -f "${ch_contamination_removal_csv_file}" ]] \
-     && [[ -f "${ch_primer_autodetection_csv_file}" ]] \
-     && [[ -f "${ch_ncov_qc_result_csv_file}" ]]; then
-      ncov_opt="--contamination-removal-csv-file \"${ch_contamination_removal_csv_file}\" --primer-autodetection-csv-file \"${ch_primer_autodetection_csv_file}\" --ncov-qc-csv-file \"${ch_ncov_qc_result_csv_file}\""
+  optional_opts=""
+  if [[ -f "${ch_contamination_removal_csv_file}" ]]; then
+    optional_opts="\$optional_opts --contamination-removal-csv-file \"${ch_contamination_removal_csv_file}\""
   fi
-
-  pangolin_opt=""
+  if [[ -f "${ch_primer_autodetection_csv_file}" ]]; then
+    optional_opts="\$optional_opts --primer-autodetection-csv-file \"${ch_primer_autodetection_csv_file}\""
+  fi
+  if [[ -f "${ch_ncov_qc_result_csv_file}" ]]; then
+    optional_opts="\$optional_opts --ncov-qc-csv-file \"${ch_ncov_qc_result_csv_file}\""
+  fi
   if [[ -f "${ch_pangolin_csv_file}" ]]; then
-    pangolin_opt="--pangolin-csv-file \"${ch_pangolin_csv_file}\""
+    optional_opts="\$optional_opts --pangolin-csv-file \"${ch_pangolin_csv_file}\""
   fi
 
   python ${PSGA_ROOT_PATH}/scripts/generate_pipeline_results_files.py \
@@ -45,8 +47,7 @@ process submit_pipeline_results_files {
     --metadata-file "${ch_metadata}" \
     --output-path "${params.output_path}" \
     --sequencing-technology "${params.sequencing_technology}" \
-    \${ncov_opt} \
-    \${pangolin_opt}
+    \${optional_opts}
   """
 }
 
