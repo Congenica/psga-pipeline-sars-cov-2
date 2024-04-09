@@ -37,16 +37,18 @@ def test_get_read_counts_exception(contamination_removal_data_path: Path, input_
 
 
 @pytest.mark.parametrize(
-    "input_file,expected_contaminated_reads",
+    "input_file,expected_contaminated_reads,preserved_reads",
     [
-        ("rik_output_one_read.txt", 0),
-        ("rik_output_two_reads.txt", 696),
+        ("rik_output_one_read.txt", 0, 75703),
+        ("rik_output_two_reads.txt", 696, 278302),
     ],
 )
 @pytest.mark.jira(identifier="80d91164-7c98-4399-80ef-821627f8336f", confirms="PSG-3621")
-def test_get_read_counts(contamination_removal_data_path: Path, input_file: str, expected_contaminated_reads: int):
+def test_get_read_counts(
+    contamination_removal_data_path: Path, input_file: str, expected_contaminated_reads: int, preserved_reads: int
+):
     input_path = contamination_removal_data_path / input_file
-    assert expected_contaminated_reads == get_read_counts(input_path)
+    assert get_read_counts(input_path) == (expected_contaminated_reads, preserved_reads)
 
 
 @pytest.mark.parametrize(
@@ -92,6 +94,7 @@ def test_write_rik_output_csv(
             {
                 CONTAMINATION_REMOVAL_SAMPLE_ID_COL: "a",
                 CONTAMINATION_REMOVAL_CONTAMINATED_READS_COL: "0",
+                CONTAMINATION_REMOVAL_PRESERVED_READS_COL: "75703",
             },
         ),
         (
@@ -100,6 +103,7 @@ def test_write_rik_output_csv(
             {
                 CONTAMINATION_REMOVAL_SAMPLE_ID_COL: "b",
                 CONTAMINATION_REMOVAL_CONTAMINATED_READS_COL: "696",
+                CONTAMINATION_REMOVAL_PRESERVED_READS_COL: "278302",
             },
         ),
     ],
@@ -127,6 +131,7 @@ def test_process_rik(
             {
                 CONTAMINATION_REMOVAL_SAMPLE_ID_COL: "a",
                 CONTAMINATION_REMOVAL_CONTAMINATED_READS_COL: "0",
+                CONTAMINATION_REMOVAL_PRESERVED_READS_COL: "75703",
             },
         ),
         (
@@ -135,6 +140,7 @@ def test_process_rik(
             {
                 CONTAMINATION_REMOVAL_SAMPLE_ID_COL: "b",
                 CONTAMINATION_REMOVAL_CONTAMINATED_READS_COL: "696",
+                CONTAMINATION_REMOVAL_PRESERVED_READS_COL: "278302",
             },
         ),
     ],

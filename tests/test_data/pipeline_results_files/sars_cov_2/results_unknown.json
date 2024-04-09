@@ -1,5 +1,6 @@
 {
     "0774181d-fb20-4a73-b887-38af7eda9b38": {
+        "PRESERVED_READS": "",
         "CONTAMINATED_READS": "",
         "NCOV_LONGEST_NO_N_RUN": "",
         "NCOV_NUM_ALIGNED_READS": "",
@@ -31,6 +32,7 @@
         "STATUS": "Completed"
     },
     "56a63f60-764d-4fc7-8764-a46023cbe324": {
+        "PRESERVED_READS": "",
         "CONTAMINATED_READS": "",
         "NCOV_LONGEST_NO_N_RUN": "",
         "NCOV_NUM_ALIGNED_READS": "",
@@ -62,6 +64,7 @@
         "STATUS": "Completed"
     },
     "985347c5-ff6a-454c-ac34-bc353d05dd70": {
+        "PRESERVED_READS": "",
         "CONTAMINATED_READS": "",
         "NCOV_LONGEST_NO_N_RUN": "",
         "NCOV_NUM_ALIGNED_READS": "",
@@ -93,6 +96,7 @@
         "STATUS": "Failed"
     },
     "a0951432-cd94-45b5-96d5-b721c037a451": {
+        "PRESERVED_READS": "",
         "CONTAMINATED_READS": "",
         "NCOV_LONGEST_NO_N_RUN": "",
         "NCOV_NUM_ALIGNED_READS": "",
@@ -124,6 +128,7 @@
         "STATUS": "Failed"
     },
     "e80f3c63-d139-4c14-bd72-7a43897ab40d": {
+        "PRESERVED_READS": "",
         "CONTAMINATED_READS": "",
         "NCOV_LONGEST_NO_N_RUN": "",
         "NCOV_NUM_ALIGNED_READS": "",
