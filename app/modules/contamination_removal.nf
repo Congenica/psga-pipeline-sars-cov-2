@@ -47,8 +47,13 @@ process CONTAMINATION_REMOVAL {
         --outprefix out 2>&1 \
       | tee ${rik_output_file}
 
-      mv -f out.reads_1.fastq.gz ${cleaned_fastq_file_1}
-      mv -f out.reads_2.fastq.gz ${cleaned_fastq_file_2}
+      # If there are no reads there will be no output file
+      if [ -f out.reads_1.fastq.gz ] && [ -f out.reads_2.fastq.gz ]; then
+        mv -f out.reads_1.fastq.gz ${cleaned_fastq_file_1}
+        mv -f out.reads_2.fastq.gz ${cleaned_fastq_file_2}
+      else
+        echo "No reads output file found for ${sample_id}"
+      fi
 
       python ${PSGA_ROOT_PATH}/scripts/contamination_removal.py \
         --input-path "${rik_output_file}" \
