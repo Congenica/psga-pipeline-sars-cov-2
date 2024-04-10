@@ -1,3 +1,4 @@
+import json
 from os.path import join as join_path  # used to join FS paths and S3 URIs
 
 from app.scripts.generate_pipeline_results_files import get_expected_output_files_per_sample, SampleIdResultFiles
@@ -9,18 +10,24 @@ def get_expected_output_files(output_path: str, sample_ids: list[str], sequencin
     Return a list of ALL expected output paths
     """
 
-    # In integration tests, we expect all samples to pass ncov qc if this is executed
-    sample_ids_result_files = SampleIdResultFiles(
-        all_samples=sample_ids,
-        primer_autodetection_completed_samples=[] if sequencing_technology == UNKNOWN else sample_ids,
-        ncov_completed_samples=[] if sequencing_technology == UNKNOWN else sample_ids,
-    )
+    # # In integration tests, we expect all samples to pass ncov qc if this is executed
+    # sample_ids_result_files = SampleIdResultFiles(
+    #     all_samples=sample_ids,
+    #     primer_autodetection_completed_samples=[] if sequencing_technology == UNKNOWN else sample_ids,
+    #     ncov_completed_samples=[] if sequencing_technology == UNKNOWN else sample_ids,
+    # )
 
-    output_files_per_sample = get_expected_output_files_per_sample(
-        output_path=str(output_path),
-        sample_ids_result_files=sample_ids_result_files,
-        sequencing_technology=sequencing_technology,
-    )
+    # output_files_per_sample = get_expected_output_files_per_sample(
+    #     output_path=str(output_path),
+    #     sample_ids_result_files=sample_ids_result_files,
+    #     sequencing_technology=sequencing_technology,
+    # )
+
+    # Use the result files instead of reimplementing this logic
+    output_files_per_sample = {}
+    with open(join_path(output_path, "resultfiles.json")) as resultfiles:
+        output_files_per_sample = json.loads(resultfiles.read())
+
     # generate a unified list of paths as non-sample results files must also be included
     output_files = [f["file"] for sample_files in output_files_per_sample.values() for f in sample_files]
 
