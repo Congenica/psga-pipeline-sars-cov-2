@@ -33,7 +33,6 @@ jobs:
       GH_PSGA_SYSTEM_PAT: ${{ secrets.GH_PSGA_SYSTEM_PAT }}
     with:
       actions_env: prod
-      release_enabled: true
 
   start-runner:
     uses: Congenica/psga-reusable-workflows/.github/workflows/ec2-runner-start.yaml@main
