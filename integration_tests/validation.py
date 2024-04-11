@@ -53,7 +53,9 @@ def validate(results_csv: str, expected_results_csv: str, output_path: str, path
 
     # Import function based on pathogen module
     # load this lazily as only the module for the invoked pathogen is available in the docker container
-    get_expected_output_files_from_result_files = importlib.import_module(f"integration_tests.{pathogen}").get_expected_output_files_from_result_files
+    get_expected_output_files_from_result_files = importlib.import_module(
+        f"integration_tests.{pathogen}"
+    ).get_expected_output_files_from_result_files
 
     results_csv_path = Path(results_csv)
     expected_results_csv_path = Path(expected_results_csv)
@@ -64,9 +66,7 @@ def validate(results_csv: str, expected_results_csv: str, output_path: str, path
 
     validation_config = data_config[pathogen]["config"]
 
-    compare_merged_output_file(
-        load_data_from_csv, validation_config, results_csv_path, expected_results_csv_path
-    )
+    compare_merged_output_file(load_data_from_csv, validation_config, results_csv_path, expected_results_csv_path)
 
     logger.info("Validation of output files set STARTED")
     exp_output_files = get_expected_output_files_from_result_files(output_path, sequencing_technology)
