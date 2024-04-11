@@ -1,3 +1,4 @@
+from json import JSONDecodeError
 from pathlib import Path
 import importlib
 import click
@@ -56,6 +57,7 @@ def validate(results_csv: str, expected_results_csv: str, output_path: str, path
     get_expected_output_files_from_result_files = importlib.import_module(
         f"integration_tests.{pathogen}"
     ).get_expected_output_files_from_result_files
+    get_expected_output_files = importlib.import_module(f"integration_tests.{pathogen}").get_expected_output_files
 
     results_csv_path = Path(results_csv)
     expected_results_csv_path = Path(expected_results_csv)
@@ -66,10 +68,19 @@ def validate(results_csv: str, expected_results_csv: str, output_path: str, path
 
     validation_config = data_config[pathogen]["config"]
 
-    compare_merged_output_file(load_data_from_csv, validation_config, results_csv_path, expected_results_csv_path)
+    sample_ids = compare_merged_output_file(
+        load_data_from_csv, validation_config, results_csv_path, expected_results_csv_path
+    )
 
     logger.info("Validation of output files set STARTED")
-    exp_output_files = get_expected_output_files_from_result_files(output_path, sequencing_technology)
+    # This is rubbish. But tests/integration_tests/test_validation creates it's own output files and doesn't populate
+    # the resultfiles.json so this fallback is required to use the original method to
+    # generate the output files. Ideally that test should create a correct resultfiles.json.
+    # However, because the full file paths are hardcoded this won't work across different machines.
+    try:
+        exp_output_files = get_expected_output_files_from_result_files(output_path, sequencing_technology)
+    except JSONDecodeError:
+        exp_output_files = get_expected_output_files(output_path, sample_ids, sequencing_technology)
     calc_output_files = get_file_paths(Path(output_path))
     compare_output_files_set(set(calc_output_files), set(exp_output_files))
     logger.info("Validation PASSED")
