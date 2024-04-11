@@ -548,6 +548,8 @@ def get_expected_output_files_per_sample(
                     sample_id=sample_id,
                 )
             )
+            # There is an assumption here that if contamination removal succeeds
+            # fastqc will have run and worked.
             output_files[sample_id].extend(
                 get_file_with_type(
                     output_path=output_path,
@@ -559,6 +561,7 @@ def get_expected_output_files_per_sample(
 
         for sample_id in sample_ids_result_files.all_samples:
             # expected files for all samples
+            # It assumes contamination removal ran and succeeded for all samples
             output_files[sample_id].extend(
                 get_file_with_type(
                     output_path=output_path,
