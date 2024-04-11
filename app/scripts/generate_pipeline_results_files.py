@@ -548,6 +548,14 @@ def get_expected_output_files_per_sample(
                     sample_id=sample_id,
                 )
             )
+            output_files[sample_id].extend(
+                get_file_with_type(
+                    output_path=output_path,
+                    inner_dirs=["fastqc"],
+                    filetypes=fastqc,
+                    sample_id=sample_id,
+                )
+            )
 
         for sample_id in sample_ids_result_files.all_samples:
             # expected files for all samples
@@ -564,14 +572,6 @@ def get_expected_output_files_per_sample(
                     output_path=output_path,
                     inner_dirs=["contamination_removal"],
                     filetypes=[FileType("_contamination_removal.csv", "csv/cleaned-sequence-count")],
-                    sample_id=sample_id,
-                )
-            )
-            output_files[sample_id].extend(
-                get_file_with_type(
-                    output_path=output_path,
-                    inner_dirs=["fastqc"],
-                    filetypes=fastqc,
                     sample_id=sample_id,
                 )
             )
@@ -766,7 +766,10 @@ def generate_pipeline_results_files(
     sample_ids_result_files = SampleIdResultFiles(
         all_samples=all_samples,
         contamination_removal_completed_samples=(
-            [] if sequencing_technology == UNKNOWN else events[PASSED_CONTAMINATION_REMOVAL].samples
+            []
+            if sequencing_technology == UNKNOWN
+            or not {FAILED_CONTAMINATION_REMOVAL, PASSED_CONTAMINATION_REMOVAL} <= events.keys()
+            else events[PASSED_CONTAMINATION_REMOVAL].samples
         ),
         primer_autodetection_completed_samples=(
             []
