@@ -5,16 +5,16 @@
             "type": "fastq/cleaned-sequence-data"
         },
         {
+            "file": "fastqc/0774181d-fb20-4a73-b887-38af7eda9b38_1_fastqc.zip",
+            "type": "fastqc/qc"
+        },
+        {
             "file": "contamination_removal/counting/0774181d-fb20-4a73-b887-38af7eda9b38.txt",
             "type": "txt/cleaned-sequence-count"
         },
         {
             "file": "contamination_removal/0774181d-fb20-4a73-b887-38af7eda9b38_contamination_removal.csv",
             "type": "csv/cleaned-sequence-count"
-        },
-        {
-            "file": "fastqc/0774181d-fb20-4a73-b887-38af7eda9b38_1_fastqc.zip",
-            "type": "fastqc/qc"
         },
         {
             "file": "primer_autodetection/0774181d-fb20-4a73-b887-38af7eda9b38_primer_data.csv",
@@ -83,16 +83,16 @@
             "type": "fastq/cleaned-sequence-data"
         },
         {
+            "file": "fastqc/56a63f60-764d-4fc7-8764-a46023cbe324_1_fastqc.zip",
+            "type": "fastqc/qc"
+        },
+        {
             "file": "contamination_removal/counting/56a63f60-764d-4fc7-8764-a46023cbe324.txt",
             "type": "txt/cleaned-sequence-count"
         },
         {
             "file": "contamination_removal/56a63f60-764d-4fc7-8764-a46023cbe324_contamination_removal.csv",
             "type": "csv/cleaned-sequence-count"
-        },
-        {
-            "file": "fastqc/56a63f60-764d-4fc7-8764-a46023cbe324_1_fastqc.zip",
-            "type": "fastqc/qc"
         },
         {
             "file": "primer_autodetection/56a63f60-764d-4fc7-8764-a46023cbe324_primer_data.csv",
@@ -157,28 +157,12 @@
     ],
     "985347c5-ff6a-454c-ac34-bc353d05dd70": [
         {
-            "file": "contamination_removal/cleaned_fastq/985347c5-ff6a-454c-ac34-bc353d05dd70_1.fastq.gz",
-            "type": "fastq/cleaned-sequence-data"
-        },
-        {
             "file": "contamination_removal/counting/985347c5-ff6a-454c-ac34-bc353d05dd70.txt",
             "type": "txt/cleaned-sequence-count"
         },
         {
             "file": "contamination_removal/985347c5-ff6a-454c-ac34-bc353d05dd70_contamination_removal.csv",
             "type": "csv/cleaned-sequence-count"
-        },
-        {
-            "file": "fastqc/985347c5-ff6a-454c-ac34-bc353d05dd70_1_fastqc.zip",
-            "type": "fastqc/qc"
-        },
-        {
-            "file": "primer_autodetection/985347c5-ff6a-454c-ac34-bc353d05dd70_primer_data.csv",
-            "type": "csv/primer-data"
-        },
-        {
-            "file": "primer_autodetection/985347c5-ff6a-454c-ac34-bc353d05dd70_primer_detection.csv",
-            "type": "csv/primer-detection"
         }
     ],
     "a0951432-cd94-45b5-96d5-b721c037a451": [
@@ -187,16 +171,16 @@
             "type": "fastq/cleaned-sequence-data"
         },
         {
+            "file": "fastqc/a0951432-cd94-45b5-96d5-b721c037a451_1_fastqc.zip",
+            "type": "fastqc/qc"
+        },
+        {
             "file": "contamination_removal/counting/a0951432-cd94-45b5-96d5-b721c037a451.txt",
             "type": "txt/cleaned-sequence-count"
         },
         {
             "file": "contamination_removal/a0951432-cd94-45b5-96d5-b721c037a451_contamination_removal.csv",
             "type": "csv/cleaned-sequence-count"
-        },
-        {
-            "file": "fastqc/a0951432-cd94-45b5-96d5-b721c037a451_1_fastqc.zip",
-            "type": "fastqc/qc"
         },
         {
             "file": "primer_autodetection/a0951432-cd94-45b5-96d5-b721c037a451_primer_data.csv",
@@ -265,16 +249,16 @@
             "type": "fastq/cleaned-sequence-data"
         },
         {
+            "file": "fastqc/b1131432-cd94-45b5-96d5-b721c037a451_1_fastqc.zip",
+            "type": "fastqc/qc"
+        },
+        {
             "file": "contamination_removal/counting/b1131432-cd94-45b5-96d5-b721c037a451.txt",
             "type": "txt/cleaned-sequence-count"
         },
         {
             "file": "contamination_removal/b1131432-cd94-45b5-96d5-b721c037a451_contamination_removal.csv",
             "type": "csv/cleaned-sequence-count"
-        },
-        {
-            "file": "fastqc/b1131432-cd94-45b5-96d5-b721c037a451_1_fastqc.zip",
-            "type": "fastqc/qc"
         },
         {
             "file": "primer_autodetection/b1131432-cd94-45b5-96d5-b721c037a451_primer_data.csv",
@@ -287,28 +271,12 @@
     ],
     "e2331432-cd94-45b5-96d5-b721c037a451": [
         {
-            "file": "contamination_removal/cleaned_fastq/e2331432-cd94-45b5-96d5-b721c037a451_1.fastq.gz",
-            "type": "fastq/cleaned-sequence-data"
-        },
-        {
             "file": "contamination_removal/counting/e2331432-cd94-45b5-96d5-b721c037a451.txt",
             "type": "txt/cleaned-sequence-count"
         },
         {
             "file": "contamination_removal/e2331432-cd94-45b5-96d5-b721c037a451_contamination_removal.csv",
             "type": "csv/cleaned-sequence-count"
-        },
-        {
-            "file": "fastqc/e2331432-cd94-45b5-96d5-b721c037a451_1_fastqc.zip",
-            "type": "fastqc/qc"
-        },
-        {
-            "file": "primer_autodetection/e2331432-cd94-45b5-96d5-b721c037a451_primer_data.csv",
-            "type": "csv/primer-data"
-        },
-        {
-            "file": "primer_autodetection/e2331432-cd94-45b5-96d5-b721c037a451_primer_detection.csv",
-            "type": "csv/primer-detection"
         }
     ],
     "e80f3c63-d139-4c14-bd72-7a43897ab40d": [
@@ -317,16 +285,16 @@
             "type": "fastq/cleaned-sequence-data"
         },
         {
+            "file": "fastqc/e80f3c63-d139-4c14-bd72-7a43897ab40d_1_fastqc.zip",
+            "type": "fastqc/qc"
+        },
+        {
             "file": "contamination_removal/counting/e80f3c63-d139-4c14-bd72-7a43897ab40d.txt",
             "type": "txt/cleaned-sequence-count"
         },
         {
             "file": "contamination_removal/e80f3c63-d139-4c14-bd72-7a43897ab40d_contamination_removal.csv",
             "type": "csv/cleaned-sequence-count"
-        },
-        {
-            "file": "fastqc/e80f3c63-d139-4c14-bd72-7a43897ab40d_1_fastqc.zip",
-            "type": "fastqc/qc"
         },
         {
             "file": "primer_autodetection/e80f3c63-d139-4c14-bd72-7a43897ab40d_primer_data.csv",

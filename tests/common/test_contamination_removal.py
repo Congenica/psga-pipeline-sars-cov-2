@@ -4,12 +4,13 @@ import pytest
 from click.testing import CliRunner
 
 from app.scripts.contamination_removal import (
-    get_contaminated_reads,
+    get_read_counts,
     write_rik_output_csv,
     process_rik,
     contamination_removal,
     CONTAMINATION_REMOVAL_SAMPLE_ID_COL,
     CONTAMINATION_REMOVAL_CONTAMINATED_READS_COL,
+    CONTAMINATION_REMOVAL_PRESERVED_READS_COL,
 )
 
 
@@ -29,54 +30,58 @@ def assert_rik_output_csv(output_path: Path, expected_rik_output_csv: dict[str, 
     ],
 )
 @pytest.mark.jira(identifier="16c0752b-146f-4ea1-ab63-4fc2c04d6575", confirms="PSG-3621")
-def test_get_contaminated_reads_exception(contamination_removal_data_path: Path, input_file: str):
+def test_get_read_counts_exception(contamination_removal_data_path: Path, input_file: str):
     input_path = contamination_removal_data_path / input_file
     with pytest.raises(ValueError, match="cannot be negative"):
-        get_contaminated_reads(input_path)
+        get_read_counts(input_path)
 
 
 @pytest.mark.parametrize(
-    "input_file,expected_contaminated_reads",
+    "input_file,expected_contaminated_reads,preserved_reads",
     [
-        ("rik_output_one_read.txt", 0),
-        ("rik_output_two_reads.txt", 696),
+        ("rik_output_one_read.txt", 0, 75703),
+        ("rik_output_two_reads.txt", 696, 278302),
     ],
 )
 @pytest.mark.jira(identifier="80d91164-7c98-4399-80ef-821627f8336f", confirms="PSG-3621")
-def test_get_contaminated_reads(
-    contamination_removal_data_path: Path, input_file: str, expected_contaminated_reads: int
+def test_get_read_counts(
+    contamination_removal_data_path: Path, input_file: str, expected_contaminated_reads: int, preserved_reads: int
 ):
     input_path = contamination_removal_data_path / input_file
-    assert expected_contaminated_reads == get_contaminated_reads(input_path)
+    assert get_read_counts(input_path) == (expected_contaminated_reads, preserved_reads)
 
 
 @pytest.mark.parametrize(
-    "sample_id,contaminated_reads,expected_rik_output_csv",
+    "sample_id,contaminated_reads,kept_reads,expected_rik_output_csv",
     [
         (
             "a",
             10,
+            20,
             {
                 CONTAMINATION_REMOVAL_SAMPLE_ID_COL: "a",
                 CONTAMINATION_REMOVAL_CONTAMINATED_READS_COL: "10",
+                CONTAMINATION_REMOVAL_PRESERVED_READS_COL: "20",
             },
         ),
         (
             "b",
             0,
+            0,
             {
                 CONTAMINATION_REMOVAL_SAMPLE_ID_COL: "b",
                 CONTAMINATION_REMOVAL_CONTAMINATED_READS_COL: "0",
+                CONTAMINATION_REMOVAL_PRESERVED_READS_COL: "0",
             },
         ),
     ],
 )
 @pytest.mark.jira(identifier="12f810d0-8760-4e33-8912-db5dfff59675", confirms="PSG-3621")
 def test_write_rik_output_csv(
-    tmp_path: Path, sample_id: str, contaminated_reads: int, expected_rik_output_csv: dict[str, str]
+    tmp_path: Path, sample_id: str, contaminated_reads: int, kept_reads: int, expected_rik_output_csv: dict[str, str]
 ):
     output_path = tmp_path / "rik_output.csv"
-    write_rik_output_csv(output_path, sample_id, contaminated_reads)
+    write_rik_output_csv(output_path, sample_id, contaminated_reads, kept_reads)
     assert_rik_output_csv(output_path, expected_rik_output_csv)
 
 
@@ -89,6 +94,7 @@ def test_write_rik_output_csv(
             {
                 CONTAMINATION_REMOVAL_SAMPLE_ID_COL: "a",
                 CONTAMINATION_REMOVAL_CONTAMINATED_READS_COL: "0",
+                CONTAMINATION_REMOVAL_PRESERVED_READS_COL: "75703",
             },
         ),
         (
@@ -97,6 +103,7 @@ def test_write_rik_output_csv(
             {
                 CONTAMINATION_REMOVAL_SAMPLE_ID_COL: "b",
                 CONTAMINATION_REMOVAL_CONTAMINATED_READS_COL: "696",
+                CONTAMINATION_REMOVAL_PRESERVED_READS_COL: "278302",
             },
         ),
     ],
@@ -124,6 +131,7 @@ def test_process_rik(
             {
                 CONTAMINATION_REMOVAL_SAMPLE_ID_COL: "a",
                 CONTAMINATION_REMOVAL_CONTAMINATED_READS_COL: "0",
+                CONTAMINATION_REMOVAL_PRESERVED_READS_COL: "75703",
             },
         ),
         (
@@ -132,6 +140,7 @@ def test_process_rik(
             {
                 CONTAMINATION_REMOVAL_SAMPLE_ID_COL: "b",
                 CONTAMINATION_REMOVAL_CONTAMINATED_READS_COL: "696",
+                CONTAMINATION_REMOVAL_PRESERVED_READS_COL: "278302",
             },
         ),
     ],

@@ -5,13 +5,15 @@ import click
 
 CONTAMINATION_REMOVAL_SAMPLE_ID_COL = "sample_id"
 CONTAMINATION_REMOVAL_CONTAMINATED_READS_COL = "contaminated_reads"
+CONTAMINATION_REMOVAL_PRESERVED_READS_COL = "preserved_reads"
 EXPECTED_CONTAMINATION_REMOVAL_HEADERS = {
     CONTAMINATION_REMOVAL_SAMPLE_ID_COL,
     CONTAMINATION_REMOVAL_CONTAMINATED_READS_COL,
+    CONTAMINATION_REMOVAL_PRESERVED_READS_COL,
 }
 
 
-def get_contaminated_reads(input_path: Path) -> int:
+def get_read_counts(input_path: Path) -> tuple[int, int]:
     """
     Return the number of reads removed by read-it-and-keep
     """
@@ -32,10 +34,10 @@ def get_contaminated_reads(input_path: Path) -> int:
             f"Input reads: {input_reads}, kept reads: {kept_reads}"
         )
 
-    return contaminated_reads
+    return contaminated_reads, kept_reads
 
 
-def write_rik_output_csv(output_csv_path: Path, sample_id: str, contaminated_reads: int) -> None:
+def write_rik_output_csv(output_csv_path: Path, sample_id: str, contaminated_reads: int, kept_reads) -> None:
     """
     Write a CSV output file for read-it-and-keep
     """
@@ -46,6 +48,7 @@ def write_rik_output_csv(output_csv_path: Path, sample_id: str, contaminated_rea
             {
                 CONTAMINATION_REMOVAL_SAMPLE_ID_COL: sample_id,
                 CONTAMINATION_REMOVAL_CONTAMINATED_READS_COL: contaminated_reads,
+                CONTAMINATION_REMOVAL_PRESERVED_READS_COL: kept_reads,
             }
         )
 
@@ -54,8 +57,8 @@ def process_rik(input_path: Path, output_csv_path: Path, sample_id: str) -> None
     """
     Process the read-it-and-keep output file and store the number of removed reads in a csv file
     """
-    contaminated_reads = get_contaminated_reads(input_path)
-    write_rik_output_csv(output_csv_path, sample_id, contaminated_reads)
+    contaminated_reads, kept_reads = get_read_counts(input_path)
+    write_rik_output_csv(output_csv_path, sample_id, contaminated_reads, kept_reads)
 
 
 @click.command()
