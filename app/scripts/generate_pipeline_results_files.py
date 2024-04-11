@@ -766,10 +766,7 @@ def generate_pipeline_results_files(
     sample_ids_result_files = SampleIdResultFiles(
         all_samples=all_samples,
         contamination_removal_completed_samples=(
-            []
-            if sequencing_technology == UNKNOWN
-            or not {FAILED_CONTAMINATION_REMOVAL, PASSED_CONTAMINATION_REMOVAL} <= events.keys()
-            else events[PASSED_CONTAMINATION_REMOVAL].samples
+            [] if sequencing_technology == UNKNOWN else events[PASSED_CONTAMINATION_REMOVAL].samples
         ),
         primer_autodetection_completed_samples=(
             []
