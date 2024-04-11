@@ -64,7 +64,7 @@ def validate(results_csv: str, expected_results_csv: str, output_path: str, path
 
     validation_config = data_config[pathogen]["config"]
 
-    sample_ids = compare_merged_output_file(
+    compare_merged_output_file(
         load_data_from_csv, validation_config, results_csv_path, expected_results_csv_path
     )
 
