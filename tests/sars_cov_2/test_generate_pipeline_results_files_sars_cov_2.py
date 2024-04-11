@@ -134,6 +134,4 @@ def test_generate_pipeline_results_files(
         for sample_id, list_of_dicts in exp_resultfiles_json_dict.items()
     }
 
-    print(output_resultfiles_json_file)
-
     assert exp_resultfiles_json_dict_full_path == calc_resultfiles_json_dict

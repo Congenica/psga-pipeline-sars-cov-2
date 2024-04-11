@@ -127,13 +127,11 @@ def load_data_from_csv(
     can be renamed to "sample_id"
     """
     if csv_file:
-        logger.info(csv_file)
         df = pd.read_csv(Path(csv_file))
         check_csv_columns(set(df.columns), expected_columns)
         if sample_name_col_to_rename:
             df = df.rename(columns={sample_name_col_to_rename: SAMPLE_ID})
     else:
-        logger.info(f"no {csv_file}")
         # create a dataframe with header but no rows
         df = pd.DataFrame({c: [] for c in expected_columns})
         df = df.rename(columns={sample_name_col_to_rename: SAMPLE_ID})
@@ -731,13 +729,11 @@ def generate_pipeline_results_files(
     """
     # data loading
     df_metadata = load_data_from_csv(metadata_file, EXPECTED_METADATA_HEADERS[sequencing_technology])
-    logger.info(f"file path {contamination_removal_csv_file}")
     df_contamination_removal = load_data_from_csv(
         contamination_removal_csv_file,
         EXPECTED_CONTAMINATION_REMOVAL_HEADERS,
         CONTAMINATION_REMOVAL_SAMPLE_ID_COL,
     )
-    logger.info(df_contamination_removal)
     df_primer_autodetection = load_data_from_csv(
         primer_autodetection_csv_file,
         EXPECTED_PRIMER_AUTODETECTION_HEADERS,
